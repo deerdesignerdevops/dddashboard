@@ -1,0 +1,190 @@
+/* 
+Theme Name: Hello Elementor Child
+Theme URI: https://github.com/elementor/hello-theme-child/
+Description: Hello Elementor Child is a child theme of Hello Elementor, created by Elementor team
+Author: Elementor Team
+Author URI: https://elementor.com/
+Template: hello-elementor
+Version: 2.0.0
+Text Domain: hello-elementor-child
+License: GNU General Public License v3 or later.
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, featured-images, rtl-language-support, threaded-comments, translation-ready
+*/
+
+/* Add your custom styles here */
+
+@font-face {
+  font-family: "Graphik";
+  src: url(https://deerdesignerdash.mafreitas.com.br//wp-content/themes/hello-elementor-child/fonts/GraphikRegular.otf);
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Graphik";
+  src: url(https://deerdesignerdash.mafreitas.com.br//wp-content/themes/hello-elementor-child/fonts/GraphikLight.otf);
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Graphik";
+  src: url(https://deerdesignerdash.mafreitas.com.br//wp-content/themes/hello-elementor-child/fonts/GraphikSemibold.otf);
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Graphik";
+  src: url(https://deerdesignerdash.mafreitas.com.br//wp-content/themes/hello-elementor-child/fonts/GraphikBold.otf);
+  font-weight: 800;
+  font-display: swap;
+}
+
+body {
+  font-family: "Graphik", sans-serif !important;
+}
+
+.mobile__only {
+  display: none !important;
+}
+
+.elementor-button {
+  border: 3px solid black;
+  box-shadow: inset 2px 2px 0 2px white !important;
+}
+
+.clear_button_style .elementor-button {
+  border: none !important;
+  box-shadow: unset !important;
+}
+
+a.onboarded-link {
+  color: #555555;
+  font-weight: 600;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+a {
+  transition: 0.5s;
+  text-decoration: none !important;
+}
+
+.nav-link a:hover {
+  color: var(--e-global-color-c30730f) !important;
+}
+
+.entry-title {
+  display: none !important;
+}
+
+#underlines {
+  position: relative;
+  z-index: 1;
+}
+
+#underlines:after {
+  width: 100%;
+  height: 1.2rem;
+  content: " ";
+  position: absolute;
+  display: inline-block;
+  -webkit-mask: url(./assets/img/line-purple-1.svg);
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  left: 0;
+  bottom: -10px;
+  z-index: -1;
+}
+
+.heading-underline-yellow {
+  color: var(--e-global-color-04b3e11);
+}
+
+.heading-underline-yellow:after {
+  background-color: var(--e-global-color-04b3e11);
+}
+
+.heading-underline-purple {
+  color: var(--e-global-color-2e8fc0d);
+}
+
+.heading-underline-purple:after {
+  background-color: var(--e-global-color-2e8fc0d);
+}
+
+.heading-underline-green {
+  color: var(--e-global-color-primary);
+}
+
+.heading-underline-green:after {
+  background-color: var(--e-global-color-primary);
+}
+
+/*WOOCOMMERCE MY ACCOUNT PAGE*/
+.woocommerce-MyAccount-content-wrapper {
+  border: none !important;
+}
+
+.dd__dashboard_navbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center !important;
+}
+
+.dd__dashboard_navbar_item {
+  width: 25% !important;
+  transition: 0.5s;
+  margin-top: 60px !important;
+}
+
+.dd__dashboard_navbar_item:hover {
+  opacity: 0.5;
+}
+
+.dd__dashboard_navbar_item a {
+  background: none !important;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  color: var(--e-global-color-text) !important;
+  font-size: 1.5rem !important;
+}
+
+.dd__dashboard_navbar_icon {
+  object-fit: contain !important;
+  height: 60px !important;
+}
+
+/*MEDIA QUERIES*/
+@media (max-width: 768px) {
+  .mobile__only {
+    display: block !important;
+  }
+
+  #underlines:after {
+    height: 0.9rem;
+  }
+
+  .dd__dashboard_navbar {
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .dd__dashboard_navbar_item {
+    width: 48% !important;
+    margin-top: 10px !important;
+  }
+
+  .dd__dashboard_navbar_item a {
+    font-size: 1.2rem !important;
+  }
+
+  .dash__menu span {
+    font-size: 1.2rem !important;
+  }
+}
