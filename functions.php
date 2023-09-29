@@ -72,7 +72,6 @@ add_action( 'rest_api_init', function () {
 
 
 function hideAdminBarForNonAdminUser(){
-	echo 'github test';
 	if(is_user_logged_in()){
 		$currentUser = wp_get_current_user();
 		$userRole = $currentUser->roles[0];
