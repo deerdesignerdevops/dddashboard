@@ -118,6 +118,13 @@ add_filter('login_redirect', 'checkIfCurrentUserIsOnboarded', 10, 3);
 
 
 
+function addFirstAccessUserMetaToNewUsers($user_id) { 
+   add_user_meta( $user_id, 'isFirstAccess', '1' );
+}
+add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
+
+
+
 //***************CUSTOM CODES FOR WOOCOMMERCE
 
 //function removeWooMenuLinks( $menu_links ){	
