@@ -86,38 +86,6 @@ add_action('wp_head', 'hideAdminBarForNonAdminUser');
 
 
 
-function checkIfCurrentUserIsOnboarded($url, $request, $user){
-	$url = home_url();
-
-	if ( isset( $user->roles ) && is_array( $user->roles ) ) {
-		$registration_date = $user->user_registered;
-		$recent_threshold = strtotime('-2 days');
-
-		if ($registration_date && strtotime($registration_date) >= $recent_threshold ) {
-			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
-
-			if ( !in_array( 'administrator', $user->roles ) ) {
-				$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
-				$atts = [
-					'per_page' => 10,
-					'page' => 1,
-					'search' => $user->user_email,
-				];
-				
-				$entries = $formApi->entries($atts , $includeFormats = false);
-				if(!$entries["total"]){
-					$url = home_url() . "/onboarding";
-				}
-			}
-		}
-	}
-
-	return $url;
-}
-add_filter('login_redirect', 'checkIfCurrentUserIsOnboarded', 10, 3);
-
-
-
 function addFirstAccessUserMetaToNewUsers($user_id) { 
    add_user_meta( $user_id, 'isFirstAccess', 1 );
 }
