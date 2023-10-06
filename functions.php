@@ -126,6 +126,28 @@ function addFirstAccessUserMetaToNewUsers($user_id) {
 add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
 
 
+function subscribeUserToMoosendEmailList($user_id){
+	$user_email = get_userdata($user_id)->user_email;
+    $user_name = get_userdata($user_id)->display_name;
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		'Content-Type: application/json',
+		'Accept: application/json',
+	]);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$user_name\",\n    \"Email\" : \"$user_email\",\n    \"HasExternalDoubleOptIn\": false}");
+
+	curl_exec($ch);
+
+	curl_close($ch);
+}
+add_action( 'user_register', 'subscribeUserToMoosendEmailList');
+
+
+
 
 //***************CUSTOM CODES FOR WOOCOMMERCE
 
