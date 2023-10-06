@@ -86,10 +86,12 @@ add_action('wp_head', 'hideAdminBarForNonAdminUser');
 
 
 
-function checkIfCurrentUserIsOnboarded($url, $request, $user){
+
+function checkIfCurrentUserIsOnboarded(){
+	$user = wp_get_current_user();
 	$url = home_url();
 
-	if ( isset( $user->roles ) && is_array( $user->roles ) ) {
+	if(is_page(33)){
 		$registration_date = $user->user_registered;
 		$recent_threshold = strtotime('-2 days');
 
@@ -107,14 +109,14 @@ function checkIfCurrentUserIsOnboarded($url, $request, $user){
 				$entries = $formApi->entries($atts , $includeFormats = false);
 				if(!$entries["total"]){
 					$url = home_url() . "/onboarding";
+					wp_redirect($url);
+					exit();
 				}
 			}
 		}
 	}
-
-	return $url;
 }
-add_filter('login_redirect', 'checkIfCurrentUserIsOnboarded', 10, 3);
+add_filter('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
 
 
