@@ -31,7 +31,7 @@ function hello_elementor_child_scripts_styles() {
 	wp_enqueue_style( 'slick-theme', get_stylesheet_directory_uri() . '/libs/slick/css/slick-theme.css', $version );
 
 	//JS
-	wp_enqueue_script('jquery', get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
+	wp_enqueue_script('custom-jquery', get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
 	wp_enqueue_script('slick', get_stylesheet_directory_uri() . '/libs/slick/js/slick.min.js', $version);
 	wp_enqueue_script('custom', get_stylesheet_directory_uri() . '/scripts.js', $version);
 
