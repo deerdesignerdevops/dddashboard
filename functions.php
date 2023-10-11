@@ -211,78 +211,81 @@ add_action( 'user_register', 'subscribeUserToMoosendEmailList');
 // }
 // add_filter( 'woocommerce_get_endpoint_url', 'customWooEndpointUrl', 10, 4 );
 
-// function filter_wc_stripe_payment_metadata($metadata, $order) {
-// 	$order_data = $order->get_data();
+
+
+function sendWooMetadataToStripePaymentMetadata($metadata, $order) {
+	$order_data = $order->get_data();
 	
-// 	$metadata += ['first_name' => $order_data['billing']['first_name']];
-// 	$metadata += ['last_name' => $order_data['billing']['last_name']];
-// 	//$metadata += ['billing_company' => $order_data['billing']['company']];
-// 	//$metadata += ['billing_phone' => $order_data['billing']['phone']];
-// 	$metadata += ['billing_address_1' => $order_data['billing']['address_1']];
-// 	//$metadata += ['billing_address_2' => $order_data['billing']['address_2']];
-// 	//$metadata += ['billing_city' => $order_data['billing']['city']];
-// 	//$metadata += ['billing_state' => $order_data['billing']['state']];
-// 	$metadata += ['billing_country' => $order_data['billing']['country']];
-// 	//$metadata += ['billing_postcode' => $order_data['billing']['postcode']];
+	$metadata += ['first_name' => $order_data['billing']['first_name']];
+	$metadata += ['last_name' => $order_data['billing']['last_name']];
+	//$metadata += ['billing_company' => $order_data['billing']['company']];
+	//$metadata += ['billing_phone' => $order_data['billing']['phone']];
+	$metadata += ['billing_address_1' => $order_data['billing']['address_1']];
+	//$metadata += ['billing_address_2' => $order_data['billing']['address_2']];
+	//$metadata += ['billing_city' => $order_data['billing']['city']];
+	//$metadata += ['billing_state' => $order_data['billing']['state']];
+	$metadata += ['billing_country' => $order_data['billing']['country']];
+	//$metadata += ['billing_postcode' => $order_data['billing']['postcode']];
 
-//     return $metadata;
-// }
-// add_filter('wc_stripe_payment_metadata', 'filter_wc_stripe_payment_metadata', 10, 2);
-
-// function custom_modify_stripe_customer_metadata($metadata) {
-// 	$order_id = WC()->session->get('order_awaiting_payment');
-// 	$order = new WC_Order($order_id);
-
-//     $metadata['first_name'] = $order->get_billing_first_name();
-// 	$metadata['last_name'] = $order->get_billing_last_name();
-// 	//$metadata['billing_company'] = $order->get_billing_company();
-// 	//$metadata['billing_phone'] = $order->get_billing_phone();
-// 	$metadata['billing_address_1'] = $order->get_billing_address_1();
-// 	//$metadata['billing_address_2'] = $order->get_billing_address_2();
-// 	//$metadata['billing_city'] = $order->get_billing_city();
-// 	//$metadata['billing_state'] = $order->get_billing_state();
-// 	$metadata['billing_country'] = $order->get_billing_country();
-// 	//$metadata['billing_postcode'] = $order->get_billing_postcode();
-
-//     return $metadata;
-// };
-// add_filter('wc_stripe_customer_metadata', 'custom_modify_stripe_customer_metadata', 10, 1);
-
-// function removeCheckoutFields( $fields ) {
-// 	unset( $fields['billing']['billing_company'] );
-// 	unset( $fields['billing']['billing_phone'] );
-// 	unset( $fields['billing']['billing_state'] );
-// 	unset( $fields['billing']['billing_address_2'] );
-// 	unset( $fields['billing']['billing_city'] );
-// 	unset( $fields['billing']['billing_postcode'] );
-// 	unset( $fields['order']['order_comments'] );
-// 	// unset( $fields['billing']['billing_email'] );
-// 	// unset( $fields['billing']['billing_first_name'] );
-// 	// unset( $fields['billing']['billing_last_name'] );
-// 	// unset( $fields['billing']['billing_address_1'] );
-// 	return $fields;
-// }
-// add_filter( 'woocommerce_checkout_fields', 'removeCheckoutFields' );
-
-// function customThankyouPage( $order_id ) {
-// 	$siteUrl = get_site_url();
-// 	$order = wc_get_order( $order_id );
-// 	if ( $order->get_billing_email() ) {
-// 		wp_redirect( "$siteUrl/thanks" );
-// 		exit;
-// 	}
-// }
-// add_action( 'woocommerce_thankyou', 'customThankyouPage' );
-
-
-// function changeOrderStatusToCompleteAfterPayment( $order_id ) {
-//     $order = wc_get_order( $order_id );
-//     $order->update_status( 'completed' );    
-// }
-// add_action( 'woocommerce_payment_complete', 'changeOrderStatusToCompleteAfterPayment' );
+    return $metadata;
+}
+add_filter('wc_stripe_payment_metadata', 'sendWooMetadataToStripePaymentMetadata', 10, 2);
 
 
 
+function sendWooMetadataToStripeCustomerMetadata($metadata) {
+	$order_id = WC()->session->get('order_awaiting_payment');
+	$order = new WC_Order($order_id);
+
+    $metadata['first_name'] = $order->get_billing_first_name();
+	$metadata['last_name'] = $order->get_billing_last_name();
+	//$metadata['billing_company'] = $order->get_billing_company();
+	//$metadata['billing_phone'] = $order->get_billing_phone();
+	$metadata['billing_address_1'] = $order->get_billing_address_1();
+	//$metadata['billing_address_2'] = $order->get_billing_address_2();
+	//$metadata['billing_city'] = $order->get_billing_city();
+	//$metadata['billing_state'] = $order->get_billing_state();
+	$metadata['billing_country'] = $order->get_billing_country();
+	//$metadata['billing_postcode'] = $order->get_billing_postcode();
+
+    return $metadata;
+};
+add_filter('wc_stripe_customer_metadata', 'sendWooMetadataToStripeCustomerMetadata', 10, 1);
 
 
 
+function removeCheckoutFields( $fields ) {
+	unset( $fields['billing']['billing_company'] );
+	unset( $fields['billing']['billing_phone'] );
+	unset( $fields['billing']['billing_state'] );
+	unset( $fields['billing']['billing_address_2'] );
+	unset( $fields['billing']['billing_city'] );
+	unset( $fields['billing']['billing_postcode'] );
+	unset( $fields['order']['order_comments'] );
+	// unset( $fields['billing']['billing_email'] );
+	// unset( $fields['billing']['billing_first_name'] );
+	// unset( $fields['billing']['billing_last_name'] );
+	// unset( $fields['billing']['billing_address_1'] );
+	return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'removeCheckoutFields' );
+
+
+
+function customThankyouPage( $order_id ) {
+	$siteUrl = get_site_url();
+	$order = wc_get_order( $order_id );
+	if ( $order->get_billing_email() ) {
+		wp_redirect( "$siteUrl/thanks" );
+		exit;
+	}
+}
+add_action( 'woocommerce_thankyou', 'customThankyouPage' );
+
+
+
+function changeOrderStatusToCompleteAfterPayment( $order_id ) {
+    $order = wc_get_order( $order_id );
+    $order->update_status( 'completed' );    
+}
+add_action( 'woocommerce_payment_complete', 'changeOrderStatusToCompleteAfterPayment' );
