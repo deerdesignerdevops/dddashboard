@@ -172,7 +172,7 @@ a {
 }
 
 .post__card {
-  background-color: #eee;
+  background-color: #fff;
   height: 380px;
 }
 
@@ -227,7 +227,7 @@ a {
 .slick-next:before,
 .slick-prev:before {
   color: var(--e-global-color-04b3e11) !important;
-  font-size: 2rem;
+  font-size: 2rem !important;
 }
 
 .onboarding__videos_section {
