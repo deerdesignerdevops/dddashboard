@@ -31,7 +31,7 @@ function hello_elementor_child_scripts_styles() {
 	wp_enqueue_style( 'slick-theme', get_stylesheet_directory_uri() . '/libs/slick/css/slick-theme.css', $version );
 
 	//JS
-	wp_enqueue_script('jquery', get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
+	wp_enqueue_script('custom-jquery', get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
 	wp_enqueue_script('slick', get_stylesheet_directory_uri() . '/libs/slick/js/slick.min.js', $version);
 	wp_enqueue_script('custom', get_stylesheet_directory_uri() . '/scripts.js', $version);
 
@@ -126,9 +126,10 @@ function addFirstAccessUserMetaToNewUsers($user_id) {
 add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
 
 
-function subscribeUserToMoosendEmailList($user_id){
-	$user_email = get_userdata($user_id)->user_email;
-    $user_name = get_userdata($user_id)->display_name;
+
+function subscribeUserToMoosendEmailList($entryId, $formData, $form){
+	$user_name = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+	$user_email = $formData['email'];
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
@@ -144,7 +145,7 @@ function subscribeUserToMoosendEmailList($user_id){
 
 	curl_close($ch);
 }
-add_action( 'user_register', 'subscribeUserToMoosendEmailList');
+add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
 
 
 
