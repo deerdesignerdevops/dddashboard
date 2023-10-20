@@ -144,7 +144,6 @@ a {
 }
 
 .dd__dashboard_navbar_item {
-  width: 33% !important;
   transition: 0.5s;
   margin-top: 60px !important;
   font-weight: 600;

@@ -246,11 +246,13 @@ function checkIfUserIsActive(){
 
 	if($product_id === 939){
 		echo "<style>
-			.paused__user_btn{display: none !important};
+			.woocommerce-MyAccount-navigation-link--request-design{display: none !important}
+			.dd__dashboard_navbar_item{width: 25% !important}
 		</style>";
 	}else{
 		echo "<style>
-			.paused__user_banner{display: none !important};
+			.paused__user_banner{display: none !important}
+			.dd__dashboard_navbar_item{width: 33% !important}
 		</style>";
 	}
 
@@ -285,7 +287,7 @@ function createNewLinksInWooDashMenu( $menu_links ){
 		'deer-help' => 'Need Help?',
 	);
 
-	///$menu_links = $new + array_slice( $menu_links, 0, 8, true ) + array_slice( $menu_links, 1, 8, true );
+	//$menu_links = $new + array_slice( $menu_links, 0, 8, true ) + array_slice( $menu_links, 1, 8, true );
 
 	return $new;
 }
