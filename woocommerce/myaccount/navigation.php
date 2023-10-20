@@ -26,7 +26,7 @@ do_action( 'woocommerce_before_account_navigation' );
 <?php $siteUrl = get_site_url(); ?>
 
 <nav class="woocommerce-MyAccount-navigation">
-	<ul class="dd__dashboard_navbar">
+	<div class="dd__dashboard_navbar">
 		<?php foreach ( wc_get_account_menu_items() as $endpoint => $label ) : 
 
 		$imgUrl = "";
@@ -64,14 +64,14 @@ do_action( 'woocommerce_before_account_navigation' );
 		}
 			
 			?>
-			<li class="dd__dashboard_navbar_item <?php echo wc_get_account_menu_item_classes( $endpoint ); ?>">
+			<div class="dd__dashboard_navbar_item <?php echo wc_get_account_menu_item_classes( $endpoint ); ?>">
 				<a href="<?php echo esc_url( wc_get_account_endpoint_url( $endpoint ) ); ?>" target="_blank">
 					<img class="dd__dashboard_navbar_icon" src=<?php echo $imgUrl ; ?> />
 					<span> <?php echo esc_html( $label ); ?> </span>
 				</a>
-			</li>
+			</div>
 		<?php endforeach; ?>
-	</ul>
+	</div>
 </nav>
 
 <?php do_action( 'woocommerce_after_account_navigation' ); ?>

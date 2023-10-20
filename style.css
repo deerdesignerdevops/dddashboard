@@ -46,6 +46,11 @@ body {
   font-family: "Graphik", sans-serif !important;
 }
 
+ul {
+  padding: 0;
+  margin: 0 20px;
+}
+
 .mobile__only {
   display: none !important;
 }
@@ -128,6 +133,10 @@ a {
   border: none !important;
 }
 
+.woocommerce-account .woocommerce-MyAccount-navigation {
+  width: 100%;
+}
+
 .dd__dashboard_navbar {
   display: flex;
   flex-wrap: wrap;
@@ -135,9 +144,10 @@ a {
 }
 
 .dd__dashboard_navbar_item {
-  width: 25% !important;
+  width: 33% !important;
   transition: 0.5s;
   margin-top: 60px !important;
+  font-weight: 600;
 }
 
 .dd__dashboard_navbar_item:hover {
@@ -324,6 +334,19 @@ input.ff-read-only {
 /*WOOCOMMERCE CHECKOUT*/
 
 /*CART*/
+.woocommerce-cart-form__cart-item {
+  margin: 40px 0;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #ccc;
+}
+
+.cart__header,
+.cart__product_details_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .cart__header__title {
   font-size: 1.4rem;
   font-weight: 400;
@@ -345,7 +368,9 @@ input.ff-read-only {
 
 .cart__content img {
   width: 100px;
+  height: 100px;
   border-radius: 5px;
+  object-fit: contain;
 }
 
 .cart__product_name {
@@ -385,12 +410,19 @@ input.ff-read-only {
   margin-bottom: 20px;
 }
 
-.deer__custom_checkout_form input {
+.deer__custom_checkout_form input,
+.quantity input,
+#stripe-card-element,
+.wc-stripe-elements-field {
   border: 1px solid #ccc !important;
   border-radius: 5px !important;
   margin-top: 5px !important;
   padding: 10px;
   height: 50px !important;
+}
+
+.quantity input {
+  height: 32px !important;
 }
 
 .deer__custom_checkout_form .select2-selection {
@@ -410,6 +442,50 @@ input.ff-read-only {
 .deer__custom_checkout_form h3 {
   color: var(--e-global-color-primary);
   font-weight: 600;
+}
+
+.woocommerce-checkout #payment {
+  background: none;
+}
+
+.woocommerce-checkout #payment div.payment_box,
+.woocommerce-checkout #payment ul.payment_methods,
+#payment .form-row {
+  background-color: transparent;
+  padding: 0 !important;
+}
+
+.woocommerce-checkout #payment div.payment_box::before {
+  display: none;
+}
+
+.cart__addons form {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 40px 0;
+}
+
+.addon__card {
+  background-color: #eee;
+  padding: 24px;
+  border-radius: 0 0 5px 5px;
+  border-top: 3px solid #ccc;
+}
+
+.addon__title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 20px !important;
+}
+
+.addon__description {
+  padding: 20px 0;
+  font-size: 0.9rem;
+}
+
+.woocommerce-message a {
+  display: none;
 }
 
 /*MEDIA QUERIES*/

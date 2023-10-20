@@ -121,9 +121,9 @@ add_filter('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
 
 function addFirstAccessUserMetaToNewUsers($user_id) { 
-   add_user_meta( $user_id, 'isFirstAccess', 1 );
+   add_user_meta( $user_id, 'is_first_access', 1 );
 }
-add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
+//add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
 
 
 
@@ -146,71 +146,6 @@ function subscribeUserToMoosendEmailList($entryId, $formData, $form){
 	curl_close($ch);
 }
 add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
-
-
-
-
-//***************CUSTOM CODES FOR WOOCOMMERCE
-
-//function removeWooMenuLinks( $menu_links ){	
-// 	$menu_links[ 'subscriptions' ] = 'Billing Portal';
-// 	unset( $menu_links[ 'dashboard' ] );
-// 	unset( $menu_links[ 'customer-logout' ] );
-// 	unset( $menu_links[ 'orders' ] );
-// 	unset( $menu_links[ 'downloads' ] );
-// 	unset( $menu_links[ 'edit-address' ] );
-// 	unset( $menu_links[ 'edit-account' ] );
-// 	unset( $menu_links[ 'subscriptions' ] );
-// 	return $menu_links;	
-// }
-// add_filter( 'woocommerce_account_menu_items', 'removeWooMenuLinks' );
-
-
-// function createNewLinksInWooDashMenu( $menu_links ){
-// 	$new = array( 
-// 		'request-design' => 'Request a Design', 
-// 		'view-tickets' => 'View my Tickets',
-// 		'design-brief-checklist' => 'Design Brief Checklist',
-// 		'feedback' => 'Give Feedback',
-// 		'deer-insights' => 'Deer Insights',
-// 		'deer-help' => 'Need Help?',
-// 		'subscriptions' => 'Billing Portal'
-// 	);
-
-// 	//$menu_links = $new + array_slice( $menu_links, 0, 8, true ) + array_slice( $menu_links, 1, 8, true );
-
-// 	return $new;
-// }
-// add_filter ( 'woocommerce_account_menu_items', 'createNewLinksInWooDashMenu' );
-
-
-// function customWooEndpointUrl( $url, $endpoint ){ 
-// 	if( 'request-design' === $endpoint ) { 
-// 		$url = 'https://deerdesigner.freshdesk.com/support/tickets/new';
-// 	}
-
-// 	else if( 'view-tickets' === $endpoint ) { 
-// 		$url = 'https://deerdesigner.freshdesk.com/support/tickets'; 
-// 	}
-
-// 	else if( 'design-brief-checklist' === $endpoint ) { 
-// 		$url = 'https://deerdesigner.box.com/v/design-brief-questions'; 
-// 	}
-
-// 	else if( 'feedback' === $endpoint ) { 
-// 		$url = 'https://feedback.deerdesigner.com/'; 
-// 	}
-
-// 	else if( 'deer-insights' === $endpoint ) { 
-// 		$url = 'https://deerdesigner.com/deer-insights/'; 
-// 	}
-
-// 	else if( 'deer-help' === $endpoint ) { 
-// 		$url = 'https://help.deerdesigner.com/'; 
-// 	}
-// 	return $url; 
-// }
-// add_filter( 'woocommerce_get_endpoint_url', 'customWooEndpointUrl', 10, 4 );
 
 
 
@@ -290,3 +225,93 @@ function changeOrderStatusToCompleteAfterPayment( $order_id ) {
     $order->update_status( 'completed' );    
 }
 add_action( 'woocommerce_payment_complete', 'changeOrderStatusToCompleteAfterPayment' );
+
+
+
+function checkIfUserIsActive(){
+	$user_id = get_current_user_id();
+	$users_subscriptions = wcs_get_users_subscriptions($user_id);
+
+	$product_id = "";
+
+	foreach ($users_subscriptions as $subscription){
+		if ($subscription->has_status(array('active'))) {
+			$subscription_products = $subscription->get_items();
+			foreach ($subscription_products as $product) {
+                $product_id = $product->get_product_id();
+            }
+
+		}
+	}
+
+	if($product_id === 939){
+		echo "<style>
+			.paused__user_btn{display: none !important};
+		</style>";
+	}else{
+		echo "<style>
+			.paused__user_banner{display: none !important};
+		</style>";
+	}
+
+}
+add_action('template_redirect', 'checkIfUserIsActive');
+
+
+
+
+//***************CUSTOM CODES FOR WOOCOMMERCE
+
+function removeWooMenuLinks( $menu_links ){	
+	$menu_links[ 'subscriptions' ] = 'Billing Portal';
+	unset( $menu_links[ 'dashboard' ] );
+	unset( $menu_links[ 'customer-logout' ] );
+	unset( $menu_links[ 'orders' ] );
+	unset( $menu_links[ 'downloads' ] );
+	unset( $menu_links[ 'edit-address' ] );
+	unset( $menu_links[ 'edit-account' ] );
+	unset( $menu_links[ 'subscriptions' ] );
+	return $menu_links;	
+}
+add_filter( 'woocommerce_account_menu_items', 'removeWooMenuLinks' );
+
+
+function createNewLinksInWooDashMenu( $menu_links ){
+	$new = array( 
+		'request-design' => 'Request a Design', 
+		'view-tickets' => 'View my Tickets',
+		'subscriptions' => 'Billing Portal',
+		'feedback' => 'Give Feedback',
+		'deer-help' => 'Need Help?',
+	);
+
+	//$menu_links = $new + array_slice( $menu_links, 0, 8, true ) + array_slice( $menu_links, 1, 8, true );
+
+	return $new;
+}
+add_filter ( 'woocommerce_account_menu_items', 'createNewLinksInWooDashMenu' );
+
+
+function customWooEndpointUrl( $url, $endpoint ){ 
+	if( 'request-design' === $endpoint ) { 
+		$url = 'https://deerdesigner.freshdesk.com/support/tickets/new';
+	}
+
+	else if( 'view-tickets' === $endpoint ) { 
+		$url = 'https://deerdesigner.freshdesk.com/support/tickets'; 
+	}
+
+	else if( 'feedback' === $endpoint ) { 
+		$url = 'https://feedback.deerdesigner.com/'; 
+	}
+
+	else if( 'deer-insights' === $endpoint ) { 
+		$url = 'https://deerdesigner.com/deer-insights/'; 
+	}
+
+	else if( 'deer-help' === $endpoint ) { 
+		$url = 'https://help.deerdesigner.com/'; 
+	}
+	return $url; 
+}
+add_filter( 'woocommerce_get_endpoint_url', 'customWooEndpointUrl', 10, 4 );
