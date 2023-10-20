@@ -285,7 +285,7 @@ function createNewLinksInWooDashMenu( $menu_links ){
 		'deer-help' => 'Need Help?',
 	);
 
-	//$menu_links = $new + array_slice( $menu_links, 0, 8, true ) + array_slice( $menu_links, 1, 8, true );
+	///$menu_links = $new + array_slice( $menu_links, 0, 8, true ) + array_slice( $menu_links, 1, 8, true );
 
 	return $new;
 }
