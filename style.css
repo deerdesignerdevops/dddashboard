@@ -129,6 +129,14 @@ a {
 }
 
 /*WOOCOMMERCE MY ACCOUNT PAGE*/
+.myaccount__page_title {
+  font-size: 4rem;
+  color: var(--e-global-color-primary);
+  border-bottom: 1px solid;
+  margin-bottom: 40px;
+  font-weight: 700;
+}
+
 .woocommerce-MyAccount-content-wrapper {
   border: none !important;
 }
