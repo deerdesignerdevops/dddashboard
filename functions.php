@@ -71,6 +71,93 @@ add_action( 'rest_api_init', function () {
 } );
 
 
+
+function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail){
+	$slackUrl = SLACK_WEBHOOK_URL;
+	$slackMessageBody = [
+		'text'  => '<!channel> - Payment Succeeded :white_check_mark:
+Client: ' . $customerName . '
+Email: ' . $customerEmail,
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+
+
+function sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl){
+	$body = "<p style='font-family: Helvetica, Arial, sans-serif; font-size: 15px;line-height: 1.5em;font-weight: bold;'>Let's get you on board!</p>
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $customerName, Thanks for signing up! 😍</p>
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>To confirm your email and start onboarding, please click the button below:</p>
+<br>
+<a rel='noopener' target='_blank' href='$customerUrl' style='background-color: #43b5a0; font-size: 15px; font-family: Helvetica, Arial, sans-serif; font-weight: bold; text-decoration: none; padding: 10px 20px; color: #ffffff; border-radius: 50px; display: inline-block; mso-padding-alt: 0;'>
+    <!--[if mso]>
+    <i style='letter-spacing: 25px; mso-font-width: -100%; mso-text-raise: 30pt;'>&nbsp;</i>
+    <![endif]-->
+    <span style='mso-text-raise: 15pt;'>Fill out onboarding form</span>
+    <!--[if mso]>
+    <i style='letter-spacing: 25px; mso-font-width: -100%;'>&nbsp;</i>
+    <![endif]-->
+</a>
+<br><br>
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>For your first access use these credentials below:<br>
+username: $customerEmail <br>
+password: change_123
+</p>
+<br><br>
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>As soon as you complete the onboarding form, we'll create your profile and match you with a designer (up to 1 business day). Feel free to log in and send your first request.</p>
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br> Deer Designer Team</p>
+    <a href='https://deerdesigner.com'><img src='https://deerdesigner.com/wp-content/uploads/logo-horizontal.png' style='width:150px' alt=''></a>";
+
+	
+	$subject = "Start your onboarding process now!";
+
+    $headers = array(
+        'Content-Type: text/html; charset=UTF-8',
+        'Reply-To: Wanessa <help@deerdesigner.com>',
+    );
+
+	wp_mail($customerEmail, $subject, $body, $headers);
+}
+
+
+
+function createUserAfterStripePurchase($req){
+	$invoiceId = $req['data']['object']['id'];
+	$customerName = "Marcus";
+	$customerEmail = "contato@mafreitas.com.br";//$req['data']['object']['billing_detail']['email'];
+	$customerCity = $req['data']['object']['billing_detail']['email'];
+	$customerCountry = $req['data']['object']['billing_detail']['email'];
+	$response_data_arr = file_get_contents('php://input');	
+	
+	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
+
+	$customerUrl = "http://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=Business-Monthly-USD";
+	
+
+	wp_create_user($customerEmail, 'change_123', $customerEmail);
+
+    sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
+
+	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail);
+}
+
+
+
+add_action( 'rest_api_init', function () {
+  register_rest_route( '/stripe/v1','paymentcheck', array(
+    'methods' => 'POST',
+    'callback' => 'createUserAfterStripePurchase',
+  ) );
+} );
+
+
 function hideAdminBarForNonAdminUser(){
 	if(is_user_logged_in()){
 		$currentUser = wp_get_current_user();
@@ -154,7 +241,7 @@ function subscribeUserToMoosendEmailList($entryId, $formData, $form){
 
 	curl_close($ch);
 }
-add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
+//add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
 
 
 
