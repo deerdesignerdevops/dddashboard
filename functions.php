@@ -85,6 +85,15 @@ function hideAdminBarForNonAdminUser(){
 add_action('wp_head', 'hideAdminBarForNonAdminUser');
 
 
+function redirectNonAdminUsersToHomepage(){
+	if ( is_admin() && !current_user_can( 'administrator' ) && !current_user_can( 'editor' )) {
+		wp_redirect( home_url() );
+		exit;
+	}
+}
+add_action('init', 'redirectNonAdminUsersToHomepage');
+
+
 
 
 function checkIfCurrentUserIsOnboarded(){
