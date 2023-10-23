@@ -72,12 +72,13 @@ add_action( 'rest_api_init', function () {
 
 
 
-function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail){
-	$slackUrl = SLACK_WEBHOOK_URL;
+function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan){
+	$slackUrl = SLACK_WEBHOOK_URL_NEW_CUSTOMER_CHANNEL;
 	$slackMessageBody = [
-		'text'  => '<!channel> - Payment Succeeded :white_check_mark:
-Client: ' . $customerName . '
-Email: ' . $customerEmail,
+		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
+*Client:* ' . $customerName . ' ' . $customerEmail . '
+*Plan:* ' . $customerPlan . '
+Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 		'username' => 'Marcus',
 	];
 
@@ -101,7 +102,7 @@ function sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $cust
     <i style='letter-spacing: 25px; mso-font-width: -100%; mso-text-raise: 30pt;'>&nbsp;</i>
     <![endif]-->
     <span style='mso-text-raise: 15pt;'>Fill out onboarding form</span>
-    <!--[if mso]>
+    <!--[if mso]>S
     <i style='letter-spacing: 25px; mso-font-width: -100%;'>&nbsp;</i>
     <![endif]-->
 </a>
@@ -129,23 +130,26 @@ password: change_123
 
 
 function createUserAfterStripePurchase($req){
+	$stripe = new \Stripe\StripeClient(STRIPE_API);
+	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
 	$invoiceId = $req['data']['object']['id'];
-	$customerName = "Marcus";
-	$customerEmail = "contato@mafreitas.com.br";//$req['data']['object']['billing_detail']['email'];
-	$customerCity = $req['data']['object']['billing_detail']['email'];
-	$customerCountry = $req['data']['object']['billing_detail']['email'];
-	$response_data_arr = file_get_contents('php://input');	
+	$customerName = $customer->name;
+	$customerEmail = $customer->email;
+	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['nickname'];
+	$customerCity = $customer->address->city;
+	$customerCountry = $customer->address->country;
+
+	$response_data_arr = file_get_contents('php://input');
 	
 	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
 
-	$customerUrl = "http://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=Business-Monthly-USD";
-	
+	$customerUrl = "http://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
 
 	wp_create_user($customerEmail, 'change_123', $customerEmail);
+	sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);	
+	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
+	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
 
-    sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
-
-	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail);
 }
 
 
