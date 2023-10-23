@@ -130,7 +130,7 @@ add_filter('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
 
 function addFirstAccessUserMetaToNewUsers($user_id) { 
-   add_user_meta( $user_id, 'isFirstAccess', 1 );
+   add_user_meta( $user_id, 'is_first_access', 1 );
 }
 add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
 
