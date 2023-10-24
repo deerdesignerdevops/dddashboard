@@ -138,18 +138,20 @@ function createUserAfterStripePurchase($req){
 	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['nickname'];
 	$customerCity = $customer->address->city;
 	$customerCountry = $customer->address->country;
-
+	
 	$response_data_arr = file_get_contents('php://input');
 	
 	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
 
 	$customerUrl = "http://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
 
-	wp_create_user($customerEmail, 'change_123', $customerEmail);
-	sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);	
+	if(empty(get_user_by('email', $customerEmail))){
+		wp_create_user($customerEmail, 'change_123', $customerEmail);
+		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
+	}
+	
 	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
 	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
-
 }
 
 
