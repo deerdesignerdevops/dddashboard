@@ -19,34 +19,11 @@ defined( 'ABSPATH' ) || exit;
 
 do_action( 'woocommerce_before_cart' ); ?>
 
-<?php
-$product_addons = wc_get_products([
-   'category' => get_term(32, 'product_cat')->slug
-]);
-
-?>
-<div class="cart__addons">
-	<h2 class="cart__header__title">Addons</h2>
-
-	<form action="" method="post" enctype="multipart/form-data">
-		<?php
-			foreach($product_addons as $addon){ ?>
-
-				<div class="addon__card">
-					<span class="addon__title"><?php echo $addon->name; ?></span>
-					<div class="addon__description">
-						<?php echo $addon->description; ?>
-					</div>
-					<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
-				</div>
-
-			<?php } ?>
-				
-
-	
-		
-	</form>
-</div>
+<style>
+	.woocommerce-notices-wrapper, .woocommerce-cart-form .coupon{
+		display: none;
+	}
+</style>
 
 <form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
 	<?php do_action( 'woocommerce_before_cart_table' ); ?>
@@ -178,6 +155,35 @@ $product_addons = wc_get_products([
 	</div>
 	<?php do_action( 'woocommerce_after_cart_table' ); ?>
 </form>
+
+<?php
+$product_addons = wc_get_products([
+   'category' => get_term(32, 'product_cat')->slug
+]);
+
+?>
+<div class="cart__addons">
+	<h2 class="cart__header__title">Addons</h2>
+
+	<form action="" method="post" enctype="multipart/form-data">
+		<?php
+			foreach($product_addons as $addon){ ?>
+
+				<div class="addon__card">
+					<span class="addon__title"><?php echo $addon->name; ?></span>
+					<div class="addon__description">
+						<?php echo $addon->description; ?>
+					</div>
+					<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
+				</div>
+
+			<?php } ?>
+				
+
+	
+		
+	</form>
+</div>
 
 
 

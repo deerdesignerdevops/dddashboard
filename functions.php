@@ -285,6 +285,41 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 
+function checkIfUserIsActive(){
+	$user_id = get_current_user_id();
+	$users_subscriptions = wcs_get_users_subscriptions($user_id);
+
+	$product_id = "";
+
+	foreach ($users_subscriptions as $subscription){
+		if ($subscription->has_status(array('active'))) {
+			$subscription_products = $subscription->get_items();
+			foreach ($subscription_products as $product) {
+                $product_id = $product->get_product_id();
+            }
+
+		}
+	}
+
+	if($product_id === 939){
+		echo "<style>
+			.woocommerce-MyAccount-navigation-link--request-design{display: none !important}
+			.dd__dashboard_navbar_item{width: 25% !important}
+		</style>";
+	}else{
+		echo "<style>
+			.paused__user_banner{display: none !important}
+			.dd__dashboard_navbar_item{width: 33% !important}
+		</style>";
+	}
+
+}
+add_action('template_redirect', 'checkIfUserIsActive');
+
+
+
+
+//***************CUSTOM CODES FOR WOOCOMMERCE
 function sendWooMetadataToStripePaymentMetadata($metadata, $order) {
 	$order_data = $order->get_data();
 	
@@ -345,14 +380,22 @@ add_filter( 'woocommerce_checkout_fields', 'removeCheckoutFields' );
 
 
 function customThankyouPage( $order_id ) {
-	$siteUrl = get_site_url();
-	$order = wc_get_order( $order_id );
-	if ( $order->get_billing_email() ) {
-		wp_redirect( "$siteUrl/thanks" );
-		exit;
-	}
+    $order = wc_get_order( $order_id );
+    $url = '/signup/onboarding';
+    if (!$order->has_status( 'failed' )) {
+        wp_safe_redirect( $url );
+        exit;
+    }
 }
-add_action( 'woocommerce_thankyou', 'customThankyouPage' );
+add_action( 'woocommerce_thankyou', 'customThankyouPage', 10, 1 );
+
+
+
+function moveCheckoutEmailFieldToTop( $address_fields ) {
+    $address_fields['billing_email']['priority'] = 20;
+    return $address_fields;
+}
+add_filter( 'woocommerce_billing_fields', 'moveCheckoutEmailFieldToTop' );
 
 
 
@@ -363,42 +406,6 @@ function changeOrderStatusToCompleteAfterPayment( $order_id ) {
 add_action( 'woocommerce_payment_complete', 'changeOrderStatusToCompleteAfterPayment' );
 
 
-
-function checkIfUserIsActive(){
-	$user_id = get_current_user_id();
-	$users_subscriptions = wcs_get_users_subscriptions($user_id);
-
-	$product_id = "";
-
-	foreach ($users_subscriptions as $subscription){
-		if ($subscription->has_status(array('active'))) {
-			$subscription_products = $subscription->get_items();
-			foreach ($subscription_products as $product) {
-                $product_id = $product->get_product_id();
-            }
-
-		}
-	}
-
-	if($product_id === 939){
-		echo "<style>
-			.woocommerce-MyAccount-navigation-link--request-design{display: none !important}
-			.dd__dashboard_navbar_item{width: 25% !important}
-		</style>";
-	}else{
-		echo "<style>
-			.paused__user_banner{display: none !important}
-			.dd__dashboard_navbar_item{width: 33% !important}
-		</style>";
-	}
-
-}
-add_action('template_redirect', 'checkIfUserIsActive');
-
-
-
-
-//***************CUSTOM CODES FOR WOOCOMMERCE
 
 function removeWooMenuLinks( $menu_links ){	
 	$menu_links[ 'subscriptions' ] = 'Billing Portal';
@@ -452,4 +459,4 @@ function customWooEndpointUrl( $url, $endpoint ){
 	}
 	return $url; 
 }
-add_filter( 'woocommerce_get_endpoint_url', 'customWooEndpointUrl', 10, 4 );
+add_filter( 'woocommerce_get_endpoint_url', 'customWooEndpointUrl', 10, 2 );

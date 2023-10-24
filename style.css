@@ -407,7 +407,7 @@ input.ff-read-only {
 /*ORDER*/
 .woocommerce-additional-fields,
 .woocommerce-checkout-review-order-table {
-  display: none;
+  display: nonee;
 }
 
 .deer__custom_checkout_form {
@@ -423,13 +423,17 @@ input.ff-read-only {
 .wc-stripe-elements-field {
   border: 1px solid #ccc !important;
   border-radius: 5px !important;
-  margin-top: 5px !important;
+  margin-bottom: 12px !important;
   padding: 10px;
   height: 50px !important;
+  font-weight: 500;
+  font-size: 0.8rem;
 }
 
 .quantity input {
   height: 32px !important;
+  font-weight: 500;
+  font-size: 0.8rem;
 }
 
 .deer__custom_checkout_form .select2-selection {
@@ -438,12 +442,22 @@ input.ff-read-only {
   margin-top: 5px !important;
   padding: 10px !important;
   height: 50px !important;
+  margin-bottom: 12px !important;
+  font-weight: 500;
+  font-size: 0.8rem;
 }
 
 .deer__custom_checkout_form label {
-  margin-top: 20px !important;
+  margin: 5px 0 !important;
   color: #aaa;
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.woocommerce p {
+  color: #aaa;
+  font-weight: 500;
+  font-size: 0.8rem;
 }
 
 .deer__custom_checkout_form h3 {
@@ -457,13 +471,28 @@ input.ff-read-only {
 
 .woocommerce-checkout #payment div.payment_box,
 .woocommerce-checkout #payment ul.payment_methods,
-#payment .form-row {
+#payment .form-row,
+.woocommerce form .form-row {
   background-color: transparent;
   padding: 0 !important;
+  margin: 0 !important;
 }
 
 .woocommerce-checkout #payment div.payment_box::before {
   display: none;
+}
+
+#stripe-payment-data li {
+  display: flex;
+  align-items: center;
+}
+
+#stripe-payment-data input {
+  margin: 0 5px 0 0 !important;
+}
+
+.select2-selection__arrow {
+  top: 15px !important;
 }
 
 .cart__addons form {
