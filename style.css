@@ -406,8 +406,8 @@ input.ff-read-only {
 
 /*ORDER*/
 .woocommerce-additional-fields,
-.woocommerce-checkout-review-order-table {
-  display: nonee;
+.woocommerce-MyAccount-content {
+  display: none;
 }
 
 .deer__custom_checkout_form {

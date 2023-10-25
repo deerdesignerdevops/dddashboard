@@ -225,7 +225,7 @@ add_filter('template_redirect', 'checkIfCurrentUserIsOnboarded');
 function addFirstAccessUserMetaToNewUsers($user_id) { 
    add_user_meta( $user_id, 'is_first_access', 1 );
 }
-//add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
+add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
 
 
 
@@ -262,7 +262,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
 ";
 }
-add_action("wp_head", "googleTagManagerOnHead");
+//add_action("wp_head", "googleTagManagerOnHead");
 
 
 
@@ -274,7 +274,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 ';
 }
-add_action('wp_body_open', 'googleTagManagerOnBody');
+//add_action('wp_body_open', 'googleTagManagerOnBody');
 
 
 
@@ -379,15 +379,15 @@ add_filter( 'woocommerce_checkout_fields', 'removeCheckoutFields' );
 
 
 
-function customThankyouPage( $order_id ) {
+function redirectToOnboardingFormAfterCheckout( $order_id ) {
     $order = wc_get_order( $order_id );
-    $url = '/signup/onboarding';
+    $url = site_url() . '/signup/onboarding';
     if (!$order->has_status( 'failed' )) {
-        wp_safe_redirect( $url );
+        wp_redirect( $url );
         exit;
     }
 }
-add_action( 'woocommerce_thankyou', 'customThankyouPage', 10, 1 );
+add_action( 'woocommerce_thankyou', 'redirectToOnboardingFormAfterCheckout', 10, 1 );
 
 
 
