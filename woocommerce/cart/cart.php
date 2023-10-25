@@ -195,7 +195,8 @@ foreach($all_product_addons as $product_addon){
 			foreach($product_addons as $addon){
 					?>
 					<div class="addon__card">
-						<span class="addon__title"><?php echo $addon->name; ?></span>
+						<span class="addon__title"><?php echo $addon->name; ?></span><br>
+						<span class="addon__title"><?php echo "$$addon->price / month"; ?></span>
 						<div class="addon__description">
 							<?php echo $addon->description; ?>
 						</div>
