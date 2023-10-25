@@ -23,7 +23,7 @@ if ( is_user_logged_in() || 'no' === get_option( 'woocommerce_enable_checkout_lo
 
 ?>
 <div class="woocommerce-form-login-toggle">
-	<?php wc_print_notice( apply_filters( 'woocommerce_checkout_login_message', esc_html__( 'Already a client?', 'woocommerce' ) ) . ' <a href="#" class="showlogin">' . esc_html__( 'Go to Dashboard', 'woocommerce' ) . '</a>', 'notice' ); ?>
+	<?php wc_print_notice( apply_filters( 'woocommerce_checkout_login_message', esc_html__( 'Already a client?', 'woocommerce' ) ) . ' <a href="/" >' . esc_html__( 'Go to Dashboard', 'woocommerce' ) . '</a>', 'notice' ); ?>
 </div>
 <?php
 

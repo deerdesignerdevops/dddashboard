@@ -157,31 +157,51 @@ do_action( 'woocommerce_before_cart' ); ?>
 </form>
 
 <?php
-$product_addons = wc_get_products([
+$all_product_addons = wc_get_products([
    'category' => get_term(32, 'product_cat')->slug
 ]);
 
+$user_id = get_current_user_id();
+$users_subscriptions = wcs_get_users_subscriptions($user_id);
+
+$current_user_products = [];
+$product_addons = [];
+
+foreach ($users_subscriptions as $subscription){
+	if ($subscription->has_status(array('active'))) {
+		$subscription_products = $subscription->get_items();
+		foreach ($subscription_products as $product) {
+			$current_user_product_id = $product->get_product_id();
+			array_push($current_user_products, $current_user_product_id);
+		}
+	}
+}
+
+foreach($all_product_addons as $product_addon){
+	if(!in_array($product_addon->id, $current_user_products)){
+		array_push($product_addons, $product_addon);
+	}
+}
+
+
 ?>
 <div class="cart__addons">
-	<h2 class="cart__header__title">Addons</h2>
+	<?php if(sizeof($product_addons) > 0){ ?>
+		<h2 class="cart__header__title">Available Addons</h2>
+	<?php } ?>
 
 	<form action="" method="post" enctype="multipart/form-data">
 		<?php
-			foreach($product_addons as $addon){ ?>
-
-				<div class="addon__card">
-					<span class="addon__title"><?php echo $addon->name; ?></span>
-					<div class="addon__description">
-						<?php echo $addon->description; ?>
-					</div>
-					<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
-				</div>
-
+			foreach($product_addons as $addon){
+					?>
+					<div class="addon__card">
+						<span class="addon__title"><?php echo $addon->name; ?></span>
+						<div class="addon__description">
+							<?php echo $addon->description; ?>
+						</div>
+						<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
+					</div>				
 			<?php } ?>
-				
-
-	
-		
 	</form>
 </div>
 

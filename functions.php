@@ -460,3 +460,29 @@ function customWooEndpointUrl( $url, $endpoint ){
 	return $url; 
 }
 add_filter( 'woocommerce_get_endpoint_url', 'customWooEndpointUrl', 10, 2 );
+
+
+
+function redirectUserIfCartIsEmpty(){
+	$url = site_url() . '/subscriptions';
+	wp_redirect( $url );
+	exit;  
+}
+add_action('woocommerce_cart_is_empty', 'redirectUserIfCartIsEmpty');
+
+
+
+function limitProductQuantityToOne($cart_item_data, $product_id) {
+    $cart = WC()->cart->get_cart();
+
+    if ($cart) {
+        foreach ($cart as $cart_item_key => $values) {
+            if ($values['data']->get_id() == $product_id) {
+                WC()->cart->remove_cart_item($cart_item_key);
+            }
+        }
+    }
+
+    return $cart_item_data;
+}
+add_filter('woocommerce_add_to_cart_validation', 'limitProductQuantityToOne', 10, 2);
