@@ -192,8 +192,9 @@ add_action('admin_head', 'redirectNonAdminUsersToHomepage');
 function checkIfCurrentUserIsOnboarded(){
 	$user = wp_get_current_user();
 	$url = home_url();
+	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
 
-	if(is_page(33)){
+	if(is_page('myaccount')){
 		$registration_date = $user->user_registered;
 		$recent_threshold = strtotime('-2 days');
 
@@ -209,7 +210,7 @@ function checkIfCurrentUserIsOnboarded(){
 				];
 				
 				$entries = $formApi->entries($atts , $includeFormats = false);
-				if(!$entries["total"]){
+				if(!$entries["total"] && !$isUserOnboarded){
 					$url = home_url() . "/onboarding";
 					wp_redirect($url);
 					exit();
@@ -224,6 +225,7 @@ add_filter('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
 function addFirstAccessUserMetaToNewUsers($user_id) { 
    add_user_meta( $user_id, 'is_first_access', 1 );
+   add_user_meta( $user_id, 'is_user_onboarded', 0 );
 }
 add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
 
