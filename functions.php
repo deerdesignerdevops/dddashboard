@@ -184,7 +184,7 @@ function redirectNonAdminUsersToHomepage(){
 		exit;
 	}
 }
-add_action('init', 'redirectNonAdminUsersToHomepage');
+add_action('admin_head', 'redirectNonAdminUsersToHomepage');
 
 
 
