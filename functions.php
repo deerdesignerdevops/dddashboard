@@ -40,6 +40,8 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
+
+
 function logoutWhitoutConfirm($action, $result)
 {
     if ($action == "log-out" && !isset($_GET['_wpnonce'])) {
@@ -94,7 +96,7 @@ Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 
 function sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl){
 	$body = "<p style='font-family: Helvetica, Arial, sans-serif; font-size: 15px;line-height: 1.5em;font-weight: bold;'>Let's get you on board!</p>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $customerName, Thanks for signing up! 😍</p>
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi there, Thanks for signing up! 😍</p>
 <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>To confirm your email and start onboarding, please click the button below:</p>
 <br>
 <a rel='noopener' target='_blank' href='$customerUrl' style='background-color: #43b5a0; font-size: 15px; font-family: Helvetica, Arial, sans-serif; font-weight: bold; text-decoration: none; padding: 10px 20px; color: #ffffff; border-radius: 50px; display: inline-block; mso-padding-alt: 0;'>
@@ -184,7 +186,7 @@ function redirectNonAdminUsersToHomepage(){
 		exit;
 	}
 }
-add_action('init', 'redirectNonAdminUsersToHomepage');
+add_action('admin_head', 'redirectNonAdminUsersToHomepage');
 
 
 
@@ -192,40 +194,77 @@ add_action('init', 'redirectNonAdminUsersToHomepage');
 function checkIfCurrentUserIsOnboarded(){
 	$user = wp_get_current_user();
 	$url = home_url();
+	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
 
-	if(is_page(33)){
-		$registration_date = $user->user_registered;
-		$recent_threshold = strtotime('-2 days');
+	if(is_page('dash')){
+		require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
 
-		if ($registration_date && strtotime($registration_date) >= $recent_threshold ) {
-			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
-
-			if ( !in_array( 'administrator', $user->roles ) ) {
-				$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
-				$atts = [
-					'per_page' => 10,
-					'page' => 1,
-					'search' => $user->user_email,
-				];
-				
-				$entries = $formApi->entries($atts , $includeFormats = false);
-				if(!$entries["total"]){
-					$url = home_url() . "/onboarding";
-					wp_redirect($url);
-					exit();
-				}
+		if ( !in_array( 'administrator', $user->roles ) ) {
+			$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
+			$atts = [
+				'per_page' => 10,
+				'page' => 1,
+				'search' => $user->user_email,
+			];
+			
+			$entries = $formApi->entries($atts , $includeFormats = false);
+			if(!$entries["total"] && !$isUserOnboarded){
+				$url = home_url() . "/onboarding";
+				wp_redirect($url);
+				exit();
 			}
 		}
+	
 	}
 }
 add_filter('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
 
 
+function displayUserOnboardedCheckboxOnAdminPanel( $user ) { 
+    $isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true ); 
+?>
+    <table class="form-table" role="presentation">
+        <tbody>
+            <tr>
+                <th>Is User Onboarded:</th>
+                <td>
+                    <p><label>
+                        <input type="checkbox" <?php echo $isUserOnboarded ? "checked" : ""; ?> name="is_user_onboarded" value="1">
+                    </label></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+<?php } 
+add_action( 'show_user_profile', 'displayUserOnboardedCheckboxOnAdminPanel' );
+add_action( 'edit_user_profile', 'displayUserOnboardedCheckboxOnAdminPanel' );
+
+
+function updateIfUserIsOnboarded($user_id){
+	if($_POST['is_user_onboarded']){
+		update_user_meta( $user_id, 'is_user_onboarded', 1 );
+	}else{
+		update_user_meta( $user_id, 'is_user_onboarded', 0 );
+	}
+}
+add_action( 'personal_options_update', 'updateIfUserIsOnboarded' );
+add_action( 'edit_user_profile_update', 'updateIfUserIsOnboarded' );
+
+
+
 function addFirstAccessUserMetaToNewUsers($user_id) { 
    add_user_meta( $user_id, 'is_first_access', 1 );
+   add_user_meta( $user_id, 'is_user_onboarded', 0 );
 }
 add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
+
+
+
+function updateIsUserOnboardedAfterOnboardingForm(){
+	update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
+}
+add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboardingForm');
 
 
 
@@ -247,7 +286,7 @@ function subscribeUserToMoosendEmailList($entryId, $formData, $form){
 
 	curl_close($ch);
 }
-//add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
+add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
 
 
 
@@ -315,6 +354,9 @@ function checkIfUserIsActive(){
 
 }
 add_action('template_redirect', 'checkIfUserIsActive');
+
+
+
 
 
 
