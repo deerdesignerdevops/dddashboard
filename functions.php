@@ -196,29 +196,25 @@ function checkIfCurrentUserIsOnboarded(){
 	$url = home_url();
 	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
 
-	if(is_page('myaccount')){
-		$registration_date = $user->user_registered;
-		$recent_threshold = strtotime('-2 days');
+	if(is_page('dash')){
+		require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
 
-		if ($registration_date && strtotime($registration_date) >= $recent_threshold ) {
-			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
-
-			if ( !in_array( 'administrator', $user->roles ) ) {
-				$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
-				$atts = [
-					'per_page' => 10,
-					'page' => 1,
-					'search' => $user->user_email,
-				];
-				
-				$entries = $formApi->entries($atts , $includeFormats = false);
-				if(!$entries["total"] && !$isUserOnboarded){
-					$url = home_url() . "/onboarding";
-					wp_redirect($url);
-					exit();
-				}
+		if ( !in_array( 'administrator', $user->roles ) ) {
+			$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
+			$atts = [
+				'per_page' => 10,
+				'page' => 1,
+				'search' => $user->user_email,
+			];
+			
+			$entries = $formApi->entries($atts , $includeFormats = false);
+			if(!$entries["total"] && !$isUserOnboarded){
+				$url = home_url() . "/onboarding";
+				wp_redirect($url);
+				exit();
 			}
 		}
+	
 	}
 }
 add_filter('template_redirect', 'checkIfCurrentUserIsOnboarded');
