@@ -334,6 +334,15 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 //***************CUSTOM CODES FOR WOOCOMMERCE
+function redirectUserAfterSubscriptionStatusUpdated(){
+	$url = home_url() . '/subscriptions';
+	wp_redirect( $url );
+	exit;
+}
+add_action('woocommerce_subscription_status_updated', 'redirectUserAfterSubscriptionStatusUpdated');
+
+
+
 function checkIfUserIsActive(){
 	$user_id = get_current_user_id();
 	$users_subscriptions = wcs_get_users_subscriptions($user_id);
