@@ -20,10 +20,10 @@ defined( 'ABSPATH' ) || exit;
 do_action( 'woocommerce_before_cart' ); ?>
 
 <style>
-	.woocommerce-notices-wrapper, .woocommerce-cart-form .coupon{
-		display: none;
-	}
-</style>
+.coupon{
+	display: none;
+}
+	</style>
 
 <form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
 	<?php do_action( 'woocommerce_before_cart_table' ); ?>
@@ -33,7 +33,16 @@ do_action( 'woocommerce_before_cart' ); ?>
 			<?php do_action( 'woocommerce_before_cart_contents' ); ?>
 
 			<?php
+			$couponDiscount = 0;
 			foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+				if( count( WC()->cart->get_applied_coupons() ) > 0 ) {
+					$couponsApplied = WC()->cart->get_applied_coupons();
+					foreach($couponsApplied as $coupon){ 
+						$currentCoupon= new WC_Coupon($coupon);
+						$couponDiscount = $currentCoupon->amount;
+					}
+				}
+				
 
 				$_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 				$parent_product= wc_get_product($_product->get_parent_id());
@@ -119,9 +128,25 @@ do_action( 'woocommerce_before_cart' ); ?>
 								<div class="cart__product_subtotal">
 									<span>Subtotal</span>
 										<?php
-											echo apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key );
+											echo "$" . $_product->get_price() . ".00";											
 										?>
 								</div>
+
+								<?php
+									if($couponDiscount){ ?>
+										<div class="cart__product_subtotal">
+											<span>Dicount: </span>
+											<span>-<?php echo $couponDiscount; ?>% </span>
+										</div>
+
+										<div class="cart__product_subtotal">
+											<span>Total: </span>
+												<?php
+													echo "$" . $_product->get_price() * ($couponDiscount / 100);
+												?>
+										</div>
+									<?php }
+								?>
 							</div>
 						</div>						
 					</div>
