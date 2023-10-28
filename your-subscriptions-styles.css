@@ -18,6 +18,11 @@
   align-items: center;
 }
 
+.dd__subscription_card.cancelled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .dd__subscriptions_sumary {
   padding: 40px 0;
   margin-bottom: 60px;

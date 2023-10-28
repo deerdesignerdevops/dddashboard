@@ -70,7 +70,8 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 			<?php /** @var WC_Subscription $subscription */ ?>
 			<?php foreach ( $subscriptions as $subscription_id => $subscription ) : ?>
 				
-				<div class="dd__subscription_card">
+				
+				<div class="dd__subscription_card <?php echo esc_attr( $subscription->get_status() ); ?>">
 					<div class="dd__subscription_details">                        
 
 						<div class="dd__subscription_header">
@@ -91,24 +92,19 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 					</div>
 
 					<div class="dd__subscription_actions_form">
-						<?php if($subscription->get_status() === "active"){ ?>
-							<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
-						<?php } ?>
-						
-						<?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); ?>
-						<?php if ( ! empty( $actions ) ) : ?>
+						<?php if($subscription->get_status() === "active" || $subscription->get_status() !== "cancelled" ){ ?>
 
-							<div class="dd__subscriptions_buttons_wrapper">						
-								<?php foreach ( $actions as $key => $action ) : ?>
-									<a href="<?php echo esc_url( $action['url'] ); ?>" class="dd__subscription_cancel_btn <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
-								<?php endforeach; ?>
-							</div>
-						
-					
-						<?php endif; ?>
+							<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); 
+							$actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); ?>
+								<?php if ( ! empty( $actions ) ) { ?>
+									<div class="dd__subscriptions_buttons_wrapper">						
+										<?php foreach ( $actions as $key => $action ) : ?>
+											<a href="<?php echo esc_url( $action['url'] ); ?>" class="dd__subscription_cancel_btn <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+										<?php endforeach; ?>
+									</div>
+								<?php };
+						 } ?>
 					</div>
-
-					
 				</div>
 			<?php endforeach; ?>
 				
