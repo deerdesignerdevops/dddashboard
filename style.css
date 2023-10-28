@@ -140,8 +140,12 @@ body a {
   font-weight: 700;
 }
 
-.woocommerce-MyAccount-content-wrapper {
-  border: non !important;
+.woocommerce-MyAccount-navigation {
+  display: none !important;
+}
+
+.woocommerce-MyAccount-content {
+  width: 100% !important;
 }
 
 .woocommerce-account .woocommerce-MyAccount-navigation {
@@ -435,7 +439,6 @@ input.ff-read-only {
 
 /*ORDER*/
 .woocommerce-additional-fields,
-.woocommerce-MyAccount-content,
 #order_review thead,
 #order_review tfoot,
 #order_review .cart_item {

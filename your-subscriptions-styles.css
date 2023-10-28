@@ -1,56 +1,3 @@
-/*LOADING SPINNER START*/
-.dd__loading_screen {
-  height: 100vh;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  background-color: rgba(0, 0, 0, 80%);
-  display: none;
-  justify-content: center;
-  align-items: center;
-}
-
-.lds-ring {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.lds-ring div {
-  box-sizing: border-box;
-  display: block;
-  position: absolute;
-  width: 64px;
-  height: 64px;
-  margin: 8px;
-  border: 8px solid var(--e-global-color-primary);
-  border-radius: 50%;
-  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: var(--e-global-color-primary) transparent transparent
-    transparent;
-}
-.lds-ring div:nth-child(1) {
-  animation-delay: -0.45s;
-}
-.lds-ring div:nth-child(2) {
-  animation-delay: -0.3s;
-}
-.lds-ring div:nth-child(3) {
-  animation-delay: -0.15s;
-}
-@keyframes lds-ring {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/*LOADING SPINNER FINISH*/
-
 .dd__bililng_portal_section {
   padding: 60px 0;
 }
@@ -133,14 +80,17 @@
 }
 
 .dd__subscription_update_btn,
-.dd__subscription_update_btn:focus {
+.dd__subscription_update_btn:focus,
+.wcs-switch-link,
+.wcs-switch-link:focus {
   background-color: var(--e-global-color-primary) !important;
   border: 3px solid #000 !important;
-  box-shadow: inset 3px 3px #fff;
+  box-shadow: inset 3px 3px #fff !important;
   color: #fff !important;
 }
 
-.dd__subscription_update_btn:hover {
+.dd__subscription_update_btn:hover,
+.wcs-switch-link:hover {
   background-color: var(--e-global-color-f5169dc) !important;
   color: #fff !important;
   border: 3px solid #000 !important;
@@ -148,9 +98,9 @@
 }
 
 .dd__subscription_cancel_btn {
-  background-color: transparent !important;
   color: #ccc !important;
   border: 3px solid #ccc !important;
+  background-color: transparent !important;
 }
 
 .dd__subscription_cancel_btn:hover {
@@ -176,15 +126,10 @@
 }
 
 .dd__add_designer_btn {
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 26px;
   color: #ffffff;
-  border-radius: 50px 50px 50px 50px;
-  padding: 15px 30px 15px 30px;
   background-color: var(--e-global-color-primary) !important;
   border: 3px solid #000 !important;
-  box-shadow: inset 3px 3px;
+  box-shadow: inset 3px 3px !important;
 }
 
 .dd__add_designer_btn:hover {
@@ -193,8 +138,18 @@
 }
 
 .dd__remove_btn {
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 26px;
   color: var(--e-global-color-text);
+}
+
+.dd__remove_btn,
+.dd__add_designer_btn,
+.dd__subscription_cancel_btn,
+.dd__subscription_update_btn,
+.wcs-switch-link {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 26px !important;
+  border-radius: 50px 50px 50px 50px !important;
+  padding: 10px 30px 10px 30px !important;
+  text-align: center !important;
 }
