@@ -63,6 +63,12 @@
   color: var(--e-global-color-primary);
 }
 
+.dd__subscription_warning {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--e-global-color-secondary);
+}
+
 .dd__subscription_price {
   font-size: 1.5rem;
 }

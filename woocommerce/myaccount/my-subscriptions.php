@@ -60,7 +60,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 						?>
 						
 						<div class="dd__subscriptions_buttons_wrapper" style="margin-top: 20px;">
-							<a href="<?php echo $siteUrl; ?>/?add-to-cart=928" class="dd__add_designer_btn">Add a Designer</a>
+							<a href="https://deerdesigner.com/pricing" class="dd__add_designer_btn">Add a Designer</a>
 						</div>
 					</div>
 				</div>
@@ -113,18 +113,15 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 			<?php endforeach; ?>
 				
 			<?php else : ?>
-				<p class="no_subscriptions woocommerce-message woocommerce-message--info woocommerce-Message woocommerce-Message--info woocommerce-info">
-					<?php if ( 1 < $current_page ) :
-						printf( esc_html__( 'You have reached the end of subscriptions. Go to the %sfirst page%s.', 'woocommerce-subscriptions' ), '<a href="' . esc_url( wc_get_endpoint_url( 'subscriptions', 1 ) ) . '">', '</a>' );
-					else :
-						esc_html_e( 'You have no active subscriptions.', 'woocommerce-subscriptions' );
-						?>
-						<a class="woocommerce-Button button" href="<?php echo esc_url( apply_filters( 'woocommerce_return_to_shop_redirect', wc_get_page_permalink( 'shop' ) ) ); ?>">
-							<?php esc_html_e( 'Browse products', 'woocommerce-subscriptions' ); ?>
-						</a>
-					<?php
-				endif; ?>
-				</p>
+				<div class="dd__subscription_card"> 
+					<div class="dd__subscription_details">
+						<span class="dd__subscription_warning">You have no active subscriptions!</span>
+					</div>
+
+					<div class="dd__subscription_actions_form">
+						<a href="https://deerdesigner.com/pricing" class="dd__add_designer_btn">See Pricing</a>
+					</div>
+				</div>
 			<?php endif; ?>
 		</div>
 	</div>

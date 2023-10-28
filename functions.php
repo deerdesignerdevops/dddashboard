@@ -335,9 +335,12 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 //***************CUSTOM CODES FOR WOOCOMMERCE
 function redirectUserAfterSubscriptionStatusUpdated(){
-	$url = home_url() . '/subscriptions';
-	wp_redirect( $url );
-	exit;
+	$url = site_url() . "/subscriptions";
+
+	if(is_user_logged_in() && !wp_doing_ajax() ){
+		wp_safe_redirect($url);
+		exit;
+	}
 }
 add_action('woocommerce_subscription_status_updated', 'redirectUserAfterSubscriptionStatusUpdated');
 
@@ -436,8 +439,16 @@ add_filter( 'woocommerce_checkout_fields', 'removeCheckoutFields' );
 
 
 function redirectToOnboardingFormAfterCheckout( $order_id ) {
+	$user = wp_get_current_user();
+	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
     $order = wc_get_order( $order_id );
+
     $url = site_url() . '/signup/onboarding';
+
+	if($isUserOnboarded){
+		$url = site_url();
+	}
+
     if (!$order->has_status( 'failed' )) {
         wp_redirect( $url );
         exit;
@@ -468,7 +479,7 @@ function redirectUserIfCartIsEmpty(){
 	wp_redirect( $url );
 	exit;  
 }
-add_action('woocommerce_cart_is_empty', 'redirectUserIfCartIsEmpty');
+//add_action('woocommerce_cart_is_empty', 'redirectUserIfCartIsEmpty');
 
 
 
