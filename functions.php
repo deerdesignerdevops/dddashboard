@@ -357,6 +357,18 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 //***************CUSTOM CODES FOR WOOCOMMERCE
+function redirectUserAfterSubscriptionStatusUpdated(){
+	$url = site_url() . "/subscriptions";
+
+	if(is_user_logged_in() && is_wc_endpoint_url('view-subscription') ){
+		wp_safe_redirect($url);
+		exit;
+	}
+}
+add_action('template_redirect', 'redirectUserAfterSubscriptionStatusUpdated');
+
+
+
 function checkIfUserIsActive(){
 	$user_id = get_current_user_id();
 	$users_subscriptions = wcs_get_users_subscriptions($user_id);
