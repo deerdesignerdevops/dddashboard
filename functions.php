@@ -291,6 +291,29 @@ add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList',
 
 
 
+function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
+	$user_name = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+	$user_email = $formData['email'];
+	$slackUrl = SLACK_WEBHOOK_URL_NEW_CUSTOMER_CHANNEL;
+	$slackMessageBody = [
+		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
+*Client:* ' . $user_name . ' ' . $user_email . '
+Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
+
+
+
 function googleTagManagerOnHead(){
 	echo "
 	<!-- Google Tag Manager -->
@@ -334,37 +357,29 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 //***************CUSTOM CODES FOR WOOCOMMERCE
-function redirectUserAfterSubscriptionStatusUpdated(){
-	$url = site_url() . "/subscriptions";
-
-	if(is_user_logged_in() && !wp_doing_ajax() ){
-		wp_safe_redirect($url);
-		exit;
-	}
-}
-add_action('woocommerce_subscription_status_updated', 'redirectUserAfterSubscriptionStatusUpdated');
-
-
-
 function checkIfUserIsActive(){
 	$user_id = get_current_user_id();
 	$users_subscriptions = wcs_get_users_subscriptions($user_id);
 
 	$product_id = "";
+	$productsCategories = [];
 
 	foreach ($users_subscriptions as $subscription){
 		if ($subscription->has_status(array('active'))) {
 			$subscription_products = $subscription->get_items();
-			foreach ($subscription_products as $product) {
+			foreach ($subscription_products as $product) {			
                 $product_id = $product->get_product_id();
+				$terms = get_the_terms( $product_id, 'product_cat' );
+				$productCategory = $terms[0]->slug;
+				array_push($productsCategories, $productCategory);
             }
 
 		}
 	}
 
-	if($product_id === 939){
+	if($product_id === 939 || !in_array("default-plans", $productsCategories)){
 		echo "<style>
-			.woocommerce-MyAccount-navigation-link--request-design{display: none !important}
+			.paused__user_btn{display: none !important}
 			.dd__dashboard_navbar_item{width: 25% !important}
 		</style>";
 	}else{
@@ -446,7 +461,7 @@ function redirectToOnboardingFormAfterCheckout( $order_id ) {
     $url = site_url() . '/signup/onboarding';
 
 	if($isUserOnboarded){
-		$url = site_url();
+		$url = site_url() . "/subscriptions";
 	}
 
     if (!$order->has_status( 'failed' )) {
@@ -479,7 +494,7 @@ function redirectUserIfCartIsEmpty(){
 	wp_redirect( $url );
 	exit;  
 }
-//add_action('woocommerce_cart_is_empty', 'redirectUserIfCartIsEmpty');
+add_action('woocommerce_cart_is_empty', 'redirectUserIfCartIsEmpty');
 
 
 
