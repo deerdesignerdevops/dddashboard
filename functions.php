@@ -145,7 +145,7 @@ function createUserAfterStripePurchase($req){
 	
 	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
 
-	$customerUrl = "http://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
+	$customerUrl = "https://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
 
 	if(empty(get_user_by('email', $customerEmail))){
 		wp_create_user($customerEmail, 'change_123', $customerEmail);
@@ -217,7 +217,7 @@ function checkIfCurrentUserIsOnboarded(){
 	
 	}
 }
-add_filter('template_redirect', 'checkIfCurrentUserIsOnboarded');
+add_action('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
 
 
@@ -265,6 +265,31 @@ function updateIsUserOnboardedAfterOnboardingForm(){
 	update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
 }
 add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboardingForm');
+
+
+
+function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
+	$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+	$customerEmail = $formData['email'];
+	$customerCompany = $formData['company_name'];
+	$customerCity = $formData['city'];
+	$customerCountry = $formData['country'];
+
+	$slackUrl = SLACK_WEBHOOK_URL_NEW_CUSTOMER_CHANNEL;
+	$slackMessageBody = [
+		'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
 
 
 
