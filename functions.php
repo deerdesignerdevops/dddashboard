@@ -74,8 +74,9 @@ add_action( 'rest_api_init', function () {
 
 
 
-function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan){
-	$slackUrl = SLACK_WEBHOOK_URL_NEW_CUSTOMER_CHANNEL;
+//SLACK NOTIFICATIONS
+function sendPaymentCompleteNotificationToSlack($customerName, $customerEmail, $customerPlan){
+	$slackUrl = 'https://hooks.slack.com/services/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';
 	$slackMessageBody = [
 		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
 *Client:* ' . $customerName . ' ' . $customerEmail . '
@@ -92,42 +93,69 @@ Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 		),
 	) );
 }
+add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack' );
 
 
-function sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl){
-	$body = "<p style='font-family: Helvetica, Arial, sans-serif; font-size: 15px;line-height: 1.5em;font-weight: bold;'>Let's get you on board!</p>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi there, Thanks for signing up! 😍</p>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>To confirm your email and start onboarding, please click the button below:</p>
-<br>
-<a rel='noopener' target='_blank' href='$customerUrl' style='background-color: #43b5a0; font-size: 15px; font-family: Helvetica, Arial, sans-serif; font-weight: bold; text-decoration: none; padding: 10px 20px; color: #ffffff; border-radius: 50px; display: inline-block; mso-padding-alt: 0;'>
-    <!--[if mso]>
-    <i style='letter-spacing: 25px; mso-font-width: -100%; mso-text-raise: 30pt;'>&nbsp;</i>
-    <![endif]-->
-    <span style='mso-text-raise: 15pt;'>Fill out onboarding form</span>
-    <!--[if mso]>S
-    <i style='letter-spacing: 25px; mso-font-width: -100%;'>&nbsp;</i>
-    <![endif]-->
-</a>
-<br><br>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>For your first access use these credentials below:<br>
-username: $customerEmail <br>
-password: change_123
-</p>
-<br><br>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>As soon as you complete the onboarding form, we'll create your profile and match you with a designer (up to 1 business day). Feel free to log in and send your first request.</p>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br> Deer Designer Team</p>
-    <a href='https://deerdesigner.com'><img src='https://deerdesigner.com/wp-content/uploads/logo-horizontal.png' style='width:150px' alt=''></a>";
+
+function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
+	$userName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+	$currentUser = wp_get_current_user(get_current_user_id());
+	$companyName = $formData['company_name'];
+	$userCity = $currentUser->billing_city;
+	$userCountry = $currentUser->billing_country;
+
+	$slackUrl = 'https://hooks.slack.com/services/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';
+	$slackMessageBody = [
+		'text'  => '<!channel> :rocket:Onboarded: ' . $userName . '(' . $companyName . ')' . ' from ' . $userCity . ', ' . $userCountry,
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
+
+
+
+// function sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl){
+// 	$body = "<p style='font-family: Helvetica, Arial, sans-serif; font-size: 15px;line-height: 1.5em;font-weight: bold;'>Let's get you on board!</p>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi there, Thanks for signing up! 😍</p>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>To confirm your email and start onboarding, please click the button below:</p>
+// <br>
+// <a rel='noopener' target='_blank' href='$customerUrl' style='background-color: #43b5a0; font-size: 15px; font-family: Helvetica, Arial, sans-serif; font-weight: bold; text-decoration: none; padding: 10px 20px; color: #ffffff; border-radius: 50px; display: inline-block; mso-padding-alt: 0;'>
+//     <!--[if mso]>
+//     <i style='letter-spacing: 25px; mso-font-width: -100%; mso-text-raise: 30pt;'>&nbsp;</i>
+//     <![endif]-->
+//     <span style='mso-text-raise: 15pt;'>Fill out onboarding form</span>
+//     <!--[if mso]>S
+//     <i style='letter-spacing: 25px; mso-font-width: -100%;'>&nbsp;</i>
+//     <![endif]-->
+// </a>
+// <br><br>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>For your first access use these credentials below:<br>
+// username: $customerEmail <br>
+// password: change_123
+// </p>
+// <br><br>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>As soon as you complete the onboarding form, we'll create your profile and match you with a designer (up to 1 business day). Feel free to log in and send your first request.</p>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br> Deer Designer Team</p>
+//     <a href='https://deerdesigner.com'><img src='https://deerdesigner.com/wp-content/uploads/logo-horizontal.png' style='width:150px' alt=''></a>";
 
 	
-	$subject = "Start your onboarding process now!";
+// 	$subject = "Start your onboarding process now!";
 
-    $headers = array(
-        'Content-Type: text/html; charset=UTF-8',
-        'Reply-To: Wanessa <help@deerdesigner.com>',
-    );
+//     $headers = array(
+//         'Content-Type: text/html; charset=UTF-8',
+//         'Reply-To: Wanessa <help@deerdesigner.com>',
+//     );
 
-	wp_mail($customerEmail, $subject, $body, $headers);
-}
+// 	wp_mail($customerEmail, $subject, $body, $headers);
+// }
 
 
 
@@ -147,12 +175,12 @@ function createUserAfterStripePurchase($req){
 
 	$customerUrl = "http://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
 
-	if(empty(get_user_by('email', $customerEmail))){
-		wp_create_user($customerEmail, 'change_123', $customerEmail);
-		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
-	}
+	// if(empty(get_user_by('email', $customerEmail))){
+	// 	wp_create_user($customerEmail, 'change_123', $customerEmail);
+	// 	sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
+	// }
 	
-	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
+	//sendPaymentCompleteNotificationToSlack($customerName, $customerEmail, $customerPlan);
 	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
 }
 
@@ -164,6 +192,7 @@ add_action( 'rest_api_init', function () {
     'callback' => 'createUserAfterStripePurchase',
   ) );
 } );
+
 
 
 function hideAdminBarForNonAdminUser(){
@@ -188,7 +217,6 @@ function redirectNonAdminUsersToHomepage(){
 	}
 }
 add_action('admin_head', 'redirectNonAdminUsersToHomepage');
-
 
 
 
@@ -242,6 +270,7 @@ add_action( 'show_user_profile', 'displayUserOnboardedCheckboxOnAdminPanel' );
 add_action( 'edit_user_profile', 'displayUserOnboardedCheckboxOnAdminPanel' );
 
 
+
 function updateIfUserIsOnboarded($user_id){
 	if($_POST['is_user_onboarded']){
 		update_user_meta( $user_id, 'is_user_onboarded', 1 );
@@ -286,29 +315,6 @@ function subscribeUserToMoosendEmailList($entryId, $formData, $form){
 	curl_exec($ch);
 
 	curl_close($ch);
-}
-add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
-
-
-
-function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
-	$user_name = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-	$user_email = $formData['email'];
-	$slackUrl = SLACK_WEBHOOK_URL_NEW_CUSTOMER_CHANNEL;
-	$slackMessageBody = [
-		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
-*Client:* ' . $user_name . ' ' . $user_email . '
-Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
-		'username' => 'Marcus',
-	];
-
-
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
 }
 add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
 
@@ -526,9 +532,8 @@ function limitProductQuantityToOne($cart_item_data, $product_id) {
 add_filter('woocommerce_add_to_cart_validation', 'limitProductQuantityToOne', 10, 2);
 
 
-remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
-add_action( 'woocommerce_review_order_after_cart_contents', 'woocommerce_checkout_coupon_form_custom' );
-function woocommerce_checkout_coupon_form_custom() {
+
+function customCheckoutCouponForm() {
     echo '<tr class="coupon-form"><td colspan="2">';
     
     wc_get_template(
@@ -539,7 +544,5 @@ function woocommerce_checkout_coupon_form_custom() {
     );
     echo '</tr></td>';
 }
-
-
-
-
+remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
+add_action( 'woocommerce_review_order_after_cart_contents', 'customCheckoutCouponForm' );

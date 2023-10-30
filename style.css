@@ -345,6 +345,9 @@ input.ff-read-only {
 }
 
 /*WOOCOMMERCE CHECKOUT*/
+.wc_payment_methods {
+  border-bottom: none !important;
+}
 
 .woocommerce-checkout .checkout_coupon.woocommerce-form-coupon {
   display: block !important;
