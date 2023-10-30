@@ -75,15 +75,25 @@ add_action( 'rest_api_init', function () {
 
 
 //SLACK NOTIFICATIONS
-function sendPaymentCompleteNotificationToSlack($customerName, $customerEmail, $customerPlan){
+function sendPaymentCompleteNotificationToSlack($order_id){
+	$order = wc_get_order( $order_id );
+	$orderData = $order->get_data();
+	$orderItems = $order->get_items();
+	$orderItemsGroup = [];
+
+	foreach( $orderItems as $item_id => $item ){
+		$itemName = $item->get_name();
+		array_push($orderItemsGroup, $itemName);
+	}
+
 	$slackUrl = SLACK_WEBHOOK_URL_MARCUS;
-	$customerName = "Marcus";
-	$customerEmail = "marcusfreitasantos@gmail.com";
+	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+	$customerEmail = $orderData['billing']['email'];
 	$customerPlan = "Business Plan";
 	$slackMessageBody = [
 		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
 *Client:* ' . $customerName . ' ' . $customerEmail . '
-*Plan:* ' . $customerPlan . '
+*Plan:* ' . implode(" | ", $orderItemsGroup) . '
 Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 		'username' => 'Marcus',
 	];
@@ -96,7 +106,33 @@ Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 		),
 	) );
 }
-add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack' );
+add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
+
+
+
+function sendPaymentFailedNotificationToSlack($order_id){
+	$order = wc_get_order( $order_id );
+	$orderData = $order->get_data();
+
+	$slackUrl = SLACK_WEBHOOK_URL_MARCUS;
+	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+	$customerEmail = $orderData['billing']['email'];
+	$slackMessageBody = [
+		'text'  => '<!channel> Payment failed :x:
+' . $customerName . ' - ' . $customerEmail . '
+:arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToSlack');
 
 
 
