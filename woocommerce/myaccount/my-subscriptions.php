@@ -77,44 +77,54 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 				$switchVariationID = 0;
 				?>
 				
-				
-				<div class="dd__subscription_card <?php echo esc_attr( $subscription->get_status() ); ?>">
-					<div class="dd__subscription_details">                        
+				<?php if($subscription->get_status() !== "cancelled"){ ?>				
+					<div class="dd__subscription_card <?php echo esc_attr( $subscription->get_status() ); ?>">
+						<div class="dd__subscription_details">                        
 
-						<div class="dd__subscription_header">
-							<span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo esc_attr( $subscription->get_status() ); ?></strong></span>
+							<div class="dd__subscription_header">
+								<span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo esc_attr( $subscription->get_status() ); ?></strong></span>
+							</div>
+
+							<?php foreach ( $subscription->get_items() as $item_id => $item ){ ?>
+						
+								<span class="dd__subscription_title">														
+									<?php if(sizeof($subscription->get_items()) > 1) { ?>
+											<span class="remove_item">
+												<?php if ( wcs_can_item_be_removed( $item, $subscription ) ) : ?>
+													<?php $confirm_notice = apply_filters( 'woocommerce_subscriptions_order_item_remove_confirmation_text', __( 'Are you sure you want remove this item from your subscription?', 'woocommerce-subscriptions' ), $item, $_product, $subscription );?>
+													<a href="<?php echo esc_url( WCS_Remove_Item::get_remove_url( $subscription->get_id(), $item_id ) );?>" class="remove" onclick="return confirm('<?php printf( esc_html( $confirm_notice ) ); ?>');">&times;</a>
+												<?php endif; ?>
+											</span>
+									<?php } ?>
+									<?php echo $item['name']; ?>
+							</span>
+							<?php } ?>
+							<span class="dd__subscription_price"><?php echo wp_kses_post( $subscription->get_formatted_order_total() ); ?></span>
+
+							<?php foreach ( $dates_to_display as $date_type => $date_title ) : ?>
+								<?php $date = $subscription->get_date( $date_type ); ?>
+								<?php if ( ! empty( $date ) ) : ?>
+									<span class="dd__subscription_payment"><?php echo esc_html( $date_title ); ?>: <?php echo esc_html( $subscription->get_date_to_display( $date_type ) ); ?></span>							
+								<?php endif; ?>
+							<?php endforeach; ?>
 						</div>
 
-						<?php foreach ( $subscription->get_items() as $item_id => $item ){ 
-							$switchVariationID = $item['variation_id'];
-							?>
-							<span class="dd__subscription_title"><?php echo $item['name']; ?></span>
-						<?php } ?>
-						<span class="dd__subscription_price"><?php echo wp_kses_post( $subscription->get_formatted_order_total() ); ?></span>
+						<div class="dd__subscription_actions_form">
+							<?php if($subscription->get_status() === "active" || $subscription->get_status() !== "cancelled" ){ ?>
 
-						<?php foreach ( $dates_to_display as $date_type => $date_title ) : ?>
-							<?php $date = $subscription->get_date( $date_type ); ?>
-							<?php if ( ! empty( $date ) ) : ?>
-								<span class="dd__subscription_payment"><?php echo esc_html( $date_title ); ?>: <?php echo esc_html( $subscription->get_date_to_display( $date_type ) ); ?></span>							
-							<?php endif; ?>
-						<?php endforeach; ?>
+							<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
+							<?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); ?>
+									<?php if ( ! empty( $actions ) ) { ?>
+										<div class="dd__subscriptions_buttons_wrapper">						
+											<?php foreach ( $actions as $key => $action ) : ?>
+												<a href="<?php echo esc_url( $action['url'] ); ?>" class="dd__subscription_cancel_btn <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+											<?php endforeach; ?>
+										</div>
+									<?php };
+							} ?>
+						</div>
 					</div>
-
-					<div class="dd__subscription_actions_form">
-						<?php if($subscription->get_status() === "active" || $subscription->get_status() !== "cancelled" ){ ?>
-
-						<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
-						<?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); ?>
-								<?php if ( ! empty( $actions ) ) { ?>
-									<div class="dd__subscriptions_buttons_wrapper">						
-										<?php foreach ( $actions as $key => $action ) : ?>
-											<a href="<?php echo esc_url( $action['url'] ); ?>" class="dd__subscription_cancel_btn <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
-										<?php endforeach; ?>
-									</div>
-								<?php };
-						 } ?>
-					</div>
-				</div>
+				<?php } ?>
 			<?php endforeach; ?>
 				
 			<?php else : ?>

@@ -61,10 +61,10 @@
 
 .dd__subscription_card {
   padding: 40px;
-  margin: 12px 0;
+  margin: 30px 0;
   border-radius: 10px;
+  border: 1px solid #ababab;
   background-color: #fff;
-  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 10%);
   display: flex;
   gap: 40px;
   justify-content: space-between;
@@ -112,13 +112,20 @@
   display: flex;
   gap: 60px;
   align-items: center;
-  padding: 20px 0;
+  padding-bottom: 20px;
 }
 
 .dd__subscription_title {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--e-global-color-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.remove_item {
+  font-size: 1rem;
 }
 
 .dd__subscription_warning {

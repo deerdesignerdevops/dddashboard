@@ -35,6 +35,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 			<?php
 			$couponDiscount = 0;
 			foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+				
 				if( count( WC()->cart->get_applied_coupons() ) > 0 ) {
 					$couponsApplied = WC()->cart->get_applied_coupons();
 					foreach($couponsApplied as $coupon){ 
@@ -128,7 +129,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 								<div class="cart__product_subtotal">
 									<span>Subtotal</span>
 										<?php
-											echo "$" . $_product->get_price() . ".00";											
+											echo "$" . $_product->get_price() . ".00" . " /" . $_product->get_data()['meta_data'][0]->value;											
 										?>
 								</div>
 
@@ -142,7 +143,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 										<div class="cart__product_subtotal">
 											<span>Total: </span>
 												<?php
-													echo "$" . $_product->get_price() * ($couponDiscount / 100);
+													echo "$" . $_product->get_price() * ($couponDiscount / 100) . " /" . $_product->get_data()['meta_data'][0]->value;
 												?>
 										</div>
 									<?php }
