@@ -76,7 +76,7 @@ add_action( 'rest_api_init', function () {
 
 //SLACK NOTIFICATIONS
 function sendPaymentCompleteNotificationToSlack($customerName, $customerEmail, $customerPlan){
-	$slackUrl = 'https://hooks.slack.com/services/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';
+	$slackUrl = SLACK_WEBHOOK_URL_MARCUS;
 	$slackMessageBody = [
 		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
 *Client:* ' . $customerName . ' ' . $customerEmail . '
@@ -104,7 +104,7 @@ function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
 	$userCity = $currentUser->billing_city;
 	$userCountry = $currentUser->billing_country;
 
-	$slackUrl = 'https://hooks.slack.com/services/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';
+	$slackUrl = SLACK_WEBHOOK_URL_MARCUS;
 	$slackMessageBody = [
 		'text'  => '<!channel> :rocket:Onboarded: ' . $userName . '(' . $companyName . ')' . ' from ' . $userCity . ', ' . $userCountry,
 		'username' => 'Marcus',
