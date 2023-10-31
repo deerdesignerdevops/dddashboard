@@ -28,10 +28,7 @@ function defineAddDesignerLinkProductID($parentProducts){;
 	}
 }
 
-$all_product_addons = wc_get_products([
-   'category' => get_term(32, 'product_cat')->slug
-]);
-
+$userCurrentAddons = [];
 
 $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_display', array(
 	'start_date'              => _x( 'Start date', 'customer subscription table header', 'woocommerce-subscriptions' ),
@@ -39,7 +36,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 	'next_payment'            => _x( 'Next payment date', 'customer subscription table header', 'woocommerce-subscriptions' ),
 	'end'                     => _x( 'End date', 'customer subscription table header', 'woocommerce-subscriptions' ),
 	'trial_end'               => _x( 'Trial end date', 'customer subscription table header', 'woocommerce-subscriptions' ),
-), $subscription );
+) );
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -70,8 +67,9 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 							foreach($subscriptions as $subscriptionItem){ 
 								foreach($subscriptionItem->get_items() as $item_id => $item){
 									array_push($allSubscriptionsGroup, $item['name']);
+									array_push($userCurrentAddons, $item['product_id']);
 								}	
-								
+
 								if($subscriptionItem->has_status( 'active' )){
 									foreach($subscriptionItem->get_items() as $item_id => $item){
 										array_push($activeSubscriptionsGroup, $item['name']);
@@ -96,6 +94,13 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 							<a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo defineAddDesignerLinkProductID($allSubscriptionsGroup); ?>" class="dd__add_designer_btn">Add a Designer</a>
 						</div>
 					</div>
+
+					<?php
+						$all_product_addons = wc_get_products([
+							'category' => get_term(32, 'product_cat')->slug,
+							'exclude' => $userCurrentAddons
+							]);
+					?>
 
 					<div class="subscriptions__addons_wrapper">
 						<div class="cart__addons">

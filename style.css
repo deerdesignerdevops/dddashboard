@@ -552,8 +552,7 @@ input.ff-read-only {
   margin: 0 !important;
 }
 
-.woocommerce-checkout #payment div.payment_box::before,
-.woocommerce-notices-wrapper {
+.woocommerce-checkout #payment div.payment_box::before {
   display: none;
 }
 
