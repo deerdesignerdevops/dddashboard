@@ -232,11 +232,14 @@ foreach($all_product_addons as $product_addon){
 			foreach($product_addons as $addon){
 					?>
 					<div class="addon__card">
-						<span class="addon__title"><?php echo $addon->name; ?></span><br>
-						<span class="addon__title"><?php echo "$$addon->price / month"; ?></span>
-						<div class="addon__description">
-							<?php echo $addon->description; ?>
+						<div class="addon__card_info">
+							<span class="addon__title"><?php echo $addon->name; ?></span><br>
+							<span class="addon__title"><?php echo "$$addon->price / month"; ?></span>
+							<div class="addon__description">
+								<?php echo $addon->description; ?>
+							</div>
 						</div>
+	
 						<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
 					</div>				
 			<?php } ?>

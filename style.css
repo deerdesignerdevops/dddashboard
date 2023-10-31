@@ -576,6 +576,7 @@ input.ff-read-only {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 0;
+  flex-wrap: wrap;
 }
 
 .addon__card {
@@ -584,6 +585,9 @@ input.ff-read-only {
   border-radius: 0 0 5px 5px;
   border-top: 3px solid #ccc;
   margin: 5px;
+  width: 45%;
+  display: flex;
+  flex-direction: column;
 }
 
 .addon__title {

@@ -68,14 +68,14 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 						
 						<?php
 							foreach($subscriptions as $subscriptionItem){ 
+								foreach($subscriptionItem->get_items() as $item_id => $item){
+									array_push($allSubscriptionsGroup, $item['name']);
+								}	
+								
 								if($subscriptionItem->has_status( 'active' )){
 									foreach($subscriptionItem->get_items() as $item_id => $item){
 										array_push($activeSubscriptionsGroup, $item['name']);
 									}
-								}else{
-									foreach($subscriptionItem->get_items() as $item_id => $item){
-										array_push($allSubscriptionsGroup, $item['name']);
-									}	
 								}
 							}
 
