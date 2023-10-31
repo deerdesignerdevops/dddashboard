@@ -136,25 +136,27 @@ add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToS
 
 
 function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
-	$userName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-	$currentUser = wp_get_current_user(get_current_user_id());
-	$companyName = $formData['company_name'];
-	$userCity = $currentUser->billing_city;
-	$userCountry = $currentUser->billing_country;
+	if($form->id === 3){
+		$userName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+		$currentUser = wp_get_current_user(get_current_user_id());
+		$companyName = $formData['company_name'];
+		$userCity = $currentUser->billing_city;
+		$userCountry = $currentUser->billing_country;
 
-	$slackUrl = SLACK_WEBHOOK_URL_MARCUS;
-	$slackMessageBody = [
-		'text'  => '<!channel> :rocket:Onboarded: ' . $userName . ' (' . $companyName . ') ' . 'from ' . $userCity . ', ' . $userCountry,
-		'username' => 'Marcus',
-	];
+		$slackUrl = SLACK_WEBHOOK_URL_MARCUS;
+		$slackMessageBody = [
+			'text'  => '<!channel> :rocket:Onboarded: ' . $userName . ' (' . $companyName . ') ' . 'from ' . $userCity . ', ' . $userCountry,
+			'username' => 'Marcus',
+		];
 
 
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
+		wp_remote_post( $slackUrl, array(
+			'body'        => wp_json_encode( $slackMessageBody ),
+			'headers' => array(
+				'Content-type: application/json'
+			),
+		) );
+	}
 }
 add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
 
@@ -364,6 +366,16 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 //***************CUSTOM CODES FOR WOOCOMMERCE
+function changeActionsButtonsLabel( $actions, $subscription ){
+    if( isset( $actions['suspend'] ) ){
+        $actions['suspend']['name'] = __( 'Pause', 'woocommerce-subscriptions' );
+    }
+    return $actions;
+}
+add_filter( 'wcs_view_subscription_actions', 'changeActionsButtonsLabel', 10, 2 );
+
+
+
 function redirectUserAfterSubscriptionStatusUpdated(){
 	$url = site_url() . "/subscriptions";
 

@@ -12,7 +12,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $siteUrl = site_url();
-$activeSubscriptionsGroups = [];
+$activeSubscriptionsGroup = [];
+$allSubscriptionsGroup = [];
+$product_addons = [];
+
+function defineAddDesignerLinkProductID($parentProducts){;
+	foreach($parentProducts as $parentProduct){
+		if(strpos($parentProduct, 'Business') !== false){
+			return '934';
+		}else if(strpos($parentProduct, 'Agency') !== false){
+			return '937';
+		}else{
+			return '928';
+		}
+	}
+}
+
+$all_product_addons = wc_get_products([
+   'category' => get_term(32, 'product_cat')->slug
+]);
+
+
 $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_display', array(
 	'start_date'              => _x( 'Start date', 'customer subscription table header', 'woocommerce-subscriptions' ),
 	'last_order_date_created' => _x( 'Last order date', 'customer subscription table header', 'woocommerce-subscriptions' ),
@@ -45,35 +65,69 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 			<?php if ( ! empty( $subscriptions ) ) : ?>
 				<div class="dd__subscriptions_sumary">            
 					<div class="dd__subscription_details">  
-						<h2>You have:</h2>   
+						
 						<?php
 							foreach($subscriptions as $subscriptionItem){ 
 								if($subscriptionItem->has_status( 'active' )){
 									foreach($subscriptionItem->get_items() as $item_id => $item){
-										array_push($activeSubscriptionsGroups, $item['name']);
+										array_push($activeSubscriptionsGroup, $item['name']);
 									}
+								}else{
+									foreach($subscriptionItem->get_items() as $item_id => $item){
+										array_push($allSubscriptionsGroup, $item['name']);
+									}	
 								}
 							}
 
-							foreach(array_unique($activeSubscriptionsGroups) as $activeSubscriptionsGroupsItem){ 
-								$subscriptionItemCount = array_count_values($activeSubscriptionsGroups)[$activeSubscriptionsGroupsItem];
+							if(sizeof($activeSubscriptionsGroup) > 0){ ?>
+								<h2 class="cart__header__title">You have:</h2>
+							<?php }
+
+
+							foreach(array_unique($activeSubscriptionsGroup) as $activeSubscriptionsGroupItem){ 
+								$subscriptionItemCount = array_count_values($activeSubscriptionsGroup)[$activeSubscriptionsGroupItem];
 							?>
-								<span class="dd__subscriptions_sumary_name"><?php echo $activeSubscriptionsGroupsItem; ?> <strong><?php echo $subscriptionItemCount; ?></strong></span>
+								<span class="dd__subscriptions_sumary_name"><?php echo $activeSubscriptionsGroupItem; ?> <strong><?php echo $subscriptionItemCount; ?></strong></span>
 
 							<?php }
 						?>
 						
 						<div class="dd__subscriptions_buttons_wrapper" style="margin-top: 20px;">
-							<a href="https://deerdesigner.com/pricing" class="dd__add_designer_btn">Add a Designer</a>
+							<a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo defineAddDesignerLinkProductID($allSubscriptionsGroup); ?>" class="dd__add_designer_btn">Add a Designer</a>
+						</div>
+					</div>
+
+					<div class="subscriptions__addons_wrapper">
+						<div class="cart__addons">
+							<?php if(sizeof($all_product_addons) > 0){ ?>
+								<h2 class="cart__header__title">Available Addons for you</h2>
+							<?php } ?>
+
+							<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">
+								
+									<?php
+										foreach($all_product_addons as $addon){
+												?>
+												<div class="addon__card">
+													<span class="addon__title"><?php echo $addon->name; ?></span><br>
+													<span class="addon__title"><?php echo "$$addon->price / month"; ?></span>
+													<div class="addon__description">
+														<?php echo $addon->description; ?>
+													</div>
+													<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
+												</div>				
+										<?php } ?>
+								
+							</form>
 						</div>
 					</div>
 				</div>
 
 
 
-			<?php /** @var WC_Subscription $subscription */ ?>
+			<?php /** @var WC_Subscription $subscription */ //print_r($subscriptions[0]->get_items()); ?>
 			<?php foreach ( $subscriptions as $subscription_id => $subscription ) :
-				//print_r($subscription);
+				
 				$switchVariationID = 0;
 				?>
 				
@@ -117,7 +171,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 									<?php if ( ! empty( $actions ) ) { ?>
 										<div class="dd__subscriptions_buttons_wrapper">						
 											<?php foreach ( $actions as $key => $action ) : ?>
-												<a href="<?php echo esc_url( $action['url'] ); ?>" class="dd__subscription_cancel_btn <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+												<a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $item['name']; ?>" class="dd__subscription_cancel_btn <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
 											<?php endforeach; ?>
 										</div>
 									<?php };
@@ -143,19 +197,75 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 </section>
 
 <script>
-const subscriptionsActionssBtns = Array.from(document.querySelectorAll('.dd__subscription_actions_form a'));
-const loadingSpinner = document.querySelector(".dd__loading_screen");
-subscriptionsActionssBtns.map((btn) => {
-	btn.addEventListener("click", function(e){
-		e.preventDefault();
-		if (confirm("Are you sure?") == true) {
-			loadingSpinner.style.display = "flex";
-			location.href = e.currentTarget.href
-		} else {
-			return false;
-		};
+//THIS SCRIPT STOP THE DEFUALT WOOCOMMERCE REDIRECT FOR THE SUBSCRIPTION ACTIONS AND ASK THE USER IN ORDER TO PREVENT ACCIDENTAL CANCELLATIONS
+//IT CHANGES THE POPUP TEXT AND LINK BASED ON THE BUTTON CLICKED
+
+document.addEventListener("DOMContentLoaded", function(){
+	const subscriptionsActionssBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
+	const loadingSpinner = document.querySelector(".dd__loading_screen");
+	
+
+	subscriptionsActionssBtns.map((btn) => {
+		btn.addEventListener("click", function(e){
+			e.preventDefault();
+			let popupID = 2776
+			let popupMsgNewText = ""
+
+			elementorProFrontend.modules.popup.showPopup( {id:popupID}, event);
+
+			if(e.currentTarget.classList.contains("suspend")){
+				popupMsgNewText = "ARE YOU SURE YOU WANT TO <span><br>PAUSE THIS PLAN?</span>";
+			}else if(e.currentTarget.classList.contains("reactivate")){
+				popupMsgNewText = "REACTIVATE <span>THIS PLAN?</span>";
+			}else if(e.currentTarget.classList.contains("cancel")){
+				popupMsgNewText = "ARE YOU SURE YOU WANT TO <span><br>CANCEL THIS PLAN?</span>";
+				document.querySelector(".confirm_btn").style.display = "none"
+				document.querySelector(".cancel_form").classList.add("show_form")
+				document.querySelector(".cancel_form input[type='text']").value = e.currentTarget.dataset.plan
+				document.querySelector(".cancel_form form").elements['cancellation_url'].value = e.currentTarget.href
+			}else{
+				popupMsgNewText = "ARE YOU SURE YOU WANT TO <span>UPDATE THIS PLAN?</span>";
+			}
+ 
+			document.querySelector(".pause_popup .popup_msg h3").innerHTML = popupMsgNewText
+
+			let confirmBtn = document.querySelectorAll(".confirm_btn a");
+			confirmBtn.forEach((popupBtn) => {			
+				popupBtn.href = e.currentTarget.href;
+				popupBtn.addEventListener("click", function(){
+					loadingSpinner.style.display = "flex";
+					document.querySelector(".elementor-popup-modal").style.display = "none"
+				})
+			});		
+		})
 	})
 })
+</script>
 
-
+<script>
+	$('.addons__carousel_form').slick({
+		autoplay: true,
+  		autoplaySpeed: 2000,
+		arrows: false,
+		dots: true,
+		infinite: true,
+		speed: 300,
+		slidesToShow: 2,
+		responsive: [
+			{
+			breakpoint: 768,
+			settings: {
+				slidesToShow: 1,
+				slidesToScroll: 1
+			}
+			},
+			{
+			breakpoint: 480,
+			settings: {
+				slidesToShow: 1,
+				slidesToScroll: 1
+			}
+			}
+  		]
+	});
 </script>

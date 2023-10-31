@@ -23,7 +23,21 @@ do_action( 'woocommerce_before_cart' ); ?>
 .coupon{
 	display: none;
 }
-	</style>
+</style>
+
+<?php
+function defineSubscriptionPeriod($productPrice){
+	if(strpos($productPrice, 'month') !== false){
+		return strstr($productPrice, '/ month');
+	}else if(strpos($productPrice, 'year') !== false){
+		return strstr($productPrice, '/ year');
+	}else{
+		return "";
+	}
+}
+?>
+
+
 
 <form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
 	<?php do_action( 'woocommerce_before_cart_table' ); ?>
@@ -48,9 +62,8 @@ do_action( 'woocommerce_before_cart' ); ?>
 				$_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 				$parent_product= wc_get_product($_product->get_parent_id());
 				$product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
-	
 				$product_name = apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key );
-
+				$productPrice = apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ));
 				$product_description = $parent_product ? $parent_product->description : $_product->description;
 
 				if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
@@ -81,9 +94,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 						</div>
 
 						<span class="cart__header_price">
-							<?php
-								echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
-							?>
+							<?php echo $productPrice; ?>
 						</span>
 
 						<div class="cart__content">						
@@ -129,7 +140,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 								<div class="cart__product_subtotal">
 									<span>Subtotal</span>
 										<?php
-											echo "$" . $_product->get_price() . ".00" . " /" . $_product->get_data()['meta_data'][0]->value;											
+											echo "$" . $_product->get_price() . ".00" . defineSubscriptionPeriod($productPrice);											
 										?>
 								</div>
 
@@ -143,7 +154,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 										<div class="cart__product_subtotal">
 											<span>Total: </span>
 												<?php
-													echo "$" . $_product->get_price() * ($couponDiscount / 100) . " /" . $_product->get_data()['meta_data'][0]->value;
+													echo "$" . $_product->get_price() * ($couponDiscount / 100) . defineSubscriptionPeriod($productPrice);
 												?>
 										</div>
 									<?php }
@@ -216,7 +227,7 @@ foreach($all_product_addons as $product_addon){
 		<h2 class="cart__header__title">Available Addons</h2>
 	<?php } ?>
 
-	<form action="" method="post" enctype="multipart/form-data">
+	<form action="" method="post" enctype="multipart/form-data" class="cart__addons_checkout_form">
 		<?php
 			foreach($product_addons as $addon){
 					?>

@@ -10,6 +10,7 @@
   display: none;
   justify-content: center;
   align-items: center;
+  z-index: 999;
 }
 
 .lds-ring {
@@ -82,11 +83,11 @@
   display: flex;
   gap: 40px;
   justify-content: space-between;
-  align-items: center;
 }
 
-.dd__subscriptions_sumary .dd__subscription_details {
-  width: 100%;
+.dd__subscriptions_sumary .dd__subscription_details,
+.subscriptions__addons_wrapper {
+  width: 50%;
 }
 
 .dd__subscription_id.active strong {
@@ -100,6 +101,7 @@
   flex-direction: column;
   width: 80%;
   color: var(--e-global-color-text);
+  flex-wrap: wrap;
 }
 
 .dd__subscription_id,
@@ -223,4 +225,21 @@
   border-radius: 50px 50px 50px 50px !important;
   padding: 10px 30px 10px 30px !important;
   text-align: center !important;
+}
+
+.addons__carousel_form {
+  display: flex !important;
+}
+
+/*CANCELLATION FORM*/
+.cancel_form {
+  display: none;
+}
+
+.cancel_form button {
+  border-radius: 50px !important;
+}
+
+.show_form {
+  display: block;
 }
