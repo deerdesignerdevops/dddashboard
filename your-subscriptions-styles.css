@@ -231,6 +231,10 @@
   display: flex !important;
 }
 
+.addons__carousel_form .addon__card {
+  width: auto;
+}
+
 /*CANCELLATION FORM*/
 .cancel_form {
   display: none;

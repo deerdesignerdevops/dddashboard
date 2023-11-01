@@ -14,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 $siteUrl = site_url();
 $activeSubscriptionsGroup = [];
 $allSubscriptionsGroup = [];
-$product_addons = [];
 
 function defineAddDesignerLinkProductID($parentProducts){;
 	foreach($parentProducts as $parentProduct){
@@ -169,18 +168,19 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 						</div>
 
 						<div class="dd__subscription_actions_form">
-							<?php if($subscription->get_status() === "active" || $subscription->get_status() !== "cancelled" ){ ?>
+							<?php if($subscription->get_status() === "active"){ ?>
+								<a href="#" class="dd__add_designer_btn">Change Plan</a>	
+							<?php } ?>
 
 							<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
 							<?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); ?>
 									<?php if ( ! empty( $actions ) ) { ?>
 										<div class="dd__subscriptions_buttons_wrapper">						
 											<?php foreach ( $actions as $key => $action ) : ?>
-												<a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $item['name']; ?>" class="dd__subscription_cancel_btn <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+												<a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__subscription_cancel_btn <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
 											<?php endforeach; ?>
 										</div>
-									<?php };
-							} ?>
+									<?php }; ?>
 						</div>
 					</div>
 				<?php } ?>
@@ -226,8 +226,9 @@ document.addEventListener("DOMContentLoaded", function(){
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <span><br>CANCEL THIS PLAN?</span>";
 				document.querySelector(".confirm_btn").style.display = "none"
 				document.querySelector(".cancel_form").classList.add("show_form")
-				document.querySelector(".cancel_form input[type='text']").value = e.currentTarget.dataset.plan
-				document.querySelector(".cancel_form form").elements['cancellation_url'].value = e.currentTarget.href
+				document.querySelector(".cancel_form form").elements['form_subscription_plan'].value = e.currentTarget.dataset.plan
+				document.querySelector(".cancel_form form").elements['form_subscription_update_url'].value = e.currentTarget.href
+				document.querySelector(".cancel_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${e.currentTarget.dataset.subscriptionId}&action=edit`
 			}else{
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <span>UPDATE THIS PLAN?</span>";
 			}
@@ -252,10 +253,9 @@ document.addEventListener("DOMContentLoaded", function(){
 		autoplay: true,
   		autoplaySpeed: 2000,
 		arrows: false,
-		dots: true,
 		infinite: true,
 		speed: 300,
-		slidesToShow: 2,
+		slidesToShow: <?php echo sizeof($all_product_addons) > 2 ? 2 : 1; ?>,
 		responsive: [
 			{
 			breakpoint: 768,
