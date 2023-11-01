@@ -85,9 +85,12 @@
   justify-content: space-between;
 }
 
-.dd__subscriptions_sumary .dd__subscription_details,
+.dd__subscriptions_sumary .dd__subscription_details {
+  width: 70%;
+}
+
 .subscriptions__addons_wrapper {
-  width: 50%;
+  width: 30%;
 }
 
 .dd__subscription_id.active strong {
@@ -229,6 +232,24 @@
 
 .addons__carousel_form {
   display: flex !important;
+}
+
+.addons__carousel_form .slick-prev:before,
+.addons__carousel_form .slick-next:before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 40px;
+  background-repeat: no-repeat;
+  background-size: 20px;
+}
+
+.addons__carousel_form .slick-prev:before {
+  background-image: url("assets/img/prev-arrow.svg");
+}
+
+.addons__carousel_form .slick-next:before {
+  background-image: url("assets/img/next-arrow.svg");
 }
 
 .addons__carousel_form .addon__card {

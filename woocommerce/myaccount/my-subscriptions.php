@@ -259,10 +259,9 @@ document.addEventListener("DOMContentLoaded", function(){
 	$('.addons__carousel_form').slick({
 		autoplay: true,
   		autoplaySpeed: 2000,
-		arrows: false,
 		infinite: true,
 		speed: 300,
-		slidesToShow: <?php echo sizeof($all_product_addons) >= 2 ? 2 : 1; ?>,
+		slidesToShow: 1,
 		responsive: [
 			{
 			breakpoint: 768,
