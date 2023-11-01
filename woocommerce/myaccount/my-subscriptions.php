@@ -51,6 +51,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 </div>
 
 
+<?php if($_GET["change-your-plan"]){ wc_print_notice('We received you request!'); } ?>
 
 <section class="dd__bililng_portal_section">
     <div style="max-width: 1140px; margin: auto">
@@ -113,15 +114,17 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 										foreach($all_product_addons as $addon){
 												?>
 												<div class="addon__card">
-													<span class="addon__title"><?php echo $addon->name; ?></span><br>
-													<span class="addon__title"><?php echo "$$addon->price / month"; ?></span>
-													<div class="addon__description">
-														<?php echo $addon->description; ?>
+													<div class="addon__card_info">
+														<?php echo get_the_post_thumbnail( $addon->id ); ?>
+														<span class="addon__title"><?php echo $addon->name; ?></span><br>
+														<span class="addon__title"><?php echo "$$addon->price / month"; ?></span>
+														<div class="addon__description">
+															<?php echo $addon->description; ?>
+														</div>
 													</div>
 													<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
 												</div>				
 										<?php } ?>
-								
 							</form>
 						</div>
 					</div>
@@ -130,10 +133,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 
 
 			<?php /** @var WC_Subscription $subscription */ //print_r($subscriptions[0]->get_items()); ?>
-			<?php foreach ( $subscriptions as $subscription_id => $subscription ) :
-				
-				$switchVariationID = 0;
-				?>
+			<?php foreach ( $subscriptions as $subscription_id => $subscription ) : ?>
 				
 				<?php if($subscription->get_status() !== "cancelled"){ ?>				
 					<div class="dd__subscription_card <?php echo esc_attr( $subscription->get_status() ); ?>">
@@ -169,7 +169,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 
 						<div class="dd__subscription_actions_form">
 							<?php if($subscription->get_status() === "active"){ ?>
-								<a href="#" class="dd__add_designer_btn">Change Plan</a>	
+								<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__add_designer_btn">Change Plan</a>	
 							<?php } ?>
 
 							<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
@@ -225,12 +225,19 @@ document.addEventListener("DOMContentLoaded", function(){
 			}else if(e.currentTarget.classList.contains("cancel")){
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <span><br>CANCEL THIS PLAN?</span>";
 				document.querySelector(".confirm_btn").style.display = "none"
-				document.querySelector(".cancel_form").classList.add("show_form")
-				document.querySelector(".cancel_form form").elements['form_subscription_plan'].value = e.currentTarget.dataset.plan
-				document.querySelector(".cancel_form form").elements['form_subscription_update_url'].value = e.currentTarget.href
-				document.querySelector(".cancel_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${e.currentTarget.dataset.subscriptionId}&action=edit`
+				document.querySelector(".update_plan_form").classList.add("show_form")
+				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = e.currentTarget.dataset.plan
+				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = e.currentTarget.href
+				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${e.currentTarget.dataset.subscriptionId}&action=edit`
 			}else{
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <span>UPDATE THIS PLAN?</span>";
+				document.querySelector(".confirm_btn").style.display = "none"
+				document.querySelector(".update_plan_form").classList.add("show_form")
+				document.querySelector(".form_subscription_update_message_field label").innerText = "What do you want to change?"
+				document.querySelector(".update_plan_form form button").innerText = "Change my plan"
+				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = e.currentTarget.dataset.plan
+				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = e.currentTarget.href
+				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${e.currentTarget.dataset.subscriptionId}&action=edit`
 			}
  
 			document.querySelector(".pause_popup .popup_msg h3").innerHTML = popupMsgNewText

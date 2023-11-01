@@ -236,11 +236,11 @@
 }
 
 /*CANCELLATION FORM*/
-.cancel_form {
+.update_plan_form {
   display: none;
 }
 
-.cancel_form button {
+.update_plan_form button {
   border-radius: 50px !important;
 }
 

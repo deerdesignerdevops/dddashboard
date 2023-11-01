@@ -580,13 +580,30 @@ input.ff-read-only {
 
 .addon__card {
   background-color: #eee;
-  padding: 24px;
+  padding: 20px;
   border-radius: 0 0 5px 5px;
   border-top: 3px solid #ccc;
   margin: 5px;
   width: 45%;
-  display: flex;
+  display: flex !important;
   flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.addon__card button {
+  width: 100%;
+}
+
+.addon__card_info {
+  text-align: center;
+}
+
+.addon__card img {
+  width: 100%;
+  object-fit: contain;
+  margin: 0 auto 12px auto;
+  border-radius: 5px;
 }
 
 .addon__title {
@@ -599,7 +616,6 @@ input.ff-read-only {
 .addon__description {
   padding: 20px 0;
   font-size: 0.9rem;
-  min-height: 200px;
 }
 
 .woocommerce-message a {
