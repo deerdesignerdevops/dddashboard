@@ -213,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function(){
 	subscriptionsActionssBtns.map((btn) => {
 		btn.addEventListener("click", function(e){
 			e.preventDefault();
-			let popupID = 2776
+			let popupID = 2608
 			let popupMsgNewText = ""
 
 			elementorProFrontend.modules.popup.showPopup( {id:popupID}, event);
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		arrows: false,
 		infinite: true,
 		speed: 300,
-		slidesToShow: <?php echo sizeof($all_product_addons) > 2 ? 2 : 1; ?>,
+		slidesToShow: <?php echo sizeof($all_product_addons) >= 2 ? 2 : 1; ?>,
 		responsive: [
 			{
 			breakpoint: 768,

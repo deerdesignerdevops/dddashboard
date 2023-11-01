@@ -601,6 +601,7 @@ input.ff-read-only {
 
 .addon__card img {
   width: 100%;
+  max-height: 120px;
   object-fit: contain;
   margin: 0 auto 12px auto;
   border-radius: 5px;
