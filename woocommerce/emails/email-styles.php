@@ -274,7 +274,7 @@ h2 span{
 
 
 .order__email_sumary{
-	background-color: #eee;
+	background-color: #f7f7f7;
 	padding: 10px;
 	margin-top: 40px;
 	color: <?php echo esc_attr( $text ); ?>;
