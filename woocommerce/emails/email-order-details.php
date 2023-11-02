@@ -28,10 +28,10 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 		$after  = '</a>';
 	} else {
 		$before = '';
-		$after  = '';
+		$after  = ' for Your Deer Designer Subscription';
 	}
 	/* translators: %s: Order ID. */
-	echo wp_kses_post( $before . sprintf( __( 'Receipt #%s', 'woocommerce' ) . $after . ' for Your Deer Designer Subscription <br><span>Date paid: <time datetime="%s">%s</time></span>', $order->get_order_number(), $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ) );
+	echo wp_kses_post( $before . sprintf( __( 'Receipt #%s', 'woocommerce' ) . $after . ' <br><span>Date paid: <time datetime="%s">%s</time></span>', $order->get_order_number(), $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ) );
 	?>
 </h2>
 
