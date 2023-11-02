@@ -21,6 +21,7 @@ $text_align  = is_rtl() ? 'right' : 'left';
 $margin_side = is_rtl() ? 'left' : 'right';
 
 foreach ( $items as $item_id => $item ) :
+	$current_cat =  strip_tags(wc_get_product_category_list($item['product_id']));
 	$product       = $item->get_product();
 	$sku           = '';
 	$purchase_note = '';
@@ -47,8 +48,10 @@ foreach ( $items as $item_id => $item ) :
 		}
 
 		// Product name.
-		echo wp_kses_post( apply_filters( 'woocommerce_order_item_name', $item->get_name(), $item, false ) );
-
+		echo wp_kses_post( apply_filters( 'woocommerce_order_item_name', $item->get_name(), $item, false ) ); ?>
+		<span class="category__name"><?php echo $current_cat === "Add on" ? "($current_cat)" : $current_cat; ?></span>
+		
+		<?php
 		// SKU.
 		if ( $show_sku && $sku ) {
 			echo wp_kses_post( ' (#' . $sku . ')' );
