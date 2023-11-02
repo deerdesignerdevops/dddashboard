@@ -177,6 +177,7 @@ body {
 #header_wrapper {
 	padding: 36px 48px;
 	display: block;
+	text-align: center;
 }
 
 h1 {
@@ -243,13 +244,55 @@ td, th {
   border-bottom: 1px solid #eee !important;
 }
 
+p{
+	margin: 0;
+}
+
+h2 span{
+	font-size: 0.9rem;
+	color: <?php echo esc_attr( $text ); ?>;
+}
+
+h3{
+	margin-top: 40px;
+	color: <?php echo esc_attr( $text ); ?>;
+	text-transform: uppercase;
+	border-bottom: 1px solid;
+}
+
+.invoice__links_wrapper{
+	display: block;
+	width: 100%;
+	padding: 40px 0;
+}
+
+.invoice__links_wrapper a{
+	border: 2px solid <?php echo esc_attr( $link_color ); ?>;
+	border-radius: 5px;
+	padding: 8px 16px;
+	text-decoration: none;
+	font-weight: 600;
+	transition: 0.5s;
+}
+
+.invoice__links_wrapper a:hover{
+	opacity: 0.5;
+}
+
+.invoice__links_download{
+	float: left;
+
+}
+
+.invoice__links_view{
+	float: right;
+}
+
 #addresses{
 	display: none;
 }
 
-h1{
-	text-align: center;
-}
+
 
 /*CUSTOM DEER DESIGNER STYLES - FINISH*/
 

@@ -345,6 +345,16 @@ input.ff-read-only {
 }
 
 /*WOOCOMMERCE CHECKOUT*/
+#stripe-payment-data li {
+  position: relative;
+}
+
+.stripe-source-errors {
+  position: absolute;
+  top: 30px;
+  z-index: 3;
+}
+
 .wc_payment_methods {
   border-bottom: none !important;
 }
