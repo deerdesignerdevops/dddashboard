@@ -49,7 +49,7 @@ foreach ( $items as $item_id => $item ) :
 
 		// Product name.
 		echo wp_kses_post( apply_filters( 'woocommerce_order_item_name', $item->get_name(), $item, false ) ); ?>
-		<span class="category__name"><?php echo $current_cat === "Add on" ? "($current_cat)" : $current_cat; ?></span>
+		<span class="category__name"><?php echo $current_cat === "Add-on" ? "($current_cat)" : $current_cat; ?></span>
 		
 		<?php
 		// SKU.
