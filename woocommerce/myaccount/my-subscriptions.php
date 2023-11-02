@@ -29,6 +29,9 @@ function defineAddDesignerLinkProductID($parentProducts){;
 
 $userCurrentAddons = [];
 
+$allProductAddons = wc_get_products(['category' => get_term(32, 'product_cat')->slug]);
+
+
 $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_display', array(
 	'start_date'              => _x( 'Start date', 'customer subscription table header', 'woocommerce-subscriptions' ),
 	'last_order_date_created' => _x( 'Last order date', 'customer subscription table header', 'woocommerce-subscriptions' ),
@@ -67,7 +70,12 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 							foreach($subscriptions as $subscriptionItem){ 
 								foreach($subscriptionItem->get_items() as $item_id => $item){
 									array_push($allSubscriptionsGroup, $item['name']);
-									array_push($userCurrentAddons, $item['product_id']);
+									
+									foreach($allProductAddons as $productAddon){
+										if($productAddon->id === $item["product_id"]){
+											array_push($userCurrentAddons, $productAddon->id);
+										}
+									}
 								}	
 
 								if($subscriptionItem->has_status( 'active' )){
@@ -95,36 +103,31 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 						</div>
 					</div>
 
-					<?php
-						$all_product_addons = wc_get_products([
-							'category' => get_term(32, 'product_cat')->slug,
-							'exclude' => $userCurrentAddons
-							]);
-					?>
+			
 
 					<div class="subscriptions__addons_wrapper">
 						<div class="cart__addons">
-							<?php if(sizeof($all_product_addons) > 0){ ?>
+							<?php if(sizeof($allProductAddons) > 0){ ?>
 								<h2 class="cart__header__title">Available Addons for you</h2>
 							<?php } ?>
 
-							<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">
-								
-									<?php
-										foreach($all_product_addons as $addon){
-												?>
-												<div class="addon__card">
-													<div class="addon__card_info">
-														<?php echo get_the_post_thumbnail( $addon->id ); ?>
-														<span class="addon__title"><?php echo $addon->name; ?></span><br>
-														<span class="addon__title"><?php echo "$$addon->price / month"; ?></span>
-														<div class="addon__description">
-															<?php echo $addon->description; ?>
-														</div>
+							<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">								
+								<?php
+									foreach($allProductAddons as $addon){
+										if(!in_array($addon->id, $userCurrentAddons)){ ?>
+											<div class="addon__card">
+												<div class="addon__card_info">
+													<?php echo get_the_post_thumbnail( $addon->id ); ?>
+													<span class="addon__title"><?php echo $addon->name; ?></span><br>
+													<span class="addon__title"><?php echo "$$addon->price / month"; ?></span>
+													<div class="addon__description">
+														<?php echo $addon->description; ?>
 													</div>
-													<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
-												</div>				
-										<?php } ?>
+												</div>
+												<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
+											</div>	
+										<?php } ?>															
+									<?php } ?>
 							</form>
 						</div>
 					</div>
@@ -168,7 +171,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 						</div>
 
 						<div class="dd__subscription_actions_form">
-							<?php if($subscription->get_status() === "active"){ ?>
+							<?php if($subscription->get_status() === "active" && !in_array($item["product_id"], $userCurrentAddons)){ ?>
 								<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__add_designer_btn">Change Plan</a>	
 							<?php } ?>
 
