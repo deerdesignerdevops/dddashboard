@@ -425,6 +425,19 @@ add_action('template_redirect', 'checkIfUserIsActive');
 
 
 
+function checkIfUserHasCreativeCall(){
+	$remainingCalls =  get_user_meta(get_current_user_id(), 'creative_calls', true);
+
+	if(!$remainingCalls){
+		echo "<style>
+		.book_call_btn{display: none !important;}
+		</style>";
+	}
+}
+add_action('template_redirect', 'checkIfUserHasCreativeCall');
+
+
+
 function sendWooMetadataToStripePaymentMetadata($metadata, $order) {
 	$order_data = $order->get_data();
 	

@@ -293,6 +293,10 @@ h3{
 }
 
 
+tr:last-child(){
+	text-align: right !important;
+}
+
 
 /*CUSTOM DEER DESIGNER STYLES - FINISH*/
 
