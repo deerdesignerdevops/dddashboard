@@ -271,8 +271,6 @@ h2 span{
 	color: <?php echo esc_attr( $text ); ?>;
 }
 
-
-
 .order__email_sumary{
 	background-color: #f7f7f7;
 	padding: 10px;
@@ -333,7 +331,7 @@ tr:last-child(){
 	}
 
 	#body_content table > tbody > tr > td {
-		padding: 10px !important;
+		padding: 24px 10px !important;
 	}
 
 	#body_content_inner {
