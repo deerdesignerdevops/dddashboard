@@ -69,10 +69,10 @@ foreach ( $items as $item_id => $item ) :
 
 		?>
 		</td>
-		<td class="td" style="text-align:<?php echo esc_attr( $text_align ); ?>; vertical-align:middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
+		<td class="td" colspan="5" style="text-align:<?php echo esc_attr( $text_align ); ?>; vertical-align:middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
 		</td>
 		
-		<td class="td" style="text-align:right; vertical-align:middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
+		<td class="td" colspan="5" style="text-align:right; vertical-align:middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
 			<?php echo wp_kses_post( $order->get_formatted_line_subtotal( $item ) ); ?>
 		</td>
 	</tr>

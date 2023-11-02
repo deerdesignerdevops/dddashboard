@@ -244,8 +244,26 @@ td, th {
   border-bottom: 1px solid #eee !important;
 }
 
+td ul{
+	display: none;
+}
+
+tfoot tr{
+	display: none;
+	font-weight: bold;
+}
+
+tfoot tr:last-child{
+	display: table-row !important;
+	background-color: #E4F0ED;
+}
+
 p{
 	margin: 0;
+}
+
+h2{
+	text-align: center;
 }
 
 h2 span{
@@ -253,11 +271,14 @@ h2 span{
 	color: <?php echo esc_attr( $text ); ?>;
 }
 
-h3{
+
+
+.order__email_sumary{
+	background-color: #eee;
+	padding: 10px;
 	margin-top: 40px;
 	color: <?php echo esc_attr( $text ); ?>;
 	text-transform: uppercase;
-	border-bottom: 1px solid;
 }
 
 .invoice__links_wrapper{

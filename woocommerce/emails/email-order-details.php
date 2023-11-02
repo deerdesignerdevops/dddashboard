@@ -31,18 +31,17 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 		$after  = '';
 	}
 	/* translators: %s: Order ID. */
-	echo wp_kses_post( $before . sprintf( __( 'Receipt #%s', 'woocommerce' ) . $after . ' <br><span>Date paid: <time datetime="%s">%s</time></span>', $order->get_order_number(), $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ) );
+	echo wp_kses_post( $before . sprintf( __( 'Receipt #%s', 'woocommerce' ) . $after . ' for Your Deer Designer Subscription <br><span>Date paid: <time datetime="%s">%s</time></span>', $order->get_order_number(), $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ) );
 	?>
 </h2>
 
 <div style="margin-bottom: 40px;">
-	<h3>Sumary</h3>
+	<h3 class="order__email_sumary">Sumary</h3>
 	<table class="td" cellspacing="0" cellpadding="6" style="width: 100%; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;" border="1">
 		<thead>
 			<tr>
-				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Product', 'woocommerce' ); ?></th>
-				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $text_align ); ?>;"></th>
-				<th class="td" scope="col" style="text-align:right;"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
+				<th class="td" scope="col" colspan="5" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Plans and Addons', 'woocommerce' ); ?></th>
+				<th class="td" scope="col" colspan="5" style="text-align:right;"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -69,8 +68,8 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 					$i++;
 					?>
 					<tr>
-						<th class="td" scope="row" colspan="2" style="text-align:<?php echo esc_attr( $text_align ); ?>; <?php echo ( 1 === $i ) ? 'border-top-width: 4px;' : ''; ?>"><?php echo wp_kses_post( $total['label'] ); ?></th>
-						<td class="td" style="text-align:right; <?php echo ( 1 === $i ) ? 'border-top-width: 4px;' : ''; ?>"><?php echo wp_kses_post( $total['value'] ); ?></td>
+						<th class="td" colspan="5" style="text-align:<?php echo esc_attr( $text_align ); ?>; <?php echo ( 1 === $i ) ? 'border-top-width: 4px;' : ''; ?>"><?php echo wp_kses_post( $total['label'] ); ?></th>
+						<td class="td" colspan="5" style="text-align:right; <?php echo ( 1 === $i ) ? 'border-top-width: 4px;' : ''; ?>"><?php echo wp_kses_post( $total['value'] ); ?></td>
 					</tr>
 					<?php
 				}
