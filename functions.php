@@ -230,7 +230,7 @@ function createUserAfterStripePurchase($req){
 	$invoiceId = $req['data']['object']['id'];
 	$customerName = $customer->name;
 	$customerEmail = $customer->email;
-	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['nickname'];
+	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['name'];
 	$customerCity = $customer->address->city;
 	$customerCountry = $customer->address->country;
 	
@@ -241,7 +241,8 @@ function createUserAfterStripePurchase($req){
 	$customerUrl = "https://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
 
 	if(empty(get_user_by('email', $customerEmail))){
-		wp_create_user($customerEmail, 'change_123', $customerEmail);
+		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
+		add_user_meta( $newUserId, 'stripe_customer_plan', $customerPlan );
 		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
 	}
 	
@@ -315,6 +316,42 @@ add_action('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
 
 
+function sendStripePaymentFailedNotificationToSlack($req){
+	$stripe = new \Stripe\StripeClient(STRIPE_API);
+	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
+	$customerName = $customer->name;
+	$customerEmail = $customer->email;
+		
+	$slackUrl = SLACK_WEBHOOK_URL;
+	$slackMessageBody = [
+		'text'  => '<!channel> Payment failed :x:
+' . $customerName . ' - ' . $customerEmail . '
+:arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+
+	echo "Payment failed for: $customerName - $customerEmail";
+}
+
+
+
+add_action( 'rest_api_init', function () {
+  register_rest_route( '/stripe/v1','paymentfailed', array(
+    'methods' => 'POST',
+    'callback' => 'sendStripePaymentFailedNotificationToSlack',
+  ) );
+} );
+
+
+
 function displayUserOnboardedCheckboxOnAdminPanel( $user ) { 
     $isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true ); 
 ?>
@@ -360,6 +397,31 @@ function updateIsUserOnboardedAfterOnboardingForm(){
 	update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
 }
 add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboardingForm');
+
+
+
+function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
+	$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+	$customerEmail = $formData['email'];
+	$customerCompany = $formData['company_name'];
+	$customerCity = $formData['city'];
+	$customerCountry = $formData['country'];
+
+	$slackUrl = SLACK_WEBHOOK_URL;
+	$slackMessageBody = [
+		'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
 
 
 
@@ -418,6 +480,21 @@ function removePageTitleFromAllPages($return){
 	return false;
 }
 add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
+
+
+function checkIfUserCanBookCreativeCall(){
+	$canUserBookACreativeCall =  get_user_meta(get_current_user_id(), 'stripe_customer_plan', true);
+
+	if(str_contains($canUserBookACreativeCall, 'Agency')){
+		echo "<style>.book_call_btn{display: flex !important;}</style>";
+	}else{
+		echo "<style>.book_call_btn{display: none !important;}</style>";
+	}
+
+}
+
+add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
+
 
 
 
