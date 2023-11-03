@@ -75,7 +75,7 @@ add_action( 'rest_api_init', function () {
 
 
 function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan){
-	$slackUrl = SLACK_WEBHOOK_URL_NEW_CUSTOMER_CHANNEL;
+	$slackUrl = SLACK_WEBHOOK_URL;
 	$slackMessageBody = [
 		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
 *Client:* ' . $customerName . ' ' . $customerEmail . '
@@ -148,7 +148,8 @@ function createUserAfterStripePurchase($req){
 	$customerUrl = "https://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
 
 	if(empty(get_user_by('email', $customerEmail))){
-		wp_create_user($customerEmail, 'change_123', $customerEmail);
+		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
+		add_user_meta( $newUserId, 'stripe_customer_plan', $customerPlan );
 		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
 	}
 	
@@ -227,7 +228,7 @@ function sendStripePaymentFailedNotificationToSlack($req){
 	$customerName = $customer->name;
 	$customerEmail = $customer->email;
 		
-	$slackUrl = SLACK_WEBHOOK_URL_DEVOPS_CHANNEL;
+	$slackUrl = SLACK_WEBHOOK_URL;
 	$slackMessageBody = [
 		'text'  => '<!channel> Payment failed :x:
 ' . $customerName . ' - ' . $customerEmail . '
@@ -311,7 +312,7 @@ function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
 	$customerCity = $formData['city'];
 	$customerCountry = $formData['country'];
 
-	$slackUrl = SLACK_WEBHOOK_URL_NEW_CUSTOMER_CHANNEL;
+	$slackUrl = SLACK_WEBHOOK_URL;
 	$slackMessageBody = [
 		'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
 		'username' => 'Marcus',
@@ -384,7 +385,18 @@ function removePageTitleFromAllPages($return){
 add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
+function checkIfUserCanBookCreativeCall(){
+	$canUserBookACreativeCall =  get_user_meta(get_current_user_id(), 'stripe_customer_plan', true);
 
+	if(str_contains($canUserBookACreativeCall, 'Agency')){
+		echo "<style>.book_call_btn{display: flex !important;}</style>";
+	}else{
+		echo "<style>.book_call_btn{display: none !important;}</style>";
+	}
+
+}
+
+add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
 
 
 
