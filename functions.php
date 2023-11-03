@@ -137,7 +137,7 @@ function createUserAfterStripePurchase($req){
 	$invoiceId = $req['data']['object']['id'];
 	$customerName = $customer->name;
 	$customerEmail = $customer->email;
-	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['nickname'];
+	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['name'];
 	$customerCity = $customer->address->city;
 	$customerCountry = $customer->address->country;
 	
