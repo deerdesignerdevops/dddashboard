@@ -316,41 +316,6 @@ add_action('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
 
 
-function sendStripePaymentFailedNotificationToSlack($req){
-	$stripe = new \Stripe\StripeClient(STRIPE_API);
-	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
-	$customerName = $customer->name;
-	$customerEmail = $customer->email;
-		
-	$slackUrl = SLACK_WEBHOOK_URL;
-	$slackMessageBody = [
-		'text'  => '<!channel> Payment failed :x:
-' . $customerName . ' - ' . $customerEmail . '
-:arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
-		'username' => 'Marcus',
-	];
-
-
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
-
-	echo "Payment failed for: $customerName - $customerEmail";
-}
-
-
-
-add_action( 'rest_api_init', function () {
-  register_rest_route( '/stripe/v1','paymentfailed', array(
-    'methods' => 'POST',
-    'callback' => 'sendStripePaymentFailedNotificationToSlack',
-  ) );
-} );
-
-
 
 function displayUserOnboardedCheckboxOnAdminPanel( $user ) { 
     $isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true ); 
@@ -397,31 +362,6 @@ function updateIsUserOnboardedAfterOnboardingForm(){
 	update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
 }
 add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboardingForm');
-
-
-
-function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
-	$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-	$customerEmail = $formData['email'];
-	$customerCompany = $formData['company_name'];
-	$customerCity = $formData['city'];
-	$customerCountry = $formData['country'];
-
-	$slackUrl = SLACK_WEBHOOK_URL;
-	$slackMessageBody = [
-		'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
-		'username' => 'Marcus',
-	];
-
-
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
-}
-add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
 
 
 
