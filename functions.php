@@ -151,7 +151,9 @@ function createUserAfterStripePurchase($req){
 		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
 		add_user_meta( $newUserId, 'stripe_customer_plan', $customerPlan );
 		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
+		do_action('emailReminderHook', $customerEmail, $customerUrl);
 	}
+
 	
 	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
 	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
