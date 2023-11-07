@@ -27,14 +27,15 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 <?php
 function defineSubscriptionPeriod($productPrice){
-	if(strpos($productPrice, 'month') !== false){
+	if(str_contains($productPrice, 'month') !== false){
 		return strstr($productPrice, '/ month');
-	}else if(strpos($productPrice, 'year') !== false){
+	}else if(str_contains($productPrice, 'year') !== false){
 		return strstr($productPrice, '/ year');
 	}else{
 		return "";
 	}
 }
+
 ?>
 
 
@@ -140,7 +141,7 @@ function defineSubscriptionPeriod($productPrice){
 								<div class="cart__product_subtotal">
 									<span>Subtotal</span>
 										<?php
-											echo "$" . $_product->get_price() . ".00" . defineSubscriptionPeriod($productPrice);											
+											echo get_woocommerce_currency_symbol() . $_product->get_price() . defineSubscriptionPeriod($productPrice);											
 										?>
 								</div>
 
@@ -154,7 +155,7 @@ function defineSubscriptionPeriod($productPrice){
 										<div class="cart__product_subtotal">
 											<span>Total: </span>
 												<?php
-													echo "$" . $_product->get_price() * ($couponDiscount / 100) . defineSubscriptionPeriod($productPrice);
+													echo get_woocommerce_currency_symbol() . $_product->get_price() * ($couponDiscount / 100) . defineSubscriptionPeriod($productPrice);
 												?>
 										</div>
 									<?php }
@@ -209,7 +210,7 @@ foreach ($users_subscriptions as $subscription){
 }
 
 $all_product_addons = wc_get_products([
-   'category' => get_term(32, 'product_cat')->slug,
+   'category' => get_term_by('slug', 'add-on', 'product_cat')->slug,
    'exclude' => $current_user_products,
 ]);
 
@@ -224,7 +225,7 @@ $all_product_addons = wc_get_products([
 							<div class="addon__card">
 								<div class="addon__card_info">
 									<span class="addon__title"><?php echo $addon->name; ?></span><br>
-									<span class="addon__title"><?php echo "$$addon->price / month"; ?></span>
+									<span class="addon__title"><?php echo get_woocommerce_currency_symbol() . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
 									<div class="addon__description">
 										<?php echo $addon->description; ?>
 									</div>

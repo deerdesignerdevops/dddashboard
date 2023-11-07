@@ -5,7 +5,7 @@ Description: Hello Elementor Child is a child theme of Hello Elementor, created 
 Author: Elementor Team
 Author URI: https://elementor.com/
 Template: hello-elementor
-Version: 2.0.0
+Version: 2.1.0
 Text Domain: hello-elementor-child
 License: GNU General Public License v3 or later.
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -13,8 +13,6 @@ Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, fe
 */
 
 /* Add your custom styles here */
-
-@import url("your-subscriptions-styles.css");
 
 @font-face {
   font-family: "Graphik";
@@ -641,6 +639,312 @@ input.ff-read-only {
 .slick-dots button:focus {
   background-color: transparent !important;
 }
+
+.woocommerce-message {
+  border-color: var(--e-global-color-primary);
+  color: var(--e-global-color-text);
+}
+
+.woocommerce-message::before {
+  color: var(--e-global-color-primary);
+}
+
+/*PAGE - MY SUBSCRIPTIONS - START*/
+/*LOADING SPINNER START*/
+.dd__loading_screen {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 80%);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.lds-ring {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ring div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border: 8px solid var(--e-global-color-primary);
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: var(--e-global-color-primary) transparent transparent
+    transparent;
+}
+.lds-ring div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/*LOADING SPINNER FINISH*/
+
+.dd__bililng_portal_section {
+  padding: 60px 0;
+}
+
+.dd__bililng_portal_back {
+  color: var(--e-global-color-text);
+}
+
+.dd__subscription_card {
+  padding: 40px;
+  margin: 30px 0;
+  border-radius: 10px;
+  border: 1px solid #ababab;
+  background-color: #fff;
+  display: flex;
+  gap: 40px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dd__subscription_card.cancelled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.dd__subscriptions_sumary {
+  padding: 40px 0;
+  margin-bottom: 60px;
+  display: flex;
+  gap: 40px;
+  justify-content: space-between;
+}
+
+.dd__subscriptions_sumary .dd__subscription_details {
+  width: 70%;
+}
+
+.subscriptions__addons_wrapper {
+  width: 30%;
+}
+
+.dd__subscription_id.active strong {
+  color: var(--e-global-color-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.dd__subscription_details {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  color: var(--e-global-color-text);
+  flex-wrap: wrap;
+}
+
+.dd__subscription_id,
+.dd__subscription_status {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.dd__subscription_header {
+  display: flex;
+  gap: 60px;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.dd__subscription_title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--e-global-color-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.remove_item {
+  font-size: 1rem;
+}
+
+.dd__subscription_warning {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--e-global-color-secondary);
+}
+
+.dd__subscription_price {
+  font-size: 1.5rem;
+}
+
+.dd__subscription_quantity,
+.dd__subscription_payment {
+  font-size: 1.2rem;
+  font-weight: 300;
+}
+
+.dd__subscription_actions_form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dd__subscription_update_btn,
+.dd__subscription_update_btn:focus,
+.wcs-switch-link,
+.wcs-switch-link:focus {
+  background-color: var(--e-global-color-primary) !important;
+  border: 3px solid #000 !important;
+  box-shadow: inset 3px 3px #fff !important;
+  color: #fff !important;
+}
+
+.dd__subscription_update_btn:hover,
+.wcs-switch-link:hover {
+  background-color: var(--e-global-color-f5169dc) !important;
+  color: #fff !important;
+  border: 3px solid #000 !important;
+  box-shadow: inset 3px 3px;
+}
+
+.dd__subscription_cancel_btn {
+  color: #ccc !important;
+  border: 3px solid #ccc !important;
+  background-color: transparent !important;
+  flex: 1;
+}
+
+.dd__subscription_cancel_btn:hover {
+  color: var(--e-global-color-text) !important;
+  border: 3px solid var(--e-global-color-text) !important;
+}
+
+.dd__subscriptions_sumary_name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--e-global-color-text);
+  border-bottom: 1px solid #ccc;
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dd__subscriptions_buttons_wrapper {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 12px;
+}
+
+.dd__add_designer_btn {
+  color: #ffffff;
+  background-color: var(--e-global-color-primary) !important;
+  border: 3px solid #000 !important;
+  box-shadow: inset 3px 3px !important;
+}
+
+.dd__add_designer_btn:hover {
+  color: #ffffff;
+  background-color: var(--e-global-color-f5169dc) !important;
+}
+
+.dd__remove_btn {
+  color: var(--e-global-color-text);
+}
+
+.dd__remove_btn,
+.dd__add_designer_btn,
+.dd__subscription_cancel_btn,
+.dd__subscription_update_btn,
+.wcs-switch-link {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 26px !important;
+  border-radius: 50px 50px 50px 50px !important;
+  padding: 10px 30px 10px 30px !important;
+  text-align: center !important;
+}
+
+.addons__carousel_form {
+  display: flex !important;
+}
+
+.addons__carousel_form .slick-prev:before,
+.addons__carousel_form .slick-next:before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 40px;
+  background-repeat: no-repeat;
+  background-size: 20px;
+}
+
+.addons__carousel_form .slick-prev:before {
+  background-image: url("assets/img/prev-arrow.svg");
+}
+
+.addons__carousel_form .slick-next:before {
+  background-image: url("assets/img/next-arrow.svg");
+}
+
+.addons__carousel_form .addon__card {
+  width: auto;
+}
+
+/*CANCELLATION FORM*/
+.update_plan_form {
+  display: none;
+}
+
+.update_plan_form button {
+  border-radius: 50px !important;
+}
+
+.show_form {
+  display: block;
+}
+
+.form_subscription_update_message_field {
+  text-align: center;
+}
+
+.form_subscription_update_message_field label:after {
+  display: none !important;
+}
+
+.update_plan_form p {
+  margin: 0 !important;
+}
+
+.update_plan_form button {
+  border: none !important;
+}
+
+.btn_cancel_plan {
+  background-color: var(--e-global-color-secondary) !important;
+}
+
+/*PAGE - MY SUBSCRIPTIONS - FINISH*/
+
 /*MEDIA QUERIES*/
 @media (max-width: 768px) {
   .form-row {
@@ -681,5 +985,9 @@ input.ff-read-only {
 
   .dash__menu span {
     font-size: 1.2rem !important;
+  }
+
+  .subscriptions__addons_wrapper {
+    width: 100%;
   }
 }

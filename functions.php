@@ -23,7 +23,7 @@ function hello_elementor_child_scripts_styles() {
 
 	// Dynamically get version number of the parent stylesheet (lets browsers re-cache your stylesheet when you update your theme)
 	$theme   = wp_get_theme( 'HelloElementorChild' );
-	$version = $theme->get( 'Version' );
+	$version = rand(111,9999);
 
 	// CSS
 	wp_enqueue_style( 'custom', get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
@@ -74,7 +74,6 @@ add_action( 'rest_api_init', function () {
 
 
 
-//SLACK NOTIFICATIONS WITH STRIPE WEBHOOKS --START
 function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan){
 	$slackUrl = SLACK_WEBHOOK_URL;
 	$slackMessageBody = [
@@ -93,7 +92,6 @@ Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 		),
 	) );
 }
-
 
 
 function sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl){
@@ -133,56 +131,96 @@ password: change_123
 
 
 
-function sendPaymentFailedNotificationToSlack($order_id){
-	$order = wc_get_order( $order_id );
-	$orderData = $order->get_data();
+function createUserAfterStripePurchase($req){
+	$stripe = new \Stripe\StripeClient(STRIPE_API);
+	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
+	$invoiceId = $req['data']['object']['id'];
+	$customerName = $customer->name;
+	$customerEmail = $customer->email;
+	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['name'];
+	$customerCity = $customer->address->city;
+	$customerCountry = $customer->address->country;
+	
+	$response_data_arr = file_get_contents('php://input');
+	
+	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
 
-	$slackUrl = SLACK_WEBHOOK_URL;
-	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
-	$customerEmail = $orderData['billing']['email'];
-	$slackMessageBody = [
-		'text'  => '<!channel> Payment failed :x:
-' . $customerName . ' - ' . $customerEmail . '
-:arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
-		'username' => 'Marcus',
-	];
+	$customerUrl = "https://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
 
+	if(empty(get_user_by('email', $customerEmail))){
+		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
+		add_user_meta( $newUserId, 'stripe_customer_plan', $customerPlan );
+		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
+		do_action('emailReminderHook', $customerEmail, $customerUrl);
+	}
 
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
+	
+	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
+	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
 }
-add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToSlack');
 
 
 
-function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
-	if($form->id === 3){
-		$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-		$customerEmail = $formData['email'];
-		$customerCompany = $formData['company_name'];
-		$customerCity = $formData['city'];
-		$customerCountry = $formData['country'];
-
-		$slackUrl = SLACK_WEBHOOK_URL;
-		$slackMessageBody = [
-			'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
-			'username' => 'Marcus',
-		];
+add_action( 'rest_api_init', function () {
+  register_rest_route( '/stripe/v1','paymentcheck', array(
+    'methods' => 'POST',
+    'callback' => 'createUserAfterStripePurchase',
+  ) );
+} );
 
 
-		wp_remote_post( $slackUrl, array(
-			'body'        => wp_json_encode( $slackMessageBody ),
-			'headers' => array(
-				'Content-type: application/json'
-			),
-		) );
+function hideAdminBarForNonAdminUser(){
+	if(is_user_logged_in()){
+		$currentUser = wp_get_current_user();
+		$userRole = $currentUser->roles[0];
+
+		if($userRole !== 'administrator' && $userRole !== 'editor' ){
+			echo '<style>
+			#wpadminbar{display: none !important;}</style>'	;		
+		}	
 	}
 }
-add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
+add_action('wp_head', 'hideAdminBarForNonAdminUser');
+
+
+function redirectNonAdminUsersToHomepage(){
+	if ( is_admin() && !current_user_can( 'administrator' ) && !current_user_can( 'editor' )) {
+		wp_redirect( home_url() );
+		exit;
+	}
+}
+add_action('admin_head', 'redirectNonAdminUsersToHomepage');
+
+
+
+
+function checkIfCurrentUserIsOnboarded(){
+	$user = wp_get_current_user();
+	$url = home_url();
+	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
+
+	if(is_page('dash')){
+		require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
+
+		if ( !in_array( 'administrator', $user->roles ) ) {
+			$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
+			$atts = [
+				'per_page' => 10,
+				'page' => 1,
+				'search' => $user->user_email,
+			];
+			
+			$entries = $formApi->entries($atts , $includeFormats = false);
+			if(!$entries["total"] && !$isUserOnboarded){
+				$url = home_url() . "/onboarding";
+				wp_redirect($url);
+				exit();
+			}
+		}
+	
+	}
+}
+add_action('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
 
 
@@ -220,101 +258,6 @@ add_action( 'rest_api_init', function () {
   ) );
 } );
 
-//SLACK NOTIFICATIONS WITH STRIPE WEBHOOKS --FINISH
-
-
-
-function createUserAfterStripePurchase($req){
-	$stripe = new \Stripe\StripeClient(STRIPE_API);
-	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
-	$invoiceId = $req['data']['object']['id'];
-	$customerName = $customer->name;
-	$customerEmail = $customer->email;
-	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['name'];
-	$customerCity = $customer->address->city;
-	$customerCountry = $customer->address->country;
-	
-	$response_data_arr = file_get_contents('php://input');
-	
-	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
-
-	$customerUrl = "https://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
-
-	if(empty(get_user_by('email', $customerEmail))){
-		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
-		add_user_meta( $newUserId, 'stripe_customer_plan', $customerPlan );
-		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
-	}
-	
-	sendPaymentCompleteNotificationToSlack($customerName, $customerEmail, $customerPlan);
-	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
-}
-
-
-
-add_action( 'rest_api_init', function () {
-  register_rest_route( '/stripe/v1','paymentcheck', array(
-    'methods' => 'POST',
-    'callback' => 'createUserAfterStripePurchase',
-  ) );
-} );
-
-
-
-function hideAdminBarForNonAdminUser(){
-	if(is_user_logged_in()){
-		$currentUser = wp_get_current_user();
-		$userRole = $currentUser->roles[0];
-
-		if($userRole !== 'administrator' && $userRole !== 'editor' ){
-			echo '<style>
-			#wpadminbar{display: none !important;}</style>'	;		
-		}	
-	}
-}
-add_action('wp_head', 'hideAdminBarForNonAdminUser');
-
-
-
-function redirectNonAdminUsersToHomepage(){
-	if ( is_admin() && !current_user_can( 'administrator' ) && !current_user_can( 'editor' )) {
-		wp_redirect( home_url() );
-		exit;
-	}
-}
-add_action('admin_head', 'redirectNonAdminUsersToHomepage');
-
-
-
-function checkIfCurrentUserIsOnboarded(){
-	$user = wp_get_current_user();
-	$url = home_url();
-	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
-
-	if(is_page('dash')){
-		require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
-
-		if ( !in_array( 'administrator', $user->roles ) ) {
-			$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
-			$atts = [
-				'per_page' => 10,
-				'page' => 1,
-				'search' => $user->user_email,
-			];
-			
-			$entries = $formApi->entries($atts , $includeFormats = false);
-			if(!$entries["total"] && !$isUserOnboarded){
-				$url = home_url() . "/onboarding";
-				wp_redirect($url);
-				exit();
-			}
-		}
-	
-	}
-}
-add_action('template_redirect', 'checkIfCurrentUserIsOnboarded');
-
-
 
 
 function displayUserOnboardedCheckboxOnAdminPanel( $user ) { 
@@ -335,7 +278,6 @@ function displayUserOnboardedCheckboxOnAdminPanel( $user ) {
 <?php } 
 add_action( 'show_user_profile', 'displayUserOnboardedCheckboxOnAdminPanel' );
 add_action( 'edit_user_profile', 'displayUserOnboardedCheckboxOnAdminPanel' );
-
 
 
 function updateIfUserIsOnboarded($user_id){
@@ -365,25 +307,50 @@ add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboard
 
 
 
-function subscribeUserToMoosendEmailList($entryId, $formData, $form){
+function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
 	if($form->id === 3){
-		$user_name = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-		$user_email = $formData['email'];
+		$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+		$customerEmail = $formData['email'];
+		$customerCompany = $formData['company_name'];
+		$customerCity = $formData['city'];
+		$customerCountry = $formData['country'];
 
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Accept: application/json',
-		]);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$user_name\",\n    \"Email\" : \"$user_email\",\n    \"HasExternalDoubleOptIn\": false}");
+		$slackUrl = SLACK_WEBHOOK_URL;
+		$slackMessageBody = [
+			'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
+			'username' => 'Marcus',
+		];
 
-		curl_exec($ch);
 
-		curl_close($ch);
+		wp_remote_post( $slackUrl, array(
+			'body'        => wp_json_encode( $slackMessageBody ),
+			'headers' => array(
+				'Content-type: application/json'
+			),
+		) );
 	}
+}
+add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
+
+
+
+function subscribeUserToMoosendEmailList($entryId, $formData, $form){
+	$user_name = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+	$user_email = $formData['email'];
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		'Content-Type: application/json',
+		'Accept: application/json',
+	]);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$user_name\",\n    \"Email\" : \"$user_email\",\n    \"HasExternalDoubleOptIn\": false}");
+
+	curl_exec($ch);
+
+	curl_close($ch);
 }
 add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
 
@@ -706,3 +673,42 @@ function customCheckoutCouponForm() {
 }
 remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
 add_action( 'woocommerce_review_order_after_cart_contents', 'customCheckoutCouponForm' );
+
+
+
+function sendPaymentFailedNotificationToSlack($order_id){
+	$order = wc_get_order( $order_id );
+	$orderData = $order->get_data();
+
+	$slackUrl = SLACK_WEBHOOK_URL;
+	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+	$customerEmail = $orderData['billing']['email'];
+	$slackMessageBody = [
+		'text'  => '<!channel> Payment failed :x:
+' . $customerName . ' - ' . $customerEmail . '
+:arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToSlack');
+
+
+
+function defineAddonPeriodToShowOnCards($addonName){
+	if(str_contains($addonName, 'Photos')){
+		echo 'year';
+	}else if(str_contains($addonName, 'Call')){
+		echo 'call';
+	}else{
+		echo 'month';
+	}
+}
+add_action('callAddonsPeriod', 'defineAddonPeriodToShowOnCards');
