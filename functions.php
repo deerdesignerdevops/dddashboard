@@ -393,7 +393,7 @@ function checkIfUserCanBookCreativeCall(){
 	$canUserBookACreativeCall =  get_user_meta(get_current_user_id(), 'stripe_customer_plan', true);
 	$remainingCalls =  get_user_meta(get_current_user_id(), 'creative_calls', true);
 
-	if(str_contains($canUserBookACreativeCall, 'Agency' || $remainingCalls)){
+	if(str_contains($canUserBookACreativeCall, 'Agency') || $remainingCalls){
 		echo "<style>.book_call_btn{display: flex !important;}</style>";
 	}else{
 		echo "<style>.book_call_btn{display: none !important;}</style>";
