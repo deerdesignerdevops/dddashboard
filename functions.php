@@ -557,7 +557,7 @@ function checkIfUserHasCreativeCall(){
 		</style>";
 	}
 }
-add_action('template_redirect', 'checkIfUserHasCreativeCall');
+//add_action('template_redirect', 'checkIfUserHasCreativeCall');
 
 
 
