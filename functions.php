@@ -212,7 +212,7 @@ function checkIfCurrentUserIsOnboarded(){
 			
 			$entries = $formApi->entries($atts , $includeFormats = false);
 			if(!$entries["total"] && !$isUserOnboarded){
-				$url = home_url() . "/onboarding";
+				$url = home_url() . "/signup/onboarding";
 				wp_redirect($url);
 				exit();
 			}
@@ -601,52 +601,19 @@ add_filter( 'woocommerce_checkout_fields', 'removeCheckoutFields' );
 
 function redirectToOnboardingFormAfterCheckout( $order_id ) {
 	$user = wp_get_current_user();
-	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
-    $order = wc_get_order( $order_id );
-
+	$isUserOnboarded =  get_user_meta($user->id, 'is_user_onboarded', true);
     $url = site_url() . '/signup/onboarding';
 
 	if($isUserOnboarded){
 		$url = site_url() . "/subscriptions";
-	}
-
-    if (!$order->has_status( 'failed' )) {
-        wp_redirect( $url );
-        exit;
-    }
+	}else{
+		do_action('emailReminderHook', $user->user_email, $url);
+		wp_redirect( $url );
+        exit;  
+	}  
 }
 add_action( 'woocommerce_thankyou', 'redirectToOnboardingFormAfterCheckout', 10, 1 );
 
-
-
-function scheduleEmailReminderAfterPayment($order_id){
-	$user = wp_get_current_user();
-	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
-	
-	if(!$isUserOnboarded){
-		$order = wc_get_order( $order_id );
-		$orderData = $order->get_data();
-		$orderItems = $order->get_items();
-		$orderItemsGroup = [];
-
-		foreach( $orderItems as $item_id => $item ){
-			$itemName = $item->get_name();
-			array_push($orderItemsGroup, $itemName);
-		}
-
-		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
-		$customerEmail = $orderData['billing']['email'];
-		$customerCity = $orderData['billing']['city'];
-		$customerCountry = $orderData['billing']['country'];
-		$customerPlan = implode(" | ", $orderItemsGroup);
-
-		$customerUrl = "https://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
-
-		do_action('emailReminderHook', $customerEmail, $customerUrl);
-	}
-
-}
-add_action( 'woocommerce_payment_complete', 'scheduleEmailReminderAfterPayment');
 
 
 
@@ -663,15 +630,6 @@ function changeOrderStatusToCompleteAfterPayment( $order_id ) {
     $order->update_status( 'completed' );    
 }
 add_action( 'woocommerce_payment_complete', 'changeOrderStatusToCompleteAfterPayment' );
-
-
-
-function redirectUserIfCartIsEmpty(){
-	$url = site_url() . '/subscriptions';
-	wp_redirect( $url );
-	exit;  
-}
-add_action('woocommerce_cart_is_empty', 'redirectUserIfCartIsEmpty');
 
 
 
