@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $siteUrl = site_url();
 $activeSubscriptionsGroup = [];
 $allSubscriptionsGroup = [];
-$totalSubscriptions = sizeof($subscriptions);
+
 
 function defineAddDesignerLinkProductID($parentProducts){;
 	foreach($parentProducts as $parentProduct){
@@ -46,23 +46,6 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-<style>
-	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation{
-		display: none !important;
-	}
-
-	.suspend{
-		display: <?php echo $totalSubscriptions > 1 ? 'block' : 'none';  ?>;
-	}
-
-	.form_subscription_update_disclaimer{
-		display: <?php echo $totalSubscriptions > 1 ? 'none' : 'block';  ?>;
-	}
-
-	.premium-stock-photos.suspend {
-		display: none;
-	}
-</style>
 
 <div class="dd__loading_screen">
     <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
@@ -79,8 +62,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 		<div class="woocommerce_account_subscriptions">
 			<?php if ( ! empty( $subscriptions ) ) : ?>
 				<div class="dd__subscriptions_sumary">            
-					<div class="dd__subscription_details">  
-						
+					<div class="dd__subscription_details">				
 						<?php
 							foreach($subscriptions as $subscriptionItem){ 
 								foreach($subscriptionItem->get_items() as $item_id => $item){
@@ -98,55 +80,62 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 										array_push($activeSubscriptionsGroup, $item['name']);
 									}
 								}
+								
 							}
 
 							if(sizeof($activeSubscriptionsGroup) > 0){ ?>
 								<h2 class="cart__header__title">You have:</h2>
-							<?php }
 
-
-							foreach(array_unique($activeSubscriptionsGroup) as $activeSubscriptionsGroupItem){ 
-								$subscriptionItemCount = array_count_values($activeSubscriptionsGroup)[$activeSubscriptionsGroupItem];
-							?>
-								<span class="dd__subscriptions_sumary_name"><?php echo $activeSubscriptionsGroupItem; ?> <strong><?php echo $subscriptionItemCount; ?></strong></span>
-
-							<?php }
-						?>
+								<?php foreach(array_unique($activeSubscriptionsGroup) as $activeSubscriptionsGroupItem){ 
+									$subscriptionItemCount = array_count_values($activeSubscriptionsGroup)[$activeSubscriptionsGroupItem];
+								?>
+									<span class="dd__subscriptions_sumary_name"><?php echo $activeSubscriptionsGroupItem; ?> <strong><?php echo $subscriptionItemCount; ?></strong></span>
+								<?php } ?>
 						
-						<div class="dd__subscriptions_buttons_wrapper" style="margin-top: 20px;">
-							<a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo defineAddDesignerLinkProductID($allSubscriptionsGroup); ?>" class="dd__add_designer_btn">Add a Designer</a>
-						</div>
-					</div>
+								<div class="dd__subscriptions_buttons_wrapper" style="margin-top: 20px;">
+									<a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo defineAddDesignerLinkProductID($allSubscriptionsGroup); ?>" class="dd__add_designer_btn">Add a Designer</a>
+								</div>
+								
+							<?php }else{ ?>
+								<div class="dd__subscription_card"> 
+									<div class="dd__subscription_details">
+										<span class="dd__subscription_warning">You have no active subscriptions!</span>
+									</div>
 
-			
-
-					<div class="subscriptions__addons_wrapper">
-						<div class="cart__addons">
-							<?php if(sizeof($allProductAddons) > 0){ ?>
-								<h2 class="cart__header__title">Available Addons for you</h2>
+									<div class="dd__subscription_actions_form">
+										<a href="https://deerdesigner.com/pricing" class="dd__add_designer_btn">See Pricing</a>
+									</div>
+								</div>
 							<?php } ?>
+				</div>
 
-							<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">								
-								<?php
-									foreach($allProductAddons as $addon){			
-										if(!in_array($addon->id, $userCurrentAddons)){ ?>
-											<div class="addon__card">
-												<div class="addon__card_info">
-													<?php echo get_the_post_thumbnail( $addon->id ); ?>
-													<span class="addon__title"><?php echo $addon->name; ?></span><br>
-													<span class="addon__title"><?php echo get_woocommerce_currency_symbol() . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
-													<div class="addon__description">
-														<?php echo $addon->description; ?>
-													</div>
+				<div class="subscriptions__addons_wrapper">
+					<div class="cart__addons">
+						<?php if(sizeof($allProductAddons) > 0){ ?>
+							<h2 class="cart__header__title">Available Addons for you</h2>
+						<?php } ?>
+
+						<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">								
+							<?php
+								foreach($allProductAddons as $addon){			
+									if(!in_array($addon->id, $userCurrentAddons)){ ?>
+										<div class="addon__card">
+											<div class="addon__card_info">
+												<?php echo get_the_post_thumbnail( $addon->id ); ?>
+												<span class="addon__title"><?php echo $addon->name; ?></span><br>
+												<span class="addon__title"><?php echo get_woocommerce_currency_symbol() . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
+												<div class="addon__description">
+													<?php echo $addon->description; ?>
 												</div>
-												<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
-											</div>	
-										<?php } ?>															
-									<?php } ?>
-							</form>
-						</div>
+											</div>
+											<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
+										</div>	
+									<?php } ?>															
+								<?php } ?>
+						</form>
 					</div>
 				</div>
+		</div>
 
 
 
@@ -218,6 +207,26 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 		</div>
 	</div>
 </section>
+
+
+<style>
+	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation{
+		display: none !important;
+	}
+
+	.suspend{
+		display: <?php echo sizeof($activeSubscriptionsGroup) > 1 ? 'block' : 'none';  ?>;
+	}
+
+	.form_subscription_update_disclaimer{
+		display: <?php echo sizeof($activeSubscriptionsGroup) > 1 ? 'none' : 'block';  ?>;
+	}
+
+	.premium-stock-photos.suspend {
+		display: none;
+	}
+</style>
+
 
 <?php echo do_shortcode('[elementor-template id="1201"]'); ?>
 

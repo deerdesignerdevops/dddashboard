@@ -199,7 +199,7 @@ function checkIfCurrentUserIsOnboarded(){
 	$url = home_url();
 	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
 
-	if(is_page('dash')){
+	if(is_page('dash') || is_page('dash-woo')){
 		require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
 
 		if ( !in_array( 'administrator', $user->roles ) ) {
@@ -457,6 +457,7 @@ Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 			'Content-type: application/json'
 		),
 	) );
+
 }
 add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
 
@@ -509,7 +510,7 @@ function checkIfUserIsActive(){
 		}
 	}
 
-	if($product_id === 939 || !in_array("default-plans", $productsCategories)){
+	if(!in_array("plan", $productsCategories)){
 		echo "<style>
 			.paused__user_btn{display: none !important}
 			.dd__dashboard_navbar_item{width: 25% !important}
@@ -615,6 +616,37 @@ function redirectToOnboardingFormAfterCheckout( $order_id ) {
     }
 }
 add_action( 'woocommerce_thankyou', 'redirectToOnboardingFormAfterCheckout', 10, 1 );
+
+
+
+function scheduleEmailReminderAfterPayment($order_id){
+	$user = wp_get_current_user();
+	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
+	
+	if(!$isUserOnboarded){
+		$order = wc_get_order( $order_id );
+		$orderData = $order->get_data();
+		$orderItems = $order->get_items();
+		$orderItemsGroup = [];
+
+		foreach( $orderItems as $item_id => $item ){
+			$itemName = $item->get_name();
+			array_push($orderItemsGroup, $itemName);
+		}
+
+		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+		$customerEmail = $orderData['billing']['email'];
+		$customerCity = $orderData['billing']['city'];
+		$customerCountry = $orderData['billing']['country'];
+		$customerPlan = implode(" | ", $orderItemsGroup);
+
+		$customerUrl = "https://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
+
+		do_action('emailReminderHook', $customerEmail, $customerUrl);
+	}
+
+}
+add_action( 'woocommerce_payment_complete', 'scheduleEmailReminderAfterPayment');
 
 
 

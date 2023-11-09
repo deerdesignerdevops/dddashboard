@@ -55,8 +55,9 @@ ul {
   display: none !important;
 }
 
-.elementor-button {
-  border: 3px solid black;
+.elementor-buttonm,
+.btn_cancel_plan {
+  border: 3px solid black !important;
   box-shadow: inset 2px 2px 0 2px white !important;
 }
 
@@ -826,15 +827,15 @@ input.ff-read-only {
 }
 
 .dd__subscription_cancel_btn {
-  color: #ccc !important;
-  border: 3px solid #ccc !important;
+  color: var(--e-global-color-text) !important;
+  border: 3px solid var(--e-global-color-text) !important;
   background-color: transparent !important;
   flex: 1;
+  transition: 0.5s;
 }
 
 .dd__subscription_cancel_btn:hover {
-  color: var(--e-global-color-text) !important;
-  border: 3px solid var(--e-global-color-text) !important;
+  opacity: 0.5;
 }
 
 .dd__subscriptions_sumary_name {
@@ -933,10 +934,6 @@ input.ff-read-only {
 
 .update_plan_form p {
   margin: 0 !important;
-}
-
-.update_plan_form button {
-  border: none !important;
 }
 
 .btn_cancel_plan {
