@@ -469,8 +469,13 @@ function addCreativeCallToUserMetaAfterBuyCreativeCallProduct($order_id){
 	$orderItems = $order->get_items();
 	
 	foreach( $orderItems as $item_id => $item ){
+		echo "ok";
 		if(strpos(strtolower($item->get_name()), 'call')){
-			update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 1);
+			if($remainingCalls){
+				update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 1);
+			}else{
+				add_user_meta(get_current_user_id(), 'creative_calls', 1);
+			}
 		}
 	}
 }

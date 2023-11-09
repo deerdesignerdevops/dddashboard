@@ -51,7 +51,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 </div>
 
 
-<?php if($_GET["change-your-plan"]){ wc_print_notice('Your request to switch plan has been sent. We\'ll get in touch soon!'); } ?>
+<?php if(isset($_GET["change-your-plan"])){ wc_print_notice('Your request to switch plan has been sent. We\'ll get in touch soon!'); } ?>
 
 <section class="dd__bililng_portal_section">
     <div style="max-width: 1140px; margin: auto">

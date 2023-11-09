@@ -81,7 +81,7 @@ function defineSubscriptionPeriod($productPrice){
 									foreach ($productTerms as $term) {
 										$product_cat = $term->name;
 										
-										if(strtolower($product_cat) !== "plan"){ ?>
+										if(strtolower($product_cat) !== "planss"){ ?>
 											<div class="product-remove">
 												<?php
 													echo apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
