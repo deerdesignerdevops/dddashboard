@@ -401,7 +401,7 @@ function checkIfUserCanBookCreativeCall(){
 
 }
 
-add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
+//add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
 
 
 
