@@ -549,7 +549,7 @@ add_action('template_redirect', 'checkIfUserIsActive');
 
 
 function checkIfUserHasCreativeCall(){
-	$remainingCalls =  get_user_meta(get_current_user_id(), 'creative_calls', true);
+	echo 'creative_calls: ' . $remainingCalls =  get_user_meta(get_current_user_id(), 'creative_calls', true);
 
 	if(!$remainingCalls){
 		echo "<style>
