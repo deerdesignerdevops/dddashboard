@@ -463,6 +463,22 @@ add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSl
 
 
 
+function addCreativeCallToUserMetaAfterBuyCreativeCallProduct($order_id){
+	$remainingCalls =  get_user_meta(get_current_user_id(), 'creative_calls', true);
+	$order = wc_get_order( $order_id );
+	$orderItems = $order->get_items();
+	
+	foreach( $orderItems as $item_id => $item ){
+		if(strpos($item->get_name(), 'call')){
+			update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 1);
+		}
+	}
+}
+add_action( 'woocommerce_payment_complete', 'addCreativeCallToUserMetaAfterBuyCreativeCallProduct');
+
+
+
+
 function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form){
 	if($form->id === 3){
 		$userName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
@@ -604,7 +620,7 @@ function redirectToOnboardingFormAfterCheckout( $order_id ) {
 	$isUserOnboarded =  get_user_meta($user->id, 'is_user_onboarded', true);
     $url = site_url() . '/signup/onboarding';
 
-	if($isUserOnboarded){
+	if($isUserOnboarded || current_user_can('administrator')){
 		$url = site_url() . "/subscriptions";
 	}else{
 		do_action('emailReminderHook', $user->user_email, $url);

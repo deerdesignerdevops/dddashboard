@@ -15,7 +15,7 @@ $siteUrl = site_url();
 $activeSubscriptionsGroup = [];
 $allSubscriptionsGroup = [];
 
-
+echo "TEST GITHUB";
 function defineAddDesignerLinkProductID($parentProducts){;
 	foreach($parentProducts as $parentProduct){
 		if(strpos($parentProduct, 'Business') !== false){
@@ -176,7 +176,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 
 						<div class="dd__subscription_actions_form">
 							<?php if($subscription->get_status() === "active" && !in_array($item["product_id"], $userCurrentAddons)){ ?>
-								<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__add_designer_btn">Change Subscription</a>	
+								<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__add_designer_btn">Change Plan</a>	
 							<?php } ?>
 
 							<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function(){
 	subscriptionsActionssBtns.map((btn) => {
 		btn.addEventListener("click", function(e){
 			e.preventDefault();
-			let popupID = 1201
+			let popupID = 2776//1201
 			let popupMsgNewText = ""
 	
 
@@ -257,10 +257,12 @@ document.addEventListener("DOMContentLoaded", function(){
 			if(e.currentTarget.classList.contains("suspend")){
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE THIS PLAN?</span>";
 				document.querySelector(".form_subscription_update_disclaimer").innerText = "	When you pause your subscription, we'll keep your designs, tickets and communication saved until you reactivate your account. Your design team is still available until the end of your current billing period."
-			}else if(e.currentTarget.classList.contains("reactivate")){
-				popupMsgNewText = "REACTIVATE <span>THIS PLAN?</span>";
+			}
+			else if(e.currentTarget.classList.contains("reactivate")){
+				popupMsgNewText = "REACTIVATE <span>THIS SUBSCRIPTION?</span>";
 				document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
-			}else if(e.currentTarget.classList.contains("cancel")){
+			}
+			else if(e.currentTarget.classList.contains("cancel")){
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>CANCEL THIS PLAN?</span>";
 				document.querySelector(".form_subscription_update_disclaimer").innerText = "When you cancel your subscription, you'll lose access to all your designs, tickets and communication. Your design team is still available until the end of your current billing period."
 				document.querySelector(".update_plan_form form button").innerText = "Cancel Subscription"
@@ -269,12 +271,13 @@ document.addEventListener("DOMContentLoaded", function(){
 				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = e.currentTarget.dataset.plan
 				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = e.currentTarget.href
 				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${e.currentTarget.dataset.subscriptionId}&action=edit`
-			}else{
-				popupMsgNewText = "ARE YOU SURE YOU WANT TO<br> <span>UPDATE THIS PLAN?</span>";
+			}
+			else{
+				popupMsgNewText = "Which plan would you<br> <span>like to switch to?</span>";
 				document.querySelector(".popup_buttons").style.display = "none"
 				document.querySelector(".update_plan_form").classList.add("show_form")
 				document.querySelector(".form_subscription_update_message_field label").innerText = "Which plan would you like to switch to?"
-				document.querySelector(".update_plan_form form button").innerText = "Change Subscription"
+				document.querySelector(".update_plan_form form button").innerText = "Request Change"
 				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = e.currentTarget.dataset.plan
 				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = e.currentTarget.href
 				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${e.currentTarget.dataset.subscriptionId}&action=edit`
