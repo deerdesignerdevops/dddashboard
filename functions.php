@@ -469,7 +469,7 @@ function addCreativeCallToUserMetaAfterBuyCreativeCallProduct($order_id){
 	$orderItems = $order->get_items();
 	
 	foreach( $orderItems as $item_id => $item ){
-		if(strpos($item->get_name(), 'call')){
+		if(strpos(strtolower($item->get_name()), 'call')){
 			update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 1);
 		}
 	}
@@ -616,20 +616,21 @@ add_filter( 'woocommerce_checkout_fields', 'removeCheckoutFields' );
 
 
 function redirectToOnboardingFormAfterCheckout( $order_id ) {
-	$user = wp_get_current_user();
-	$isUserOnboarded =  get_user_meta($user->id, 'is_user_onboarded', true);
-    $url = site_url() . '/signup/onboarding';
+	 $user = wp_get_current_user();
+	 $isUserOnboarded =  get_user_meta($user->id, 'is_user_onboarded', true);
+     $url = site_url() . '/signup/onboarding';
 
 	if($isUserOnboarded || current_user_can('administrator')){
 		$url = site_url() . "/subscriptions";
+		wp_redirect( $url );
+        exit;  
 	}else{
 		do_action('emailReminderHook', $user->user_email, $url);
 		wp_redirect( $url );
         exit;  
-	}  
+	} 
 }
 add_action( 'woocommerce_thankyou', 'redirectToOnboardingFormAfterCheckout', 10, 1 );
-
 
 
 

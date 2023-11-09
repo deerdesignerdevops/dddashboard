@@ -15,7 +15,6 @@ $siteUrl = site_url();
 $activeSubscriptionsGroup = [];
 $allSubscriptionsGroup = [];
 
-echo "TEST GITHUB";
 function defineAddDesignerLinkProductID($parentProducts){;
 	foreach($parentProducts as $parentProduct){
 		if(strpos($parentProduct, 'Business') !== false){

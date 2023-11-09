@@ -47,7 +47,8 @@ function defineSubscriptionPeriod($productPrice){
 		<div>
 			<?php do_action( 'woocommerce_before_cart_contents' ); ?>
 
-			<?php
+			<?php 
+			$cartLength = sizeof(WC()->cart->get_cart());
 			$couponDiscount = 0;
 			foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 				
@@ -66,7 +67,8 @@ function defineSubscriptionPeriod($productPrice){
 				$product_name = apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key );
 				$productPrice = apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ));
 				$product_description = $parent_product ? $parent_product->description : $_product->description;
-
+				$productTerms = get_the_terms( $product_id, 'product_cat' );
+				
 				if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
 					$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
 					?>
@@ -75,23 +77,30 @@ function defineSubscriptionPeriod($productPrice){
 
 						<div class="cart__header">
 							<h2 class="cart__header__title">Subscribe to <?php echo $product_name; ?></h2>
-
-							<div class="product-remove">
-								<?php
-									echo apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-										'woocommerce_cart_item_remove_link',
-										sprintf(
-											'<a href="%s" class="remove" aria-label="%s" data-product_id="%s" data-product_sku="%s">&times;</a>',
-											esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
-											/* translators: %s is the product name */
-											esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ),
-											esc_attr( $product_id ),
-											esc_attr( $_product->get_sku() )
-										),
-										$cart_item_key
-									);
-								?>
-							</div>
+							<?php if($cartLength > 1){ 				
+									foreach ($productTerms as $term) {
+										$product_cat = $term->name;
+										
+										if(strtolower($product_cat) !== "plan"){ ?>
+											<div class="product-remove">
+												<?php
+													echo apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+														'woocommerce_cart_item_remove_link',
+														sprintf(
+															'<a href="%s" class="remove" aria-label="%s" data-product_id="%s" data-product_sku="%s">&times;</a>',
+															esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
+															/* translators: %s is the product name */
+															esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ),
+															esc_attr( $product_id ),
+															esc_attr( $_product->get_sku() )
+														),
+														$cart_item_key
+													)
+												?>
+											</div>
+										<?php } 
+									} ?>							
+							<?php } ?>					
 						</div>
 
 						<span class="cart__header_price">
