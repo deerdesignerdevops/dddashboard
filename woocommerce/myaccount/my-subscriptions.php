@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $siteUrl = site_url();
+$elementorPopupID = $siteUrl === 'http://localhost/deerdesignerdash' ? 2776 : 1201;
 $activeSubscriptionsGroup = [];
 $allSubscriptionsGroup = [];
 
@@ -227,7 +228,8 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 </style>
 
 
-<?php echo do_shortcode('[elementor-template id="1201"]'); ?>
+<?php echo do_shortcode('[elementor-template id="1201"]');  ?>
+
 
 <script>
 //THIS SCRIPT STOP THE DEFUALT WOOCOMMERCE REDIRECT FOR THE SUBSCRIPTION ACTIONS AND ASK THE USER IN ORDER TO PREVENT ACCIDENTAL CANCELLATIONS
@@ -242,11 +244,10 @@ document.addEventListener("DOMContentLoaded", function(){
 	subscriptionsActionssBtns.map((btn) => {
 		btn.addEventListener("click", function(e){
 			e.preventDefault();
-			let popupID = 2776//1201
+			
 			let popupMsgNewText = ""
 	
-
-			elementorProFrontend.modules.popup.showPopup( {id:popupID}, event);
+			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
 
 			document.querySelector(".update_plan_form form").elements["btn_keep"].addEventListener("click", function(e){
 				e.preventDefault()
