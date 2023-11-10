@@ -58,6 +58,7 @@ ul {
 .elementor-button {
   border: 3px solid black !important;
   box-shadow: inset 2px 2px 0 2px white !important;
+  cursor: pointer;
 }
 
 .clear_button_style .elementor-button {
