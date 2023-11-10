@@ -941,8 +941,16 @@ input.ff-read-only {
   text-align: center;
 }
 
+.form_subscription_update_message_field label {
+  padding: 20px 0;
+}
+
 .form_subscription_update_message_field label:after {
   display: none !important;
+}
+
+.form_subscription_update_disclaimer {
+  padding: 20px 0;
 }
 
 .update_plan_form p {
