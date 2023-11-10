@@ -835,7 +835,6 @@ input.ff-read-only {
 
 .dd__subscription_cancel_btn:hover,
 #pause_popup .dd__subscription_cancel_btn:hover {
-  opacity: 0.5;
   box-shadow: none !important;
   background-color: transparent !important;
 }
