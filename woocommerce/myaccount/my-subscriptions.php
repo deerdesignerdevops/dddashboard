@@ -280,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function(){
 				document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
 			}
  
-			document.querySelector(".pause_popup .popup_msg h3").innerHTML = popupMsgNewText
+			document.querySelector("#pause_popup .popup_msg h3").innerHTML = popupMsgNewText
 
 			let confirmBtn = document.querySelectorAll(".confirm_btn a");
 			confirmBtn.forEach((popupBtn) => {			
