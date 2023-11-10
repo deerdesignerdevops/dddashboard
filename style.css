@@ -61,7 +61,8 @@ ul {
 }
 
 .btn_cancel_plan {
-  border: 3px solid black !important;
+  border: 3px solid var(--e-global-color-text) !important;
+  color: var(--e-global-color-text) !important;
   background-color: transparent !important;
 }
 
