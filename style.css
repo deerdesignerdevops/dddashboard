@@ -55,10 +55,13 @@ ul {
   display: none !important;
 }
 
-.elementor-button,
-.btn_cancel_plan {
+.elementor-button {
   border: 3px solid black !important;
   box-shadow: inset 2px 2px 0 2px white !important;
+}
+
+.btn_cancel_plan {
+  border: 3px solid black !important;
 }
 
 .clear_button_style .elementor-button {
@@ -942,10 +945,6 @@ input.ff-read-only {
 
 .update_plan_form p {
   margin: 0 !important;
-}
-
-.btn_cancel_plan {
-  background-color: var(--e-global-color-secondary) !important;
 }
 
 .plan_standard {

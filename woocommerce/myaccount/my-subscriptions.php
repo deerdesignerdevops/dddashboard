@@ -35,8 +35,8 @@ $allProductAddons = wc_get_products(['category' => get_term_by('slug', 'add-on',
 
 $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_display', array(
 	'start_date'              => _x( 'Start date', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'last_order_date_created' => _x( 'Last order date', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'next_payment'            => _x( 'Next payment date', 'customer subscription table header', 'woocommerce-subscriptions' ),
+	'last_order_date_created' => _x( 'Last payment', 'customer subscription table header', 'woocommerce-subscriptions' ),
+	'next_payment'            => _x( 'Next payment', 'customer subscription table header', 'woocommerce-subscriptions' ),
 	'end'                     => _x( 'End date', 'customer subscription table header', 'woocommerce-subscriptions' ),
 	'trial_end'               => _x( 'Trial end date', 'customer subscription table header', 'woocommerce-subscriptions' ),
 ) );
@@ -259,8 +259,8 @@ document.addEventListener("DOMContentLoaded", function(){
 			}
 			else if(e.currentTarget.classList.contains("cancel")){
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>CANCEL THIS PLAN?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerText = "When you cancel your subscription, you'll lose access to all your designs, tickets and communication. Your design team is still available until the end of your current billing period."
-				document.querySelector(".update_plan_form form button").innerText = "Cancel Subscription"
+				document.querySelector(".form_subscription_update_disclaimer").innerText = "<strong>ATTENTION:</strong> When you cancel your subscription, you'll lose access to all your designs, tickets and communication. Your design team is still available until the end of your current billing period."
+				document.querySelector(".update_plan_form form button").innerText = "Confirm Cancellation"
 				document.querySelector(".popup_buttons").style.display = "none"
 				document.querySelector(".update_plan_form").classList.add("show_form")
 				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = e.currentTarget.dataset.plan
@@ -271,8 +271,9 @@ document.addEventListener("DOMContentLoaded", function(){
 				popupMsgNewText = "Which plan would you<br> <span>like to switch to?</span>";
 				document.querySelector(".popup_buttons").style.display = "none"
 				document.querySelector(".update_plan_form").classList.add("show_form")
-				document.querySelector(".form_subscription_update_message_field label").innerText = "Which plan would you like to switch to?"
+				document.querySelector(".form_subscription_update_message_field label").style.display = "none"
 				document.querySelector(".update_plan_form form button").innerText = "Request Change"
+				document.querySelector(".update_plan_form form").elements["btn_keep"].innerText = "Cancel"
 				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = e.currentTarget.dataset.plan
 				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = e.currentTarget.href
 				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${e.currentTarget.dataset.subscriptionId}&action=edit`
