@@ -717,7 +717,6 @@ input.ff-read-only {
   padding: 40px;
   margin: 30px 0;
   border-radius: 10px;
-  border: 1px solid #ababab;
   background-color: #fff;
   display: flex;
   gap: 40px;
@@ -738,7 +737,7 @@ input.ff-read-only {
   justify-content: space-between;
 }
 
-.dd__subscriptions_sumary .dd__subscription_details {
+.dd__subscriptions_sumary .dd__subscription_container {
   width: 70%;
 }
 
@@ -798,7 +797,7 @@ input.ff-read-only {
 
 .dd__subscription_quantity,
 .dd__subscription_payment {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 300;
 }
 
@@ -863,7 +862,15 @@ input.ff-read-only {
   box-shadow: inset 3px 3px !important;
 }
 
-.dd__add_designer_btn:hover {
+.change_plan_btn {
+  color: #ffffff;
+  background-color: var(--e-global-color-secondary) !important;
+  border: 3px solid #000 !important;
+  box-shadow: inset 3px 3px !important;
+}
+
+.dd__add_designer_btn:hover,
+.change_plan_btn:hover {
   color: #ffffff;
   background-color: var(--e-global-color-f5169dc) !important;
 }
@@ -874,6 +881,7 @@ input.ff-read-only {
 
 .dd__remove_btn,
 .dd__add_designer_btn,
+.change_plan_btn,
 .dd__subscription_cancel_btn,
 .dd__subscription_update_btn,
 .wcs-switch-link {
@@ -938,6 +946,31 @@ input.ff-read-only {
 
 .btn_cancel_plan {
   background-color: var(--e-global-color-secondary) !important;
+}
+
+.plan_standard {
+  background-color: #fdf3ee;
+}
+
+.plan_standard .dd__subscription_title {
+  color: var(--e-global-color-secondary);
+}
+
+.plan_business {
+  background-color: #f0f6f4;
+}
+
+.plan_business .dd__subscription_title {
+  color: var(--e-global-color-primary);
+}
+
+.plan_agency {
+  background-color: #f4f4f8;
+  color: var(--e-global-color-f5169dc);
+}
+
+.plan_agency .dd__subscription_title {
+  color: var(--e-global-color-f5169dc);
 }
 
 /*PAGE - MY SUBSCRIPTIONS - FINISH*/

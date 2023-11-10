@@ -724,3 +724,17 @@ function defineAddonPeriodToShowOnCards($addonName){
 	}
 }
 add_action('callAddonsPeriod', 'defineAddonPeriodToShowOnCards');
+
+
+
+function showBracketsAroundVariationName($name, $product) {
+    if (strpos($name, '-') !== false) {
+        $modified_name_last = substr($name, strrpos($name, '-') + 1);
+        $modified_name_first = substr($name, 0, strrpos($name, "-"));
+        $name = $modified_name_first . ' (' . $modified_name_last . ')';
+    }
+
+    return $name;
+}
+add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariationName', 10, 2);
+
