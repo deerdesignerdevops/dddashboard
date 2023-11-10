@@ -60,12 +60,6 @@ ul {
   box-shadow: inset 2px 2px 0 2px white !important;
 }
 
-#pause_popup .btn_cancel_plan {
-  border: 3px solid var(--e-global-color-text) !important;
-  color: var(--e-global-color-text) !important;
-  background-color: transparent !important;
-}
-
 .clear_button_style .elementor-button {
   border: none !important;
   box-shadow: unset !important;
@@ -830,7 +824,8 @@ input.ff-read-only {
   box-shadow: inset 3px 3px;
 }
 
-.dd__subscription_cancel_btn {
+.dd__subscription_cancel_btn,
+#pause_popup .dd__subscription_cancel_btn {
   color: var(--e-global-color-text) !important;
   border: 3px solid var(--e-global-color-text) !important;
   background-color: transparent !important;
@@ -838,7 +833,8 @@ input.ff-read-only {
   transition: 0.5s;
 }
 
-.dd__subscription_cancel_btn:hover {
+.dd__subscription_cancel_btn:hover,
+#pause_popup .dd__subscription_cancel_btn:hover {
   opacity: 0.5;
 }
 
@@ -889,7 +885,8 @@ input.ff-read-only {
 .change_plan_btn,
 .dd__subscription_cancel_btn,
 .dd__subscription_update_btn,
-.wcs-switch-link {
+.wcs-switch-link,
+#pause_popup .dd__subscription_cancel_btn {
   font-size: 16px !important;
   font-weight: 400 !important;
   line-height: 26px !important;

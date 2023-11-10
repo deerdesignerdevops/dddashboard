@@ -259,7 +259,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			}
 			else if(e.currentTarget.classList.contains("cancel")){
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>CANCEL THIS PLAN?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerText = "<strong>ATTENTION:</strong> When you cancel your subscription, you'll lose access to all your designs, tickets and communication. Your design team is still available until the end of your current billing period."
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = "<span><strong>ATTENTION:</strong> When you cancel your subscription, you'll lose access to all your designs, tickets and communication. Your design team is still available until the end of your current billing period.</span>"
 				document.querySelector(".update_plan_form form button").innerText = "Confirm Cancellation"
 				document.querySelector(".popup_buttons").style.display = "none"
 				document.querySelector(".update_plan_form").classList.add("show_form")
