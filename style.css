@@ -831,6 +831,7 @@ input.ff-read-only {
   background-color: #e1e1e1 !important;
   flex: 1;
   transition: 0.5s;
+  margin: 0 !important;
 }
 
 .dd__subscription_cancel_btn:hover,
@@ -953,7 +954,8 @@ input.ff-read-only {
   padding: 20px 0;
 }
 
-.update_plan_form p {
+.update_plan_form p,
+#pause_popup .update_plan_form {
   margin: 0 !important;
 }
 
