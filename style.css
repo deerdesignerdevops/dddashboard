@@ -828,7 +828,7 @@ input.ff-read-only {
 #pause_popup .dd__subscription_cancel_btn {
   color: var(--e-global-color-text) !important;
   border: 3px solid var(--e-global-color-text) !important;
-  background-color: transparent !important;
+  background-color: #e1e1e1 !important;
   flex: 1;
   transition: 0.5s;
 }
@@ -894,7 +894,7 @@ input.ff-read-only {
   padding: 10px 30px 10px 30px !important;
   text-align: center !important;
   border: 3px solid #000 !important;
-  box-shadow: inset 3px 3px #fff !important;
+  box-shadow: inset 3px 3px 0 0 #fff !important;
 }
 
 .addons__carousel_form {
