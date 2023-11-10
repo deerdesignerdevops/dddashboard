@@ -834,6 +834,10 @@ input.ff-read-only {
   margin: 0 !important;
 }
 
+#pause_popup .ff_submit_btn_wrapper_custom {
+  margin: 0 !important;
+}
+
 .dd__subscription_cancel_btn:hover,
 #pause_popup .dd__subscription_cancel_btn:hover {
   box-shadow: none !important;
