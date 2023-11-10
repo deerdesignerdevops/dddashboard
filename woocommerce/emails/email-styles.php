@@ -262,7 +262,7 @@ p{
 	margin: 0;
 }
 
-h2{
+h2, .user__details{
 	text-align: center;
 }
 

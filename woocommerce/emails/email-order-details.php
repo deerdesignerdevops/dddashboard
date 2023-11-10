@@ -19,7 +19,12 @@ defined( 'ABSPATH' ) || exit;
 
 $text_align = is_rtl() ? 'right' : 'left';
 
-do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plain_text, $email ); ?>
+do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plain_text, $email ); 
+$orderData = $order->get_data();
+$userFirstName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+$userEmail = $orderData['billing']['email'];
+$companyName = $orderData['billing']['company'];
+?>
 
 <h2>
 	<?php
@@ -34,6 +39,9 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 	echo wp_kses_post( $before . sprintf( __( 'Receipt #%s', 'woocommerce' ) . $after . ' <br><span>Date paid: <time datetime="%s">%s</time></span>', $order->get_order_number(), $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ) );
 	?>
 </h2>
+
+
+<p class="user__details"><strong>Receipt from:</strong> <?php echo "$userFirstName | $userEmail | $companyName"; ?>
 
 <div style="margin-bottom: 40px;">
 	<h3 class="order__email_sumary">Sumary</h3>

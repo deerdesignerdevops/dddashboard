@@ -566,7 +566,7 @@ function sendWooMetadataToStripePaymentMetadata($metadata, $order) {
 	
 	$metadata += ['first_name' => $order_data['billing']['first_name']];
 	$metadata += ['last_name' => $order_data['billing']['last_name']];
-	//$metadata += ['billing_company' => $order_data['billing']['company']];
+	$metadata += ['billing_company' => $order_data['billing']['company']];
 	//$metadata += ['billing_phone' => $order_data['billing']['phone']];
 	$metadata += ['billing_address_1' => $order_data['billing']['address_1']];
 	//$metadata += ['billing_address_2' => $order_data['billing']['address_2']];
@@ -587,7 +587,7 @@ function sendWooMetadataToStripeCustomerMetadata($metadata) {
 
     $metadata['first_name'] = $order->get_billing_first_name();
 	$metadata['last_name'] = $order->get_billing_last_name();
-	//$metadata['billing_company'] = $order->get_billing_company();
+	$metadata['billing_company'] = $order->get_billing_company();
 	//$metadata['billing_phone'] = $order->get_billing_phone();
 	$metadata['billing_address_1'] = $order->get_billing_address_1();
 	//$metadata['billing_address_2'] = $order->get_billing_address_2();
@@ -603,7 +603,7 @@ add_filter('wc_stripe_customer_metadata', 'sendWooMetadataToStripeCustomerMetada
 
 
 function removeCheckoutFields( $fields ) {
-	unset( $fields['billing']['billing_company'] );
+	//unset( $fields['billing']['billing_company'] );
 	unset( $fields['billing']['billing_phone'] );
 	//unset( $fields['billing']['billing_state'] );
 	unset( $fields['billing']['billing_address_2'] );
