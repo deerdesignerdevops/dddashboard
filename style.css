@@ -959,7 +959,7 @@ input.ff-read-only {
 }
 
 .update_plan_form p,
-#pause_popup .update_plan_form {
+#pause_popup form {
   margin: 0 !important;
 }
 
