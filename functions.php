@@ -604,6 +604,7 @@ add_filter('wc_stripe_customer_metadata', 'sendWooMetadataToStripeCustomerMetada
 
 function removeCheckoutFields( $fields ) {
 	//unset( $fields['billing']['billing_company'] );
+	$fields['billing']['billing_company']['required'] = true;
 	unset( $fields['billing']['billing_phone'] );
 	//unset( $fields['billing']['billing_state'] );
 	unset( $fields['billing']['billing_address_2'] );
