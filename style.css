@@ -60,7 +60,7 @@ ul {
   box-shadow: inset 2px 2px 0 2px white !important;
 }
 
-.btn_cancel_plan {
+#pause_popup .btn_cancel_plan {
   border: 3px solid var(--e-global-color-text) !important;
   color: var(--e-global-color-text) !important;
   background-color: transparent !important;
