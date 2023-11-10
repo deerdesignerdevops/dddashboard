@@ -894,7 +894,7 @@ input.ff-read-only {
   padding: 10px 30px 10px 30px !important;
   text-align: center !important;
   border: 3px solid #000 !important;
-  box-shadow: inset 3px 3px !important;
+  box-shadow: inset 3px 3px #fff !important;
 }
 
 .addons__carousel_form {
