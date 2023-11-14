@@ -737,5 +737,4 @@ function showBracketsAroundVariationName($name, $product) {
 
     return $name;
 }
-add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariationName', 10, 2);
-
+add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariationName', 10, 2);;

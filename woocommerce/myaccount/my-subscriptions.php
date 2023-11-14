@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+
 $siteUrl = site_url();
 $elementorPopupID = $siteUrl === 'http://localhost/deerdesignerdash' ? 2776 : 1201;
 $activeSubscriptionsGroup = [];
@@ -145,10 +146,18 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 										<?php } ?>
 
 										<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
-										<?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); ?>
+
+									
+										
+										<?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
+										
+										if($subscriptions[0]->id != $subscription->id){ unset($actions['suspend']);}
+										
+										?>
 												<?php if ( ! empty( $actions ) ) { ?>
 													<div class="dd__subscriptions_buttons_wrapper">						
-														<?php foreach ( $actions as $key => $action ) : ?>
+														<?php foreach ( $actions as $key => $action ) :?>
+															
 															<a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
 														<?php endforeach; ?>
 													</div>
