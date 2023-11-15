@@ -732,7 +732,7 @@ function showBracketsAroundVariationName($name, $product) {
     if (strpos($name, '-') !== false) {
         $modified_name_last = substr($name, strrpos($name, '-') + 1);
         $modified_name_first = substr($name, 0, strrpos($name, "-"));
-        $name = $modified_name_first . ' (' . $modified_name_last . ')';
+        $name = $modified_name_first . '( ' . $modified_name_last . ' )';
     }
 
     return $name;
@@ -742,22 +742,55 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
-	$subscriptionItems = $subscription->get_items();
+	if($old_status !== 'pending'){
+		$subscriptionItems = $subscription->get_items();
+		$currentUser = wp_get_current_user();
+		$slackUrl = SLACK_WEBHOOK_URL;
+		$customerName = $currentUser->display_name;
+		$customerEmail = $currentUser->user_email;
+		$subscriptionItemsGroup = [];
+
+		foreach($subscriptionItems as $item){
+			array_push($subscriptionItemsGroup, $item['name']);
+		}
+
+		$slackMessageBody = [
+			'text'  => '<!channel> Subscription Updated :alert:
+	*Client:* ' . $customerName . ' | ' . $customerEmail . '
+	*Plan:* ' . implode(" | ", $subscriptionItemsGroup) . '
+	:arrow_right: Client has changed his subscription to -> ' . "*$new_status*",
+			'username' => 'Marcus',
+		];
+
+
+		wp_remote_post( $slackUrl, array(
+			'body'        => wp_json_encode( $slackMessageBody ),
+			'headers' => array(
+				'Content-type: application/json'
+			),
+		) );
+	}
+}
+add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+
+
+
+function notificationToSlackForSwitchSubscription($order){
+	$orderItems = $order->get_items();
 	$currentUser = wp_get_current_user();
 	$slackUrl = SLACK_WEBHOOK_URL;
 	$customerName = $currentUser->display_name;
 	$customerEmail = $currentUser->user_email;
-	$subscriptionItemsGroup = [];
+	$orderItemsGroup = [];
 
-	foreach($subscriptionItems as $item){
-		array_push($subscriptionItemsGroup, $item['name']);
+	foreach($orderItems as $item){
+		array_push($orderItemsGroup, $item['name']);
 	}
 
 	$slackMessageBody = [
-		'text'  => '<!channel> Subscription Updated :alert:
+		'text'  => '<!channel> Subscription Switched :alert:
 *Client:* ' . $customerName . ' | ' . $customerEmail . '
-*Plan:* ' . implode(" | ", $subscriptionItemsGroup) . '
-:arrow_right: Client has changed his subscription to -> ' . "*$new_status*",
+:arrow_right: Client has switched his plan to ' . '*' . implode(" | ", $orderItemsGroup) . '*',
 		'username' => 'Marcus',
 	];
 
@@ -769,4 +802,14 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 		),
 	) );
 }
-add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+add_action('woocommerce_subscriptions_switch_completed', 'notificationToSlackForSwitchSubscription');
+
+
+
+function moveCancelledSubscriptionsToTrash($subscription){
+
+    if ($subscription && 'cancelled' === $subscription->get_status()) {
+        wp_trash_post($subscription->id);
+    }
+}
+add_action('woocommerce_subscription_status_cancelled', 'moveCancelledSubscriptionsToTrash');

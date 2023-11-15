@@ -722,11 +722,13 @@ input.ff-read-only {
   gap: 40px;
   justify-content: space-between;
   align-items: center;
+  border: 1px solid #ccc;
 }
 
 .dd__subscription_card.cancelled {
   opacity: 0.4;
   pointer-events: none;
+  border: none;
 }
 
 .dd__subscriptions_sumary {
@@ -966,6 +968,7 @@ input.ff-read-only {
 
 .plan_standard {
   background-color: #fdf3ee;
+  border: none;
 }
 
 .plan_standard .dd__subscription_title {
@@ -974,6 +977,7 @@ input.ff-read-only {
 
 .plan_business {
   background-color: #f0f6f4;
+  border: none;
 }
 
 .plan_business .dd__subscription_title {
@@ -982,7 +986,7 @@ input.ff-read-only {
 
 .plan_agency {
   background-color: #f4f4f8;
-  color: var(--e-global-color-f5169dc);
+  border: none;
 }
 
 .plan_agency .dd__subscription_title {
