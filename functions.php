@@ -737,4 +737,36 @@ function showBracketsAroundVariationName($name, $product) {
 
     return $name;
 }
-add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariationName', 10, 2);;
+add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariationName', 10, 2);
+
+
+
+function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
+	$subscriptionItems = $subscription->get_items();
+	$currentUser = wp_get_current_user();
+	$slackUrl = SLACK_WEBHOOK_URL;
+	$customerName = $currentUser->display_name;
+	$customerEmail = $currentUser->user_email;
+	$subscriptionItemsGroup = [];
+
+	foreach($subscriptionItems as $item){
+		array_push($subscriptionItemsGroup, $item['name']);
+	}
+
+	$slackMessageBody = [
+		'text'  => '<!channel> Subscription Updated :alert:
+*Client:* ' . $customerName . ' | ' . $customerEmail . '
+*Plan:* ' . implode(" | ", $subscriptionItemsGroup) . '
+:arrow_right: Client has changed his subscription to -> ' . "*$new_status*",
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
