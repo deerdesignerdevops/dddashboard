@@ -24,6 +24,7 @@ $orderData = $order->get_data();
 $userFirstName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 $userEmail = $orderData['billing']['email'];
 $companyName = $orderData['billing']['company'];
+$couponDiscount = 0;
 ?>
 
 <h2>
@@ -65,6 +66,23 @@ $companyName = $orderData['billing']['company'];
 				)
 			);
 			?>
+
+			<?php 
+				foreach($order->get_coupons() as $couponItem){
+						$coupon_code   = $couponItem->get_code();
+						$coupon = new WC_Coupon($coupon_code);
+						$couponDiscount = $coupon->amount;
+				}
+
+				if($couponDiscount){ ?>
+					<tr>
+						<th class="td" colspan="5">Dicount</th>
+						<td class="td" colspan="5" style="text-align: right;"><?php echo "-$couponDiscount%"?></td>
+					</tr>
+			<?php }
+			?>
+
+
 		</tbody>
 		<tfoot>
 			<?php

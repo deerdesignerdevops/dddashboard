@@ -164,7 +164,7 @@ function defineSubscriptionPeriod($productPrice){
 										<div class="cart__product_subtotal">
 											<span>Total: </span>
 												<?php
-													echo get_woocommerce_currency_symbol() . $_product->get_price() * ($couponDiscount / 100) . defineSubscriptionPeriod($productPrice);
+													echo get_woocommerce_currency_symbol() . $_product->get_price() - ($_product->get_price() * ($couponDiscount / 100)) . defineSubscriptionPeriod($productPrice);
 												?>
 										</div>
 									<?php }
