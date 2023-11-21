@@ -150,6 +150,8 @@ function createUserAfterStripePurchase($req){
 	if(empty(get_user_by('email', $customerEmail))){
 		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
 		add_user_meta( $newUserId, 'stripe_customer_plan', $customerPlan );
+		add_user_meta( $newUserId, 'stripe_customer_city', $customerCity );
+		add_user_meta( $newUserId, 'stripe_customer_country', $customerCountry );
 		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
 		do_action('emailReminderHook', $customerEmail, $customerUrl);
 	}
@@ -167,6 +169,27 @@ add_action( 'rest_api_init', function () {
     'callback' => 'createUserAfterStripePurchase',
   ) );
 } );
+
+
+
+function populateOnboardingFormHiddenFieldsWithUserMeta($form){
+	$userPlan = get_user_meta(get_current_user_id(), 'stripe_customer_plan', true);
+	$userCity = get_user_meta(get_current_user_id(), 'stripe_customer_city', true);
+	$userCountry = get_user_meta(get_current_user_id(), 'stripe_customer_country', true);
+
+	if($form->id == 3){
+		echo "<script>
+			document.addEventListener('DOMContentLoaded', function(){
+				console.log('ok')
+				document.querySelector('[data-name=\"plan\"]').value='$userPlan'
+				document.querySelector('[data-name=\"city\"]').value='$userCity'
+				document.querySelector('[data-name=\"country\"]').value='$userCountry'
+			})
+		</script>";
+	}
+}
+add_action('fluentform/after_form_render', 'populateOnboardingFormHiddenFieldsWithUserMeta');
+
 
 
 function hideAdminBarForNonAdminUser(){
