@@ -154,9 +154,17 @@ function createUserAfterStripePurchase($req){
 		add_user_meta( $newUserId, 'stripe_customer_country', $customerCountry );
 		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
 		do_action('emailReminderHook', $customerEmail, $customerUrl);
+
+		if(str_contains($customerPlan, 'Agency')){
+			add_user_meta( $newUserId, 'creative_calls', 4 );
+		}
+	}else{
+		if(str_contains($customerPlan, 'Agency')){
+			$user = get_user_by('email', $customerEmail);
+			update_user_meta( $user->id, 'creative_calls', 4 );
+		}
 	}
 
-	
 	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
 	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
 }
@@ -280,6 +288,35 @@ add_action( 'rest_api_init', function () {
     'callback' => 'sendStripePaymentFailedNotificationToSlack',
   ) );
 } );
+
+
+
+function displayCreativeCallsNumberOnAdminPanel( $user ) { 
+    $isUserOnboarded = get_the_author_meta('creative_calls',$user->ID,true ); 
+?>
+    <table class="form-table" role="presentation">
+        <tbody>
+            <tr>
+                <th>Creative Calls:</th>
+                <td>
+                    <p><label>
+						<input type="number" min="0" name="creative_calls" value="<?php echo $isUserOnboarded; ?>">
+                    </label></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+<?php } 
+add_action( 'show_user_profile', 'displayCreativeCallsNumberOnAdminPanel' );
+add_action( 'edit_user_profile', 'displayCreativeCallsNumberOnAdminPanel' );
+
+
+
+function updateUserCreativeCalls($user_id){
+	update_user_meta( $user_id, 'creative_calls', $_POST['creative_calls'] );
+}
+add_action( 'personal_options_update', 'updateUserCreativeCalls' );
+add_action( 'edit_user_profile_update', 'updateUserCreativeCalls' );
 
 
 
@@ -412,11 +449,13 @@ function removePageTitleFromAllPages($return){
 add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
+
 function checkIfUserCanBookCreativeCall(){
+	$canUserBookACreativeCall =  get_user_meta(get_current_user_id(), 'creative_calls', true);
 	$canUserBookACreativeCall =  get_user_meta(get_current_user_id(), 'stripe_customer_plan', true);
 	$remainingCalls =  get_user_meta(get_current_user_id(), 'creative_calls', true);
 
-	if($remainingCalls || str_contains($canUserBookACreativeCall, 'Agency')){
+	if($canUserBookACreativeCall){
 		echo "<style>.book_call_btn{display: flex !important;}</style>";
 	}else{
 		echo "<style>.book_call_btn{display: none !important;}</style>";
@@ -822,6 +861,7 @@ function moveCancelledSubscriptionsToTrash($subscription){
     }
 }
 add_action('woocommerce_subscription_status_cancelled', 'moveCancelledSubscriptionsToTrash');
+
 
 
 //***************AFFILIATES AND REFERRAL PROGRAM
