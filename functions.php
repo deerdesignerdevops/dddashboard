@@ -297,7 +297,7 @@ function displayCreativeCallsNumberOnAdminPanel( $user ) {
     <table class="form-table" role="presentation">
         <tbody>
             <tr>
-                <th>Creative Calls:</th>
+                <th>Creative Calls Left:</th>
                 <td>
                     <p><label>
 						<input type="number" min="0" name="creative_calls" value="<?php echo $isUserOnboarded; ?>">
