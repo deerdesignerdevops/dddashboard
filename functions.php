@@ -492,7 +492,6 @@ function addCreativeCallToUserMetaAfterBuyCreativeCallProduct($order_id){
 	$orderItems = $order->get_items();
 	
 	foreach( $orderItems as $item_id => $item ){
-		echo "ok";
 		if(strpos(strtolower($item->get_name()), 'call')){
 			if($remainingCalls){
 				update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 1);
@@ -568,19 +567,6 @@ function checkIfUserIsActive(){
 
 }
 add_action('template_redirect', 'checkIfUserIsActive');
-
-
-
-function checkIfUserHasCreativeCall(){
-	echo 'creative_calls: ' . $remainingCalls =  get_user_meta(get_current_user_id(), 'creative_calls', true);
-
-	if(!$remainingCalls){
-		echo "<style>
-		.book_call_btn{display: none !important;}
-		</style>";
-	}
-}
-add_action('template_redirect', 'checkIfUserHasCreativeCall');
 
 
 
@@ -836,3 +822,38 @@ function moveCancelledSubscriptionsToTrash($subscription){
     }
 }
 add_action('woocommerce_subscription_status_cancelled', 'moveCancelledSubscriptionsToTrash');
+
+
+//***************AFFILIATES AND REFERRAL PROGRAM
+function applyCouponToSubscriptionBasedOnUserReferrals($referral_id){
+	$referral_data = affwp_get_referral( $referral_id );
+	$affiliate_data = affwp_get_affiliate( $referral_data->affiliate_id );
+
+	$subscriptions = wcs_get_users_subscriptions($affiliate_data->user_id);
+
+	$subscriptionsArray = [];
+
+	foreach($subscriptions as $subscription){
+		if ($subscription->has_status(array('active'))){
+			array_push($subscriptionsArray, $subscription->id);
+			$subscription->apply_coupon('dd10aff');
+		}
+	}
+
+
+	$slackUrl = SLACK_WEBHOOK_URL;
+	$slackMessageBody = [
+		'text'  => implode(" | ", $subscriptionsArray),
+		'username' => 'Marcus',
+	];
+
+
+	wp_remote_post( $slackUrl, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+
+add_action('affwp_insert_referral', 'applyCouponToSubscriptionBasedOnUserReferrals');
