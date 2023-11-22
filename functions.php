@@ -291,6 +291,35 @@ add_action( 'rest_api_init', function () {
 
 
 
+function displayCreativeCallsNumberOnAdminPanel( $user ) { 
+    $isUserOnboarded = get_the_author_meta('creative_calls',$user->ID,true ); 
+?>
+    <table class="form-table" role="presentation">
+        <tbody>
+            <tr>
+                <th>Creative Calls:</th>
+                <td>
+                    <p><label>
+						<input type="number" min="0" name="creative_calls" value="<?php echo $isUserOnboarded; ?>">
+                    </label></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+<?php } 
+add_action( 'show_user_profile', 'displayCreativeCallsNumberOnAdminPanel' );
+add_action( 'edit_user_profile', 'displayCreativeCallsNumberOnAdminPanel' );
+
+
+
+function updateUserCreativeCalls($user_id){
+	update_user_meta( $user_id, 'creative_calls', $_POST['creative_calls'] );
+}
+add_action( 'personal_options_update', 'updateUserCreativeCalls' );
+add_action( 'edit_user_profile_update', 'updateUserCreativeCalls' );
+
+
+
 function displayUserOnboardedCheckboxOnAdminPanel( $user ) { 
     $isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true ); 
 ?>
