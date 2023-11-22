@@ -154,9 +154,17 @@ function createUserAfterStripePurchase($req){
 		add_user_meta( $newUserId, 'stripe_customer_country', $customerCountry );
 		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
 		do_action('emailReminderHook', $customerEmail, $customerUrl);
+
+		if(str_contains($customerPlan, 'Agency')){
+			add_user_meta( $newUserId, 'creative_calls', 4 );
+		}
+	}else{
+		if(str_contains($customerPlan, 'Agency')){
+			$user = get_user_by('email', $customerEmail);
+			update_user_meta( $user->id, 'creative_calls', 4 );
+		}
 	}
 
-	
 	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
 	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
 }
@@ -410,17 +418,17 @@ function removePageTitleFromAllPages($return){
 add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
-function checkIfUserCanBookCreativeCall(){
-	$canUserBookACreativeCall =  get_user_meta(get_current_user_id(), 'stripe_customer_plan', true);
 
-	if(str_contains($canUserBookACreativeCall, 'Agency')){
+function checkIfUserCanBookCreativeCall(){
+	$canUserBookACreativeCall =  get_user_meta(get_current_user_id(), 'creative_calls', true);
+
+	if($canUserBookACreativeCall){
 		echo "<style>.book_call_btn{display: flex !important;}</style>";
 	}else{
 		echo "<style>.book_call_btn{display: none !important;}</style>";
 	}
 
 }
-
 add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
 
 
