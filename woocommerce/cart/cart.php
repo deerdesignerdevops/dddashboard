@@ -79,9 +79,8 @@ function defineSubscriptionPeriod($productPrice){
 							<h2 class="cart__header__title">Subscribe to <?php echo $product_name; ?></h2>
 							<?php if($cartLength > 1){ 				
 									foreach ($productTerms as $term) {
-										$product_cat = $term->name;
-										
-										if(strtolower($product_cat) !== "plan"){ ?>
+										$product_cat = $term->name;										
+										?>
 											<div class="product-remove">
 												<?php
 													echo apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -98,7 +97,7 @@ function defineSubscriptionPeriod($productPrice){
 													)
 												?>
 											</div>
-										<?php } 
+										<?php
 									} ?>							
 							<?php } ?>					
 						</div>
