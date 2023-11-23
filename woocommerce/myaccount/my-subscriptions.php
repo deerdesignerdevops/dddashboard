@@ -30,6 +30,20 @@ function defineAddDesignerLinkProductID($parentProducts){;
 	}
 }
 
+function formatSubscriptionStatusLabel($status){
+	switch ($status){
+		case 'on-hold':
+			return 'paused';
+			break;
+		case 'pending-cancel':
+			return 'pending-cancellation';
+			break;
+
+		default:
+			return $status;
+	}
+}
+
 $userCurrentAddons = [];
 
 $allProductAddons = wc_get_products(['category' => get_term_by('slug', 'add-on', 'product_cat')->slug]);
@@ -113,7 +127,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 									<div class="dd__subscription_details">                        
 
 										<div class="dd__subscription_header">
-											<span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo $subscription->get_status() === "pending-cancel" ? 'pending-cancellation' : $subscription->get_status(); ?></strong></span>
+											<span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  formatSubscriptionStatusLabel($subscription->get_status()) ?></strong></span>
 										</div>
 
 										<?php foreach ( $subscription->get_items() as $item_id => $item ){

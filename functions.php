@@ -796,6 +796,21 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 		$customerEmail = $currentUser->user_email;
 		$subscriptionItemsGroup = [];
 
+		$newStatusLabel = "";
+		
+		switch ($new_status){
+			case 'on-hold':
+				$newStatusLabel = 'paused';
+				break;
+			case 'pending-cancel':
+				$newStatusLabel = 'pending-cancellation';
+				break;
+
+			default:
+				$newStatusLabel = $new_status;
+		}
+
+
 		foreach($subscriptionItems as $item){
 			array_push($subscriptionItemsGroup, $item['name']);
 		}
@@ -804,7 +819,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 			'text'  => '<!channel> Subscription Updated :alert:
 	*Client:* ' . $customerName . ' | ' . $customerEmail . '
 	*Plan:* ' . implode(" | ", $subscriptionItemsGroup) . '
-	:arrow_right: Client has changed his subscription to -> ' . "*$new_status*",
+	:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",
 			'username' => 'Marcus',
 		];
 
@@ -859,6 +874,16 @@ function moveCancelledSubscriptionsToTrash($subscription){
     }
 }
 add_action('woocommerce_subscription_status_cancelled', 'moveCancelledSubscriptionsToTrash');
+
+
+
+function renameSubscriptionStatus($subscription_statuses){
+    $subscription_statuses['wc-on-hold']      = _x( 'Paused', 'Subscription status', 'woocommerce-subscriptions' );
+
+    return $subscription_statuses;
+}
+add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
+
 
 
 
