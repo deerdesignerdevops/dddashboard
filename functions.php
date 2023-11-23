@@ -360,55 +360,60 @@ add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
 
 
 
-function updateIsUserOnboardedAfterOnboardingForm(){
-	update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
+function updateIsUserOnboardedAfterOnboardingForm($entryId, $formData, $form){
+	if($form->id === 3){
+		update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
+	}
 }
-add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboardingForm');
+add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboardingForm', 10 ,3);
 
 
 
 function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
-	$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-	$customerEmail = $formData['email'];
-	$customerCompany = $formData['company_name'];
-	$customerCity = $formData['city'];
-	$customerCountry = $formData['country'];
+	if($form->id === 3){
+		$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+		$customerCompany = $formData['company_name'];
+		$customerCity = $formData['city'];
+		$customerCountry = $formData['country'];
 
-	$slackUrl = SLACK_WEBHOOK_URL;
-	$slackMessageBody = [
-		'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
-		'username' => 'Marcus',
-	];
+		$slackUrl = SLACK_WEBHOOK_URL;
+		$slackMessageBody = [
+			'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
+			'username' => 'Marcus',
+		];
 
 
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
+		wp_remote_post( $slackUrl, array(
+			'body'        => wp_json_encode( $slackMessageBody ),
+			'headers' => array(
+				'Content-type: application/json'
+			),
+		) );
+	}
 }
 add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
 
 
 
 function subscribeUserToMoosendEmailList($entryId, $formData, $form){
-	$user_name = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-	$user_email = $formData['email'];
+	if($form->id === 3){
+		$user_name = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+		$user_email = $formData['email'];
 
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-	curl_setopt($ch, CURLOPT_HTTPHEADER, [
-		'Content-Type: application/json',
-		'Accept: application/json',
-	]);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$user_name\",\n    \"Email\" : \"$user_email\",\n    \"HasExternalDoubleOptIn\": false}");
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'Content-Type: application/json',
+			'Accept: application/json',
+		]);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$user_name\",\n    \"Email\" : \"$user_email\",\n    \"HasExternalDoubleOptIn\": false}");
 
-	curl_exec($ch);
+		curl_exec($ch);
 
-	curl_close($ch);
+		curl_close($ch);
+	}
 }
 add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
 
