@@ -188,7 +188,6 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	if($form->id == 3){
 		echo "<script>
 			document.addEventListener('DOMContentLoaded', function(){
-				console.log('ok')
 				document.querySelector('[data-name=\"plan\"]').value='$userPlan'
 				document.querySelector('[data-name=\"city\"]').value='$userCity'
 				document.querySelector('[data-name=\"country\"]').value='$userCountry'
