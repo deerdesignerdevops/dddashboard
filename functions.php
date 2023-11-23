@@ -533,7 +533,13 @@ function addCreativeCallToUserMetaAfterBuyCreativeCallProduct($order_id){
 			if($remainingCalls){
 				update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 1);
 			}else{
-				add_user_meta(get_current_user_id(), 'creative_calls', 1);
+				update_user_meta(get_current_user_id(), 'creative_calls', 1);
+			}
+		}else if(strpos(strtolower($item->get_name()), 'agency')){
+			if($remainingCalls){
+				update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 4);
+			}else{
+				update_user_meta(get_current_user_id(), 'creative_calls', 4);
 			}
 		}
 	}
