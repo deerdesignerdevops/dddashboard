@@ -184,6 +184,7 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	$userPlan = get_user_meta(get_current_user_id(), 'stripe_customer_plan', true);
 	$userCity = get_user_meta(get_current_user_id(), 'stripe_customer_city', true);
 	$userCountry = get_user_meta(get_current_user_id(), 'stripe_customer_country', true);
+	$currentUser = wp_get_current_user();
 
 	if($form->id == 3){
 		echo "<script>
@@ -191,6 +192,7 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 				document.querySelector('[data-name=\"plan\"]').value='$userPlan'
 				document.querySelector('[data-name=\"city\"]').value='$userCity'
 				document.querySelector('[data-name=\"country\"]').value='$userCountry'
+				document.querySelector('.account_holder').innerText='$currentUser->user_email'
 			})
 		</script>";
 	}
