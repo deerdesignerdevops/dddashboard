@@ -292,7 +292,7 @@ add_action( 'rest_api_init', function () {
 
 
 function displayCreativeCallsNumberOnAdminPanel( $user ) { 
-    $isUserOnboarded = get_the_author_meta('creative_calls',$user->ID,true ); 
+    $userCreativeCallsLeft = get_the_author_meta('creative_calls',$user->ID,true ); 
 ?>
     <table class="form-table" role="presentation">
         <tbody>
@@ -300,7 +300,7 @@ function displayCreativeCallsNumberOnAdminPanel( $user ) {
                 <th>Creative Calls Left:</th>
                 <td>
                     <p><label>
-						<input type="number" min="0" name="creative_calls" value="<?php echo $isUserOnboarded; ?>">
+						<input type="number" min="0" name="creative_calls" value="<?php echo $userCreativeCallsLeft; ?>">
                     </label></p>
                 </td>
             </tr>
@@ -451,9 +451,9 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 function checkIfUserCanBookCreativeCall(){
-	$canUserBookACreativeCall =  get_user_meta(get_current_user_id(), 'creative_calls', true);
+	$userCreativeCallsLeft =  get_user_meta(get_current_user_id(), 'creative_calls', true);
 
-	if($canUserBookACreativeCall){
+	if($userCreativeCallsLeft){
 		echo "<style>.book_call_btn{display: flex !important;}</style>";
 	}else{
 		echo "<style>.book_call_btn{display: none !important;}</style>";
