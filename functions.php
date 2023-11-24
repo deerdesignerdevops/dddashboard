@@ -490,8 +490,21 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 function checkIfUserCanBookCreativeCall(){
 	$userCreativeCallsLeft =  get_user_meta(get_current_user_id(), 'creative_calls', true);
+	$users_subscriptions = wcs_get_users_subscriptions(get_current_user_id());
+	$userCurrentProducts = [];
 
-	if($userCreativeCallsLeft){
+	foreach ($users_subscriptions as $subscription){
+		if ($subscription->has_status(array('active'))) {
+			$subscription_products = $subscription->get_items();
+
+			foreach($subscription_products as $product){
+				array_push($userCurrentProducts, $product['name']);
+			}	
+		}
+	}
+
+
+	if($userCreativeCallsLeft || in_array('Creative Director', $userCurrentProducts)){
 		echo "<style>.book_call_btn{display: flex !important;}</style>";
 	}else{
 		echo "<style>.book_call_btn{display: none !important;}</style>";
