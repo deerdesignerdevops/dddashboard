@@ -11,11 +11,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-
 $siteUrl = site_url();
 $elementorPopupID = $siteUrl === 'http://localhost/deerdesignerdash' ? 2776 : 1201;
+
+//ARRAY OF SUBSCRIPTION NAMES
 $activeSubscriptionsGroup = [];
 $allSubscriptionsGroup = [];
+
+//CREATE NEW SUBSCRIPTIONS ARRAY WITH ACTIVE FIRST
+$activeSubscriptions = [];
+$inactiveSubscriptions = [];
+foreach($subscriptions as $sub){
+	$status = $sub->get_status();
+	if($status === "active"){
+		$activeSubscriptions[] = $sub;
+	}else if($status !== "active" && $status !== "cancelled"){
+		$inactiveSubscriptions[] = $sub;
+	}
+}
+
+$sortedSubscriptions = array_merge($activeSubscriptions, $inactiveSubscriptions);
 
 
 function defineAddDesignerLinkProductID($parentProducts){;
@@ -114,7 +129,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 								
 							<?php } ?>
 
-						<?php foreach ( $subscriptions as $subscription_id => $subscription ) :?>
+						<?php foreach ( $sortedSubscriptions as $subscription_id => $subscription ) :?>
 							<?php if($subscription->get_status() !== "cancelled"){ ?>				
 								<div class="dd__subscription_card plan_<?php 
 									foreach($subscription->get_items() as $subsItem){
