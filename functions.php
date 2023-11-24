@@ -228,13 +228,12 @@ add_action('admin_head', 'redirectNonAdminUsersToHomepage');
 
 function checkIfCurrentUserIsOnboarded(){
 	$user = wp_get_current_user();
-	$url = home_url();
 	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
 
-	if(is_page('dash')){
-		require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
+	if(!current_user_can('administrator')){
+		if(is_page('dash') || is_page('dash-woo')){
+			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
 
-		if ( !in_array( 'administrator', $user->roles ) ) {
 			$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
 			$atts = [
 				'search' => $user->user_email,
@@ -247,8 +246,8 @@ function checkIfCurrentUserIsOnboarded(){
 				exit();
 			}
 		}
-	
 	}
+	
 }
 add_action('template_redirect', 'checkIfCurrentUserIsOnboarded');
 
@@ -257,21 +256,33 @@ add_action('template_redirect', 'checkIfCurrentUserIsOnboarded');
 function checkIfUserASweredPlanPricingForm(){
 	$user = wp_get_current_user();
 
-	if(is_page('dash')){
-		require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
-
-		if ( !in_array( 'administrator', $user->roles ) ) {
+	if(!current_user_can('administrator')){
+		if(is_page('dash') || is_page('dash-woo')){
+			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
 			$formApi = fluentFormApi('forms')->entryInstance($formId = 4);
 			$atts = [
 				'search' => $user->user_email,
 			];
-			
 			$entries = $formApi->entries($atts , $includeFormats = false);
+
 			if($entries["total"]){
 				echo "<style>.plans_pricing_popup{display: none !important;}</style>";
 			}
+			
+		}else if(is_page('plans-and-pricing-form')){
+			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
+			$formApi = fluentFormApi('forms')->entryInstance($formId = 4);
+			$atts = [
+				'search' => $user->user_email,
+			];
+			$entries = $formApi->entries($atts , $includeFormats = false);		
+
+			if($entries["total"] && !$isUserOnboarded){
+				$url = home_url() . "/thanks-form-submited";
+				wp_redirect($url);
+				exit();
+			}
 		}
-	
 	}
 }
 add_action('template_redirect', 'checkIfUserASweredPlanPricingForm');
