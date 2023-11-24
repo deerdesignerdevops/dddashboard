@@ -161,7 +161,8 @@ function createUserAfterStripePurchase($req){
 	}else{
 		if(str_contains($customerPlan, 'Agency')){
 			$user = get_user_by('email', $customerEmail);
-			update_user_meta( $user->id, 'creative_calls', 4 );
+			$userCreativeCallsLeft =  get_user_meta($user->id, 'creative_calls', true);
+			update_user_meta( $user->id, 'creative_calls', $userCreativeCallsLeft + 4 );
 		}
 	}
 
