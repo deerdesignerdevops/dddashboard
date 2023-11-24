@@ -941,3 +941,18 @@ function renameSubscriptionStatus($subscription_statuses){
     return $subscription_statuses;
 }
 add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
+
+
+
+function customSubscriptionNoticeText($message){
+	if (str_contains($message, 'cancelled')) {
+        $message = 'Your subscription has been successfully cancelled. Your deer design team is still available until the end of your billing period: Month, day.';
+    }else if(str_contains($message, 'hold')){
+		$message = 'Your subscription has been successfully paused. Your deer design team is still available until the end of your billing period: Month, day.';
+	}
+
+    return $message;
+
+}
+add_filter('woocommerce_add_message', 'customSubscriptionNoticeText');
+

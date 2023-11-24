@@ -1000,6 +1000,45 @@ input.ff-read-only {
   color: var(--e-global-color-f5169dc);
 }
 
+.dd__notices_popup_wrapper {
+  height: 100%;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 90%);
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dd__notices_popup_wrapper .woocommerce-message {
+  max-height: 400px;
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  line-height: 1.5rem;
+  text-align: center;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.dd__notices_popup_wrapper .woocommerce-message:before {
+  position: relative;
+  display: block;
+  top: auto;
+  left: auto;
+  font-size: 3rem;
+  margin: 20px 0;
+}
+
+.dd__notices_popup_wrapper .woocommerce-message a {
+  display: block;
+  margin-top: 20px !important;
+}
+
 /*PAGE - MY SUBSCRIPTIONS - FINISH*/
 
 /*MEDIA QUERIES*/

@@ -83,7 +83,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 </div>
 
 
-<?php if(isset($_GET["change-your-plan"])){ wc_print_notice('Your request to switch plan has been sent. We\'ll get in touch soon!'); } ?>
+<?php if(isset($_GET["change-your-plan"])){ wc_add_notice('Your request to switch plan has been sent. We\'ll get in touch soon!', 'success'); } ?>
 
 <section class="dd__bililng_portal_section">
     <div style="max-width: 1140px; margin: auto">
@@ -448,4 +448,17 @@ document.addEventListener("DOMContentLoaded", function(){
 			}
   		]
 	});
+</script>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function(){
+		const closeNoticesPopupBtn = document.querySelector(".dd__notices_popup_wrapper .dd__subscription_cancel_btn")
+		
+		if(closeNoticesPopupBtn){
+			closeNoticesPopupBtn.addEventListener("click", function(e){;
+				e.preventDefault()
+				document.querySelector(".dd__notices_popup_wrapper").style.display = "none";
+			})
+		}
+	})
 </script>
