@@ -275,7 +275,10 @@ document.addEventListener("DOMContentLoaded", function(){
 	const subscriptionsActionssBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
 	const loadingSpinner = document.querySelector(".dd__loading_screen");
 	function closePopup(){
-		document.querySelector(".elementor-popup-modal").style.display = "none"
+		const elementorPopups = Array.from(document.querySelectorAll(".elementor-popup-modal"))
+		elementorPopups.map((popup) => {
+			popup.style.display = "none"
+		})
 	}
 	
 	let popupMsgNewText = ""

@@ -483,7 +483,7 @@ input.ff-read-only {
 .checkout_coupon {
   border: none !important;
   margin: 12px 0 !important;
-  padding: 0 !important;
+  padding: 0 0 20px 0 !important;
   width: 100%;
 }
 
@@ -885,11 +885,6 @@ input.ff-read-only {
   background-color: var(--e-global-color-f5169dc) !important;
 }
 
-.dd__remove_btn {
-  color: var(--e-global-color-text);
-}
-
-.dd__remove_btn,
 .dd__add_designer_btn,
 .change_plan_btn,
 .dd__subscription_cancel_btn,
@@ -904,6 +899,18 @@ input.ff-read-only {
   text-align: center !important;
   border: 3px solid #000 !important;
   box-shadow: inset 3px 3px 0 0 #fff !important;
+}
+
+.dd__remove_btn {
+  color: var(--e-global-color-secondary);
+  font-size: 0.8rem !important;
+  position: relative;
+  top: 10px;
+}
+
+.dd__remove_btn:before {
+  content: "X";
+  padding-right: 10px;
 }
 
 .addons__carousel_form {
