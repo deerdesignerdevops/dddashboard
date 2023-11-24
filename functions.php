@@ -257,7 +257,7 @@ add_action('template_redirect', 'checkIfCurrentUserIsOnboarded');
 function checkIfUserASweredPlanPricingForm(){
 	$user = wp_get_current_user();
 
-	if(current_user_can('administrator')){
+	if(!current_user_can('administrator')){
 		if(is_page('dash') || is_page('dash-woo')){
 			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
 			$formApi = fluentFormApi('forms')->entryInstance($formId = 5);
