@@ -261,7 +261,7 @@ function checkIfUserASweredPlanPricingForm(){
 		require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
 
 		if ( !in_array( 'administrator', $user->roles ) ) {
-			$formApi = fluentFormApi('forms')->entryInstance($formId = 4);
+			$formApi = fluentFormApi('forms')->entryInstance($formId = 5);
 			$atts = [
 				'search' => $user->user_email,
 			];
