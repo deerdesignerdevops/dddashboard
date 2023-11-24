@@ -237,8 +237,6 @@ function checkIfCurrentUserIsOnboarded(){
 		if ( !in_array( 'administrator', $user->roles ) ) {
 			$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
 			$atts = [
-				'per_page' => 10,
-				'page' => 1,
 				'search' => $user->user_email,
 			];
 			
@@ -253,6 +251,30 @@ function checkIfCurrentUserIsOnboarded(){
 	}
 }
 add_action('template_redirect', 'checkIfCurrentUserIsOnboarded');
+
+
+
+function checkIfUserASweredPlanPricingForm(){
+	$user = wp_get_current_user();
+
+	if(is_page('dash')){
+		require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
+
+		if ( !in_array( 'administrator', $user->roles ) ) {
+			$formApi = fluentFormApi('forms')->entryInstance($formId = 4);
+			$atts = [
+				'search' => $user->user_email,
+			];
+			
+			$entries = $formApi->entries($atts , $includeFormats = false);
+			if($entries["total"]){
+				echo "<style>.plans_pricing_popup{display: none !important;}</style>";
+			}
+		}
+	
+	}
+}
+add_action('template_redirect', 'checkIfUserASweredPlanPricingForm');
 
 
 
