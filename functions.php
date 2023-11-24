@@ -566,13 +566,14 @@ function addCreativeCallToUserMetaAfterBuyCreativeCallProduct($order_id){
 	$orderItems = $order->get_items();
 	
 	foreach( $orderItems as $item_id => $item ){
-		if(strpos(strtolower($item->get_name()), 'call')){
+		if(str_contains(strtolower($item->get_name()), 'call')){
 			if($remainingCalls){
 				update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 1);
 			}else{
 				update_user_meta(get_current_user_id(), 'creative_calls', 1);
 			}
-		}else if(strpos(strtolower($item->get_name()), 'agency')){
+		}
+		else if(str_contains(strtolower($item->get_name()), 'agency')){
 			if($remainingCalls){
 				update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 4);
 			}else{
@@ -818,7 +819,7 @@ add_action('callAddonsPeriod', 'defineAddonPeriodToShowOnCards');
 
 
 function showBracketsAroundVariationName($name, $product) {
-    if (strpos($name, '-') !== false) {
+    if (str_contains($name, '-') !== false) {
         $modified_name_last = substr($name, strrpos($name, '-') + 1);
         $modified_name_first = substr($name, 0, strrpos($name, "-"));
         $name = $modified_name_first . '( ' . $modified_name_last . ' )';

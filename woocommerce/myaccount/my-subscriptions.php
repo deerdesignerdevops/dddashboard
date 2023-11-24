@@ -35,9 +35,9 @@ $sortedSubscriptions = array_merge($activeSubscriptions, $inactiveSubscriptions)
 
 function defineAddDesignerLinkProductID($parentProducts){;
 	foreach($parentProducts as $parentProduct){
-		if(strpos($parentProduct, 'Business') !== false){
+		if(str_contains($parentProduct, 'Business') !== false){
 			return '1134';
-		}else if(strpos($parentProduct, 'Agency') !== false){
+		}else if(str_contains($parentProduct, 'Agency') !== false){
 			return '1141';
 		}else{
 			return '1130';
