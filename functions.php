@@ -946,9 +946,9 @@ add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
 
 function customSubscriptionNoticeText($message){
 	if (str_contains($message, 'cancelled')) {
-        $message = 'Your subscription has been successfully cancelled. Your deer design team is still available until the end of your billing period: Month, day.';
+        $message = 'Your subscription has been successfully cancelled. Your deer design team is still available until the end of your billing period.';
     }else if(str_contains($message, 'hold')){
-		$message = 'Your subscription has been successfully paused. Your deer design team is still available until the end of your billing period: Month, day.';
+		$message = 'Your subscription has been successfully paused. Your deer design team is still available until the end of your billing period.';
 	}
 
     return $message;
