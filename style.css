@@ -705,10 +705,6 @@ input.ff-read-only {
 
 /*LOADING SPINNER FINISH*/
 
-.dd__bililng_portal_section {
-  padding: 60px 0;
-}
-
 .dd__bililng_portal_back {
   color: var(--e-global-color-text);
 }
