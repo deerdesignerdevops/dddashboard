@@ -326,40 +326,25 @@ add_action( 'rest_api_init', function () {
 
 
 
-function displayCompanyFieldOnAdminPanel( $user ) { 
-    $companyName = get_the_author_meta('company_name',$user->ID,true ); 
-?>
-    <table class="form-table" role="presentation">
-        <tbody>
-            <tr>
-                <th>Company Name:</th>
-                <td>
-                    <p><label>
-                        <input type="text" value="<?php echo $companyName; ?>" name="company_name" />
-                    </label></p>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-<?php } 
-add_action( 'show_user_profile', 'displayCompanyFieldOnAdminPanel' );
-add_action( 'edit_user_profile', 'displayCompanyFieldOnAdminPanel' );
+function displayCompanyFieldOnAdminPanel($contactmethods){
+	$newFieldsArray = array(
+	'company_name'   => __('Company Name'),
+	);
 
+	$contactmethods = $newFieldsArray + $contactmethods;
 
-
-function updateUserCompanyName($user_id){
-	if($_POST['company_name']){
-		update_user_meta( $user_id, 'company_name', $_POST['company_name'] );
-	}
+	return $contactmethods;
 }
-add_action( 'personal_options_update', 'updateUserCompanyName' );
-add_action( 'edit_user_profile_update', 'updateUserCompanyName' );
+add_filter('user_contactmethods', 'displayCompanyFieldOnAdminPanel');
 
 
 
-function displayCreativeCallsNumberOnAdminPanel( $user ) { 
+function displayAdditionalUserDataOnAdminPanel( $user ) { 
     $userCreativeCallsLeft = get_the_author_meta('creative_calls',$user->ID,true ); 
+	$isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true );
+
 ?>
+<h2>Additional Data</h2>
     <table class="form-table" role="presentation">
         <tbody>
             <tr>
@@ -370,28 +355,8 @@ function displayCreativeCallsNumberOnAdminPanel( $user ) {
                     </label></p>
                 </td>
             </tr>
-        </tbody>
-    </table>
-<?php } 
-add_action( 'show_user_profile', 'displayCreativeCallsNumberOnAdminPanel' );
-add_action( 'edit_user_profile', 'displayCreativeCallsNumberOnAdminPanel' );
 
-
-
-function updateUserCreativeCalls($user_id){
-	update_user_meta( $user_id, 'creative_calls', $_POST['creative_calls'] );
-}
-add_action( 'personal_options_update', 'updateUserCreativeCalls' );
-add_action( 'edit_user_profile_update', 'updateUserCreativeCalls' );
-
-
-
-function displayUserOnboardedCheckboxOnAdminPanel( $user ) { 
-    $isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true ); 
-?>
-    <table class="form-table" role="presentation">
-        <tbody>
-            <tr>
+			<tr>
                 <th>Is User Onboarded:</th>
                 <td>
                     <p><label>
@@ -402,19 +367,17 @@ function displayUserOnboardedCheckboxOnAdminPanel( $user ) {
         </tbody>
     </table>
 <?php } 
-add_action( 'show_user_profile', 'displayUserOnboardedCheckboxOnAdminPanel' );
-add_action( 'edit_user_profile', 'displayUserOnboardedCheckboxOnAdminPanel' );
+add_action( 'show_user_profile', 'displayAdditionalUserDataOnAdminPanel' );
+add_action( 'edit_user_profile', 'displayAdditionalUserDataOnAdminPanel' );
 
 
-function updateIfUserIsOnboarded($user_id){
-	if($_POST['is_user_onboarded']){
-		update_user_meta( $user_id, 'is_user_onboarded', 1 );
-	}else{
-		update_user_meta( $user_id, 'is_user_onboarded', 0 );
-	}
+
+function updateAditionalUserDataOnAdminPanel($user_id){
+	update_user_meta( $user_id, 'creative_calls', $_POST['creative_calls'] );
+update_user_meta( $user_id, 'is_user_onboarded', $_POST['is_user_onboarded'] );
 }
-add_action( 'personal_options_update', 'updateIfUserIsOnboarded' );
-add_action( 'edit_user_profile_update', 'updateIfUserIsOnboarded' );
+add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
+add_action( 'edit_user_profile_update', 'updateAditionalUserDataOnAdminPanel' );
 
 
 
