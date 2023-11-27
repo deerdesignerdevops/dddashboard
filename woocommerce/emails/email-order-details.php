@@ -34,10 +34,10 @@ $couponDiscount = 0;
 		$after  = '</a>';
 	} else {
 		$before = '';
-		$after  = ' for Your Deer Designer Subscription';
+		$after  = ' - Deer Designer Subscription';
 	}
 	/* translators: %s: Order ID. */
-	echo wp_kses_post( $before . sprintf( __( 'Receipt #%s', 'woocommerce' ) . $after . ' <br><span>Date paid: <time datetime="%s">%s</time></span>', $order->get_order_number(), $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ) );
+	echo wp_kses_post( $before . sprintf( __( 'Receipt #%s', 'woocommerce' ) . $after . ' <br><span>Paid on: <time datetime="%s">%s</time></span>', $order->get_order_number(), $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ) );
 	?>
 </h2>
 

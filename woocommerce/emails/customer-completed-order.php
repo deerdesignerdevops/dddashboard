@@ -58,6 +58,6 @@ do_action( 'woocommerce_email_customer_details', $order, $sent_to_admin, $plain_
  * @hooked WC_Emails::email_footer() Output the email footer
  */
 ?>
-	<p style="text-align: center;">You're receiving this email because you made a purchase at <a href="https://deerdesigner.com">Deer Designer.</a></p>
+	<p style="text-align: center;">You're receiving this email because you have a subscription with <a href="https://deerdesigner.com">Deer Designer.</a></p>
 <?php
 do_action( 'woocommerce_email_footer', $email );
