@@ -59,6 +59,28 @@ function formatSubscriptionStatusLabel($status){
 	}
 }
 
+$invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
+$invoicesLimit = 10;
+
+$currentUserOrders = wc_get_orders(array(
+	'customer_id' => get_current_user_id(),
+	'status' => array('wc-completed'),
+	'limit' => $invoicesLimit,
+	'paginate' => true,
+	'paged' => $invoicesPageNumber
+));
+
+function generateInvoicePdfUrl($orderId){
+	$pdfUrl = wp_nonce_url( add_query_arg( array(
+	'action'        => 'generate_wpo_wcpdf',
+	'document_type' => 'invoice',
+	'order_ids'     => $orderId,
+	'my-account'    => true,
+	), admin_url( 'admin-ajax.php' ) ), 'generate_wpo_wcpdf' );
+
+	return $pdfUrl;
+}
+
 $userCurrentAddons = [];
 
 $allProductAddons = wc_get_products(['category' => get_term_by('slug', 'add-on', 'product_cat')->slug]);
@@ -84,6 +106,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 
 
 <?php if(isset($_GET["change-your-plan"])){ wc_add_notice('Your request to switch plan has been sent. We\'ll get in touch soon!', 'success'); } ?>
+
 
 <section class="dd__bililng_portal_section">
     <div style="max-width: 1140px; margin: auto">
@@ -228,9 +251,6 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 				</div>
 		</div>
 
-
-			
-				
 			<?php else : ?>
 				<div class="dd__subscription_card"> 
 					<div class="dd__subscription_details">
@@ -246,13 +266,43 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 	</div>
 </section>
 
+<section class="user__invoices_section">
+	<h2 class="cart__header__title">Your Invoices</h2>
+	<div class="user__invoices_wrapper">
+		<?php foreach($currentUserOrders->orders as $order){ ?>
+			<div class="user__invoice_row">
+				<span><?php echo $order->id; ?> Invoice from <?php echo wc_format_datetime($order->get_date_completed()); ?></span>
+				
+				<div class="btn__wrapper">
+					<a target="_blank" href="<?php echo generateInvoicePdfUrl($order->id); ?>" class="dd__add_designer_btn">Download Invoice</a>
+				</div>
+			</div>
+		<?php } ?>
+	</div>
+
+
+	<?php if($currentUserOrders->max_num_pages > 1){ ?>
+		<div class="user__invoices_pagination">
+			<?php $prevUrl = "$siteUrl/subscriptions/?invoices_page=" . $invoicesPageNumber - 1; ?>
+			<?php $nextUrl = "$siteUrl/subscriptions/?invoices_page=" . $invoicesPageNumber + 1; ?>
+			
+			
+				<a href="<?php echo $prevUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber > 1 ? 'btn_active' : 'btn_inactive'; ?>">Prev</a>
+		
+
+			<span><?php echo $invoicesPageNumber; ?></span>
+
+				<a href="<?php echo $nextUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber < $currentUserOrders->max_num_pages ? 'btn_active' : 'btn_inactive'; ?>">Next</a>
+		</div>
+	<?php } ?>
+</section>
+
+<?php echo do_shortcode('[elementor-template id="1201"]'); ?>
 
 <style>
 	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation{
 		display: none !important;
 	}
-
-
 
 	.form_subscription_update_disclaimer{
 		display: <?php echo sizeof($activeSubscriptionsGroup) > 1 ? 'none' : 'block';  ?>;
@@ -262,10 +312,6 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 		display: none;
 	}
 </style>
-
-
-<?php echo do_shortcode('[elementor-template id="1201"]'); ?>
-
 
 <script>
 //THIS SCRIPT STOP THE DEFUALT WOOCOMMERCE REDIRECT FOR THE SUBSCRIPTION ACTIONS AND ASK THE USER IN ORDER TO PREVENT ACCIDENTAL CANCELLATIONS
