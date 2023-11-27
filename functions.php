@@ -326,6 +326,37 @@ add_action( 'rest_api_init', function () {
 
 
 
+function displayCompanyFieldOnAdminPanel( $user ) { 
+    $companyName = get_the_author_meta('company_name',$user->ID,true ); 
+?>
+    <table class="form-table" role="presentation">
+        <tbody>
+            <tr>
+                <th>Company Name:</th>
+                <td>
+                    <p><label>
+                        <input type="text" value="<?php echo $companyName; ?>" name="company_name" />
+                    </label></p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+<?php } 
+add_action( 'show_user_profile', 'displayCompanyFieldOnAdminPanel' );
+add_action( 'edit_user_profile', 'displayCompanyFieldOnAdminPanel' );
+
+
+
+function updateUserCompanyName($user_id){
+	if($_POST['company_name']){
+		update_user_meta( $user_id, 'company_name', $_POST['company_name'] );
+	}
+}
+add_action( 'personal_options_update', 'updateUserCompanyName' );
+add_action( 'edit_user_profile_update', 'updateUserCompanyName' );
+
+
+
 function displayCreativeCallsNumberOnAdminPanel( $user ) { 
     $userCreativeCallsLeft = get_the_author_meta('creative_calls',$user->ID,true ); 
 ?>
