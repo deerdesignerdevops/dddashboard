@@ -271,11 +271,9 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 	<div class="user__invoices_wrapper">
 		<?php foreach($currentUserOrders->orders as $order){ ?>
 			<div class="user__invoice_row">
-				<span><?php echo $order->id; ?> Invoice from <?php echo wc_format_datetime($order->get_date_completed()); ?></span>
+				<span>#<?php echo $order->id; ?> - Invoice from <?php echo wc_format_datetime($order->get_date_completed()); ?></span>
 				
-				<div class="btn__wrapper">
-					<a target="_blank" href="<?php echo generateInvoicePdfUrl($order->id); ?>" class="dd__add_designer_btn">Download Invoice</a>
-				</div>
+				<a target="_blank" href="<?php echo generateInvoicePdfUrl($order->id); ?>">Download Invoice</a>
 			</div>
 		<?php } ?>
 	</div>
@@ -286,13 +284,11 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 			<?php $prevUrl = "$siteUrl/subscriptions/?invoices_page=" . $invoicesPageNumber - 1; ?>
 			<?php $nextUrl = "$siteUrl/subscriptions/?invoices_page=" . $invoicesPageNumber + 1; ?>
 			
-			
-				<a href="<?php echo $prevUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber > 1 ? 'btn_active' : 'btn_inactive'; ?>">Prev</a>
+			<a href="<?php echo $prevUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber > 1 ? 'btn_active' : 'btn_inactive'; ?>">Prev</a>
 		
-
 			<span><?php echo $invoicesPageNumber; ?></span>
 
-				<a href="<?php echo $nextUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber < $currentUserOrders->max_num_pages ? 'btn_active' : 'btn_inactive'; ?>">Next</a>
+			<a href="<?php echo $nextUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber < $currentUserOrders->max_num_pages ? 'btn_active' : 'btn_inactive'; ?>">Next</a>
 		</div>
 	<?php } ?>
 </section>

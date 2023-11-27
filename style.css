@@ -1049,16 +1049,19 @@ input.ff-read-only {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-left: 40px;
+  padding: 20px 0;
   margin: 5px 0;
-  border: 1px solid #ccc;
-  border-radius: 50px;
+  border-bottom: 1px solid #ccc;
 }
 
 .user__invoice_row span {
   color: var(--e-global-color-text);
   text-transform: uppercase;
   font-weight: 600;
+}
+
+.user__invoice_row a {
+  text-decoration: underline !important;
 }
 
 .user__invoices_pagination {
