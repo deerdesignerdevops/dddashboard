@@ -950,3 +950,10 @@ function customSubscriptionNoticeText($message){
 }
 add_filter('woocommerce_add_message', 'customSubscriptionNoticeText');
 
+
+
+function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
+    return wc_get_checkout_url();
+}
+add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 ); 
+
