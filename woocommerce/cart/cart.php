@@ -204,45 +204,45 @@ function defineSubscriptionPeriod($productPrice){
 
 <?php
 $user_id = get_current_user_id();
-$users_subscriptions = wcs_get_users_subscriptions($user_id);
-$current_user_products = [];
+$userSubscriptions = wcs_get_users_subscriptions($user_id);
+$currentUserProducts = [];
 
-foreach ($users_subscriptions as $subscription){
+foreach ($userSubscriptions as $subscription){
 	if (!$subscription->has_status(array('cancelled'))) {
 		$subscription_products = $subscription->get_items();
 		foreach ($subscription_products as $product) {
 			$current_user_product_id = $product->get_product_id();
-			array_push($current_user_products, $current_user_product_id);
+			array_push($currentUserProducts, $current_user_product_id);
 		}
 	}
 }
 
-$all_product_addons = wc_get_products([
+$allProductAddons = wc_get_products([
    'category' => get_term_by('slug', 'add-on', 'product_cat')->slug,
-   'exclude' => $current_user_products,
+   'exclude' => $currentUserProducts,
 ]);
 
 ?>
 
-<?php if(sizeof($all_product_addons) > 0){ ?>
+<?php if(sizeof($allProductAddons) > 0){ ?>
 	<div class="cart__addons">
 		<h2 class="cart__header__title">Available Addons</h2>
-		<form action="" method="post" enctype="multipart/form-data" class="cart__addons_checkout_form">
-				<?php
-					foreach($all_product_addons as $addon){ ?>
-							<div class="addon__card">
-								<div class="addon__card_info">
-									<span class="addon__title"><?php echo $addon->name; ?></span><br>
-									<span class="addon__title"><?php echo get_woocommerce_currency_symbol() . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
-									<div class="addon__description">
-										<?php echo $addon->description; ?>
-									</div>
+		<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">								
+			<?php
+				foreach($allProductAddons as $addon){	?>		
+						<div class="addon__card">
+							<div class="addon__card_info">
+								<?php echo get_the_post_thumbnail( $addon->id ); ?>
+								<span class="addon__title"><?php echo $addon->name; ?></span><br>
+								<span class="addon__title"><?php echo get_woocommerce_currency_symbol() . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
+								<div class="addon__description">
+									<?php echo $addon->description; ?>
 								</div>
-			
-								<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
-							</div>									
-					<?php } ?>
-			</form>
+							</div>
+							<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
+						</div>	
+				<?php } ?>
+		</form>
 	</div>
 <?php } ?>
 
@@ -259,5 +259,31 @@ $all_product_addons = wc_get_products([
 		do_action( 'woocommerce_cart_collaterals' );
 	?>
 </div>
+
+<script>
+	$('.addons__carousel_form').slick({
+		autoplay: true,
+  		autoplaySpeed: 4000,
+		infinite: true,
+		speed: 300,
+		slidesToShow: 2,
+		responsive: [
+			{
+			breakpoint: 768,
+			settings: {
+				slidesToShow: 1,
+				slidesToScroll: 1
+			}
+			},
+			{
+			breakpoint: 480,
+			settings: {
+				slidesToShow: 1,
+				slidesToScroll: 1
+			}
+			}
+  		]
+	});
+</script>
 
 <?php do_action( 'woocommerce_after_cart' ); ?>
