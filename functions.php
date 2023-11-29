@@ -1005,3 +1005,10 @@ function createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls) {
 		}
    }
 }
+
+
+
+function removeMobileMessagingFromWooEmails( $mailer ) {	   
+	remove_action( 'woocommerce_email_footer', array( $mailer->emails['WC_Email_New_Order'], 'mobile_messaging' ), 9 );
+}
+add_action( 'woocommerce_email', 'removeMobileMessagingFromWooEmails' );
