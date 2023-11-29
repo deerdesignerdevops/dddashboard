@@ -483,34 +483,41 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 function checkIfUserCanBookCreativeCall(){
-	$users_subscriptions = wcs_get_users_subscriptions(get_current_user_id());
-	$userCurrentProducts = [];
-	$groups_user = new Groups_User( get_current_user_id() );	
-	$groupCreativeCallsLeft =  0;
+	if(is_page('dash')){
+		$users_subscriptions = wcs_get_users_subscriptions(get_current_user_id());
+		$userCurrentProducts = [];
+		$groups_user = new Groups_User( get_current_user_id() );	
+		$groupCreativeCallsLeft =  0;
 
-	foreach($groups_user->groups as $item){
-		$groupCreativeCallsLeft += $item->group->creative_calls;
-	}
-
-	foreach ($users_subscriptions as $subscription){
-		if ($subscription->has_status(array('active'))) {
-			$subscription_products = $subscription->get_items();
-
-			foreach($subscription_products as $product){
-				array_push($userCurrentProducts, $product['name']);
-			}	
+		foreach($groups_user->groups as $item){
+			$groupCreativeCallsLeft += $item->group->creative_calls;
 		}
-	}
 
-	if($groupCreativeCallsLeft || in_array('Creative Director', $userCurrentProducts)){
-		echo "<style>.book_call_btn{display: flex !important;}</style>";
-	}else{
-		echo "<style>.book_call_btn{display: none !important;}</style>";
+		foreach ($users_subscriptions as $subscription){
+			if ($subscription->has_status(array('active'))) {
+				$subscription_products = $subscription->get_items();
+
+				foreach($subscription_products as $product){
+					array_push($userCurrentProducts, $product['name']);
+				}	
+			}
+		}
+
+		if($groupCreativeCallsLeft || in_array('Creative Director', $userCurrentProducts)){
+			echo "<style>.book_call_btn{display: flex !important;}</style>";
+			echo "<script>
+			document.addEventListener('DOMContentLoaded', function(){
+				const creativeCallsNumber = document.querySelector('.creative_calls_number span')
+				creativeCallsNumber.innerText = $groupCreativeCallsLeft;
+			})
+			</script>";
+		}else{
+			echo "<style>.book_call_btn{display: none !important;}</style>";
+		}
 	}
 
 }
 add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
-
 
 
 
