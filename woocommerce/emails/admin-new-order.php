@@ -34,7 +34,6 @@ do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
  */
 do_action( 'woocommerce_email_order_details', $order, $sent_to_admin, $plain_text, $email );
 ?>
-<p>If you have any questions, contact us at <a href="mailto:billing@deerdesigner.com">billing@deerdesigner.com</a></p>
 <?php
 
 /*
