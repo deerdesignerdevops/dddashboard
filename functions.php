@@ -483,7 +483,7 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 function checkIfUserCanBookCreativeCall(){
-	if(is_page('dash')){
+	if(is_page('dash') || is_page('dash-woo')){
 		$users_subscriptions = wcs_get_users_subscriptions(get_current_user_id());
 		$userCurrentProducts = [];
 		$groups_user = new Groups_User( get_current_user_id() );	
