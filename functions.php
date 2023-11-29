@@ -374,7 +374,7 @@ add_action( 'edit_user_profile', 'displayAdditionalUserDataOnAdminPanel' );
 
 function updateAditionalUserDataOnAdminPanel($user_id){
 	update_user_meta( $user_id, 'creative_calls', $_POST['creative_calls'] );
-update_user_meta( $user_id, 'is_user_onboarded', $_POST['is_user_onboarded'] );
+	update_user_meta( $user_id, 'is_user_onboarded', $_POST['is_user_onboarded'] );
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
 add_action( 'edit_user_profile_update', 'updateAditionalUserDataOnAdminPanel' );
@@ -483,9 +483,14 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 function checkIfUserCanBookCreativeCall(){
-	$userCreativeCallsLeft =  get_user_meta(get_current_user_id(), 'creative_calls', true);
 	$users_subscriptions = wcs_get_users_subscriptions(get_current_user_id());
 	$userCurrentProducts = [];
+	$groups_user = new Groups_User( get_current_user_id() );	
+	$groupCreativeCallsLeft =  0;
+
+	foreach($groups_user->groups as $item){
+		$groupCreativeCallsLeft += $item->group->creative_calls;
+	}
 
 	foreach ($users_subscriptions as $subscription){
 		if ($subscription->has_status(array('active'))) {
@@ -497,8 +502,7 @@ function checkIfUserCanBookCreativeCall(){
 		}
 	}
 
-
-	if($userCreativeCallsLeft || in_array('Creative Director', $userCurrentProducts)){
+	if($groupCreativeCallsLeft || in_array('Creative Director', $userCurrentProducts)){
 		echo "<style>.book_call_btn{display: flex !important;}</style>";
 	}else{
 		echo "<style>.book_call_btn{display: none !important;}</style>";
@@ -565,33 +569,6 @@ Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 
 }
 add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
-
-
-
-function addCreativeCallToUserMetaAfterBuyCreativeCallProduct($order_id){
-	$remainingCalls =  get_user_meta(get_current_user_id(), 'creative_calls', true);
-	$order = wc_get_order( $order_id );
-	$orderItems = $order->get_items();
-	
-	foreach( $orderItems as $item_id => $item ){
-		if(str_contains(strtolower($item->get_name()), 'call')){
-			if($remainingCalls){
-				update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 1);
-			}else{
-				update_user_meta(get_current_user_id(), 'creative_calls', 1);
-			}
-		}
-		else if(str_contains(strtolower($item->get_name()), 'agency')){
-			if($remainingCalls){
-				update_user_meta(get_current_user_id(), 'creative_calls', $remainingCalls + 4);
-			}else{
-				update_user_meta(get_current_user_id(), 'creative_calls', 4);
-			}
-		}
-	}
-}
-add_action( 'woocommerce_payment_complete', 'addCreativeCallToUserMetaAfterBuyCreativeCallProduct');
-
 
 
 
@@ -957,3 +934,74 @@ function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
 }
 add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 ); 
 
+
+
+function prepareOrderDataToCreateTheUserGroupOnDataBase($order_id){
+	$order = wc_get_order( $order_id );
+	$orderData = $order->get_data();
+	$orderItems = $order->get_items();
+	
+	$groupName = strtolower(str_replace(' ', '_', $orderData['billing']['company']));
+	$companyName = $orderData['billing']['company'];
+	$creativeCalls = 0;
+	
+	foreach( $orderItems as $item_id => $item ){
+		if(str_contains(strtolower($item->get_name()), 'call')){
+			$creativeCalls = 1;
+		}
+		else if(str_contains(strtolower($item->get_name()), 'agency')){
+			$creativeCalls = 4;
+		}else{
+			$creativeCalls = 0;
+		}
+	}
+
+	createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls);
+}
+add_action('woocommerce_payment_complete', 'prepareOrderDataToCreateTheUserGroupOnDataBase');
+
+
+
+function createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls) {
+	global $wpdb;
+    $tableName = $wpdb->prefix . 'groups_group';
+
+    $data = array(
+		'parent_id' => null,
+		'creator_id' => 1, 
+		'datetime' => date('Y-m-d H:i:s'),
+        'name' => $groupName,
+        'description' => 'Group for the company ' . $companyName,
+		'creative_calls' => $creativeCalls
+    );
+
+    $existingRow = $wpdb->get_row(
+        $wpdb->prepare(
+            "SELECT * FROM $tableName WHERE name = %s",
+            $groupName,
+        )
+    );
+
+   if($existingRow){
+		//UPDATE DATA
+		$creativeCallsLeft = $existingRow->creative_calls + $creativeCalls;
+
+		$wpdb->update($tableName, array(
+				'creative_calls' => $creativeCallsLeft,
+			), array(
+				'name' => $groupName
+			)
+		);
+
+   }else{
+		//INSERT DATA AND ADD CURRENT USER TO THE GROUP
+		$wpdb->insert($tableName, $data);
+		$insertedId = $wpdb->insert_id;
+
+		if($insertedId){
+			if ( $group = Groups_Group::read_by_name( $groupName ) ) {
+				Groups_User_Group::create( array( "user_id"=>get_current_user_id(), "group_id"=>$group->group_id ) );
+			}
+		}
+   }
+}
