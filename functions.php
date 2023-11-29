@@ -971,7 +971,7 @@ add_action('woocommerce_payment_complete', 'prepareOrderDataToCreateTheUserGroup
 
 function createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls) {
 	global $wpdb;
-    $tableName = $wpdb->prefix . 'groups_group';
+    $tableName = _groups_get_tablename( 'group' );
 
     $data = array(
 		'parent_id' => null,
@@ -1012,6 +1012,57 @@ function createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls) {
 		}
    }
 }
+
+
+
+function createHTMLForCustomFieldOnGroupAdminPage($creativeCallsLeft = null){
+	$html = "
+		<label style='margin: 20px 0; display: flex; align-items: center; gap: 12px;'>Creative Calls Left
+			<input type='number' value='$creativeCallsLeft' min='0' name='creative_calls' id='creative_calls'/>
+		</label>
+		";
+
+	return $html;
+}
+add_filter('groups_admin_groups_add_form_after_fields', 'createHTMLForCustomFieldOnGroupAdminPage');
+
+
+
+function displayCustomFieldToShowCreativeCallsOnEditGroupAdminPage($html, $group_id){
+	global $wpdb;
+		
+	$tableName = _groups_get_tablename( 'group' );
+	$existingRow = $wpdb->get_row(
+        $wpdb->prepare(
+            "SELECT * FROM $tableName WHERE group_id = %s",
+            $group_id,
+        )
+    );
+	
+	$creativeCallsLeft = $existingRow->creative_calls;
+
+	return createHTMLForCustomFieldOnGroupAdminPage($creativeCallsLeft);
+
+}
+add_filter('groups_admin_groups_edit_form_after_fields', 'displayCustomFieldToShowCreativeCallsOnEditGroupAdminPage', 10, 2);
+
+
+
+function saveCreativeCallsInDataBase($group_id){
+	global $wpdb;
+	$tableName = _groups_get_tablename( 'group' );
+
+	if(isset($_POST['creative_calls'])){
+		$wpdb->update($tableName, array(
+				'creative_calls' => $_POST['creative_calls'],
+			), array(
+				'group_id' => $group_id
+			)
+		);
+	};
+}
+add_action('groups_admin_groups_add_submit_success', 'saveCreativeCallsInDataBase');
+add_action('groups_admin_groups_edit_submit_success', 'saveCreativeCallsInDataBase');
 
 
 
