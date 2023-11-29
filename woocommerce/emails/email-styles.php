@@ -317,6 +317,11 @@ tr:last-child(){
 	text-align: right !important;
 }
 
+.subscription__items_wrapper img{
+	display: none;
+	text-align: center;
+}
+
 
 /*CUSTOM DEER DESIGNER STYLES - FINISH*/
 

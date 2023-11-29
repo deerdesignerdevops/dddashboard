@@ -116,7 +116,9 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 		<div class="woocommerce_account_subscriptions">
 			<?php if ( ! empty( $subscriptions ) ) : ?>
 				<div class="dd__subscriptions_sumary">            
-					<div class="dd__subscription_container">				
+					<div class="dd__subscription_container">
+														<h2 class="cart__header__title">You have</h2>
+				
 						<?php
 							foreach($subscriptions as $subscriptionItem){ 
 								foreach($subscriptionItem->get_items() as $item_id => $item){
@@ -138,15 +140,13 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 							}
 
 							if(sizeof($activeSubscriptionsGroup)){ ?>
-								<h2 class="cart__header__title">You have:</h2>
-
 								<?php foreach(array_unique($activeSubscriptionsGroup) as $activeSubscriptionsGroupItem){ 
 									$subscriptionItemCount = array_count_values($activeSubscriptionsGroup)[$activeSubscriptionsGroupItem];
 								?>
 									<span class="dd__subscriptions_sumary_name"><?php echo $activeSubscriptionsGroupItem; ?> <strong><?php echo $subscriptionItemCount; ?></strong></span>
 								<?php } ?>
 						
-								<div class="dd__subscriptions_buttons_wrapper" style="margin-top: 20px;">
+								<div class="dd__subscriptions_buttons_wrapper" style="margin: 20px 0;">
 									<a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo defineAddDesignerLinkProductID($allSubscriptionsGroup); ?>" class="dd__add_designer_btn">Get More Active Tasks</a>
 								</div>
 								
@@ -338,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function(){
 	function pauseFlow(currentSubscriptionId){
 		document.querySelector("#pause_popup .popup_msg h3").innerHTML = "ARE YOU SURE YOU WANT TO <br><span>PAUSE THIS SUBSCRIPTION?</span>";
 		document.querySelector(".form_subscription_update_disclaimer").innerText = "When you pause your subscription, we'll keep your designs, tickets and communication saved until you reactivate your account. Your design team is still available until the end of your current billing period."
-		document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes pause it"
+		document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, pause it"
 		document.querySelector(".cancel_btn .elementor-button-text").innerText = "Keep it active"
 		confirmBtn = document.querySelector(".confirm_btn a")
 		
@@ -441,8 +441,6 @@ document.addEventListener("DOMContentLoaded", function(){
 						closePopup();
 					})
 				}
-
-
 			}
 			else{
 				confirmBtn.href = currentUpdatePlanUrl;

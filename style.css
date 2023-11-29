@@ -711,7 +711,6 @@ input.ff-read-only {
 
 .dd__subscription_card {
   padding: 40px;
-  margin: 30px 0;
   border-radius: 10px;
   background-color: #fff;
   display: flex;
@@ -862,11 +861,12 @@ input.ff-read-only {
   gap: 12px;
 }
 
-.dd__add_designer_btn {
-  color: #ffffff;
+.dd__add_designer_btn,
+.dd__subscription_cancel_btn.reactivate {
+  color: #fff !important;
   background-color: var(--e-global-color-primary) !important;
   border: 3px solid #000 !important;
-  box-shadow: inset 3px 3px !important;
+  box-shadow: inset 3px 3px #fff !important;
 }
 
 .change_plan_btn {
@@ -877,7 +877,8 @@ input.ff-read-only {
 }
 
 .dd__add_designer_btn:hover,
-.change_plan_btn:hover {
+.change_plan_btn:hover,
+.dd__subscription_cancel_btn.reactivate:hover {
   color: #ffffff;
   background-color: var(--e-global-color-f5169dc) !important;
 }
