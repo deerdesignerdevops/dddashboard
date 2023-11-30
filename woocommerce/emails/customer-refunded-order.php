@@ -1,8 +1,8 @@
 <?php
 /**
- * Customer completed order email
+ * Customer refunded order email
  *
- * This template can be overridden by copying it to yourtheme/woocommerce/emails/customer-completed-order.php.
+ * This template can be overridden by copying it to yourtheme/woocommerce/emails/customer-refunded-order.php.
  *
  * HOWEVER, on occasion WooCommerce will need to update template files and you
  * (the theme developer) will need to copy the new files to your theme to
@@ -15,9 +15,7 @@
  * @version 3.7.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /*
  * @hooked WC_Emails::email_header() Output the email header
@@ -25,7 +23,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
 <?php /* translators: %s: Customer first name */ ?>
+<p><?php printf( esc_html__( 'Hi %s,', 'woocommerce' ), esc_html( $order->get_billing_first_name() ) ); ?></p>
 
+<p>
+<?php
+if ( $partial_refund ) {
+	/* translators: %s: Site title */
+	printf( esc_html__( 'Your payment to Deer Designer has been partially refunded. See more details below for your reference:', 'woocommerce' ), wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) ); // phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped
+} else {
+	/* translators: %s: Site title */
+	printf( esc_html__( 'Your payment to Deer Designer has been refunded. See more details below for your reference:', 'woocommerce' ), wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) ); // phpcs:ignore WordPress.XSS.EscapeOutput.OutputNotEscaped
+}
+?>
+</p>
 <?php
 
 /*
@@ -50,14 +60,11 @@ do_action( 'woocommerce_email_customer_details', $order, $sent_to_admin, $plain_
 /**
  * Show user-defined additional content - this is set in each email's settings.
  */
-// if ( $additional_content ) {
-// 	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
-// }
+if ( $additional_content ) {
+	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
+}
 
 /*
  * @hooked WC_Emails::email_footer() Output the email footer
  */
-?>
-	<p style="text-align: center;">You're receiving this email because you have <br>an active subscription with <a href="https://deerdesigner.com">Deer Designer.</a></p>
-<?php
 do_action( 'woocommerce_email_footer', $email );

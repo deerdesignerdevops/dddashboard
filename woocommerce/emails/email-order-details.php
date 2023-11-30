@@ -32,17 +32,18 @@ $couponDiscount = 0;
 	if ( $sent_to_admin ) {
 		$before = '<a class="link" href="' . esc_url( $order->get_edit_order_url() ) . '">';
 		$after  = '</a>';
+		$userDetailsForAdmin = '<p class="user__details"><strong>Receipt from:</strong>' . "$userFirstName | $userEmail | $companyName" . '</p>';
 	} else {
 		$before = '';
 		$after  = ' - Deer Designer Subscription';
+		$userDetailsForAdmin = "";
 	}
 	/* translators: %s: Order ID. */
 	echo wp_kses_post( $before . sprintf( __( 'Receipt #%s', 'woocommerce' ) . $after . ' <br><span>Paid on: <time datetime="%s">%s</time></span>', $order->get_order_number(), $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ) );
 	?>
 </h2>
 
-
-<p class="user__details"><strong>Receipt from:</strong> <?php echo "$userFirstName | $userEmail | $companyName"; ?>
+<?php echo $userDetailsForAdmin; ?>
 
 <div style="margin-bottom: 40px;">
 	<h3 class="order__email_sumary">Sumary</h3>
