@@ -201,7 +201,6 @@ if(isset($_GET["additional-active-task"])){
 											if(!in_array($item['name'], $subscriptionProductNames)){
 												$itemName = $item['name'];
 												$subscriptionProductNames[] = $itemName;												
-												$itemCount = array_count_values($activeSubscriptionsGroup)[$itemName];
 											?>
 									
 											<span class="dd__subscription_title">														
@@ -213,7 +212,7 @@ if(isset($_GET["additional-active-task"])){
 															<?php endif; ?>
 														</span>
 												<?php } ?>
-												<?php echo $item['name'] . "($itemCount)"; ?>
+												<?php echo $item['name']; ?>
 											</span>
 											<?php } ?>
 															
@@ -229,8 +228,10 @@ if(isset($_GET["additional-active-task"])){
 									</div>
 
 									<div class="dd__subscription_actions_form">
+										<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&subscription_id=<?php echo $subscription->id; ?>" class="dd__add_designer_btn active-tasks">Get More Active Tasks</a>
+
 										<?php if($subscription->get_status() === "active" && !in_array($item["product_id"], $userCurrentAddons)){ ?>
-											<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="change_plan_btn">Change Plan</a>	
+											<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="change_plan_btn change">Change Plan</a>	
 										<?php } ?>
 
 										<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
@@ -250,15 +251,9 @@ if(isset($_GET["additional-active-task"])){
 													</div>
 												<?php }; ?>
 									</div>
-
-									<div class="dd__subscriptions_buttons_wrapper" style="margin: 20px 0;">
-										<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&subscription_id=<?php echo $subscription->id; ?>" class="dd__add_designer_btn">Get More Active Tasks</a>
-									</div>
 								</div>
 							<?php } ?>
-
 						<?php endforeach; ?>
-						
 				</div>
 				
 				<div class="subscriptions__addons_wrapper">
@@ -295,9 +290,7 @@ if(isset($_GET["additional-active-task"])){
 						<span class="dd__subscription_warning">You have no active subscriptions!</span>
 					</div>
 
-					<div class="dd__subscription_actions_form">
-						<a href="https://deerdesigner.com/pricing" class="dd__add_designer_btn">See Pricing</a>
-					</div>
+					<a href="https://deerdesigner.com/pricing" class="dd__add_designer_btn">See Pricing</a>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -352,7 +345,7 @@ if(isset($_GET["additional-active-task"])){
 //IT CHANGES THE POPUP TEXT AND LINK BASED ON THE BUTTON CLICKED
 
 document.addEventListener("DOMContentLoaded", function(){
-	const subscriptionsActionssBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
+	const subscriptionsActionsBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
 	const loadingSpinner = document.querySelector(".dd__loading_screen");
 	function closePopup(){
 		const elementorPopups = Array.from(document.querySelectorAll(".elementor-popup-modal"))
@@ -396,10 +389,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		})
 	}
 
-
-	
-
-	subscriptionsActionssBtns.map((btn) => {
+	subscriptionsActionsBtns.map((btn) => {
 		btn.addEventListener("click", function(e){
 			e.preventDefault();
 			const currentSubscriptionId = e.currentTarget.dataset.subscriptionId
@@ -480,6 +470,18 @@ document.addEventListener("DOMContentLoaded", function(){
 						closePopup();
 					})
 				}
+			}
+			else if(e.currentTarget.classList.contains("active-tasks")){
+				confirmBtn.href = currentUpdatePlanUrl;
+				popupMsgNewText = "Are you sure you want add <br><span>more active tasks?</span>";
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = "<span><strong>ATTENTION:</strong> Your subscription will be increased by R$649.</span>"
+				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, give more active tasks"
+				document.querySelector(".cancel_btn .elementor-button-text").innerText = "Cancel"
+
+				document.querySelector(".cancel_btn").addEventListener("click", function(e){
+					e.preventDefault()
+					closePopup()
+				})
 			}
 			else{
 				confirmBtn.href = currentUpdatePlanUrl;
