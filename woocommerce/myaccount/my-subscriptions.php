@@ -18,7 +18,7 @@ $elementorPopupID = $siteUrl === 'http://localhost/deerdesignerdash' ? 2776 : 12
 $activeSubscriptionsGroup = [];
 $allSubscriptionsGroup = [];
 
-//CREATE NEW SUBSCRIPTIONS ARRAY WITH ACTIVE FIRST
+//CREATE NEW SUBSCRIPTIONS ARRAY TO SHOW THE ACTIVES FIRST IN THE LIST
 $activeSubscriptions = [];
 $inactiveSubscriptions = [];
 foreach($subscriptions as $sub){
@@ -234,8 +234,6 @@ if(isset($_GET["additional-active-task"])){
 										<?php } ?>
 
 										<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
-
-									
 										
 										<?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
 										
@@ -246,9 +244,8 @@ if(isset($_GET["additional-active-task"])){
 										?>
 												<?php if ( ! empty( $actions ) ) { ?>
 													<div class="dd__subscriptions_buttons_wrapper">						
-														<?php foreach ( $actions as $key => $action ) :?>
-															
-															<a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+														<?php foreach ( $actions as $key => $action ) :?>															
+															<a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
 														<?php endforeach; ?>
 													</div>
 												<?php }; ?>
@@ -406,6 +403,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		btn.addEventListener("click", function(e){
 			e.preventDefault();
 			const currentSubscriptionId = e.currentTarget.dataset.subscriptionId
+			const currentSubscriptionStatus = e.currentTarget.dataset.subscriptionStatus
 			const currentPlan = e.currentTarget.dataset.plan
 			const currentUpdatePlanUrl = e.currentTarget.href
 			const enablePauseFlow = <?php echo sizeof($subscriptions); ?>;
@@ -469,7 +467,7 @@ document.addEventListener("DOMContentLoaded", function(){
 					cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
 				})
 
-				if(enablePauseFlow === 1){
+				if(enablePauseFlow === 1 && currentSubscriptionStatus !== 'on-hold'){
 					document.querySelector(".cancel_btn .elementor-button-text").innerText = "Pause it instead"
 					document.querySelector(".cancel_btn").addEventListener("click", function(e){
 						e.preventDefault()
