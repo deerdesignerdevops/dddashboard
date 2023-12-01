@@ -228,9 +228,9 @@ if(isset($_GET["additional-active-task"])){
 									</div>
 
 									<div class="dd__subscription_actions_form">
-										<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&subscription_id=<?php echo $subscription->id; ?>" class="dd__add_designer_btn active-tasks">Get More Active Tasks</a>
-
 										<?php if($subscription->get_status() === "active" && !in_array($item["product_id"], $userCurrentAddons)){ ?>
+											<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&subscription_id=<?php echo $subscription->id; ?>" class="dd__add_designer_btn active-tasks">Get More Active Tasks</a>
+
 											<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="change_plan_btn change">Change Plan</a>	
 										<?php } ?>
 
