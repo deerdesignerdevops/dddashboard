@@ -826,10 +826,9 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
 	if($old_status !== 'pending'){
 		$subscriptionItems = $subscription->get_items();
-		$currentUser = wp_get_current_user();
 		$slackUrl = SLACK_WEBHOOK_URL;
-		$customerName = $currentUser->display_name;
-		$customerEmail = $currentUser->user_email;
+		$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
+		$customerEmail = $subscription->data['billing']['email'];
 		$subscriptionItemsGroup = [];
 
 		$newStatusLabel = "";
@@ -854,7 +853,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 		$slackMessageBody = [
 			'text'  => '<!channel> Subscription Updated :alert:
 	*Client:* ' . $customerName . ' | ' . $customerEmail . '
-	*Plan:* ' . implode(" | ", $subscriptionItemsGroup) . '
+	*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)) . '
 	:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",
 			'username' => 'Marcus',
 		];

@@ -60,7 +60,7 @@ function formatSubscriptionStatusLabel($status){
 }
 
 $invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
-$invoicesLimit = 10;
+$invoicesLimit = 5;
 
 $currentUserOrders = wc_get_orders(array(
 	'customer_id' => get_current_user_id(),
@@ -94,6 +94,36 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 	'trial_end'               => _x( 'Trial end date', 'customer subscription table header', 'woocommerce-subscriptions' ),
 ) );
 
+
+function addNewActiveTaskToCurrentSubscription($subscriptionId){	
+	$subscriptionObj = wcs_get_subscription($subscriptionId);
+	$qty = 1;
+	$product = wc_get_product(3040);
+	$tax = ($product->get_price_including_tax()-$product->get_price_excluding_tax())*$qty;
+	$subscriptionObj->add_product($product, $qty, array(
+		'totals' => array(
+			'subtotal'     => $product->get_price(),
+			'subtotal_tax' => $tax,
+			'total'        => $product->get_price(),
+			'tax'          => $tax,
+			'tax_data'     => array( 'subtotal' => array(1=>$tax), 'total' => array(1=>$tax) )
+		)
+	));
+	$subscriptionObj->calculate_totals();
+	$subscriptionObj->save();
+	
+	wp_redirect(site_url() . "/subscriptions");
+	exit;
+	
+
+	//wc_add_notice('Your new active task was added to your current subscription', 'success');
+}
+
+if(isset($_GET["additional-active-task"])){
+	$subscriptionId = $_GET["subscription_id"];	
+	addNewActiveTaskToCurrentSubscription($subscriptionId);
+}
+
 ?>
 
 
@@ -117,7 +147,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 			<?php if ( ! empty( $subscriptions ) ) : ?>
 				<div class="dd__subscriptions_sumary">            
 					<div class="dd__subscription_container">
-														<h2 class="cart__header__title">You have</h2>
+						<h2 class="cart__header__title">You have</h2>
 				
 						<?php
 							foreach($subscriptions as $subscriptionItem){ 
@@ -144,19 +174,14 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 									$subscriptionItemCount = array_count_values($activeSubscriptionsGroup)[$activeSubscriptionsGroupItem];
 								?>
 									<span class="dd__subscriptions_sumary_name"><?php echo $activeSubscriptionsGroupItem; ?> <strong><?php echo $subscriptionItemCount; ?></strong></span>
-								<?php } ?>
-						
-								<div class="dd__subscriptions_buttons_wrapper" style="margin: 20px 0;">
-									<a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo defineAddDesignerLinkProductID($allSubscriptionsGroup); ?>" class="dd__add_designer_btn">Get More Active Tasks</a>
-								</div>
-								
+								<?php } ?>								
 							<?php } ?>
 
 						<?php foreach ( $sortedSubscriptions as $subscription_id => $subscription ) :?>
 							<?php if($subscription->get_status() !== "cancelled"){ ?>				
-								<div class="dd__subscription_card plan_<?php 
+								<div class="dd__subscription_card <?php 
 									foreach($subscription->get_items() as $subsItem){
-										echo strtok(strtolower($subsItem['name']), ' ');
+										echo ' ' . strtok(strtolower($subsItem['name']), ' ');
 									}
 
 									echo ' ' . esc_attr($subscription->get_status());
@@ -168,7 +193,15 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 											<span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  formatSubscriptionStatusLabel($subscription->get_status()) ?></strong></span>
 										</div>
 
-										<?php foreach ( $subscription->get_items() as $item_id => $item ){
+										<?php 
+										$subscriptionProductNames = [];
+
+										foreach ( $subscription->get_items() as  $item ){
+											
+											if(!in_array($item['name'], $subscriptionProductNames)){
+												$itemName = $item['name'];
+												$subscriptionProductNames[] = $itemName;												
+												$itemCount = array_count_values($activeSubscriptionsGroup)[$itemName];
 											?>
 									
 											<span class="dd__subscription_title">														
@@ -180,8 +213,10 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 															<?php endif; ?>
 														</span>
 												<?php } ?>
-												<?php echo $item['name']; ?>
-										</span>
+												<?php echo $item['name'] . "($itemCount)"; ?>
+											</span>
+											<?php } ?>
+															
 										<?php } ?>
 										<span class="dd__subscription_price"><?php echo wp_kses_post( $subscription->get_formatted_order_total() ); ?></span>
 
@@ -218,9 +253,15 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 													</div>
 												<?php }; ?>
 									</div>
+
+									<div class="dd__subscriptions_buttons_wrapper" style="margin: 20px 0;">
+										<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&subscription_id=<?php echo $subscription->id; ?>" class="dd__add_designer_btn">Get More Active Tasks</a>
+									</div>
 								</div>
 							<?php } ?>
+
 						<?php endforeach; ?>
+						
 				</div>
 				
 				<div class="subscriptions__addons_wrapper">
@@ -293,7 +334,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 	<?php } ?>
 </section>
 
-<?php echo do_shortcode('[elementor-template id="1201"]'); ?>
+<?php echo do_shortcode('[elementor-template id="1201"]'); print_r($activeSubscriptionsGroup);?>
 
 <style>
 	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation{
@@ -301,7 +342,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 	}
 
 	.form_subscription_update_disclaimer{
-		display: <?php echo sizeof($activeSubscriptionsGroup) > 1 ? 'none' : 'block';  ?>;
+		display: <?php echo sizeof($sortedSubscriptions) > 1 ? 'none' : 'block';  ?>;
 	}
 
 	.premium-stock-photos.suspend {

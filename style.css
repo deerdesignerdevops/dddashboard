@@ -714,6 +714,7 @@ input.ff-read-only {
   border-radius: 10px;
   background-color: #fff;
   display: flex;
+  flex-wrap: wrap;
   gap: 40px;
   justify-content: space-between;
   align-items: center;
@@ -852,6 +853,7 @@ input.ff-read-only {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .dd__subscriptions_buttons_wrapper {
@@ -859,6 +861,7 @@ input.ff-read-only {
   flex-direction: row-reverse;
   align-items: center;
   gap: 12px;
+  width: 100%;
 }
 
 .dd__add_designer_btn,
@@ -971,30 +974,30 @@ input.ff-read-only {
   margin: 0 !important;
 }
 
-.plan_standard {
+.dd__subscription_card.standard {
   background-color: #fdf3ee;
   border: none;
 }
 
-.plan_standard .dd__subscription_title {
+.dd__subscription_card.standard .dd__subscription_title {
   color: var(--e-global-color-secondary);
 }
 
-.plan_business {
+.dd__subscription_card.business {
   background-color: #f0f6f4;
   border: none;
 }
 
-.plan_business .dd__subscription_title {
+.dd__subscription_card.business .dd__subscription_title {
   color: var(--e-global-color-primary);
 }
 
-.plan_agency {
+.dd__subscription_card.agency {
   background-color: #f4f4f8;
   border: none;
 }
 
-.plan_agency .dd__subscription_title {
+.dd__subscription_card.agency .dd__subscription_title {
   color: var(--e-global-color-f5169dc);
 }
 
