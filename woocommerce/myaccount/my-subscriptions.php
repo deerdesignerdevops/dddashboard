@@ -95,16 +95,24 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 ) );
 
 
-function addNewActiveTaskToCurrentSubscription($subscriptionId){	
+function addNewActiveTaskToCurrentSubscription($subscriptionId, $subscriptionPlan){	
 	$subscriptionObj = wcs_get_subscription($subscriptionId);
 	$qty = 1;
 	$product = wc_get_product(3040);
 	$tax = ($product->get_price_including_tax()-$product->get_price_excluding_tax())*$qty;
+	$activeTaskProductDisctount = 0;
+
+	if(str_contains($subscriptionPlan, 'Business') || str_contains($subscriptionPlan, 'Agency')){
+		$activeTaskProductDisctount = 50;
+	}
+
+	$price = $product->get_price() - $activeTaskProductDisctount;
+
 	$subscriptionObj->add_product($product, $qty, array(
 		'totals' => array(
-			'subtotal'     => $product->get_price(),
+			'subtotal'     => $price,
 			'subtotal_tax' => $tax,
-			'total'        => $product->get_price(),
+			'total'        => $price,
 			'tax'          => $tax,
 			'tax_data'     => array( 'subtotal' => array(1=>$tax), 'total' => array(1=>$tax) )
 		)
@@ -114,14 +122,12 @@ function addNewActiveTaskToCurrentSubscription($subscriptionId){
 	
 	wp_redirect(site_url() . "/subscriptions");
 	exit;
-	
-
-	//wc_add_notice('Your new active task was added to your current subscription', 'success');
 }
 
 if(isset($_GET["additional-active-task"])){
 	$subscriptionId = $_GET["subscription_id"];	
-	addNewActiveTaskToCurrentSubscription($subscriptionId);
+	$subscriptionPlan = $_GET["plan"];	
+	addNewActiveTaskToCurrentSubscription($subscriptionId, $subscriptionPlan);
 }
 
 ?>
@@ -195,8 +201,15 @@ if(isset($_GET["additional-active-task"])){
 
 										<?php 
 										$subscriptionProductNames = [];
+										$currentSubscriptionPlan = "";
 
 										foreach ( $subscription->get_items() as  $item ){
+											$currentCat =  strip_tags(wc_get_product_category_list($item['product_id']));
+
+											if($currentCat === "Plan"){
+												$currentSubscriptionPlan = $item['name'];
+											}
+											
 											
 											if(!in_array($item['name'], $subscriptionProductNames)){
 												$itemName = $item['name'];
@@ -229,9 +242,9 @@ if(isset($_GET["additional-active-task"])){
 
 									<div class="dd__subscription_actions_form">
 										<?php if($subscription->get_status() === "active" && !in_array($item["product_id"], $userCurrentAddons)){ ?>
-											<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&subscription_id=<?php echo $subscription->id; ?>" class="dd__add_designer_btn active-tasks">Get More Active Tasks</a>
+											<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&<?php echo "subscription_id=$subscription->id&plan=$currentSubscriptionPlan"; ?>" class="dd__add_designer_btn active-tasks">Get More Active Tasks</a>
 
-											<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="change_plan_btn change">Change Plan</a>	
+											<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="change_plan_btn change">Change Plan</a>	
 										<?php } ?>
 
 										<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
@@ -246,7 +259,7 @@ if(isset($_GET["additional-active-task"])){
 												<?php if ( ! empty( $actions ) ) { ?>
 													<div class="dd__subscriptions_buttons_wrapper">						
 														<?php foreach ( $actions as $key => $action ) :?>															
-															<a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $item['name']; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+															<a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
 														<?php endforeach; ?>
 													</div>
 												<?php }; ?>

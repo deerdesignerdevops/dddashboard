@@ -719,6 +719,7 @@ input.ff-read-only {
   justify-content: space-between;
   align-items: center;
   border: 1px solid #ccc;
+  margin-bottom: 20px;
 }
 
 .dd__subscription_card.cancelled {
