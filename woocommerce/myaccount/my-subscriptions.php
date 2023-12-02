@@ -98,7 +98,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 function addNewActiveTaskToCurrentSubscription($subscriptionId, $subscriptionPlan){	
 	$subscriptionObj = wcs_get_subscription($subscriptionId);
 	$qty = 1;
-	$product = wc_get_product(3040);
+	$product = wc_get_product(1389);
 	$tax = ($product->get_price_including_tax()-$product->get_price_excluding_tax())*$qty;
 	$activeTaskProductDisctount = 0;
 
