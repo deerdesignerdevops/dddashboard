@@ -588,10 +588,10 @@ input.ff-read-only {
 }
 
 .addon__card {
-  background-color: #eee;
+  background-color: #f7f7f7;
   padding: 20px;
   border-radius: 0 0 5px 5px;
-  border-top: 3px solid #ccc;
+  border-top: 3px solid #eee;
   margin: 5px;
   width: 45%;
   display: flex !important;
@@ -610,7 +610,7 @@ input.ff-read-only {
 
 .addon__card img {
   width: 100%;
-  object-fit: cover;
+  object-fit: contain;
   margin: 0 auto 12px auto;
   border-radius: 5px;
   height: 200px;
@@ -625,7 +625,7 @@ input.ff-read-only {
 
 .addon__description {
   padding: 20px 0;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .woocommerce-message a {
@@ -741,7 +741,7 @@ input.ff-read-only {
 }
 
 .subscriptions__addons_wrapper {
-  width: 30%;
+  width: 25%;
 }
 
 .dd__subscription_id.active strong {
@@ -1146,6 +1146,17 @@ input.ff-read-only {
   }
 
   .subscriptions__addons_wrapper {
+    width: 100%;
+  }
+
+  .dd__subscriptions_sumary,
+  .dd__subscription_card {
+    flex-direction: column;
+  }
+
+  .dd__subscriptions_sumary .dd__subscription_container,
+  .subscriptions__addons_wrapper,
+  .dd__subscription_details {
     width: 100%;
   }
 }
