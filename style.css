@@ -715,7 +715,6 @@ input.ff-read-only {
   background-color: #fff;
   display: flex;
   flex-wrap: wrap;
-  gap: 40px;
   justify-content: space-between;
   align-items: center;
   border: 1px solid #ccc;
@@ -753,7 +752,7 @@ input.ff-read-only {
 .dd__subscription_details {
   display: flex;
   flex-direction: column;
-  width: 50%;
+  width: 60%;
   color: var(--e-global-color-text);
   flex-wrap: wrap;
 }
@@ -803,8 +802,11 @@ input.ff-read-only {
 .dd__subscription_actions_form,
 .btn__wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  flex-direction: row;
+  width: 40%;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
 .dd__subscription_update_btn,
@@ -830,7 +832,6 @@ input.ff-read-only {
   color: var(--e-global-color-text) !important;
   border: 3px solid var(--e-global-color-text) !important;
   background-color: #e1e1e1 !important;
-  flex: 1;
   transition: 0.5s;
   margin: 0 !important;
 }
@@ -861,33 +862,32 @@ input.ff-read-only {
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   width: 100%;
 }
 
-.dd__add_designer_btn,
+.dd__primary_button,
 .dd__subscription_cancel_btn.reactivate {
   color: #fff !important;
   background-color: var(--e-global-color-primary) !important;
   border: 3px solid #000 !important;
   box-shadow: inset 3px 3px #fff !important;
+  width: 100%;
 }
 
-.change_plan_btn {
-  color: #ffffff;
+.dd__primary_button.change {
   background-color: var(--e-global-color-secondary) !important;
-  border: 3px solid #000 !important;
-  box-shadow: inset 3px 3px !important;
 }
 
-.dd__add_designer_btn:hover,
+.dd__primary_button:hover,
 .change_plan_btn:hover,
 .dd__subscription_cancel_btn.reactivate:hover {
   color: #ffffff;
   background-color: var(--e-global-color-f5169dc) !important;
 }
 
-.dd__add_designer_btn,
+.dd__primary_button,
 .change_plan_btn,
 .dd__subscription_cancel_btn,
 .dd__subscription_update_btn,

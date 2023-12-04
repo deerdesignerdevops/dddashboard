@@ -798,7 +798,7 @@ add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToS
 
 
 function defineAddonPeriodToShowOnCards($addonName){
-	if(str_contains($addonName, 'Photos')){
+	if(str_contains($addonName, 'Stock')){
 		echo 'year';
 	}else if(str_contains($addonName, 'Call')){
 		echo 'call';
@@ -1069,3 +1069,20 @@ function removeMobileMessagingFromWooEmails( $mailer ) {
 	remove_action( 'woocommerce_email_footer', array( $mailer->emails['WC_Email_New_Order'], 'mobile_messaging' ), 9 );
 }
 add_action( 'woocommerce_email', 'removeMobileMessagingFromWooEmails' );
+
+
+
+function formatSubscriptionStatusLabel($status){
+	switch ($status){
+		case 'on-hold':
+			echo 'paused';
+			break;
+		case 'pending-cancel':
+			echo 'pending-cancellation';
+			break;
+
+		default:
+			echo $status;
+	}
+}
+add_action('callNewSubscriptionsLabel', 'formatSubscriptionStatusLabel');

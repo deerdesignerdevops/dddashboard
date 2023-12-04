@@ -45,19 +45,7 @@ function defineAddDesignerLinkProductID($parentProducts){;
 	}
 }
 
-function formatSubscriptionStatusLabel($status){
-	switch ($status){
-		case 'on-hold':
-			return 'paused';
-			break;
-		case 'pending-cancel':
-			return 'pending-cancellation';
-			break;
 
-		default:
-			return $status;
-	}
-}
 
 $invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
 $invoicesLimit = 5;
@@ -129,7 +117,6 @@ if(isset($_GET["additional-active-task"])){
 	$subscriptionPlan = $_GET["plan"];	
 	addNewActiveTaskToCurrentSubscription($subscriptionId, $subscriptionPlan);
 }
-
 ?>
 
 
@@ -196,7 +183,7 @@ if(isset($_GET["additional-active-task"])){
 									<div class="dd__subscription_details">                        
 
 										<div class="dd__subscription_header">
-											<span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  formatSubscriptionStatusLabel($subscription->get_status()) ?></strong></span>
+											<span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscription->get_status()); ?></strong></span>
 										</div>
 
 										<?php 
@@ -217,7 +204,7 @@ if(isset($_GET["additional-active-task"])){
 											?>
 									
 											<span class="dd__subscription_title">														
-												<?php if(sizeof($subscription->get_items()) > 1) { ?>
+												<?php if(sizeof($subscription->get_items()) > 1 && $subscription->get_status() === 'active') { ?>
 														<span class="remove_item">
 															<?php if ( wcs_can_item_be_removed( $item, $subscription ) ) : ?>
 																<?php $confirm_notice = apply_filters( 'woocommerce_subscriptions_order_item_remove_confirmation_text', __( 'Are you sure you want remove this item from your subscription?', 'woocommerce-subscriptions' ), $item, $_product, $subscription );?>
@@ -242,9 +229,9 @@ if(isset($_GET["additional-active-task"])){
 
 									<div class="dd__subscription_actions_form">
 										<?php if($subscription->get_status() === "active" && !in_array($item["product_id"], $userCurrentAddons)){ ?>
-											<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&<?php echo "subscription_id=$subscription->id&plan=$currentSubscriptionPlan"; ?>" class="dd__add_designer_btn active-tasks">Get More Active Tasks</a>
+											<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&<?php echo "subscription_id=$subscription->id&plan=$currentSubscriptionPlan"; ?>" class="dd__primary_button active-tasks">Get More Active Tasks</a>
 
-											<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="change_plan_btn change">Change Plan</a>	
+											<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
 										<?php } ?>
 
 										<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
@@ -303,7 +290,7 @@ if(isset($_GET["additional-active-task"])){
 						<span class="dd__subscription_warning">You have no active subscriptions!</span>
 					</div>
 
-					<a href="https://deerdesigner.com/pricing" class="dd__add_designer_btn">See Pricing</a>
+					<a href="https://deerdesigner.com/pricing" class="dd__primary_button">See Pricing</a>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -337,7 +324,7 @@ if(isset($_GET["additional-active-task"])){
 	<?php } ?>
 </section>
 
-<?php echo do_shortcode('[elementor-template id="1201"]'); print_r($activeSubscriptionsGroup);?>
+<?php echo do_shortcode('[elementor-template id="1201"]'); ?>
 
 <style>
 	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation{
