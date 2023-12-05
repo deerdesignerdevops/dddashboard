@@ -1016,8 +1016,7 @@ input.ff-read-only {
   align-items: center;
 }
 
-.dd__notices_popup_wrapper .woocommerce-message,
-.dd__notices_popup_wrapper .woocommerce-error {
+.dd__notices_popup_wrapper .woocommerce-message {
   max-height: 400px;
   max-width: 600px;
   display: flex;
@@ -1029,8 +1028,16 @@ input.ff-read-only {
   padding: 20px;
 }
 
-.dd__notices_popup_wrapper .woocommerce-message:before,
-.dd__notices_popup_wrapper .woocommerce-error:before {
+.dd__notices_popup_wrapper.error .woocommerce-message {
+  border-top-color: var(--e-global-color-secondary) !important;
+}
+
+.dd__notices_popup_wrapper.error .woocommerce-message:before {
+  content: "\e016";
+  color: var(--e-global-color-secondary);
+}
+
+.dd__notices_popup_wrapper .woocommerce-message:before {
   position: relative;
   display: block;
   top: auto;

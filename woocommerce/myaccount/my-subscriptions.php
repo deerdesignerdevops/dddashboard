@@ -128,9 +128,6 @@ if(isset($_GET["additional-active-task"])){
 </div>
 
 
-<?php if(isset($_GET["change-your-plan"])){ wc_add_notice('Your request to switch plan has been sent. We\'ll get in touch soon!', 'success'); } ?>
-
-
 <section class="dd__bililng_portal_section">
     <div style="max-width: 1140px; margin: auto">
         <a href="/" class="dd__bililng_portal_back"><i class="fa-solid fa-chevron-left"></i> Back to Dashboard</a>
@@ -238,7 +235,7 @@ if(isset($_GET["additional-active-task"])){
 										<?php if($subscription->get_status() === "active" && !in_array($item["product_id"], $userCurrentAddons)){ ?>
 											<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&<?php echo "subscription_id=$subscription->id&plan=$currentSubscriptionPlan"; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Get More Active Tasks</a>
 
-											<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
+											<a href="<?php echo $siteUrl; ?>/subscriptions" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
 										<?php } ?>
 
 										<?php do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $subscription, false ); ?>
@@ -540,5 +537,25 @@ document.addEventListener("DOMContentLoaded", function(){
 </script>
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const closeNoticesPopupBtn = Array.from(document.querySelectorAll(
+    ".dd__notices_popup_wrapper .dd__subscription_cancel_btn"
+  ));
+
+  document.body.addEventListener("click", function(){
+	document.querySelector(".dd__notices_popup_wrapper").style.display =
+			"none";
+  })
+
+  if (closeNoticesPopupBtn) {
+    closeNoticesPopupBtn.map((btn) => {
+		btn.addEventListener('click', function(e){
+			e.preventDefault();
+			document.querySelector(".dd__notices_popup_wrapper").style.display =
+			"none";
+		})
+	})
+  }
+});
 
 </script>

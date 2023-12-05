@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 do_action( 'woocommerce_before_cart' ); ?>
 
 <style>
-.coupon{
+.woocommerce-notices-wrapper{
 	display: none;
 }
 </style>

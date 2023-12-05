@@ -782,9 +782,9 @@ function preventUserHaveDifferentPlansAtTheSameTime() {
 						if($terms[0]->slug === 'plan'){
 							if(!in_array($values['data']->id, $currentUserSubscriptionPlan)){
 								WC()->cart->remove_cart_item( $cart_item_key );
-								wc_add_notice('You cant purchase this item! Please, use the Change Plan Button in your dashboard!', 'error', array(
-									'url' => '/subscriptions'
-								));
+								wc_add_notice('You can\'t purchase this item! Please, use the Change Plan Button in your dashboard!', 'success', array('notice-type' => 'error'));
+								wp_redirect(site_url() . '/subscriptions');
+								exit;
 							}
 						}
 					}
@@ -1130,5 +1130,11 @@ function formatSubscriptionStatusLabel($status){
 add_action('callNewSubscriptionsLabel', 'formatSubscriptionStatusLabel');
 
 
+function showWooNoticeAfterChangePlanRequest($entryId, $formData, $form){
+	if($form->id === 4){
+		wc_add_notice('Your request to switch plan has been sent. We\'ll get in touch soon!', 'success'); 
+	}
+}
+add_action('fluentform/submission_inserted', 'showWooNoticeAfterChangePlanRequest', 10, 3);
 
 add_filter( 'wc_add_to_cart_message_html', '__return_false' );
