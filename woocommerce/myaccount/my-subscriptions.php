@@ -88,13 +88,13 @@ function addNewActiveTaskToCurrentSubscription($subscriptionId, $subscriptionPla
 	$qty = 1;
 	$product = wc_get_product(1389);
 	$tax = ($product->get_price_including_tax()-$product->get_price_excluding_tax())*$qty;
-	$activeTaskProductDisctount = 0;
+	$activeTaskProductDiscount = 0;
 
 	if(str_contains($subscriptionPlan, 'Business') || str_contains($subscriptionPlan, 'Agency')){
-		$activeTaskProductDisctount = 50;
+		$activeTaskProductDiscount = 50;
 	}
 
-	$price = $product->get_price() - $activeTaskProductDisctount;
+	$price = $product->get_price() - $activeTaskProductDiscount;
 
 	$subscriptionObj->add_product($product, $qty, array(
 		'totals' => array(
@@ -188,19 +188,26 @@ if(isset($_GET["additional-active-task"])){
 
 										<?php 
 										$subscriptionProductNames = [];
+										
 										$currentSubscriptionPlan = "";
+										$arrayDeNomes = [];
+										
+										foreach($subscription->get_items() as  $item){
+											$arrayDeNomes[] = $item['name'];
+										}
+
+										$currentPlanAdditionalActivetasks = array_count_values($arrayDeNomes)['Active Task'];
 
 										foreach ( $subscription->get_items() as  $item ){
 											$currentCat =  strip_tags(wc_get_product_category_list($item['product_id']));
-
+											
 											if($currentCat === "Plan"){
 												$currentSubscriptionPlan = $item['name'];
 											}
-											
-											
+
 											if(!in_array($item['name'], $subscriptionProductNames)){
 												$itemName = $item['name'];
-												$subscriptionProductNames[] = $itemName;												
+												$subscriptionProductNames[] = $itemName;										
 											?>
 									
 											<span class="dd__subscription_title">														
@@ -212,7 +219,7 @@ if(isset($_GET["additional-active-task"])){
 															<?php endif; ?>
 														</span>
 												<?php } ?>
-												<?php echo $item['name']; ?>
+												<?php echo $item['name'] .  (str_contains($item['name'], 'Task') ? " ($currentPlanAdditionalActivetasks) " : '');?>
 											</span>
 											<?php } ?>
 															
@@ -229,7 +236,7 @@ if(isset($_GET["additional-active-task"])){
 
 									<div class="dd__subscription_actions_form">
 										<?php if($subscription->get_status() === "active" && !in_array($item["product_id"], $userCurrentAddons)){ ?>
-											<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&<?php echo "subscription_id=$subscription->id&plan=$currentSubscriptionPlan"; ?>" class="dd__primary_button active-tasks">Get More Active Tasks</a>
+											<a href="<?php echo $siteUrl; ?>/subscriptions/?additional-active-task=true&<?php echo "subscription_id=$subscription->id&plan=$currentSubscriptionPlan"; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Get More Active Tasks</a>
 
 											<a href="<?php echo $siteUrl; ?>/subscriptions/?change-your-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
 										<?php } ?>
@@ -397,6 +404,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			const currentPlan = e.currentTarget.dataset.plan
 			const currentUpdatePlanUrl = e.currentTarget.href
 			const enablePauseFlow = <?php echo sizeof($subscriptions); ?>;
+			const activeTaskProductDiscount = currentPlan.includes('Standard') ? 0 : 50
 			const changePlanOptionsText = () => {
 				if(currentPlan.includes('Standard')){
 					return "Business Plan and Agency Plan"
@@ -474,7 +482,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			else if(e.currentTarget.classList.contains("active-tasks")){
 				confirmBtn.href = currentUpdatePlanUrl;
 				popupMsgNewText = "Are you sure you want add <br><span>more active tasks?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = "<span><strong>ATTENTION:</strong> Your subscription will be increased by R$649.</span>"
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `<span><strong>ATTENTION:</strong> Your subscription will be increased by R$${699 - activeTaskProductDiscount}.</span>`
 				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, give more active tasks"
 				document.querySelector(".cancel_btn .elementor-button-text").innerText = "Cancel"
 
@@ -532,14 +540,5 @@ document.addEventListener("DOMContentLoaded", function(){
 </script>
 
 <script>
-	document.addEventListener("DOMContentLoaded", function(){
-		const closeNoticesPopupBtn = document.querySelector(".dd__notices_popup_wrapper .dd__subscription_cancel_btn")
-		
-		if(closeNoticesPopupBtn){
-			closeNoticesPopupBtn.addEventListener("click", function(e){;
-				e.preventDefault()
-				document.querySelector(".dd__notices_popup_wrapper").style.display = "none";
-			})
-		}
-	})
+
 </script>

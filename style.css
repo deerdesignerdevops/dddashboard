@@ -834,6 +834,7 @@ input.ff-read-only {
   background-color: #e1e1e1 !important;
   transition: 0.5s;
   margin: 0 !important;
+  flex: 1;
 }
 
 #pause_popup .ff_submit_btn_wrapper_custom {
@@ -1015,7 +1016,8 @@ input.ff-read-only {
   align-items: center;
 }
 
-.dd__notices_popup_wrapper .woocommerce-message {
+.dd__notices_popup_wrapper .woocommerce-message,
+.dd__notices_popup_wrapper .woocommerce-error {
   max-height: 400px;
   max-width: 600px;
   display: flex;
@@ -1027,7 +1029,8 @@ input.ff-read-only {
   padding: 20px;
 }
 
-.dd__notices_popup_wrapper .woocommerce-message:before {
+.dd__notices_popup_wrapper .woocommerce-message:before,
+.dd__notices_popup_wrapper .woocommerce-error:before {
   position: relative;
   display: block;
   top: auto;
@@ -1036,7 +1039,8 @@ input.ff-read-only {
   margin: 20px 0;
 }
 
-.dd__notices_popup_wrapper .woocommerce-message a {
+.dd__notices_popup_wrapper .woocommerce-message a,
+.dd__notices_popup_wrapper .woocommerce-error a {
   display: block;
   margin-top: 20px !important;
 }

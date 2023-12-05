@@ -232,7 +232,7 @@ function checkIfCurrentUserIsOnboarded(){
 	$isUserOnboarded =  get_user_meta($user->ID, 'is_user_onboarded', true);
 
 	if(!current_user_can('administrator')){
-		if(is_page('dash') || is_page('dash-woo')){
+		if(is_page(array('dash', 'dash-woo'))){
 			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
 
 			$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
@@ -258,7 +258,7 @@ function checkIfUserASweredPlanPricingForm(){
 	$user = wp_get_current_user();
 
 	if(!current_user_can('administrator')){
-		if(is_page('dash') || is_page('dash-woo')){
+		if(is_page(array('dash', 'dash-woo'))){
 			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
 			$formApi = fluentFormApi('forms')->entryInstance($formId = 4);
 			$atts = [
@@ -483,7 +483,7 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 function checkIfUserCanBookCreativeCall(){
-	if(is_page('dash') || is_page('dash-woo')){
+	if(is_page(array('dash', 'dash-woo'))){
 		$users_subscriptions = wcs_get_users_subscriptions(get_current_user_id());
 		$userCurrentProducts = [];
 		$groups_user = new Groups_User( get_current_user_id() );	
@@ -739,6 +739,7 @@ add_action( 'woocommerce_payment_complete', 'changeOrderStatusToCompleteAfterPay
 
 
 function limitProductQuantityToOne($cart_item_data, $product_id) {
+	
     $cart = WC()->cart->get_cart();
 
     if ($cart) {
@@ -752,6 +753,47 @@ function limitProductQuantityToOne($cart_item_data, $product_id) {
     return $cart_item_data;
 }
 add_filter('woocommerce_add_to_cart_validation', 'limitProductQuantityToOne', 10, 2);
+
+
+
+function preventUserHaveDifferentPlansAtTheSameTime() {	
+	if(is_page(array( 'cart', 'signup' ))){
+		if(is_user_logged_in()){
+			$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+			$currentUserSubscriptionPlan = [];
+
+			if($userSubscriptions){
+				foreach($userSubscriptions as $subscription){
+					foreach($subscription->get_items() as $subItem){
+						$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
+						$productObj = wc_get_product($subItem['product_id']);
+
+						if($terms[0]->slug === "plan"){
+							$currentUserSubscriptionPlan[] = $productObj->id;
+						}
+					}
+				}
+
+				$cart = WC()->cart->get_cart();
+				if($cart){
+					foreach ($cart as $cart_item_key => $values) {					
+						$terms = get_the_terms( $values['data']->id, 'product_cat' );
+						
+						if($terms[0]->slug === 'plan'){
+							if(!in_array($values['data']->id, $currentUserSubscriptionPlan)){
+								WC()->cart->remove_cart_item( $cart_item_key );
+								wc_add_notice('You cant purchase this item! Please, use the Change Plan Button in your dashboard!', 'error', array(
+									'url' => '/subscriptions'
+								));
+							}
+						}
+					}
+				}
+			}
+		}
+	}	
+}
+add_action('template_redirect', 'preventUserHaveDifferentPlansAtTheSameTime');
 
 
 
@@ -1086,3 +1128,7 @@ function formatSubscriptionStatusLabel($status){
 	}
 }
 add_action('callNewSubscriptionsLabel', 'formatSubscriptionStatusLabel');
+
+
+
+add_filter( 'wc_add_to_cart_message_html', '__return_false' );
