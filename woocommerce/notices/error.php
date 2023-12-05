@@ -30,7 +30,7 @@ if ( ! $notices ) {
 			
 			<?php echo wc_kses_notice( $notice['notice'] ); ?>
 
-			<a href="<?php echo $notice['data']['url']; ?>" class="dd__subscription_cancel_btn">OK</a>
+			<a href="#" class="dd__subscription_cancel_btn">OK</a>
 
 		</div>
 	</div>
