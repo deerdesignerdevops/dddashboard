@@ -1083,6 +1083,10 @@ function createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls) {
 			)
 		);
 
+		if ( $group = Groups_Group::read_by_name( $groupName ) ) {
+			Groups_User_Group::create( array( "user_id"=>get_current_user_id(), "group_id"=>$group->group_id ) );
+		}
+
    }else{
 		//INSERT DATA AND ADD CURRENT USER TO THE GROUP
 		$wpdb->insert($tableName, $data);
