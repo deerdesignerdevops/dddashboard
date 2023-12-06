@@ -260,13 +260,15 @@ $allProductAddons = wc_get_products([
 	?>
 </div>
 
+<?php $carouselSlidesToShow = sizeof($allProductAddons) > 1 ? 2 : 1; ?>
+
 <script>
 	$('.addons__carousel_form').slick({
 		autoplay: true,
   		autoplaySpeed: 4000,
 		infinite: true,
 		speed: 300,
-		slidesToShow: 2,
+		slidesToShow: <?php echo $carouselSlidesToShow; ?>,
 		responsive: [
 			{
 			breakpoint: 768,

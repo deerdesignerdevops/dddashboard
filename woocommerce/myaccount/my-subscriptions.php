@@ -168,7 +168,15 @@ if(isset($_GET["additional-active-task"])){
 							<?php } ?>
 
 						<?php foreach ( $sortedSubscriptions as $subscription_id => $subscription ) :?>
-							<?php if($subscription->get_status() !== "cancelled"){ ?>				
+							<?php if($subscription->get_status() !== "cancelled"){ 
+								
+								$subsItems = $subscription->get_items();
+								foreach($subsItems as $item){
+									if(!str_contains($item['name'], "Task")){
+										
+									
+
+								?>
 								<div class="dd__subscription_card <?php 
 									foreach($subscription->get_items() as $subsItem){
 										echo ' ' . strtok(strtolower($subsItem['name']), ' ');
@@ -178,7 +186,6 @@ if(isset($_GET["additional-active-task"])){
 									
 									?>">
 									<div class="dd__subscription_details">                        
-
 										<div class="dd__subscription_header">
 											<span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscription->get_status()); ?></strong></span>
 										</div>
@@ -256,6 +263,8 @@ if(isset($_GET["additional-active-task"])){
 												<?php }; ?>
 									</div>
 								</div>
+								<?php }
+								} ?>
 							<?php } ?>
 						<?php endforeach; ?>
 				</div>

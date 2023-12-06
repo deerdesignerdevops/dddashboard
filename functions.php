@@ -503,7 +503,16 @@ function checkIfUserCanBookCreativeCall(){
 			}
 		}
 
-		if($groupCreativeCallsLeft || in_array('Creative Director', $userCurrentProducts)){
+		if(in_array('Creative Director', $userCurrentProducts)){
+			echo "<style>.book_call_btn{display: flex !important;}</style>";
+			echo "<script>
+			document.addEventListener('DOMContentLoaded', function(){
+				const creativeCallsNumber = document.querySelector('.creative_calls_number span')
+				creativeCallsNumber.innerText = '∞';
+			})
+			</script>";
+
+		}else if($groupCreativeCallsLeft){
 			echo "<style>.book_call_btn{display: flex !important;}</style>";
 			echo "<script>
 			document.addEventListener('DOMContentLoaded', function(){
@@ -511,7 +520,8 @@ function checkIfUserCanBookCreativeCall(){
 				creativeCallsNumber.innerText = $groupCreativeCallsLeft;
 			})
 			</script>";
-		}else{
+		}
+		else{
 			echo "<style>.book_call_btn{display: none !important;}</style>";
 		}
 	}
@@ -988,7 +998,6 @@ function prepareOrderDataToCreateTheUserGroupOnDataBase($order_id){
 	$order = wc_get_order( $order_id );
 	$orderData = $order->get_data();
 	$orderItems = $order->get_items();
-	
 	$groupName = strtolower(str_replace(' ', '_', $orderData['billing']['company']));
 	$companyName = $orderData['billing']['company'];
 	$creativeCalls = 0;
@@ -1005,8 +1014,43 @@ function prepareOrderDataToCreateTheUserGroupOnDataBase($order_id){
 	}
 
 	createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls);
+
 }
 add_action('woocommerce_payment_complete', 'prepareOrderDataToCreateTheUserGroupOnDataBase');
+
+
+
+function zeroCreativeCallsOnRenewalFailed($subscription){
+	global $wpdb;
+	$user = get_user_by( 'email', $subscription->data['billing']['email']);
+	$groupsUser = new Groups_User( $user->id );
+
+	foreach($subscription->get_items() as $item){
+		if(str_contains(strtolower($item['name']), 'agency')){
+			$tableName = _groups_get_tablename( 'group' );
+
+			foreach($groupsUser->groups as $group){
+				$existingRow = $wpdb->get_row(
+					$wpdb->prepare(
+						"SELECT * FROM $tableName WHERE name = %s",
+						$group->name,
+					)
+				);
+
+				if($existingRow){
+						//UPDATE DATA
+						$wpdb->update($tableName, array(
+								'creative_calls' => 0,
+							), array(
+								'name' => $group->name
+							)
+						);
+				}
+			}
+		}
+	}
+}
+add_action('woocommerce_subscription_renewal_payment_failed', 'zeroCreativeCallsOnRenewalFailed');
 
 
 
@@ -1032,10 +1076,8 @@ function createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls) {
 
    if($existingRow){
 		//UPDATE DATA
-		$creativeCallsLeft = $existingRow->creative_calls + $creativeCalls;
-
 		$wpdb->update($tableName, array(
-				'creative_calls' => $creativeCallsLeft,
+				'creative_calls' => $creativeCalls,
 			), array(
 				'name' => $groupName
 			)
@@ -1130,6 +1172,7 @@ function formatSubscriptionStatusLabel($status){
 add_action('callNewSubscriptionsLabel', 'formatSubscriptionStatusLabel');
 
 
+
 function showWooNoticeAfterChangePlanRequest($entryId, $formData, $form){
 	if($form->id === 4){
 		wc_add_notice('Your request to switch plan has been sent. We\'ll get in touch soon!', 'success'); 
@@ -1138,3 +1181,27 @@ function showWooNoticeAfterChangePlanRequest($entryId, $formData, $form){
 add_action('fluentform/submission_inserted', 'showWooNoticeAfterChangePlanRequest', 10, 3);
 
 add_filter( 'wc_add_to_cart_message_html', '__return_false' );
+
+
+
+function removeMySubscriptionsButton( $actions, $subscription ) {
+	foreach ( $actions as $action_key => $action ) {
+		switch ( $action_key ) {
+			case 'change_payment_method':	// Hide "Change Payment Method" button?
+//			case 'change_address':		// Hide "Change Address" button?
+//			case 'switch':			// Hide "Switch Subscription" button?
+//			case 'resubscribe':		// Hide "Resubscribe" button from an expired or cancelled subscription?
+//			case 'pay':			// Hide "Pay" button on subscriptions that are "on-hold" as they require payment?
+//			case 'reactivate':		// Hide "Reactive" button on subscriptions that are "on-hold"?
+//			case 'cancel':			// Hide "Cancel" button on subscriptions that are "active" or "on-hold"?
+				unset( $actions[ $action_key ] );
+				break;
+			default: 
+				error_log( '-- $action = ' . print_r( $action, true ) );
+				break;
+		}
+	}
+
+	return $actions;
+}
+add_filter( 'wcs_view_subscription_actions', 'removeMySubscriptionsButton', 100, 2 );
