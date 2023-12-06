@@ -86,7 +86,7 @@ $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_disp
 function addNewActiveTaskToCurrentSubscription($subscriptionId, $subscriptionPlan){	
 	$subscriptionObj = wcs_get_subscription($subscriptionId);
 	$qty = 1;
-	$product = wc_get_product(1389);
+	$product = wc_get_product(3040);
 	$tax = ($product->get_price_including_tax()-$product->get_price_excluding_tax())*$qty;
 	$activeTaskProductDiscount = 0;
 
@@ -168,15 +168,7 @@ if(isset($_GET["additional-active-task"])){
 							<?php } ?>
 
 						<?php foreach ( $sortedSubscriptions as $subscription_id => $subscription ) :?>
-							<?php if($subscription->get_status() !== "cancelled"){ 
-								
-								$subsItems = $subscription->get_items();
-								foreach($subsItems as $item){
-									if(!str_contains($item['name'], "Task")){
-										
-									
-
-								?>
+							<?php if($subscription->get_status() !== "cancelled"){ ?>
 								<div class="dd__subscription_card <?php 
 									foreach($subscription->get_items() as $subsItem){
 										echo ' ' . strtok(strtolower($subsItem['name']), ' ');
@@ -192,16 +184,8 @@ if(isset($_GET["additional-active-task"])){
 
 										<?php 
 										$subscriptionProductNames = [];
-										
 										$currentSubscriptionPlan = "";
-										$arrayDeNomes = [];
 										
-										foreach($subscription->get_items() as  $item){
-											$arrayDeNomes[] = $item['name'];
-										}
-
-										$currentPlanAdditionalActivetasks = array_count_values($arrayDeNomes)['Active Task'];
-
 										foreach ( $subscription->get_items() as  $item ){
 											$currentCat =  strip_tags(wc_get_product_category_list($item['product_id']));
 											
@@ -223,7 +207,7 @@ if(isset($_GET["additional-active-task"])){
 															<?php endif; ?>
 														</span>
 												<?php } ?>
-												<?php echo $item['name'] .  (str_contains($item['name'], 'Task') ? " ($currentPlanAdditionalActivetasks) " : '');?>
+												<?php echo $item['name'];?>
 											</span>
 											<?php } ?>
 															
@@ -263,8 +247,6 @@ if(isset($_GET["additional-active-task"])){
 												<?php }; ?>
 									</div>
 								</div>
-								<?php }
-								} ?>
 							<?php } ?>
 						<?php endforeach; ?>
 				</div>
