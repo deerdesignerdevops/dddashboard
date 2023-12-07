@@ -33,7 +33,7 @@ function hello_elementor_child_scripts_styles() {
 	//JS
 	wp_enqueue_script('custom-jquery', get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
 	wp_enqueue_script('slick', get_stylesheet_directory_uri() . '/libs/slick/js/slick.min.js', $version);
-	wp_enqueue_script('dd-custom-scripts.js', get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
+	wp_enqueue_script('dd-custom-scripts', get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
 
 }
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
@@ -41,7 +41,6 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
-//---REQUIRE COMPONENTS AND APIs
 //STRIPE API
 require_once('stripe/init.php');
 
