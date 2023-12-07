@@ -466,7 +466,8 @@ input.ff-read-only {
 .deer__custom_checkout_form input,
 .quantity input,
 #stripe-card-element,
-.wc-stripe-elements-field {
+.wc-stripe-elements-field,
+.edit-account input {
   border: 1px solid #ccc !important;
   border-radius: 5px !important;
   margin-bottom: 12px !important;
@@ -590,18 +591,13 @@ input.ff-read-only {
 .addon__card {
   background-color: #f7f7f7;
   padding: 20px;
-  border-radius: 0 0 5px 5px;
-  border-top: 3px solid #eee;
+  border-radius: 5px;
   margin: 5px;
   width: 45%;
   display: flex !important;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-}
-
-.addon__card button {
-  width: 100%;
 }
 
 .addon__card_info {
@@ -618,7 +614,13 @@ input.ff-read-only {
 
 .addon__title {
   font-size: 1rem;
-  font-weight: bold;
+  font-weight: 600;
+  color: var(--e-global-color-primary);
+}
+
+.addon__price {
+  font-size: 1rem;
+  font-weight: 400;
   margin-bottom: 20px !important;
   color: var(--e-global-color-text);
 }
@@ -705,6 +707,39 @@ input.ff-read-only {
 
 /*LOADING SPINNER FINISH*/
 
+.woocommerce_account_subscriptions {
+  flex: 1;
+}
+.dd__subscription_container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.dd__bililng_portal_section {
+  padding: 40px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.dd__billing_portal_no_subscriptions_found {
+  font-size: 1rem;
+  color: var(--e-global-color-text);
+}
+
+.dd__billing_portal_section_title {
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--e-global-color-text);
+  margin-bottom: 20px;
+}
+
+.dd__bililng_portal_section_title_wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .dd__bililng_portal_back {
   color: var(--e-global-color-text);
 }
@@ -719,12 +754,20 @@ input.ff-read-only {
   align-items: center;
   border: 1px solid #ccc;
   margin-bottom: 20px;
+  flex: 1;
 }
 
-.dd__subscription_card.cancelled {
-  opacity: 0.4;
-  pointer-events: none;
-  border: none;
+.dd__subscription_addons_task_card {
+  padding: 40px;
+  border-radius: 10px;
+  background-color: #fff;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #ccc;
+  flex: 1;
 }
 
 .dd__subscriptions_sumary {
@@ -735,12 +778,10 @@ input.ff-read-only {
   justify-content: space-between;
 }
 
-.dd__subscriptions_sumary .dd__subscription_container {
-  width: 70%;
-}
-
 .subscriptions__addons_wrapper {
-  width: 25%;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .dd__subscription_id.active strong {
@@ -752,7 +793,6 @@ input.ff-read-only {
 .dd__subscription_details {
   display: flex;
   flex-direction: column;
-  width: 60%;
   color: var(--e-global-color-text);
   flex-wrap: wrap;
 }
@@ -802,11 +842,9 @@ input.ff-read-only {
 .dd__subscription_actions_form,
 .btn__wrapper {
   display: flex;
-  flex-direction: row;
-  width: 40%;
+  flex-direction: column;
   flex-wrap: wrap;
   gap: 12px;
-  justify-content: flex-end;
 }
 
 .dd__subscription_update_btn,
@@ -835,6 +873,15 @@ input.ff-read-only {
   transition: 0.5s;
   margin: 0 !important;
   flex: 1;
+}
+
+.dd__subscription_cancel_link_btn {
+  color: var(--e-global-color-text);
+  text-decoration: underline !important;
+}
+
+.dd__subscription_cancel_link_btn:hover {
+  color: var(--e-global-color-primary);
 }
 
 #pause_popup .ff_submit_btn_wrapper_custom {
@@ -874,7 +921,6 @@ input.ff-read-only {
   background-color: var(--e-global-color-primary) !important;
   border: 3px solid #000 !important;
   box-shadow: inset 3px 3px #fff !important;
-  width: 100%;
 }
 
 .dd__primary_button.change {
