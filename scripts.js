@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (closeNoticesPopupBtn) {
     closeNoticesPopupBtn.map((btn) => {
       btn.addEventListener("click", function (e) {
+        console.log("closeNoticesPopupBtn");
         e.preventDefault();
         noticesPopupWrapper.map((popup) => {
           popup.style.display = "none";

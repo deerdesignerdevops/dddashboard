@@ -64,7 +64,7 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
             <a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo $activeTasksProductId; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Get More Active Tasks</a>
 
             <?php if($subscription->get_status() === "active"){ ?>
-                <a href="<?php echo $siteUrl; ?>/subscriptions" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
+                <a href="<?php echo $siteUrl; ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
             <?php } ?>
 
             
