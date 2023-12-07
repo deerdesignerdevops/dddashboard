@@ -33,7 +33,7 @@ function hello_elementor_child_scripts_styles() {
 	//JS
 	wp_enqueue_script('custom-jquery', get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
 	wp_enqueue_script('slick', get_stylesheet_directory_uri() . '/libs/slick/js/slick.min.js', $version);
-	wp_enqueue_script('dd-custom', get_stylesheet_directory_uri() . '/scripts.js', $version);
+	wp_enqueue_script('dd-custom-scripts.js', get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
 
 }
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
