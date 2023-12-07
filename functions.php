@@ -23,7 +23,7 @@ function hello_elementor_child_scripts_styles() {
 
 	// Dynamically get version number of the parent stylesheet (lets browsers re-cache your stylesheet when you update your theme)
 	$theme   = wp_get_theme( 'HelloElementorChild' );
-	$version = rand(111,9999);
+	$version = $theme->get( 'Version' );
 
 	// CSS
 	wp_enqueue_style( 'custom', get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
