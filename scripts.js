@@ -1,3 +1,4 @@
+console.log("dd-custom-script");
 document.addEventListener("DOMContentLoaded", function () {
   const closeNoticesPopupBtn = Array.from(
     document.querySelectorAll(
