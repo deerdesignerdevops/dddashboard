@@ -6,15 +6,10 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   const noticesPopupWrapper = Array.from(
-    document.querySelector(".dd__notices_popup_wrapper")
+    document.querySelectorAll(".dd__notices_popup_wrapper")
   );
 
   if (closeNoticesPopupBtn) {
-    document.body.addEventListener("click", function () {
-      document.querySelector(".dd__notices_popup_wrapper").style.display =
-        "none";
-    });
-
     closeNoticesPopupBtn.map((btn) => {
       btn.addEventListener("click", function (e) {
         e.preventDefault();

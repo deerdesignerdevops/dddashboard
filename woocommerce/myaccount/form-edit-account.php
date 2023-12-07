@@ -23,6 +23,12 @@ defined( 'ABSPATH' ) || exit;
 .dash__menu, .welcome-h1 {
 	display: none;
 }
+
+fieldset {
+  border: 1px solid #ccc !important;
+  border-radius: 5px !important;
+  margin: 20px 0;
+}
 	
 </style>
 

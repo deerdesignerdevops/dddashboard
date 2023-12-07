@@ -1254,3 +1254,18 @@ function removeMySubscriptionsButton( $actions, $subscription ) {
 }
 add_filter( 'wcs_view_subscription_actions', 'removeMySubscriptionsButton', 100, 2 );
 
+
+
+function loadSpinnerAtCheckout(){
+	echo '
+	<style>
+	.dd__loading_screen{display: flex !important;}
+	</style>
+	<div class="dd__loading_screen">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</div>';
+}
+
+//add_action('woocommerce_checkout_order_processed', 'loadSpinnerAtCheckout', 10, 1);
+
+
