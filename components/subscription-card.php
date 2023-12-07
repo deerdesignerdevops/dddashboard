@@ -67,14 +67,7 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
                 <a href="<?php echo $siteUrl; ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
             <?php } ?>
 
-            
-            
             <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
-            
-            if(!empty($userCurrentActiveTasks)){ 
-                unset($actions['suspend']);
-                unset($actions['cancel']);
-            }
             
             ?>
                     <?php if ( ! empty( $actions ) ) { ?>
