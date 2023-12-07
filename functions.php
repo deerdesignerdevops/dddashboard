@@ -41,6 +41,11 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
+//---REQUIRE COMPONENTS AND APIs
+//STRIPE API
+require_once('stripe/init.php');
+
+
 
 function logoutWhitoutConfirm($action, $result)
 {
@@ -55,8 +60,7 @@ add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
 
-//STRIPE API
-require_once('stripe/init.php');
+
 
 //STRIPE ENDPOINT FOR WEBHOOKS
 function stripeInvoiceGenerationWebhook($req){
@@ -765,21 +769,19 @@ function limitProductQuantityToOne($cart_item_data, $product_id) {
 add_filter('woocommerce_add_to_cart_validation', 'limitProductQuantityToOne', 10, 2);
 
 
-
-function preventUserHaveDifferentPlansAtTheSameTime() {	
+function preventUserHaveMultiplePlansAtTheSameTime() {	
 	if(is_page(array( 'cart', 'signup' ))){
 		if(is_user_logged_in()){
 			$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
-			$currentUserSubscriptionPlan = [];
+			$isCurrentUserHaveSubscriptionPlan = false;
 
 			if($userSubscriptions){
 				foreach($userSubscriptions as $subscription){
 					foreach($subscription->get_items() as $subItem){
 						$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
-						$productObj = wc_get_product($subItem['product_id']);
 
 						if($terms[0]->slug === "plan"){
-							$currentUserSubscriptionPlan[] = $productObj->id;
+							$isCurrentUserHaveSubscriptionPlan = true;
 						}
 					}
 				}
@@ -790,7 +792,7 @@ function preventUserHaveDifferentPlansAtTheSameTime() {
 						$terms = get_the_terms( $values['data']->id, 'product_cat' );
 						
 						if($terms[0]->slug === 'plan'){
-							if(!in_array($values['data']->id, $currentUserSubscriptionPlan)){
+							if($isCurrentUserHaveSubscriptionPlan){
 								WC()->cart->remove_cart_item( $cart_item_key );
 								wc_add_notice('You can\'t purchase this item! Please, use the Change Plan Button in your dashboard!', 'success', array('notice-type' => 'error'));
 								wp_redirect(site_url() . '/subscriptions');
@@ -803,7 +805,55 @@ function preventUserHaveDifferentPlansAtTheSameTime() {
 		}
 	}	
 }
-add_action('template_redirect', 'preventUserHaveDifferentPlansAtTheSameTime');
+add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
+
+
+
+
+function changeActiveTaskPriceInCartBasedOnUserPlan() {;
+    if (is_admin() && !defined('DOING_AJAX')) {
+        return;
+    }
+
+	if ( did_action( 'woocommerce_before_calculate_totals' ) >= 2 )
+    return;
+
+	$cart = WC()->cart->get_cart();
+
+	if(is_user_logged_in()){
+		$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+		if($userSubscriptions){
+			foreach($userSubscriptions as $subscription){
+				foreach($subscription->get_items() as $subItem){
+					$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
+
+					if($terms[0]->slug === "plan"){
+						$currentUserSubscriptionPlan = $subItem['name'];
+					}
+				}
+			}
+		}
+	
+	}
+
+	$activeTaskDiscount =  str_contains($currentUserSubscriptionPlan, 'Standard' ) ? 0 : 50;
+
+	if($cart){
+		foreach ( $cart as $cart_item_key => $values) {
+			$terms = get_the_terms( $values['data']->id, 'product_cat' );
+			$productPrice = $values['data']->get_price();
+			
+			if($terms[0]->slug === 'active-task'){
+				$values['data']->set_price($productPrice - $activeTaskDiscount);
+
+			}
+			
+
+		}
+	}
+}
+
+add_action('woocommerce_before_calculate_totals', 'changeActiveTaskPriceInCartBasedOnUserPlan');
 
 
 
@@ -978,6 +1028,8 @@ function customSubscriptionNoticeText($message){
         $message = 'Your account has been succesfully cancelled. Your Deer Designer team is still available until the end of your current billing period.';
     }else if(str_contains($message, 'hold')){
 		$message = 'Your account has been succesfully paused. Your Deer Designer team is still available until the end of your current billing period.';
+	}else if(str_contains($message, 'switch')){
+		$message = 'Your request to switch plan has been sent. We\'ll get in touch soon!';
 	}
 
     return $message;
@@ -1176,14 +1228,6 @@ function formatSubscriptionStatusLabel($status){
 add_action('callNewSubscriptionsLabel', 'formatSubscriptionStatusLabel');
 
 
-
-function showWooNoticeAfterChangePlanRequest($entryId, $formData, $form){
-	if($form->id === 4){
-		wc_add_notice('Your request to switch plan has been sent. We\'ll get in touch soon!', 'success'); 
-	}
-}
-add_action('fluentform/submission_inserted', 'showWooNoticeAfterChangePlanRequest', 10, 3);
-
 add_filter( 'wc_add_to_cart_message_html', '__return_false' );
 
 
@@ -1209,3 +1253,4 @@ function removeMySubscriptionsButton( $actions, $subscription ) {
 	return $actions;
 }
 add_filter( 'wcs_view_subscription_actions', 'removeMySubscriptionsButton', 100, 2 );
+

@@ -1,6 +1,5 @@
 <?php 
-function subscriptionCardComponent($subscription, $userCurrentActiveTasks){ 
-    $siteUrl = site_url();
+function tasksAddonsCardComponent($subscription, $cancelBtnLabel){ 
 
     $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_display', array(
 	'start_date'              => _x( 'Start date', 'customer subscription table header', 'woocommerce-subscriptions' ),
@@ -11,7 +10,7 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
     ) );
 
     ?>
-    <div class="dd__subscription_card <?php 
+    <div class="dd__subscription_addons_task_card <?php 
         foreach($subscription->get_items() as $subsItem){
             echo ' ' . strtok(strtolower($subsItem['name']), ' ');
         }
@@ -25,33 +24,19 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
             </div>
 
             <?php 
-            $subscriptionProductNames = [];
-            $currentSubscriptionPlan = "";
-            
-            foreach ( $subscription->get_items() as  $item ){
-                $currentCat =  strip_tags(wc_get_product_category_list($item['product_id']));
-                
-                if($currentCat === "Plan"){
-                    $currentSubscriptionPlan = $item['name'];
-                }
-
-                if(!in_array($item['name'], $subscriptionProductNames)){
-                    $itemName = $item['name'];
-                    $subscriptionProductNames[] = $itemName;										
+                foreach ( $subscription->get_items() as $subsItemId => $item ){	
                 ?>
-        
                 <span class="dd__subscription_title">														
                     <?php if(sizeof($subscription->get_items()) > 1 && $subscription->get_status() === 'active') { ?>
                             <span class="remove_item">
                                 <?php if ( wcs_can_item_be_removed( $item, $subscription ) ) : ?>
                                     <?php $confirm_notice = apply_filters( 'woocommerce_subscriptions_order_item_remove_confirmation_text', __( 'Are you sure you want remove this item from your subscription?', 'woocommerce-subscriptions' ), $item, $_product, $subscription );?>
-                                    <a href="<?php echo esc_url( WCS_Remove_Item::get_remove_url( $subscription->get_id(), $item_id ) );?>" class="remove" onclick="return confirm('<?php printf( esc_html( $confirm_notice ) ); ?>');">&times;</a>
+                                    <a href="<?php echo esc_url( WCS_Remove_Item::get_remove_url( $subscription->get_id(), $subsItemId ) );?>" class="remove" onclick="return confirm('<?php printf( esc_html( $confirm_notice ) ); ?>');">&times;</a>
                                 <?php endif; ?>
                             </span>
                     <?php } ?>
                     <?php echo $item['name'];?>
                 </span>
-                <?php } ?>
                                 
             <?php } ?>
             <span class="dd__subscription_price"><?php echo wp_kses_post( $subscription->get_formatted_order_total() ); ?></span>
@@ -65,35 +50,27 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
         </div>
 
         <div class="dd__subscription_actions_form">
-            <a href="<?php echo $siteUrl; ?>/?add-to-cart=3040" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Get More Active Tasks</a>
-
-            <?php if($subscription->get_status() === "active"){ ?>
-                <a href="<?php echo $siteUrl; ?>/subscriptions" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
-            <?php } ?>
-
-            
-            
             <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
             
-            if(!empty($userCurrentActiveTasks)){ 
-                unset($actions['suspend']);
+            $actions['cancel']['name'] = __( $cancelBtnLabel, 'woocommerce-subscriptions' );
+            unset($actions['suspend']);
+
+            if($subscription->get_status() == "pending-cancel"){
                 unset($actions['cancel']);
             }
             
             ?>
-                    <?php if ( ! empty( $actions ) ) { ?>
-                        <div class="dd__subscriptions_buttons_wrapper">						
-                            <?php foreach ( $actions as $key => $action ) :?>															
-                                <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php }; ?>
+            <?php if ( !empty( $actions ) ) { ?>                        				
+                    <?php foreach ( $actions as $key => $action ) :?>															
+                        <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_link_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+                    <?php endforeach; ?>                       
+            <?php }; ?>
         </div>
     </div>
 <?php } ?>
 
  
-<?php add_action('subscriptionCardComponentHook', 'subscriptionCardComponent', 10, 2); ?>
+<?php add_action('tasksAddonsCardComponentHook', 'tasksAddonsCardComponent', 10, 2); ?>
 
 
 

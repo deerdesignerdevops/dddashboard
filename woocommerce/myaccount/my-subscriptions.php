@@ -12,6 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once get_stylesheet_directory() . '/components/subscription-card.php';
+require_once get_stylesheet_directory() . '/components/tasks-addons-card.php';
+require_once get_stylesheet_directory() . '/components/addons-carousel.php';
 
 
 $siteUrl = site_url();
@@ -24,14 +26,41 @@ $allSubscriptionsGroup = [];
 //CREATE NEW SUBSCRIPTIONS ARRAY TO SHOW THE ACTIVES FIRST IN THE LIST
 $activeSubscriptions = [];
 $inactiveSubscriptions = [];
+$userCurrentPlans = [];
+$userCurrentAddons = [];
+$userCurrentActiveTasks = [];
+
 foreach($subscriptions as $sub){
 	$status = $sub->get_status();
+	$subItems = $sub->get_items();
+
+	foreach($subItems as $subItem){
+		$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
+
+		if($terms[0]->slug === 'add-on'){ 
+			$userCurrentAddons[] = $subItem['product_id'];
+		}
+		else if($terms[0]->slug === 'active-task'){ 
+			$userCurrentActiveTasks[] = $subItem['product_id'];
+		}
+		else if($terms[0]->slug === 'plan'){ 
+			$userCurrentPlans[] = $subItem['product_id'];
+		}
+	}
+
 	if($status === "active"){
 		$activeSubscriptions[] = $sub;
 	}else if($status !== "active" && $status !== "cancelled"){
 		$inactiveSubscriptions[] = $sub;
 	}
 }
+
+
+$allProductAddons = wc_get_products([
+   'category' => get_term_by('slug', 'add-on', 'product_cat')->slug,
+   'exclude' => $userCurrentAddons,
+]);
+
 
 $sortedSubscriptions = array_merge($activeSubscriptions, $inactiveSubscriptions);
 
@@ -70,46 +99,6 @@ function generateInvoicePdfUrl($orderId){
 
 	return $pdfUrl;
 }
-
-$userCurrentAddons = [];
-
-$allProductAddons = wc_get_products(['category' => get_term_by('slug', 'add-on', 'product_cat')->slug]);
-
-
-function addNewActiveTaskToCurrentSubscription($subscriptionId, $subscriptionPlan){	
-	$subscriptionObj = wcs_get_subscription($subscriptionId);
-	$qty = 1;
-	$product = wc_get_product(1389);
-	$tax = ($product->get_price_including_tax()-$product->get_price_excluding_tax())*$qty;
-	$activeTaskProductDiscount = 0;
-
-	if(str_contains($subscriptionPlan, 'Business') || str_contains($subscriptionPlan, 'Agency')){
-		$activeTaskProductDiscount = 50;
-	}
-
-	$price = $product->get_price() - $activeTaskProductDiscount;
-
-	$subscriptionObj->add_product($product, $qty, array(
-		'totals' => array(
-			'subtotal'     => $price,
-			'subtotal_tax' => $tax,
-			'total'        => $price,
-			'tax'          => $tax,
-			'tax_data'     => array( 'subtotal' => array(1=>$tax), 'total' => array(1=>$tax) )
-		)
-	));
-	$subscriptionObj->calculate_totals();
-	$subscriptionObj->save();
-	
-	wp_redirect(site_url() . "/subscriptions");
-	exit;
-}
-
-if(isset($_GET["additional-active-task"])){
-	$subscriptionId = $_GET["subscription_id"];	
-	$subscriptionPlan = $_GET["plan"];	
-	addNewActiveTaskToCurrentSubscription($subscriptionId, $subscriptionPlan);
-}
 ?>
 
 
@@ -120,74 +109,130 @@ if(isset($_GET["additional-active-task"])){
     <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 </div>
 
-<!--PLANS-->
-<section class="dd__bililng_portal_section">
-    <div style="max-width: 1140px; margin: auto">
-        <a href="/" class="dd__bililng_portal_back"><i class="fa-solid fa-chevron-left"></i> Back to Dashboard</a>
-        <h1 class="myaccount__page_title">Billing Portal</h1>
+<section>
+	<a href="/" class="dd__bililng_portal_back"><i class="fa-solid fa-chevron-left"></i> Back to Dashboard</a>
+	<h1 class="myaccount__page_title">Billing Portal</h1>
+</section>
 
-		<div class="woocommerce_account_subscriptions">
-			<?php if ( ! empty( $subscriptions ) ) : ?>      
+<!--PLANS-->
+<?php if ( ! empty( $subscriptions ) ) { ?>
+	<section class="dd__bililng_portal_section">
+		<div style="max-width: 1140px; margin: auto">
+			<h2 class="dd__billing_portal_section_title">Plans</h2>
+			
+			<?php if(!empty($userCurrentPlans)){ ?>
+				<div class="woocommerce_account_subscriptions">	
+					<div class="dd__subscription_container">
+						<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
+							<?php if($subscription->get_status() !== "cancelled"){ 
+								foreach($subscription->get_items() as $subItem){
+									$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
+						
+									if($terms[0]->slug === 'plan'){ 
+										do_action('subscriptionCardComponentHook', $subscription, $userCurrentActiveTasks);
+										}
+								}								
+								} ?>
+						<?php endforeach; ?>
+					</div>
+			</div>
+			<?php }else{ ?>
+					<div class="dd__subscription_card"> 
+						<div class="dd__subscription_details">
+							<span class="dd__subscription_warning">You have no active subscriptions!</span>
+						</div>
+
+						<a href="https://deerdesigner.com/pricing" class="dd__primary_button">See Pricing</a>
+					</div>
+
+			<?php } ?>
+		</div>
+	</section>
+
+	
+	<!--ACTIVE TASKS-->
+	<section class="dd__bililng_portal_section">
+		<div style="max-width: 1140px; margin: auto">
+
+			<h2 class="dd__billing_portal_section_title">Additional Active Tasks</h2>
+
+			<?php if(!empty($userCurrentActiveTasks)){ ?>
+				<div class="woocommerce_account_subscriptions">
+					<div class="dd__subscription_container">
+						<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
+							<?php if($subscription->get_status() !== "cancelled"){ 
+								foreach($subscription->get_items() as $subItem){
+									$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
+						
+									if($terms[0]->slug === 'active-task'){ 
+										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade');
+										}
+								}								
+								} ?>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php }else{ ?>
+				<h3 class="dd__billing_portal_no_subscriptions_found">You have no addtional active tasks at the moment!</h3>
+			<?php }?>
+		</div>
+	</section>
+
+
+	<?php if(!empty($userCurrentAddons)){ ?>
+	<!--CURRENT ADDONS-->
+	<section class="dd__bililng_portal_section">
+		<div class="subscriptions__addons_wrapper">
+			<div class="woocommerce_account_subscriptions">
+				<h2 class="dd__billing_portal_section_title">Your current Add ons</h2>
+
 				<div class="dd__subscription_container">
-					<?php foreach ( $sortedSubscriptions as $subscription_id => $subscription ) :?>
+					<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
 						<?php if($subscription->get_status() !== "cancelled"){ 
 							foreach($subscription->get_items() as $subItem){
 								$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
 					
-								if($terms[0]->slug === 'plan'){ 
-									do_action('subscriptionCardComponentHook', $subscription);
+								if($terms[0]->slug === 'add-on'){ 
+									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On');
 									}
 							}								
 							} ?>
 					<?php endforeach; ?>
-				</div>
-			<?php else : ?>
-				<div class="dd__subscription_card"> 
-					<div class="dd__subscription_details">
-						<span class="dd__subscription_warning">You have no active subscriptions!</span>
-					</div>
-
-					<a href="https://deerdesigner.com/pricing" class="dd__primary_button">See Pricing</a>
-				</div>
-			<?php endif; ?>
+				</div>	
+			</div>
 		</div>
-	</div>
-</section>
+	</section>
+	<?php } ?>
 
-<!--ACTIVE TASKS-->
+	<!--AVAILABLE ADDONS-->
+	<section class="dd__bililng_portal_section">
+		<div class="subscriptions__addons_wrapper">
+			<div class="woocommerce_account_subscriptions">
+				<h2 class="dd__billing_portal_section_title">Available Add ons for you</h2>
 
-<!--ADDONS-->
-<section>
-	<div class="subscriptions__addons_wrapper">
-		<div class="cart__addons">
-			<?php if(sizeof($allProductAddons) > 0){ ?>
-				<h2 class="cart__header__title">Available Addons for you</h2>
-			<?php } ?>
-
-			<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">								
-				<?php
-					foreach($allProductAddons as $addon){			
-						if(!in_array($addon->id, $userCurrentAddons)){ ?>
-							<div class="addon__card">
-								<div class="addon__card_info">
-									<?php echo get_the_post_thumbnail( $addon->id ); ?>
-									<span class="addon__title"><?php echo $addon->name; ?></span><br>
-									<span class="addon__title"><?php echo get_woocommerce_currency_symbol() . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
-									<div class="addon__description">
-										<?php echo $addon->description; ?>
-									</div>
-								</div>
-								<button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
-							</div>	
-						<?php } ?>															
-					<?php } ?>
-			</form>
+				<?php do_action('addonsCarouselHook', array($allProductAddons)); ?>	
+			</div>
 		</div>
-	</div>
-</section>
+	</section>
+<?php }
+
+else{ ?>
+	<section>
+		<div class="dd__subscription_card"> 
+			<div class="dd__subscription_details">
+				<span class="dd__subscription_warning">You have no active subscriptions!</span>
+			</div>
+
+			<div class="">
+				<a href="https://deerdesigner.com/pricing" class="dd__primary_button">See Pricing</a>
+			</div>
+
+		</div>
+	</section>
+<?php } ?>
 
 <section class="user__invoices_section">
-	<h2 class="cart__header__title">Your Invoices</h2>
+	<h2 class="dd__billing_portal_section_title">Your Invoices</h2>
 	<div class="user__invoices_wrapper">
 		<?php foreach($currentUserOrders->orders as $order){ ?>
 			<div class="user__invoice_row">
@@ -396,48 +441,24 @@ document.addEventListener("DOMContentLoaded", function(){
 </script>
 
 <script>
-	$('.addons__carousel_form').slick({
-		autoplay: true,
-  		autoplaySpeed: 4000,
-		infinite: true,
-		speed: 300,
-		slidesToShow: 1,
-		responsive: [
-			{
-			breakpoint: 768,
-			settings: {
-				slidesToShow: 1,
-				slidesToScroll: 1
-			}
-			},
-			{
-			breakpoint: 480,
-			settings: {
-				slidesToShow: 1,
-				slidesToScroll: 1
-			}
-			}
-  		]
-	});
-</script>
-
-<script>
 document.addEventListener("DOMContentLoaded", function () {
   const closeNoticesPopupBtn = Array.from(document.querySelectorAll(
     ".dd__notices_popup_wrapper .dd__subscription_cancel_btn"
   ));
 
-  document.body.addEventListener("click", function(){
-	document.querySelector(".dd__notices_popup_wrapper").style.display =
-			"none";
-  })
+  const noticesPopupWrapper = Array.from(document.querySelector(".dd__notices_popup_wrapper"))
 
   if (closeNoticesPopupBtn) {
+	document.body.addEventListener("click", function(){
+		document.querySelector(".dd__notices_popup_wrapper").style.display = "none";
+	})
+
     closeNoticesPopupBtn.map((btn) => {
 		btn.addEventListener('click', function(e){
 			e.preventDefault();
-			document.querySelector(".dd__notices_popup_wrapper").style.display =
-			"none";
+			noticesPopupWrapper.map((popup) => {
+				popup.style.display = "none";
+			})
 		})
 	})
   }
