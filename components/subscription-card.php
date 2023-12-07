@@ -1,6 +1,7 @@
 <?php 
 function subscriptionCardComponent($subscription, $userCurrentActiveTasks){ 
     $siteUrl = site_url();
+    $activeTasksProductId = $siteUrl === 'http://localhost/deerdesignerdash' ? 3040 : 1389;
 
     $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_display', array(
 	'start_date'              => _x( 'Start date', 'customer subscription table header', 'woocommerce-subscriptions' ),
@@ -65,7 +66,7 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
         </div>
 
         <div class="dd__subscription_actions_form">
-            <a href="<?php echo $siteUrl; ?>/?add-to-cart=3040" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Get More Active Tasks</a>
+            <a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo $activeTasksProductId; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Get More Active Tasks</a>
 
             <?php if($subscription->get_status() === "active"){ ?>
                 <a href="<?php echo $siteUrl; ?>/subscriptions" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
