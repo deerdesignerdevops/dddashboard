@@ -99,6 +99,12 @@ function generateInvoicePdfUrl($orderId){
 
 	return $pdfUrl;
 }
+
+if(isset($_GET['change-plan'])){
+	wc_add_notice('switch', 'success');
+	wp_redirect(site_url() . '/subscriptions');
+	exit;
+}
 ?>
 
 
