@@ -79,7 +79,6 @@ add_action( 'rest_api_init', function () {
 
 
 function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan){
-	$slackUrl = SLACK_WEBHOOK_URL;
 	$slackMessageBody = [
 		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
 *Client:* ' . $customerName . ' ' . $customerEmail . '
@@ -88,13 +87,7 @@ Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 		'username' => 'Marcus',
 	];
 
-
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
+	slackNotifications($slackMessageBody);
 }
 
 
@@ -300,7 +293,6 @@ function sendStripePaymentFailedNotificationToSlack($req){
 	$customerName = $customer->name;
 	$customerEmail = $customer->email;
 		
-	$slackUrl = SLACK_WEBHOOK_URL;
 	$slackMessageBody = [
 		'text'  => '<!channel> Payment failed :x:
 ' . $customerName . ' - ' . $customerEmail . '
@@ -308,13 +300,7 @@ function sendStripePaymentFailedNotificationToSlack($req){
 		'username' => 'Marcus',
 	];
 
-
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
+	slackNotifications($slackMessageBody);
 
 	echo "Payment failed for: $customerName - $customerEmail";
 }
@@ -409,19 +395,12 @@ function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
 		$customerCity = $formData['city'];
 		$customerCountry = $formData['country'];
 
-		$slackUrl = SLACK_WEBHOOK_URL;
 		$slackMessageBody = [
 			'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
 			'username' => 'Marcus',
 		];
 
-
-		wp_remote_post( $slackUrl, array(
-			'body'        => wp_json_encode( $slackMessageBody ),
-			'headers' => array(
-				'Content-type: application/json'
-			),
-		) );
+		slackNotifications($slackMessageBody);
 	}
 }
 add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
@@ -536,6 +515,15 @@ add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
 
 
 //***************CUSTOM CODES FOR WOOCOMMERCE
+function slackNotifications($slackMessageBody){
+	wp_remote_post( SLACK_WEBHOOK_URL, array(
+		'body'        => wp_json_encode( $slackMessageBody ),
+		'headers' => array(
+			'Content-type: application/json'
+		),
+	) );
+}
+
 function changeActionsButtonsLabel( $actions, $subscription ){
     if( isset( $actions['suspend'] ) ){
         $actions['suspend']['name'] = __( 'Pause', 'woocommerce-subscriptions' );
@@ -580,13 +568,7 @@ Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
 		'username' => 'Marcus',
 	];
 
-
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
+	slackNotifications($slackMessageBody);
 
 }
 add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
@@ -601,19 +583,12 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		$userCity = $currentUser->billing_city;
 		$userCountry = $currentUser->billing_country;
 
-		$slackUrl = SLACK_WEBHOOK_URL;
 		$slackMessageBody = [
 			'text'  => '<!channel> :rocket:Onboarded: ' . $userName . ' (' . $companyName . ') ' . 'from ' . $userCity . ', ' . $userCountry,
 			'username' => 'Marcus',
 		];
 
-
-		wp_remote_post( $slackUrl, array(
-			'body'        => wp_json_encode( $slackMessageBody ),
-			'headers' => array(
-				'Content-type: application/json'
-			),
-		) );
+		slackNotifications($slackMessageBody);
 	}
 }
 add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
@@ -887,13 +862,7 @@ function sendPaymentFailedNotificationToSlack($order_id){
 		'username' => 'Marcus',
 	];
 
-
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
+	slackNotifications($slackMessageBody);
 }
 add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToSlack');
 
@@ -952,21 +921,17 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 			array_push($subscriptionItemsGroup, $item['name']);
 		}
 
+
 		$slackMessageBody = [
-			'text'  => '<!channel> Subscription Updated :alert:
-	*Client:* ' . $customerName . ' | ' . $customerEmail . '
-	*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)) . '
-	:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",
-			'username' => 'Marcus',
-		];
+				'text'  => '<!channel> Subscription Updated :alert:
+		*Client:* ' . $customerName . ' | ' . $customerEmail . '
+		*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)) . '
+		:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",
+				'username' => 'Marcus',
+			];
 
 
-		wp_remote_post( $slackUrl, array(
-			'body'        => wp_json_encode( $slackMessageBody ),
-			'headers' => array(
-				'Content-type: application/json'
-			),
-		) );
+		slackNotifications($slackMessageBody);
 	}
 }
 add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
@@ -976,7 +941,6 @@ add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSu
 function notificationToSlackForSwitchSubscription($order){
 	$orderItems = $order->get_items();
 	$currentUser = wp_get_current_user();
-	$slackUrl = SLACK_WEBHOOK_URL;
 	$customerName = $currentUser->display_name;
 	$customerEmail = $currentUser->user_email;
 	$orderItemsGroup = [];
@@ -993,12 +957,7 @@ function notificationToSlackForSwitchSubscription($order){
 	];
 
 
-	wp_remote_post( $slackUrl, array(
-		'body'        => wp_json_encode( $slackMessageBody ),
-		'headers' => array(
-			'Content-type: application/json'
-		),
-	) );
+	slackNotifications($slackMessageBody);
 }
 add_action('woocommerce_subscriptions_switch_completed', 'notificationToSlackForSwitchSubscription');
 
