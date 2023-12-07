@@ -26,7 +26,7 @@ function hello_elementor_child_scripts_styles() {
 	$version = $theme->get( 'Version' );
 
 	// CSS
-	wp_enqueue_style( 'dd-custom', get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
+	wp_enqueue_style( 'dd-custom-style', get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
 	wp_enqueue_style( 'slick', get_stylesheet_directory_uri() . '/libs/slick/css/slick.css', $version );
 	wp_enqueue_style( 'slick-theme', get_stylesheet_directory_uri() . '/libs/slick/css/slick-theme.css', $version );
 

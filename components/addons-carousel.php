@@ -32,7 +32,7 @@ function addonsCarouselComponent($allProductAddons){ ?>
         flex-direction: row;
         justify-content: space-between;
         gap: 12px;
-        align-items: center;
+        align-items: flex-start;
     }
 
     .subscriptions__addons_wrapper img{
