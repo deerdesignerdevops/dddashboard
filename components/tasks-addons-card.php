@@ -51,24 +51,26 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel){
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>
+            
+            <?php 
 
-            <div class="dd__subscription_actions_form">
-                <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
-                
-                $actions['cancel']['name'] = __( $cancelBtnLabel, 'woocommerce-subscriptions' );
-                unset($actions['suspend']);
+            $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
+            $actions['cancel']['name'] = __( $cancelBtnLabel, 'woocommerce-subscriptions' );
+            unset($actions['suspend']);
+            unset($actions['reactivate']);
 
-                if($subscription->get_status() == "pending-cancel"){
-                    unset($actions['cancel']);
-                }
-                
-                ?>
-                <?php if ( !empty( $actions ) ) { ?>                        				
-                        <?php foreach ( $actions as $key => $action ) :?>															
-                            <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_link_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
-                        <?php endforeach; ?>                       
-                <?php }; ?>
-            </div>
+            if($subscription->get_status() == "pending-cancel"){
+                unset($actions['cancel']);
+            }
+
+            ?>
+            <?php if (!empty($actions)) { ?>
+                <div class="dd__subscription_actions_form">
+                    <?php foreach ( $actions as $key => $action ) :?>															
+                        <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_link_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+                    <?php endforeach; ?> 
+                </div>
+            <?php }; ?>
         </div>
     <?php } ?>
 <?php } ?>
