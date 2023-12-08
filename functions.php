@@ -1254,6 +1254,19 @@ add_action('woocommerce_subscription_status_updated', 'cancelActiveTasksByPauseP
 
 
 
+function defineSubscriptionPeriod($productPrice){
+	if(str_contains($productPrice, 'month') !== false){
+		echo "/month";
+	}else if(str_contains($productPrice, 'year') !== false){
+		echo "/year";
+	}else{
+		echo "";
+	}
+}
+add_action('defineSubscriptionPeriodHook', 'defineSubscriptionPeriod');
+
+
+
 
 
 

@@ -42,11 +42,11 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat){
                     </span>
                                     
                 <?php } ?>
-                <span class="dd__subscription_price"><?php echo wp_kses_post( $subscription->get_formatted_order_total() ); ?></span>
 
-
+                <span class="dd__subscription_price">
+                    <?php echo  str_replace('.00', '', $subscription->get_formatted_order_total()); ?>    
+                </span>
                 
-
                 <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
                 <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
                 

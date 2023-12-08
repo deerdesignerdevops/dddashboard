@@ -25,19 +25,6 @@ do_action( 'woocommerce_before_cart' ); ?>
 }
 </style>
 
-<?php
-function defineSubscriptionPeriod($productPrice){
-	if(str_contains($productPrice, 'month') !== false){
-		return "/month";
-	}else if(str_contains($productPrice, 'year') !== false){
-		return "/year";
-	}else{
-		return "";
-	}
-}
-
-?>
-
 
 
 <form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
@@ -104,7 +91,8 @@ function defineSubscriptionPeriod($productPrice){
 
 						<span class="cart__header_price">
 							<?php
-								echo get_woocommerce_currency_symbol() . $_product->get_price() . defineSubscriptionPeriod($productPrice);											
+								echo get_woocommerce_currency_symbol() . $_product->get_price();	
+								echo do_action('defineSubscriptionPeriodHook', $productPrice);										
 							?>
 						</span>
 

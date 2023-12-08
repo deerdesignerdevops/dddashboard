@@ -50,7 +50,9 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
                 </span>
                                 
             <?php } ?>
-            <span class="dd__subscription_price"><?php echo wp_kses_post( $subscription->get_formatted_order_total() ); ?></span>
+            <span class="dd__subscription_price">
+                <?php echo  str_replace('.00', '', $subscription->get_formatted_order_total()); ?>    
+            </span>
 
             <?php foreach ( $dates_to_display as $date_type => $date_title ) : ?>
                 <?php $date = $subscription->get_date( $date_type ); ?>
