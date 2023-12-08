@@ -7,6 +7,8 @@ function addonsCarouselComponent($allProductAddons){ ?>
                         <div class="addon__card">
                             <div class="subscriptions__addons_img">
                                 <?php echo get_the_post_thumbnail( $addon->id ); ?>
+                                
+                                <button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
                             </div>
                             <div class="addon__card_info">
                                 <span class="addon__title"><?php echo $addon->name; ?></span><br>
@@ -14,7 +16,7 @@ function addonsCarouselComponent($allProductAddons){ ?>
                                 <div class="addon__description">
                                     <?php echo $addon->description; ?>
                                 </div>
-                                <button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
+              
 
                             </div>
                         </div>	
@@ -26,6 +28,12 @@ function addonsCarouselComponent($allProductAddons){ ?>
 <style>
     .carousel__container{
         max-width: 1140px;
+    }
+
+    .subscriptions__addons_img{
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     }
 
     .subscriptions__addons_wrapper .addon__card{

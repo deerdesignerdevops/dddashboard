@@ -1183,7 +1183,7 @@ function formatSubscriptionStatusLabel($status){
 			echo 'paused';
 			break;
 		case 'pending-cancel':
-			echo 'pending-cancellation';
+			echo 'cancelled';
 			break;
 
 		default:

@@ -687,6 +687,17 @@ input.ff-read-only {
 
 /*LOADING SPINNER FINISH*/
 
+.single_add_to_cart_button {
+  border-radius: 50px !important;
+  background-color: var(--e-global-color-f5169dc) !important;
+  font-weight: 400 !important;
+}
+
+.single_add_to_cart_button:hover {
+  background-color: var(--e-global-color-04b3e11) !important;
+  color: var(--e-global-color-text) !important;
+}
+
 .woocommerce_account_subscriptions {
   flex: 1;
 }
@@ -744,7 +755,6 @@ input.ff-read-only {
   gap: 20px;
   flex-wrap: wrap;
   flex-direction: column;
-  justify-content: center;
   border: 1px solid #ccc;
   flex: 1;
 }
@@ -765,6 +775,16 @@ input.ff-read-only {
 
 .dd__subscription_id.active strong {
   color: var(--e-global-color-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.dd__subscription_id.pending-cancel {
+  color: var(--e-global-color-secondary);
+}
+
+.dd__subscription_id.pending-cancel strong {
+  color: var(--e-global-color-secondary);
   font-weight: 600;
   text-transform: uppercase;
 }

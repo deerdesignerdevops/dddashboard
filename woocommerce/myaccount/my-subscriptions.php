@@ -171,7 +171,7 @@ if(isset($_GET['change-plan'])){
 									$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
 						
 									if($terms[0]->slug === 'active-task'){ 
-										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade');
+										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task');
 										}
 								}								
 								} ?>
@@ -199,7 +199,7 @@ if(isset($_GET['change-plan'])){
 								$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
 					
 								if($terms[0]->slug === 'add-on'){ 
-									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On');
+									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on');
 									}
 							}								
 							} ?>

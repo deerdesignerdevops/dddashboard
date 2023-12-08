@@ -1,13 +1,6 @@
 <?php 
-function tasksAddonsCardComponent($subscription, $cancelBtnLabel){ 
-
-    $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_display', array(
-	'start_date'              => _x( 'Start date', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'last_order_date_created' => _x( 'Last payment', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'next_payment'            => _x( 'Next payment', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'end'                     => _x( 'End date', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'trial_end'               => _x( 'Trial end date', 'customer subscription table header', 'woocommerce-subscriptions' ),
-    ) );
+function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat){ 
+    $subscriptionStatus = $subscription->get_status();
 
     ?>
 
@@ -18,20 +11,26 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel){
                 echo ' ' . strtok(strtolower($subsItem['name']), ' ');
             }
 
-            echo ' ' . esc_attr($subscription->get_status());
+            echo ' ' . esc_attr($subscriptionStatus);
             
             ?>">
-            <div class="dd__subscription_details">                        
+            <div class="dd__subscription_details"> 
                 <div class="dd__subscription_header">
-                    <span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscription->get_status()); ?></strong></span>
+                    <?php if($productCat === "active-task" && $subscriptionStatus === "pending-cancel"){ ?>
+                        <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus); ?> <br> </strong> Active task available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
+
+                    <?php }else{ ?>
+                           <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus); ?></strong></span>
+                    <?php } ?>
                 </div>
+
 
                 <?php 
                     foreach ( $subscription->get_items() as $subsItemId => $item ){	
                         $terms = get_the_terms( $item['product_id'], 'product_cat' );
                     ?>
                     <span class="dd__subscription_title">														
-                        <?php if(sizeof($subscription->get_items()) > 1 && $subscription->get_status() === 'active') { ?>
+                        <?php if(sizeof($subscription->get_items()) > 1 && $subscriptionStatus === 'active') { ?>
                                 <span class="remove_item">
                                     <?php if ( wcs_can_item_be_removed( $item, $subscription ) ) : ?>
                                         <?php $confirm_notice = apply_filters( 'woocommerce_subscriptions_order_item_remove_confirmation_text', __( 'Are you sure you want remove this item from your subscription?', 'woocommerce-subscriptions' ), $item, $_product, $subscription );?>
@@ -45,12 +44,16 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel){
                 <?php } ?>
                 <span class="dd__subscription_price"><?php echo wp_kses_post( $subscription->get_formatted_order_total() ); ?></span>
 
-                <?php foreach ( $dates_to_display as $date_type => $date_title ) : ?>
-                    <?php $date = $subscription->get_date( $date_type ); ?>
-                    <?php if ( ! empty( $date ) ) : ?>
-                        <span class="dd__subscription_payment"><?php echo esc_html( $date_title ); ?>: <?php echo esc_html( $subscription->get_date_to_display( $date_type ) ); ?></span>							
-                    <?php endif; ?>
-                <?php endforeach; ?>
+
+                
+
+                <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
+                <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+                
+                <?php if($subscriptionStatus === "active"){ ?>
+                    <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
+                <?php } ?>
+
             </div>
             
             <?php 
@@ -60,7 +63,7 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel){
             unset($actions['suspend']);
             unset($actions['reactivate']);
 
-            if($subscription->get_status() == "pending-cancel"){
+            if($subscriptionStatus == "pending-cancel"){
                 unset($actions['cancel']);
             }
 
@@ -68,7 +71,7 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel){
             <?php if (!empty($actions)) { ?>
                 <div class="dd__subscription_actions_form">
                     <?php foreach ( $actions as $key => $action ) :?>															
-                        <a href="<?php echo esc_url( $action['url'] ); ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-plan="<?php echo $terms[0]->slug; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?> 
+                        <a href="<?php echo esc_url( $action['url'] ); ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-plan="<?php echo $terms[0]->slug; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscriptionStatus; ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?> 
                     <?php echo $cancelBtnLabel === 'Downgrade' ? '<i class="fa-solid fa-caret-down"></i>' : ''; ?>
                     </a>
                     <?php endforeach; ?> 
@@ -79,7 +82,7 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel){
 <?php } ?>
 
  
-<?php add_action('tasksAddonsCardComponentHook', 'tasksAddonsCardComponent', 10, 2); ?>
+<?php add_action('tasksAddonsCardComponentHook', 'tasksAddonsCardComponent', 10, 3); ?>
 
 
 
