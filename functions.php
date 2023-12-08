@@ -883,19 +883,6 @@ add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToS
 
 
 
-function defineAddonPeriodToShowOnCards($addonName){
-	if(str_contains($addonName, 'Stock')){
-		echo 'year';
-	}else if(str_contains($addonName, 'Call')){
-		echo 'call';
-	}else{
-		echo 'month';
-	}
-}
-add_action('callAddonsPeriod', 'defineAddonPeriodToShowOnCards');
-
-
-
 function showBracketsAroundVariationName($name, $product) {
     if (str_contains($name, '-') !== false) {
         $modified_name_last = substr($name, strrpos($name, '-') + 1);
@@ -1264,6 +1251,19 @@ function defineSubscriptionPeriod($productPrice){
 	}
 }
 add_action('defineSubscriptionPeriodHook', 'defineSubscriptionPeriod');
+
+
+
+function defineAddonPeriodToShowOnCards($addonName){
+	if(str_contains($addonName, 'Stock')){
+		echo 'month';
+	}else if(str_contains($addonName, 'Call')){
+		echo 'call';
+	}else{
+		echo 'month';
+	}
+}
+add_action('callAddonsPeriod', 'defineAddonPeriodToShowOnCards');
 
 
 

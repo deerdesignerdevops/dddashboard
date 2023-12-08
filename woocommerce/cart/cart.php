@@ -139,7 +139,8 @@ do_action( 'woocommerce_before_cart' ); ?>
 								<div class="cart__product_subtotal">
 									<span>Subtotal</span>
 										<?php
-											echo get_woocommerce_currency_symbol() . $_product->get_price() . defineSubscriptionPeriod($productPrice);											
+											echo get_woocommerce_currency_symbol() . $_product->get_price();	
+											echo do_action('defineSubscriptionPeriodHook', $productPrice);										
 										?>
 								</div>
 
@@ -224,7 +225,7 @@ $allProductAddons = wc_get_products([
 							<div class="addon__card_info">
 								<?php echo get_the_post_thumbnail( $addon->id ); ?>
 								<span class="addon__title"><?php echo $addon->name; ?></span><br>
-								<span class="addon__title"><?php echo get_woocommerce_currency_symbol() . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
+								<span class="addon__title"><?php echo get_woocommerce_currency_symbol() . "$addon->price/"; do_action('callAddonsPeriod', $addon->name); ?></span>
 								<div class="addon__description">
 									<?php echo $addon->description; ?>
 								</div>
