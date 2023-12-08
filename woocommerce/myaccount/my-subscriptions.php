@@ -111,8 +111,8 @@ if(isset($_GET['change-plan'])){
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
-<div class="dd__loading_screen">
-    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+<div class="loading__spinner_wrapper" style="display: none">
+	<div class="loading-spinner"></div>
 </div>
 
 <section>
@@ -286,7 +286,7 @@ else{ ?>
 
 document.addEventListener("DOMContentLoaded", function(){
 	const subscriptionsActionsBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
-	const loadingSpinner = document.querySelector(".dd__loading_screen");
+	const loadingSpinner = document.querySelector(".loading__spinner_wrapper");
 	function closePopup(){
 		const elementorPopups = Array.from(document.querySelectorAll(".elementor-popup-modal"))
 		elementorPopups.map((popup) => {

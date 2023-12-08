@@ -896,7 +896,6 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
 	if($old_status !== 'pending'){
 		$subscriptionItems = $subscription->get_items();
-		$slackUrl = SLACK_WEBHOOK_URL;
 		$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
 		$customerEmail = $subscription->data['billing']['email'];
 		$subscriptionItemsGroup = [];
@@ -1214,16 +1213,7 @@ add_filter( 'wcs_view_subscription_actions', 'removeMySubscriptionsButton', 100,
 
 
 
-function loadSpinnerAtCheckout(){
-	echo '
-	<style>
-	.dd__loading_screen{display: flex !important;}
-	</style>
-	<div class="dd__loading_screen">
-    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-</div>';
-}
 
-//add_action('woocommerce_checkout_order_processed', 'loadSpinnerAtCheckout', 10, 1);
+
 
 
