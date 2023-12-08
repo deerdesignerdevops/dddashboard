@@ -26,7 +26,7 @@ function hello_elementor_child_scripts_styles() {
 	$version = $theme->get( 'Version' );
 
 	// CSS
-	wp_enqueue_style( 'dd-custom-style-new', get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
+	wp_enqueue_style( 'dd-custom-style', get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
 	wp_enqueue_style( 'slick', get_stylesheet_directory_uri() . '/libs/slick/css/slick.css', $version );
 	wp_enqueue_style( 'slick-theme', get_stylesheet_directory_uri() . '/libs/slick/css/slick-theme.css', $version );
 
@@ -41,9 +41,17 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
+function removeScriptVersionNumberFromQuery($src)
+{
+    $parts = explode('?ver', $src);
+    return $parts[0];
+}
+add_filter('script_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
+add_filter('style_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
+
+
 //STRIPE API
 require_once('stripe/init.php');
-
 
 
 function logoutWhitoutConfirm($action, $result)
