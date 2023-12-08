@@ -267,17 +267,14 @@ else{ ?>
 <?php echo do_shortcode('[elementor-template id="1201"]'); ?>
 
 <style>
-	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation{
+	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation, .dd-checklist, .premium-stock-photos.suspend, .dd-insights{
 		display: none !important;
 	}
 
 	.form_subscription_update_disclaimer{
-		display: <?php echo sizeof($sortedSubscriptions) > 1 ? 'none' : 'block';  ?>;
+		display: <?php echo sizeof($userCurrentActiveTasks) ? 'none' : 'block';  ?>;
 	}
 
-	.premium-stock-photos.suspend {
-		display: none;
-	}
 </style>
 
 <script>
@@ -307,7 +304,7 @@ document.addEventListener("DOMContentLoaded", function(){
 	}
 
 	function pauseFlow(currentSubscriptionId){
-		document.querySelector("#pause_popup .popup_msg h3").innerHTML = "ARE YOU SURE YOU WANT TO <br><span>PAUSE THIS SUBSCRIPTION?</span>";
+		document.querySelector("#pause_popup .popup_msg h3").innerHTML = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
 		document.querySelector(".form_subscription_update_disclaimer").innerText = "When you pause your subscription, we'll keep your designs, tickets and communication saved until you reactivate your account. Your design team is still available until the end of your current billing period."
 		document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, pause it"
 		document.querySelector(".cancel_btn .elementor-button-text").innerText = "Keep it active"
@@ -337,7 +334,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			const currentPlan = e.currentTarget.dataset.plan
 			const currentUpdatePlanUrl = e.currentTarget.href
 			const enablePauseFlow = <?php echo sizeof($subscriptions); ?>;
-			const activeTaskProductDiscount = currentPlan.includes('Standard') ? 0 : 50
+			
 			const changePlanOptionsText = () => {
 				if(currentPlan.includes('Standard')){
 					return "Business Plan and Agency Plan"
@@ -358,8 +355,17 @@ document.addEventListener("DOMContentLoaded", function(){
 
 			if(e.currentTarget.classList.contains("suspend")){
 				confirmBtn.href = currentUpdatePlanUrl;
-				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE THIS SUBSCRIPTION?</span>";
+				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
 				document.querySelector(".form_subscription_update_disclaimer").innerText = "	When you pause your subscription, we'll keep your designs, tickets and communication saved until you reactivate your account. Your design team is still available until the end of your current billing period."
+				document.querySelector(".form_subscription_update_message_field label").innerText = "Why are you pausing? Did we do anything wrong?"
+				document.querySelector(".update_plan_form").classList.add("show_form")
+				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
+				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentUpdatePlanUrl
+				document.querySelector(".popup_buttons").style.display = "none"
+				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
+				document.querySelector(".update_plan_form form button").innerText = "Pause Subscription"
+
+
 
 				confirmBtn.addEventListener("click", function(e){
 					closePopup()
@@ -373,10 +379,10 @@ document.addEventListener("DOMContentLoaded", function(){
 			}
 			else if(e.currentTarget.classList.contains("reactivate")){
 				confirmBtn.href = currentUpdatePlanUrl;
-				popupMsgNewText = "REACTIVATE <span>THIS SUBSCRIPTION?</span>";
+				popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
 				document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
-				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Confirm"
-				document.querySelector(".cancel_btn .elementor-button-text").innerText = "Cancel"
+				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
+				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
 
 				confirmBtn.addEventListener("click", function(e){
 					closePopup()
@@ -389,16 +395,30 @@ document.addEventListener("DOMContentLoaded", function(){
 				})
 			}
 			else if(e.currentTarget.classList.contains("cancel")){
-				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>CANCEL THIS SUBSCRIPTION?</span>";
+				popupMsgNewText = "Why are you cancelling? <br><span>Did we do anything wrong?</span>";
 				document.querySelector(".form_subscription_update_disclaimer").innerHTML = "<span><strong>ATTENTION:</strong> When you cancel your subscription, you'll lose access to all your designs, tickets and communication. Your design team is still available until the end of your current billing period.</span>"
 				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, cancel it"
+				
+				if(currentPlan !== 'add-on' && currentPlan !== 'active-task'){
+					document.querySelector(".form_subscription_update_message_field label").innerText = "By cancelling your account you will lose access to all the data, design files, and ticket history. If you pause your account, we will store everything for you until you decide to reactivate it."
+				}else{
+					document.querySelector(".form_subscription_update_message_field label").style.display = 'none'
+				}
+	
+				if(currentPlan === 'add-on'){
+					confirmBtn.addEventListener("click", function(e){
+						closePopup()
+						loadingSpinner.style.display = "flex"
+						location.href = currentUpdatePlanUrl
+					})
+				}
 				
 				confirmBtn.addEventListener("click", function(e){
 					e.preventDefault()
 					cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
 				})
 
-				if(enablePauseFlow === 1 && currentSubscriptionStatus !== 'on-hold'){
+				if(enablePauseFlow && currentSubscriptionStatus !== 'on-hold' && currentPlan !== 'active-task' && currentPlan !== 'add-on'){
 					document.querySelector(".cancel_btn .elementor-button-text").innerText = "Pause it instead"
 					document.querySelector(".cancel_btn").addEventListener("click", function(e){
 						e.preventDefault()
@@ -411,18 +431,7 @@ document.addEventListener("DOMContentLoaded", function(){
 						closePopup();
 					})
 				}
-			}
-			else if(e.currentTarget.classList.contains("active-tasks")){
-				confirmBtn.href = currentUpdatePlanUrl;
-				popupMsgNewText = "Are you sure you want add <br><span>more active tasks?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `<span><strong>ATTENTION:</strong> Your subscription will be increased by R$${699 - activeTaskProductDiscount}.</span>`
-				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, give more active tasks"
-				document.querySelector(".cancel_btn .elementor-button-text").innerText = "Cancel"
-
-				document.querySelector(".cancel_btn").addEventListener("click", function(e){
-					e.preventDefault()
-					closePopup()
-				})
+		
 			}
 			else{
 				confirmBtn.href = currentUpdatePlanUrl;

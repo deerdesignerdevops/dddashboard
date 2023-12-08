@@ -28,9 +28,9 @@ do_action( 'woocommerce_before_cart' ); ?>
 <?php
 function defineSubscriptionPeriod($productPrice){
 	if(str_contains($productPrice, 'month') !== false){
-		return strstr($productPrice, '/ month');
+		return "/month";
 	}else if(str_contains($productPrice, 'year') !== false){
-		return strstr($productPrice, '/ year');
+		return "/year";
 	}else{
 		return "";
 	}
@@ -103,7 +103,9 @@ function defineSubscriptionPeriod($productPrice){
 						</div>
 
 						<span class="cart__header_price">
-							<?php echo $productPrice; ?>
+							<?php
+								echo get_woocommerce_currency_symbol() . $_product->get_price() . defineSubscriptionPeriod($productPrice);											
+							?>
 						</span>
 
 						<div class="cart__content">						

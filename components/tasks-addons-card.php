@@ -28,6 +28,7 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel){
 
                 <?php 
                     foreach ( $subscription->get_items() as $subsItemId => $item ){	
+                        $terms = get_the_terms( $item['product_id'], 'product_cat' );
                     ?>
                     <span class="dd__subscription_title">														
                         <?php if(sizeof($subscription->get_items()) > 1 && $subscription->get_status() === 'active') { ?>
@@ -67,7 +68,9 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel){
             <?php if (!empty($actions)) { ?>
                 <div class="dd__subscription_actions_form">
                     <?php foreach ( $actions as $key => $action ) :?>															
-                        <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_link_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+                        <a href="<?php echo esc_url( $action['url'] ); ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-plan="<?php echo $terms[0]->slug; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?> 
+                    <?php echo $cancelBtnLabel === 'Downgrade' ? '<i class="fa-solid fa-caret-down"></i>' : ''; ?>
+                    </a>
                     <?php endforeach; ?> 
                 </div>
             <?php }; ?>

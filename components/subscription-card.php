@@ -60,16 +60,22 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
             <?php endforeach; ?>
         </div>
 
-        <div class="dd__subscription_actions_form">
-            <a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo $activeTasksProductId; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Get More Active Tasks</a>
 
-            <?php if($subscription->get_status() === "active"){ ?>
-                <a href="<?php echo $siteUrl; ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
+        <div>
+            <?php if($subscription->get_status() === 'active'){ ?>
+                <div class="btn__wrapper">
+                    <a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo $activeTasksProductId; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Add Active Task</a>
+                </div>
             <?php } ?>
 
-            <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
-            
-            ?>
+            <div class="dd__subscription_actions_form">
+                <?php if($subscription->get_status() === "active"){ ?>
+                    <a href="<?php echo $siteUrl; ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
+                <?php } ?>
+
+                <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
+                
+                ?>
                     <?php if ( ! empty( $actions ) ) { ?>
                         <div class="dd__subscriptions_buttons_wrapper">						
                             <?php foreach ( $actions as $key => $action ) :?>															
@@ -77,6 +83,7 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
                             <?php endforeach; ?>
                         </div>
                     <?php }; ?>
+            </div>
         </div>
     </div>
 <?php } ?>

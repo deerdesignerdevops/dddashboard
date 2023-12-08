@@ -466,7 +466,7 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 function checkIfUserCanBookCreativeCall(){
 	if(is_page(array('dash', 'dash-woo'))){
-		$users_subscriptions = wcs_get_users_subscriptions(get_current_user_id());
+		$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 		$userCurrentProducts = [];
 		$groups_user = new Groups_User( get_current_user_id() );	
 		$groupCreativeCallsLeft =  0;
@@ -475,7 +475,7 @@ function checkIfUserCanBookCreativeCall(){
 			$groupCreativeCallsLeft += $item->group->creative_calls;
 		}
 
-		foreach ($users_subscriptions as $subscription){
+		foreach ($userSubscriptions as $subscription){
 			if ($subscription->has_status(array('active'))) {
 				$subscription_products = $subscription->get_items();
 
@@ -545,8 +545,8 @@ add_action('template_redirect', 'redirectUserAfterSubscriptionStatusUpdated');
 
 
 
-function sendPaymentCompleteNotificationToSlack($order_id){
-	$order = wc_get_order( $order_id );
+function sendPaymentCompleteNotificationToSlack($orderId){
+	$order = wc_get_order( $orderId );
 	$orderData = $order->get_data();
 	$orderItems = $order->get_items();
 	$orderItemsGroup = [];
@@ -556,7 +556,6 @@ function sendPaymentCompleteNotificationToSlack($order_id){
 		array_push($orderItemsGroup, $itemName);
 	}
 
-	$slackUrl = SLACK_WEBHOOK_URL;
 	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 	$customerEmail = $orderData['billing']['email'];
 	$slackMessageBody = [
@@ -596,12 +595,12 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 function checkIfUserIsActive(){
 	$user_id = get_current_user_id();
-	$users_subscriptions = wcs_get_users_subscriptions($user_id);
+	$userSubscriptions = wcs_get_users_subscriptions($user_id);
 
 	$product_id = "";
 	$productsCategories = [];
 
-	foreach ($users_subscriptions as $subscription){
+	foreach ($userSubscriptions as $subscription){
 		if ($subscription->has_status(array('active'))) {
 			$subscription_products = $subscription->get_items();
 			foreach ($subscription_products as $product) {			
@@ -652,8 +651,8 @@ add_filter('wc_stripe_payment_metadata', 'sendWooMetadataToStripePaymentMetadata
 
 
 function sendWooMetadataToStripeCustomerMetadata($metadata) {
-	$order_id = WC()->session->get('order_awaiting_payment');
-	$order = new WC_Order($order_id);
+	$orderId = WC()->session->get('order_awaiting_payment');
+	$order = new WC_Order($orderId);
 
     $metadata['first_name'] = $order->get_billing_first_name();
 	$metadata['last_name'] = $order->get_billing_last_name();
@@ -691,10 +690,19 @@ add_filter( 'woocommerce_checkout_fields', 'removeCheckoutFields' );
 
 
 
-function redirectToOnboardingFormAfterCheckout( $order_id ) {
-	 $user = wp_get_current_user();
-	 $isUserOnboarded =  get_user_meta($user->id, 'is_user_onboarded', true);
-     $url = site_url() . '/signup/onboarding';
+function redirectToOnboardingFormAfterCheckout( $orderId ) {
+	$user = wp_get_current_user();
+	$isUserOnboarded =  get_user_meta($user->id, 'is_user_onboarded', true);
+    $url = site_url() . '/signup/onboarding';
+	$order = wc_get_order( $orderId );
+	
+	foreach( $order->get_items() as $item_id => $item ){
+		$orderItems[] = $item->get_name();
+	}
+
+	$productNames = implode(" | ", array_unique($orderItems));
+
+	wc_add_notice("Your $productNames was added to your account!", 'success');
 
 	if($isUserOnboarded || current_user_can('administrator')){
 		$url = site_url() . "/subscriptions";
@@ -718,9 +726,11 @@ add_filter( 'woocommerce_billing_fields', 'moveCheckoutEmailFieldToTop' );
 
 
 
-function changeOrderStatusToCompleteAfterPayment( $order_id ) {
-    $order = wc_get_order( $order_id );
-    $order->update_status( 'completed' );    
+function changeOrderStatusToCompleteAfterPayment( $orderId ) {
+    $order = wc_get_order( $orderId );
+    $order->update_status( 'completed' ); 
+	
+	
 }
 add_action( 'woocommerce_payment_complete', 'changeOrderStatusToCompleteAfterPayment' );
 
@@ -847,11 +857,9 @@ add_action( 'woocommerce_review_order_after_cart_contents', 'customCheckoutCoupo
 
 
 
-function sendPaymentFailedNotificationToSlack($order_id){
-	$order = wc_get_order( $order_id );
+function sendPaymentFailedNotificationToSlack($orderId){
+	$order = wc_get_order( $orderId );
 	$orderData = $order->get_data();
-
-	$slackUrl = SLACK_WEBHOOK_URL;
 	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 	$customerEmail = $orderData['billing']['email'];
 	$slackMessageBody = [
@@ -1003,8 +1011,8 @@ add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddT
 
 
 
-function prepareOrderDataToCreateTheUserGroupOnDataBase($order_id){
-	$order = wc_get_order( $order_id );
+function prepareOrderDataToCreateTheUserGroupOnDataBase($orderId){
+	$order = wc_get_order( $orderId );
 	$orderData = $order->get_data();
 	$orderItems = $order->get_items();
 	$groupName = strtolower(str_replace(' ', '_', $orderData['billing']['company']));
@@ -1210,6 +1218,31 @@ function removeMySubscriptionsButton( $actions, $subscription ) {
 	return $actions;
 }
 add_filter( 'wcs_view_subscription_actions', 'removeMySubscriptionsButton', 100, 2 );
+
+
+
+function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
+
+	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+
+	foreach($subscription->get_items() as $item){
+		if(has_term( 'plan', 'product_cat', $item->get_product_id())){
+			foreach ($userSubscriptions as $subs){		
+				foreach ($subs->get_items() as $product) {			
+					if ( has_term( 'active-task', 'product_cat', $product->get_product_id() ) ){
+						if($new_status === "on-hold" || $new_status === "cancelled"){
+							$subs->update_status('cancelled');
+						}else if($new_status === "pending-cancel"){
+							$subs->update_status('pending-cancel');
+						}
+					};	
+				}
+			}
+		}
+	}
+	
+}
+add_action('woocommerce_subscription_status_updated', 'cancelActiveTasksByPausePlan', 10, 3);
 
 
 
