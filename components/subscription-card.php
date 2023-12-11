@@ -26,7 +26,6 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
             </div>
 
             <?php 
-            $subscriptionProductNames = [];
             $currentSubscriptionPlan = "";
             
             foreach ( $subscription->get_items() as $subsItemId =>  $item ){
@@ -80,7 +79,7 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
                 ?>
                     <?php if ( ! empty( $actions ) ) { ?>
                         <div class="dd__subscriptions_buttons_wrapper">						
-                            <?php foreach ( $actions as $key => $action ) :?>															
+                            <?php foreach ( $actions as $key => $action ) : ?>															
                                 <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
                             <?php endforeach; ?>
                         </div>

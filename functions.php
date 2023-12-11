@@ -554,30 +554,56 @@ add_action('template_redirect', 'redirectUserAfterSubscriptionStatusUpdated');
 
 
 function sendPaymentCompleteNotificationToSlack($orderId){
-	$order = wc_get_order( $orderId );
-	$orderData = $order->get_data();
-	$orderItems = $order->get_items();
-	$orderItemsGroup = [];
+	if(!wcs_order_contains_renewal($orderId)){
+		$order = wc_get_order( $orderId );
+		$orderData = $order->get_data();
+		$orderItems = $order->get_items();
+		$orderItemsGroup = [];
 
-	foreach( $orderItems as $item_id => $item ){
-		$itemName = $item->get_name();
-		array_push($orderItemsGroup, $itemName);
+		foreach( $orderItems as $item_id => $item ){
+			$itemName = $item->get_name();
+			array_push($orderItemsGroup, $itemName);
+		}
+
+		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+		$customerEmail = $orderData['billing']['email'];
+		$slackMessageBody = [
+			'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
+	*Client:* ' . $customerName . ' ' . $customerEmail . '
+	*Plan:* ' . implode(" | ", $orderItemsGroup) . '
+	Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
+			'username' => 'Marcus',
+		];
+
+		slackNotifications($slackMessageBody);
+
+	}
+}
+add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
+
+
+
+function sendRenewalCompleteNotificationToSlack($subscription){
+	$subscriptionProducts = $subscription->get_items();
+	
+	foreach ($subscriptionProducts as $product) {					
+		$userProductsNames[] = $product['name'];
 	}
 
-	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
-	$customerEmail = $orderData['billing']['email'];
+	$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
+	$customerEmail = $subscription->data['billing']['email'];
+	
 	$slackMessageBody = [
-		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
-*Client:* ' . $customerName . ' ' . $customerEmail . '
-*Plan:* ' . implode(" | ", $orderItemsGroup) . '
-Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
-		'username' => 'Marcus',
-	];
+			'text'  => 'We have a subscription renewal, <!channel> :smiling_face_with_3_hearts:
+	*Client:* ' . $customerName . ' ' . $customerEmail . '
+	*Plan:* ' . implode(" | ", $userProductsNames),
+			'username' => 'Marcus',
+		];
 
 	slackNotifications($slackMessageBody);
 
 }
-add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
+add_action( 'woocommerce_subscription_renewal_payment_complete', 'sendRenewalCompleteNotificationToSlack');
 
 
 
@@ -1264,6 +1290,7 @@ function defineAddonPeriodToShowOnCards($addonName){
 	}
 }
 add_action('callAddonsPeriod', 'defineAddonPeriodToShowOnCards');
+
 
 
 

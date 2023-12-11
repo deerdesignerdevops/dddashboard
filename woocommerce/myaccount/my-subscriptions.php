@@ -196,9 +196,8 @@ if(isset($_GET['change-plan'])){
 					<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
 						<?php if($subscription->get_status() !== "cancelled"){ 
 							foreach($subscription->get_items() as $subItem){
-								$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
 					
-								if($terms[0]->slug === 'add-on'){ 
+								if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
 									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on');
 									}
 							}								
@@ -267,7 +266,7 @@ else{ ?>
 <?php echo do_shortcode('[elementor-template id="1201"]'); ?>
 
 <style>
-	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation, .dd-checklist, .premium-stock-photos.suspend, .dd-insights{
+	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation, .dd-checklist, .dd-insights{
 		display: none !important;
 	}
 
