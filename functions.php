@@ -937,7 +937,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 
 		foreach($subscriptionItems as $item){
-			array_push($subscriptionItemsGroup, $item['name']);
+			$subscriptionItemsGroup[] = $item['name'];
 		}
 
 
@@ -954,6 +954,45 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 	}
 }
 add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+
+
+
+function customSubscriptionNoticeText($message){
+
+	if (str_contains($message, 'Your subscription has been cancelled.')) {
+		unset($message);
+    }else if(str_contains($message, 'hold')){
+		$message = 'Your account has been succesfully paused. Your Deer Designer team is still available until the end of your current billing period.';
+	}else if(str_contains($message, 'switch')){
+		$message = 'Your request to switch plan has been sent. We\'ll get in touch soon!';
+	}
+
+    return $message;
+
+}
+add_filter('woocommerce_add_message', 'customSubscriptionNoticeText');
+
+
+
+function wooNoticesMessageBasedOnProduct($subscription, $new_status, $old_status){
+	if($new_status == 'pending-cancel'){
+		$message = "";
+
+		foreach($subscription->get_items() as $item){
+			if(has_term('active-task','product_cat', $item['product_id'])){
+				$message = 'This active task has been succesfully cancelled and will still be available until the end of your current billing period.';
+			}else if(has_term('add-on','product_cat', $item['product_id'])){
+				$message = 'This add on has been succesfully cancelled and will still be available until the end of your current billing period.';
+			}else{
+				$message = 'Your account has been succesfully cancelled. Your Deer Designer team is still available until the end of your current billing period.';
+			}
+		}
+
+		wc_add_notice($message, 'success');
+	}
+}
+add_action('woocommerce_subscription_status_updated', 'wooNoticesMessageBasedOnProduct', 10, 3);
+
 
 
 
@@ -1001,19 +1040,7 @@ add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
 
 
 
-function customSubscriptionNoticeText($message){
-	if (str_contains($message, 'cancelled')) {
-        $message = 'Your account has been succesfully cancelled. Your Deer Designer team is still available until the end of your current billing period.';
-    }else if(str_contains($message, 'hold')){
-		$message = 'Your account has been succesfully paused. Your Deer Designer team is still available until the end of your current billing period.';
-	}else if(str_contains($message, 'switch')){
-		$message = 'Your request to switch plan has been sent. We\'ll get in touch soon!';
-	}
 
-    return $message;
-
-}
-add_filter('woocommerce_add_message', 'customSubscriptionNoticeText');
 
 
 
