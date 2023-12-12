@@ -465,6 +465,20 @@ add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
 
 
 function checkIfUserCanBookCreativeCall(){
+	$userCreativeCallsLeft =  get_user_meta(get_current_user_id(), 'creative_calls', true);
+
+	if($userCreativeCallsLeft){
+		echo "<style>.book_call_btn{display: flex !important;}</style>";
+	}else{
+		echo "<style>.book_call_btn{display: none !important;}</style>";
+	}
+
+}
+add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
+
+
+
+function checkIfGroupCanBookCreativeCall(){
 	if(is_page(array('dash', 'dash-woo'))){
 		$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 		$userCurrentProducts = [];
@@ -509,7 +523,7 @@ function checkIfUserCanBookCreativeCall(){
 	}
 
 }
-add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
+//add_action('template_redirect', 'checkIfGroupCanBookCreativeCall');
 
 
 
@@ -624,7 +638,7 @@ function checkIfUserIsActive(){
 	$userSubscriptions = wcs_get_users_subscriptions($user_id);
 
 	$product_id = "";
-	$productsCategories = [];
+	$productsCategories = ['plan'];
 
 	foreach ($userSubscriptions as $subscription){
 		if ($subscription->has_status(array('active'))) {
