@@ -2,6 +2,7 @@
 function subscriptionCardComponent($subscription, $userCurrentActiveTasks){ 
     $siteUrl = site_url();
     $activeTasksProductId = $siteUrl === 'http://localhost/deerdesignerdash' ? 3040 : 1389;
+    $subscriptionStatus = $subscription->get_status();
 
     $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_display', array(
 	'start_date'              => _x( 'Start date', 'customer subscription table header', 'woocommerce-subscriptions' ),
@@ -17,12 +18,12 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
             echo ' ' . strtok(strtolower($subsItem['name']), ' ');
         }
 
-        echo ' ' . esc_attr($subscription->get_status());
+        echo ' ' . esc_attr($subscriptionStatus);
         
         ?>">
         <div class="dd__subscription_details">                        
             <div class="dd__subscription_header">
-                <span class="dd__subscription_id <?php echo esc_attr( $subscription->get_status() ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscription->get_status()); ?></strong></span>
+                <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus); ?></strong></span>
             </div>
 
             <?php 
@@ -37,7 +38,7 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
                 ?>
         
                 <span class="dd__subscription_title">														
-                    <?php if(sizeof($subscription->get_items()) > 1 && $subscription->get_status() === 'active') { ?>
+                    <?php if(sizeof($subscription->get_items()) > 1 && $subscriptionStatus === 'active') { ?>
                             <span class="remove_item">
                                 <?php if ( wcs_can_item_be_removed( $item, $subscription ) ) : ?>
                                     <?php $confirm_notice = apply_filters( 'woocommerce_subscriptions_order_item_remove_confirmation_text', __( 'Are you sure you want remove this item from your subscription?', 'woocommerce-subscriptions' ), $item, $_product, $subscription );?>
@@ -63,24 +64,28 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
 
 
         <div>
-            <?php if($subscription->get_status() === 'active'){ ?>
+            <?php if($subscriptionStatus === 'active'){ ?>
                 <div class="btn__wrapper">
                     <a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo $activeTasksProductId; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Add Active Task</a>
                 </div>
             <?php } ?>
 
             <div class="dd__subscription_actions_form">
-                <?php if($subscription->get_status() === "active"){ ?>
+                <?php if($subscriptionStatus === "active"){ ?>
                     <a href="<?php echo $siteUrl; ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
                 <?php } ?>
 
                 <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
+
+                if($subscriptionStatus === 'pending-cancel'){
+                    unset($actions['reactivate']);
+                }
                 
                 ?>
                     <?php if ( ! empty( $actions ) ) { ?>
                         <div class="dd__subscriptions_buttons_wrapper">						
                             <?php foreach ( $actions as $key => $action ) : ?>															
-                                <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscription->get_status(); ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+                                <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscriptionStatus; ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
                             <?php endforeach; ?>
                         </div>
                     <?php }; ?>
