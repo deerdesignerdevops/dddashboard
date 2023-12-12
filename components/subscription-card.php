@@ -1,0 +1,100 @@
+<?php 
+function subscriptionCardComponent($subscription, $userCurrentActiveTasks){ 
+    $siteUrl = site_url();
+    $activeTasksProductId = $siteUrl === 'http://localhost/deerdesignerdash' ? 3040 : 1389;
+    $subscriptionStatus = $subscription->get_status();
+
+    ?>
+    <div class="dd__subscription_card <?php 
+        foreach($subscription->get_items() as $subsItem){
+            echo ' ' . strtok(strtolower($subsItem['name']), ' ');
+        }
+
+        echo ' ' . esc_attr($subscriptionStatus);
+        
+        ?>">
+        <div class="dd__subscription_details">                        
+                <div class="dd__subscription_header">
+                    <?php if($subscriptionStatus === "pending-cancel"){ ?>
+                        <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus); ?> <br> </strong> Your Deer Designer team is still available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
+
+                    <?php }?>
+                </div>
+
+            <?php 
+            $currentSubscriptionPlan = "";
+            
+            foreach ( $subscription->get_items() as $subsItemId =>  $item ){
+                $currentCat =  strip_tags(wc_get_product_category_list($item['product_id']));
+                
+                if($currentCat === "Plan"){
+                    $currentSubscriptionPlan = $item['name'];
+                }										
+                ?>
+        
+                <span class="dd__subscription_title">														
+                    <?php if(sizeof($subscription->get_items()) > 1 && $subscriptionStatus === 'active') { ?>
+                            <span class="remove_item">
+                                <?php if ( wcs_can_item_be_removed( $item, $subscription ) ) : ?>
+                                    <?php $confirm_notice = apply_filters( 'woocommerce_subscriptions_order_item_remove_confirmation_text', __( 'Are you sure you want remove this item from your subscription?', 'woocommerce-subscriptions' ), $item, $_product, $subscription );?>
+                                    <a href="<?php echo esc_url( WCS_Remove_Item::get_remove_url( $subscription->get_id(), $subsItemId ) );?>" class="remove" onclick="return confirm('<?php printf( esc_html( $confirm_notice ) ); ?>');">&times;</a>
+                                <?php endif; ?>
+                            </span>
+                    <?php } ?>
+                    <?php echo $item['name'];?>
+                </span>
+                                
+            <?php } ?>
+            <span class="dd__subscription_price">
+                <?php echo  str_replace('.00', '', $subscription->get_formatted_order_total()); ?>    
+            </span>
+
+            <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
+            <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+            
+            <?php if($subscriptionStatus === "active"){ ?>
+                <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
+            <?php } ?>
+        </div>
+
+
+        <div>
+            <?php if($subscriptionStatus === 'active'){ ?>
+                <div class="btn__wrapper">
+                    <a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo $activeTasksProductId; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Add Active Task</a>
+                </div>
+            <?php } ?>
+
+            <div class="dd__subscription_actions_form">
+                <?php if($subscriptionStatus === "active"){ ?>
+                    <a href="<?php echo $siteUrl; ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
+                <?php } ?>
+
+                <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
+
+                if($subscriptionStatus === 'pending-cancel'){
+                    unset($actions['reactivate']);
+                }
+                
+                ?>
+                    <?php if ( ! empty( $actions ) ) { ?>
+                        <div class="dd__subscriptions_buttons_wrapper">						
+                            <?php foreach ( $actions as $key => $action ) : ?>															
+                                <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscriptionStatus; ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php }; ?>
+            </div>
+        </div>
+    </div>
+<?php } ?>
+
+ 
+<?php add_action('subscriptionCardComponentHook', 'subscriptionCardComponent', 10, 2); ?>
+
+
+
+
+
+
+

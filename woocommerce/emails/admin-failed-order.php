@@ -1,8 +1,8 @@
 <?php
 /**
- * Customer completed order email
+ * Admin failed order email
  *
- * This template can be overridden by copying it to yourtheme/woocommerce/emails/customer-completed-order.php.
+ * This template can be overridden by copying it to yourtheme/woocommerce/emails/admin-failed-order.php
  *
  * HOWEVER, on occasion WooCommerce will need to update template files and you
  * (the theme developer) will need to copy the new files to your theme to
@@ -24,7 +24,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
-<?php /* translators: %s: Customer first name */ ?>
+<?php /* translators: %1$s: Order number. %2$s: Customer full name. */ ?>
+<p><?php printf( esc_html__( 'Payment for order #%1$s from %2$s has failed. The order was as follows:', 'woocommerce' ), esc_html( $order->get_order_number() ), esc_html( $order->get_formatted_billing_full_name() ) ); ?></p>
 
 <?php
 
@@ -50,14 +51,11 @@ do_action( 'woocommerce_email_customer_details', $order, $sent_to_admin, $plain_
 /**
  * Show user-defined additional content - this is set in each email's settings.
  */
-// if ( $additional_content ) {
-// 	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
-// }
+if ( $additional_content ) {
+	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
+}
 
 /*
  * @hooked WC_Emails::email_footer() Output the email footer
- */
-?>
-	<p style="text-align: center;">You're receiving this email because you have <br>an active subscription with <a href="https://deerdesigner.com">Deer Designer.</a></p>
-<?php
+*/
 do_action( 'woocommerce_email_footer', $email );
