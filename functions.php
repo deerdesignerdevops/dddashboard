@@ -237,15 +237,7 @@ function checkIfCurrentUserIsOnboarded(){
 
 	if(!current_user_can('administrator')){
 		if(is_page(array('dash', 'dash-woo'))){
-			require_once(WP_PLUGIN_DIR  . '/fluentform/app/Api/FormProperties.php');
-
-			$formApi = fluentFormApi('forms')->entryInstance($formId = 3);
-			$atts = [
-				'search' => $user->user_email,
-			];
-			
-			$entries = $formApi->entries($atts , $includeFormats = false);
-			if(!$entries["total"] && !$isUserOnboarded){
+			if(!$isUserOnboarded){
 				$url = home_url() . "/signup/onboarding";
 				wp_redirect($url);
 				exit();
