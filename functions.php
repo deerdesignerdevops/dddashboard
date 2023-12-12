@@ -441,7 +441,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
 ";
 }
-//add_action("wp_head", "googleTagManagerOnHead");
+add_action("wp_head", "googleTagManagerOnHead");
 
 
 
@@ -453,7 +453,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 ';
 }
-//add_action('wp_body_open', 'googleTagManagerOnBody');
+add_action('wp_body_open', 'googleTagManagerOnBody');
 
 
 

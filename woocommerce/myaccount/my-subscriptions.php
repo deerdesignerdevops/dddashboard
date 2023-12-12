@@ -17,7 +17,7 @@ require_once get_stylesheet_directory() . '/components/addons-carousel.php';
 
 
 $siteUrl = site_url();
-$elementorPopupID = $siteUrl === 'http://localhost/deerdesignerdash' ? 2776 : 1201;
+$elementorPopupID = $siteUrl === 'http://localhost/deerdesignerdash' ? 2776 : 1570;
 
 //ARRAY OF SUBSCRIPTION NAMES
 $activeSubscriptionsGroup = [];
@@ -68,11 +68,11 @@ $sortedSubscriptions = array_merge($activeSubscriptions, $inactiveSubscriptions)
 function defineAddDesignerLinkProductID($parentProducts){;
 	foreach($parentProducts as $parentProduct){
 		if(str_contains($parentProduct, 'Business') !== false){
-			return '1134';
+			return '1590';
 		}else if(str_contains($parentProduct, 'Agency') !== false){
-			return '1141';
+			return '1593';
 		}else{
-			return '1130';
+			return '1580';
 		}
 	}
 }
