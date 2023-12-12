@@ -135,7 +135,7 @@ if(isset($_GET['change-plan'])){
 									$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
 						
 									if($terms[0]->slug === 'plan'){ 
-										do_action('subscriptionCardComponentHook', $subscription, $userCurrentActiveTasks);
+										do_action('subscriptionCardComponentHook', $subscription);
 										}
 								}								
 								} ?>

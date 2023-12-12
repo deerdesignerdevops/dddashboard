@@ -1,7 +1,7 @@
 <?php 
-function subscriptionCardComponent($subscription, $userCurrentActiveTasks){ 
+function subscriptionCardComponent($subscription){ 
     $siteUrl = site_url();
-    $activeTasksProductId = $siteUrl === 'http://localhost/deerdesignerdash' ? 3040 : 1389;
+    $activeTasksProductId = $siteUrl === 'http://localhost/deerdesignerdash' ? 3040 : 1600;
     $subscriptionStatus = $subscription->get_status();
 
     ?>
@@ -90,7 +90,7 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
 <?php } ?>
 
  
-<?php add_action('subscriptionCardComponentHook', 'subscriptionCardComponent', 10, 2); ?>
+<?php add_action('subscriptionCardComponentHook', 'subscriptionCardComponent'); ?>
 
 
 
