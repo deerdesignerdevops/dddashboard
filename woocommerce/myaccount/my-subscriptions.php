@@ -236,7 +236,7 @@ else{ ?>
 	</section>
 <?php } ?>
 
-<section class="user__invoices_section">
+<section class="user__invoices_section" style="margin-top: 40px;">
 	<h2 class="dd__billing_portal_section_title">Your Invoices</h2>
 	<div class="user__invoices_wrapper">
 		<?php foreach($currentUserOrders->orders as $order){ ?>
