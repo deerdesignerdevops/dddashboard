@@ -4,14 +4,6 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
     $activeTasksProductId = $siteUrl === 'http://localhost/deerdesignerdash' ? 3040 : 1389;
     $subscriptionStatus = $subscription->get_status();
 
-    $dates_to_display = apply_filters( 'wcs_subscription_details_table_dates_to_display', array(
-	'start_date'              => _x( 'Start date', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'last_order_date_created' => _x( 'Last payment', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'next_payment'            => _x( 'Next payment', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'end'                     => _x( 'End date', 'customer subscription table header', 'woocommerce-subscriptions' ),
-	'trial_end'               => _x( 'Trial end date', 'customer subscription table header', 'woocommerce-subscriptions' ),
-    ) );
-
     ?>
     <div class="dd__subscription_card <?php 
         foreach($subscription->get_items() as $subsItem){
@@ -57,12 +49,12 @@ function subscriptionCardComponent($subscription, $userCurrentActiveTasks){
                 <?php echo  str_replace('.00', '', $subscription->get_formatted_order_total()); ?>    
             </span>
 
-            <?php foreach ( $dates_to_display as $date_type => $date_title ) : ?>
-                <?php $date = $subscription->get_date( $date_type ); ?>
-                <?php if ( ! empty( $date ) ) : ?>
-                    <span class="dd__subscription_payment"><?php echo esc_html( $date_title ); ?>: <?php echo esc_html( $subscription->get_date_to_display( $date_type ) ); ?></span>							
-                <?php endif; ?>
-            <?php endforeach; ?>
+            <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
+            <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+            
+            <?php if($subscriptionStatus === "active"){ ?>
+                <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
+            <?php } ?>
         </div>
 
 
