@@ -305,11 +305,11 @@ document.addEventListener("DOMContentLoaded", function(){
 		document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
 		document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentLink
 		document.querySelector(".popup_buttons").style.display = "none"
+		document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple active tasks, they will be automatically canceled."
 		document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
 		document.querySelector(".form_subscription_update_message_field label").innerText = "Why are you pausing? Did we do anything wrong?"
 		document.querySelector(".form_subscription_update_message_field label").style.display = "block"
 		document.querySelector(".update_plan_form form button").innerText = "Pause Subscription"
-
 	}
 
 	subscriptionsActionsBtns.map((btn) => {
