@@ -306,7 +306,6 @@ document.addEventListener("DOMContentLoaded", function(){
 		document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentLink
 		document.querySelector(".popup_buttons").style.display = "none"
 		document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
-		document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
 		document.querySelector(".form_subscription_update_message_field label").innerText = "Why are you pausing? Did we do anything wrong?"
 		document.querySelector(".form_subscription_update_message_field label").style.display = "block"
 		document.querySelector(".update_plan_form form button").innerText = "Pause Subscription"
@@ -343,18 +342,12 @@ document.addEventListener("DOMContentLoaded", function(){
 			if(e.currentTarget.classList.contains("suspend")){
 				confirmBtn.href = currentUpdatePlanUrl;
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
-				document.querySelector(".form_subscription_update_message_field label").innerText = "Why are you pausing? Did we do anything wrong?"
-				document.querySelector(".update_plan_form").classList.add("show_form")
-				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
-				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentUpdatePlanUrl
-				document.querySelector(".popup_buttons").style.display = "none"
-				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
-				document.querySelector(".update_plan_form form button").innerText = "Pause Subscription"
-
+				document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple active tasks, they will be automatically canceled."
+				document.querySelector(".form_subscription_update_message_field label").style.display = "none"
+		
 				confirmBtn.addEventListener("click", function(e){
-					closePopup()
-					loadingSpinner.style.display = "flex"
+					e.preventDefault()
+					pauseFlow(currentPlan, currentSubscriptionId)
 				})
 				
 				document.querySelector(".cancel_btn").addEventListener("click", function(e){
