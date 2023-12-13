@@ -1,7 +1,7 @@
 <?php 
 function subscriptionCardComponent($subscription){ 
     $siteUrl = site_url();
-    $activeTasksProductId = $siteUrl === 'http://localhost/deerdesignerdash' ? 3040 : 1600;
+    $activeTasksProductId = 1389;
     $subscriptionStatus = $subscription->get_status();
 
     ?>
