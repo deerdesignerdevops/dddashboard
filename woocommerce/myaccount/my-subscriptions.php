@@ -17,7 +17,7 @@ require_once get_stylesheet_directory() . '/components/addons-carousel.php';
 
 
 $siteUrl = site_url();
-$elementorPopupID = $siteUrl === 'http://localhost/deerdesignerdash' ? 2776 : 1570;
+$elementorPopupID = 1570;
 
 //ARRAY OF SUBSCRIPTION NAMES
 $activeSubscriptionsGroup = [];
