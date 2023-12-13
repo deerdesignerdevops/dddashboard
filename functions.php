@@ -149,7 +149,7 @@ function createUserAfterStripePurchase($req){
 	
 	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
 
-	$customerUrl = "https://dash.deerdesigner.com/signup/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
+	$customerUrl = "https://dash.deerdesigner.com/sign-up/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
 
 	if(empty(get_user_by('email', $customerEmail))){
 		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
@@ -238,7 +238,7 @@ function checkIfCurrentUserIsOnboarded(){
 	if(!current_user_can('administrator')){
 		if(is_page(array('dash', 'dash-woo'))){
 			if(!$isUserOnboarded){
-				$url = home_url() . "/signup/onboarding";
+				$url = home_url() . "/sign-up/onboarding";
 				wp_redirect($url);
 				exit();
 			}
@@ -550,7 +550,7 @@ add_filter( 'wcs_view_subscription_actions', 'changeActionsButtonsLabel', 10, 2 
 function redirectUserAfterSubscriptionStatusUpdated(){
 	$url = site_url() . "/subscriptions";
 
-	if(is_user_logged_in() && is_wc_endpoint_url('view-subscription') ){
+	if(is_user_logged_in() && (is_wc_endpoint_url('view-subscription') || is_wc_endpoint_url('payment-methods')) ){
 		wp_safe_redirect($url);
 		exit;
 	}
@@ -733,7 +733,7 @@ add_filter( 'woocommerce_checkout_fields', 'removeCheckoutFields' );
 function redirectToOnboardingFormAfterCheckout( $orderId ) {
 	$user = wp_get_current_user();
 	$isUserOnboarded =  get_user_meta($user->id, 'is_user_onboarded', true);
-    $url = site_url() . '/signup/onboarding';
+    $url = site_url() . '/sign-up/onboarding';
 	$order = wc_get_order( $orderId );
 	
 	foreach( $order->get_items() as $item_id => $item ){
@@ -793,8 +793,9 @@ function limitProductQuantityToOne($cart_item_data, $product_id) {
 add_filter('woocommerce_add_to_cart_validation', 'limitProductQuantityToOne', 10, 2);
 
 
+
 function preventUserHaveMultiplePlansAtTheSameTime() {	
-	if(is_page(array( 'cart', 'signup' ))){
+	if(is_page(array( 'cart', 'sign-up' ))){
 		if(is_user_logged_in()){
 			$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 			$isCurrentUserHaveSubscriptionPlan = false;
@@ -919,7 +920,7 @@ function showBracketsAroundVariationName($name, $product) {
     if (str_contains($name, '-') !== false) {
         $modified_name_last = substr($name, strrpos($name, '-') + 1);
         $modified_name_first = substr($name, 0, strrpos($name, "-"));
-        $name = $modified_name_first . '( ' . $modified_name_last . ' )';
+        $name = $modified_name_first . '(' . $modified_name_last . ')';
     }
 
     return $name;

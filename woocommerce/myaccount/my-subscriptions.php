@@ -65,6 +65,19 @@ $allProductAddons = wc_get_products([
 $sortedSubscriptions = array_merge($activeSubscriptions, $inactiveSubscriptions);
 
 
+function defineAddDesignerLinkProductID($parentProducts){;
+	foreach($parentProducts as $parentProduct){
+		if(str_contains($parentProduct, 'Business') !== false){
+			return '1590';
+		}else if(str_contains($parentProduct, 'Agency') !== false){
+			return '1593';
+		}else{
+			return '1580';
+		}
+	}
+}
+
+
 $invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
 $invoicesLimit = 5;
 
@@ -229,7 +242,6 @@ else{ ?>
 		<?php foreach($currentUserOrders->orders as $order){ ?>
 			<div class="user__invoice_row">
 				<span>#<?php echo $order->id; ?> - Invoice from <?php echo wc_format_datetime($order->get_date_completed()); ?></span>
-				
 				<a target="_blank" href="<?php echo generateInvoicePdfUrl($order->id); ?>">Download Invoice</a>
 			</div>
 		<?php } ?>
@@ -297,7 +309,6 @@ document.addEventListener("DOMContentLoaded", function(){
 		document.querySelector(".form_subscription_update_message_field label").innerText = "Why are you pausing? Did we do anything wrong?"
 		document.querySelector(".form_subscription_update_message_field label").style.display = "block"
 		document.querySelector(".update_plan_form form button").innerText = "Pause Subscription"
-
 	}
 
 	subscriptionsActionsBtns.map((btn) => {

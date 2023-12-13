@@ -297,14 +297,6 @@ input.ff-read-only {
   font-weight: 400 !important;
   transition: none !important;
   border-radius: 0px !important;
-}
-
-.fluentform .ff-btn {
-  font-size: 16px !important;
-  line-height: 1.5em !important;
-  font-weight: 400 !important;
-  transition: none !important;
-  border-radius: 0px !important;
   padding: 10px 30px !important;
 }
 
@@ -1167,6 +1159,27 @@ input.ff-read-only {
 }
 
 /*PAGE - MY SUBSCRIPTIONS - FINISH*/
+
+.woocommerce-Button {
+  background-color: var(--e-global-color-f5169dc) !important;
+}
+
+#payment,
+.woocommerce-PaymentBox,
+.woocommerce-PaymentMethods {
+  background: none !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+#add_payment_method #payment div.payment_box {
+  padding: 0 !important;
+  border: none !important;
+}
+
+#add_payment_method #payment div.payment_box::before {
+  display: none;
+}
 
 /*MEDIA QUERIES*/
 @media (max-width: 768px) {
