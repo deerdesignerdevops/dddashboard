@@ -228,7 +228,6 @@ else{ ?>
 		<?php foreach($currentUserOrders->orders as $order){ ?>
 			<div class="user__invoice_row">
 				<span>#<?php echo $order->id; ?> - Invoice from <?php echo wc_format_datetime($order->get_date_completed()); ?></span>
-				
 				<a target="_blank" href="<?php echo generateInvoicePdfUrl($order->id); ?>">Download Invoice</a>
 			</div>
 		<?php } ?>

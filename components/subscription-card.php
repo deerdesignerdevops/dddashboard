@@ -15,10 +15,16 @@ function subscriptionCardComponent($subscription){
         ?>">
         <div class="dd__subscription_details">                        
                 <div class="dd__subscription_header">
-                    <?php if($subscriptionStatus === "pending-cancel"){ ?>
-                        <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus); ?> <br> </strong> Your Deer Designer team is still available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
+                        <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus);  ?>
+                        <br> </strong>
+                        <?php
+                        if($subscriptionStatus === 'pending-cancel'){ ?>
+                             Your Deer Designer team is still available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
+                        <?php } ?> 
+                        
+                        
+                        
 
-                    <?php }?>
                 </div>
 
             <?php 
