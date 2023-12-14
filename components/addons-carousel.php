@@ -1,14 +1,18 @@
 <?php 
-function addonsCarouselComponent($allProductAddons){ ?>
+function addonsCarouselComponent($allProductAddons){ 
+    $siteUrl = site_url();
+    ?>
     <div class="carousel__container">
-        <form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">								
+        <div class="addons__carousel_form">								
             <?php
                 foreach($allProductAddons[0] as $addon){?>		
                         <div class="addon__card">
                             <div class="subscriptions__addons_img">
                                 <?php echo get_the_post_thumbnail( $addon->id ); ?>
                                 
-                                <button type="submit" class="single_add_to_cart_button button alt" name="add-to-cart" value="<?php echo $addon->id; ?>"><?php echo $addon->name; ?></button>
+                                <div class="btn__wrapper">
+                                    <a href='<?php echo "$siteUrl/?buy-now=$addon->id&with-cart=0"; ?>' onclick="return confirm('Are you sure?')"  class="addos__button one__click_purchase"><?php echo $addon->name; ?></a>
+                                </div>
                             </div>
                             <div class="addon__card_info">
                                 <span class="addon__title"><?php echo $addon->name; ?></span><br>
@@ -21,7 +25,7 @@ function addonsCarouselComponent($allProductAddons){ ?>
                             </div>
                         </div>	
                 <?php } ?>
-        </form>
+            </div>
     </div>
 
 

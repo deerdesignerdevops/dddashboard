@@ -266,6 +266,14 @@ else{ ?>
 //IT CHANGES THE POPUP TEXT AND LINK BASED ON THE BUTTON CLICKED
 
 document.addEventListener("DOMContentLoaded", function(){
+	const addActiveTaskOrAddonBtn = Array.from(document.querySelectorAll('.one__click_purchase'))
+
+	addActiveTaskOrAddonBtn.map((btn) => {
+		btn.addEventListener('click', function(e){	
+			loadingSpinner.style.display = 'flex'
+		})
+	})
+
 	const subscriptionsActionsBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
 	const loadingSpinner = document.querySelector(".loading__spinner_wrapper");
 	function closePopup(){

@@ -682,13 +682,16 @@ input.ff-read-only {
   display: none !important;
 }
 
-.single_add_to_cart_button {
+.addos__button {
   border-radius: 50px !important;
   background-color: var(--e-global-color-f5169dc) !important;
   font-weight: 400 !important;
+  color: #f7f7f7 !important;
+  text-align: center;
+  padding: 10px !important;
 }
 
-.single_add_to_cart_button:hover {
+.addos__button:hover {
   background-color: var(--e-global-color-04b3e11) !important;
   color: var(--e-global-color-text) !important;
 }
