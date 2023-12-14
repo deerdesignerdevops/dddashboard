@@ -82,7 +82,7 @@ function subscriptionCardComponent($subscription){
                     <?php if ( ! empty( $actions ) ) { ?>
                         <div class="dd__subscriptions_buttons_wrapper">						
                             <?php foreach ( $actions as $key => $action ) : ?>															
-                                <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscriptionStatus; ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+                                <a href="<?php echo esc_url( $action['url'] ); ?>" data-product-cat="plan" data-request-type=<?php echo $action['name']; ?> data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>"  data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscriptionStatus; ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
                             <?php endforeach; ?>
                         </div>
                     <?php }; ?>

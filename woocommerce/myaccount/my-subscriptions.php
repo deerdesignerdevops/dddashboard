@@ -306,6 +306,20 @@ document.addEventListener("DOMContentLoaded", function(){
 			const currentUpdatePlanUrl = e.currentTarget.href
 			const enablePauseFlow = <?php echo sizeof($subscriptions); ?>;
 			
+			let currentTypeOfRequest = ""
+
+			if(e.currentTarget.dataset.productCat === 'active-task'){
+				currentTypeOfRequest = 'Downgrade Active Task';
+			}else{
+				if(e.currentTarget.dataset.requestType === 'Pause'){
+					currentTypeOfRequest = 'Pause plan motive'
+				}else if(e.currentTarget.dataset.requestType === 'Cancel'){
+					currentTypeOfRequest = 'Cancellation plan motive'
+				}else{
+					currentTypeOfRequest = 'Change plan request'
+				}
+			}
+			
 			const changePlanOptionsText = () => {
 				if(currentPlan.includes('Standard')){
 					return "Business Plan and Agency Plan"
@@ -318,6 +332,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			
 			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
 			let confirmBtn = document.querySelector(".confirm_btn a");
+			document.querySelector(".update_plan_form form").elements['form_subscription_request_type'].value = currentTypeOfRequest
 
 			document.querySelector(".update_plan_form form").elements["btn_keep"].addEventListener("click", function(e){
 				e.preventDefault()
@@ -332,7 +347,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		
 				confirmBtn.addEventListener("click", function(e){
 					e.preventDefault()
-					pauseFlow(currentPlan, currentSubscriptionId)
+					pauseFlow(currentPlan, currentSubscriptionId, currentTypeOfRequest)
 				})
 				
 				document.querySelector(".cancel_btn").addEventListener("click", function(e){
