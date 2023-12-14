@@ -550,8 +550,12 @@ add_filter( 'wcs_view_subscription_actions', 'changeActionsButtonsLabel', 10, 2 
 function redirectUserAfterSubscriptionStatusUpdated(){
 	$url = site_url() . "/subscriptions";
 
-	if(is_user_logged_in() && (is_wc_endpoint_url('view-subscription') || is_wc_endpoint_url('payment-methods')) ){
+	if(is_user_logged_in() && is_wc_endpoint_url('view-subscription')){
 		wp_safe_redirect($url);
+		exit;
+	}
+	else if(is_user_logged_in() && is_wc_endpoint_url('payment-methods')){
+		wp_safe_redirect(site_url() . '/edit-account');
 		exit;
 	}
 }
@@ -968,7 +972,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 		slackNotifications($slackMessageBody);
 	}
 }
-add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+//add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
 
 
 

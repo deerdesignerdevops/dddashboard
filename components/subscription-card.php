@@ -1,7 +1,7 @@
 <?php 
 function subscriptionCardComponent($subscription){ 
     $siteUrl = site_url();
-    $activeTasksProductId = 1389;
+    $activeTasksProductId = 1600;
     $subscriptionStatus = $subscription->get_status();
 
     ?>
@@ -21,10 +21,6 @@ function subscriptionCardComponent($subscription){
                         if($subscriptionStatus === 'pending-cancel'){ ?>
                              Your Deer Designer team is still available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
                         <?php } ?> 
-                        
-                        
-                        
-
                 </div>
 
             <?php 

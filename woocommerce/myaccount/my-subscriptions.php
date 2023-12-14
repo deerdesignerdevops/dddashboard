@@ -17,7 +17,7 @@ require_once get_stylesheet_directory() . '/components/addons-carousel.php';
 
 
 $siteUrl = site_url();
-$elementorPopupID = 1201;
+$elementorPopupID = 1570;
 
 //ARRAY OF SUBSCRIPTION NAMES
 $activeSubscriptionsGroup = [];
@@ -63,20 +63,6 @@ $allProductAddons = wc_get_products([
 
 
 $sortedSubscriptions = array_merge($activeSubscriptions, $inactiveSubscriptions);
-
-
-function defineAddDesignerLinkProductID($parentProducts){;
-	foreach($parentProducts as $parentProduct){
-		if(str_contains($parentProduct, 'Business') !== false){
-			return '1590';
-		}else if(str_contains($parentProduct, 'Agency') !== false){
-			return '1593';
-		}else{
-			return '1580';
-		}
-	}
-}
-
 
 $invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
 $invoicesLimit = 5;
