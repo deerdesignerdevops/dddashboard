@@ -7,7 +7,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
     $pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
 
-    $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? false : true;
+    $showReactivateButton = false; //time() > strtotime($pausedPlanBillingPeriodEndingDate) ? false : true;
     
     ?>
     <div class="dd__subscription_card <?php 
@@ -73,7 +73,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
 
             <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
-            <?php if(!$showReactivateButton){ ?>    
+            <?php if(!$showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
                 <div class="btn__wrapper">
                     <a href='<?php echo "$siteUrl/?buy-now=$currentProductId&qty=1&with-cart=0"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button">Reactivate</a>	
                 </div>

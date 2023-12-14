@@ -61,7 +61,10 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat){
             $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
             $actions['cancel']['name'] = __( $cancelBtnLabel, 'woocommerce-subscriptions' );
             unset($actions['suspend']);
-            //unset($actions['reactivate']);
+           
+            if($productCat == "add-on"){
+                unset($actions['reactivate']);
+            }
 
             if($subscriptionStatus == "pending-cancel"){
                 unset($actions['cancel']);

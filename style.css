@@ -678,6 +678,9 @@ input.ff-read-only {
 }
 
 /*LOADING SPINNER FINISH*/
+.cfw-sc-modal {
+  display: none !important;
+}
 
 .single_add_to_cart_button {
   border-radius: 50px !important;
