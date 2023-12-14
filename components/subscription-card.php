@@ -4,7 +4,7 @@ function subscriptionCardComponent($subscription){
     $activeTasksProductId = 1600;
     $subscriptionStatus = $subscription->get_status();
     $currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
-    $currentDate->add(new DateInterval('P1M'));
+    $currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
     $pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
     ?>
     <div class="dd__subscription_card <?php 
