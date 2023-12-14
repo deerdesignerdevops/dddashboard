@@ -11,7 +11,7 @@ function addonsCarouselComponent($allProductAddons){
                                 <?php echo get_the_post_thumbnail( $addon->id ); ?>
                                 
                                 <div class="btn__wrapper">
-                                    <a href='<?php echo "$siteUrl/?buy-now=$addon->id&with-cart=0"; ?>' onclick="return confirm('Are you sure?')"  class="addos__button one__click_purchase"><?php echo $addon->name; ?></a>
+                                    <a href='<?php echo "$siteUrl/?buy-now=$addon->id&with-cart=0"; ?>'  class="addos__button one__click_purchase"><?php echo $addon->name; ?></a>
                                 </div>
                             </div>
                             <div class="addon__card_info">
@@ -20,8 +20,6 @@ function addonsCarouselComponent($allProductAddons){
                                 <div class="addon__description">
                                     <?php echo $addon->description; ?>
                                 </div>
-              
-
                             </div>
                         </div>	
                 <?php } ?>

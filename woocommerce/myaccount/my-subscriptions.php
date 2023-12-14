@@ -266,23 +266,41 @@ else{ ?>
 //IT CHANGES THE POPUP TEXT AND LINK BASED ON THE BUTTON CLICKED
 
 document.addEventListener("DOMContentLoaded", function(){
-	const addActiveTaskOrAddonBtn = Array.from(document.querySelectorAll('.one__click_purchase'))
 
-	addActiveTaskOrAddonBtn.map((btn) => {
-		btn.addEventListener('click', function(e){	
-			loadingSpinner.style.display = 'flex'
-		})
-	})
-
-	const subscriptionsActionsBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
-	const loadingSpinner = document.querySelector(".loading__spinner_wrapper");
 	function closePopup(){
 		const elementorPopups = Array.from(document.querySelectorAll(".elementor-popup-modal"))
 		elementorPopups.map((popup) => {
 			popup.style.display = "none"
 		})
 	}
-	
+
+	const addActiveTaskOrAddonBtn = Array.from(document.querySelectorAll('.one__click_purchase'))
+
+	addActiveTaskOrAddonBtn.map((btn) => {
+		btn.addEventListener('click', function(e){
+			e.preventDefault()
+			const addProductToCartLink = e.currentTarget.href
+			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
+			document.querySelector("#pause_popup .popup_msg h3").innerHTML = "ARE YOU SURE YOU WANT TO <br><span> ADD THIS ITEM TO YOUR ACCOUNT?</span>";
+			document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
+			document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
+			document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
+
+			document.querySelector(".confirm_btn a").addEventListener('click', function(){
+				location.href = addProductToCartLink
+				loadingSpinner.style.display = 'flex'
+				closePopup()
+			})
+			
+			document.querySelector(".cancel_btn a").addEventListener('click', function(){
+				closePopup()
+			})
+		})
+	})
+
+	const subscriptionsActionsBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
+	const loadingSpinner = document.querySelector(".loading__spinner_wrapper");
+
 	let popupMsgNewText = ""
 
 	function cancelFlow(currentPlan, currentLink, currentSubscriptionId){

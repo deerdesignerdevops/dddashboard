@@ -569,10 +569,21 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 		$orderData = $order->get_data();
 		$orderItems = $order->get_items();
 		$orderItemsGroup = [];
+		$productType = "";
+		$notificationFinalMsg = "";
 
 		foreach( $orderItems as $item_id => $item ){
 			$itemName = $item->get_name();
-			array_push($orderItemsGroup, $itemName);
+			$orderItemsGroup[] = $itemName;
+
+			if(has_term('active-task', 'product_cat', $item->get_product_id())){
+				$productType = 'Product';
+			}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
+				$productType = 'Add on';
+			}else{
+				$productType = 'Plan';
+				$notificationFinalMsg = 'Let\'s wait for the onboarding rocket :muscle::skin-tone-2:';
+			}
 		}
 
 		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
@@ -580,8 +591,8 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 		$slackMessageBody = [
 			'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
 	*Client:* ' . $customerName . ' ' . $customerEmail . '
-	*Plan:* ' . implode(" | ", $orderItemsGroup) . '
-	Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
+	*' . $productType . ':* ' . implode(" | ", $orderItemsGroup) . '
+	' . $notificationFinalMsg . '',
 			'username' => 'Marcus',
 		];
 
