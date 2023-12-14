@@ -3,7 +3,9 @@ function subscriptionCardComponent($subscription){
     $siteUrl = site_url();
     $activeTasksProductId = 1600;
     $subscriptionStatus = $subscription->get_status();
-
+    $currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+    $currentDate->add(new DateInterval('P1M'));
+    $pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
     ?>
     <div class="dd__subscription_card <?php 
         foreach($subscription->get_items() as $subsItem){
@@ -19,10 +21,9 @@ function subscriptionCardComponent($subscription){
                         <br> </strong>
                         <?php
                         if($subscriptionStatus !== 'active'){ ?>
-                             Your Deer Designer team is still available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
+                             Your Deer Designer team is still available until <?php echo $pausedPlanBillingPeriodEndingDate; ?></span>
                         <?php } ?> 
                 </div>
-
             <?php 
             $currentSubscriptionPlan = "";
             
