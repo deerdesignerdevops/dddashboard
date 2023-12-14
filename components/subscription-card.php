@@ -18,7 +18,7 @@ function subscriptionCardComponent($subscription){
                         <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus);  ?>
                         <br> </strong>
                         <?php
-                        if($subscriptionStatus === 'pending-cancel'){ ?>
+                        if($subscriptionStatus !== 'active'){ ?>
                              Your Deer Designer team is still available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
                         <?php } ?> 
                 </div>

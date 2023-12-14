@@ -651,7 +651,7 @@ function checkIfUserIsActive(){
                 $product_id = $product->get_product_id();
 				$terms = get_the_terms( $product_id, 'product_cat' );
 				$productCategory = $terms[0]->slug;
-				array_push($productsCategories, $productCategory);
+				$productsCategories[] = $productCategory;
             }
 
 		}
@@ -922,9 +922,9 @@ add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToS
 
 function showBracketsAroundVariationName($name, $product) {
     if (str_contains($name, '-') !== false) {
-        $modified_name_last = substr($name, strrpos($name, '-') + 1);
-        $modified_name_first = substr($name, 0, strrpos($name, "-"));
-        $name = $modified_name_first . '(' . $modified_name_last . ')';
+        $modifiedNameLast = substr($name, strrpos($name, '-') + 1);
+        $modifiedNameFirst = substr($name, 0, strrpos($name, '-'));
+        $name = $modifiedNameFirst . '(' . trim($modifiedNameLast) . ')';
     }
 
     return $name;
@@ -972,7 +972,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 		slackNotifications($slackMessageBody);
 	}
 }
-//add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
 
 
 
