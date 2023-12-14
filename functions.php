@@ -41,13 +41,13 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
-function removeScriptVersionNumberFromQuery($src)
-{
-    $parts = explode('?ver', $src);
-    return $parts[0];
-}
-add_filter('script_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
-add_filter('style_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
+// function removeScriptVersionNumberFromQuery($src)
+// {
+//     $parts = explode('?ver', $src);
+//     return $parts[0];
+// }
+// add_filter('script_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
+// add_filter('style_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
 
 
 //STRIPE API
