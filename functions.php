@@ -633,7 +633,7 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		slackNotifications($slackMessageBody);
 	}
 }
-//add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
+add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
 
 
 
