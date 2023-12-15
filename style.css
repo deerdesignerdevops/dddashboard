@@ -523,16 +523,18 @@ input.ff-read-only {
 }
 
 .deer__custom_checkout_form label {
-  margin: 5px 0 !important;
+  margin: 10px 0 !important;
   color: #aaa;
   font-weight: 500;
   font-size: 0.8rem;
 }
 
 .woocommerce p {
-  color: #aaa;
+  color: var(--e-global-color-text);
   font-weight: 500;
   font-size: 0.8rem;
+  line-height: 1rem;
+  margin: 10px 0;
 }
 
 .deer__custom_checkout_form h3 {

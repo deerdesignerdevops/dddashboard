@@ -750,14 +750,27 @@ function redirectToOnboardingFormAfterCheckout( $orderId ) {
 	$isUserOnboarded =  get_user_meta($user->id, 'is_user_onboarded', true);
     $url = site_url() . '/sign-up/onboarding';
 	$order = wc_get_order( $orderId );
+	$confirmationAlertMsg = "";
 	
 	foreach( $order->get_items() as $item_id => $item ){
-		$orderItems[] = $item->get_name();
+		$itemName = $item->get_name();
+		$itemPrice = $item['total'];
+		$orderItems[] = $itemName;
+
+		if(str_contains(strtolower($itemName), 'task')){
+			$confirmationAlertMsg .= "For this $itemName, starting today, we will charge <strong>$$itemPrice</strong> per month to the card on your account.";
+		}else if(str_contains(strtolower($itemName), 'call')){
+			$confirmationAlertMsg .= "We will charge <strong> $$itemPrice </strong> to the card on your account.";
+		}else if(str_contains(strtolower($itemName), 'director') || str_contains(strtolower($itemName), 'assets')){
+			$confirmationAlertMsg .= "For the $itemName, starting today, we will charge <strong>$$itemPrice</strong> per month to the card on your account.";
+		}else{
+			$confirmationAlertMsg = "";
+		}
 	}
 
 	$productNames = implode(" | ", array_unique($orderItems));
 
-	wc_add_notice("Your $productNames was added to your account!", 'success');
+	wc_add_notice("Your $productNames was added to your account! <p>$confirmationAlertMsg</p>", 'success');
 
 	if($isUserOnboarded || current_user_can('administrator')){
 		$url = site_url() . "/subscriptions";
