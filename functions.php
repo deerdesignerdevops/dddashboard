@@ -500,7 +500,7 @@ function checkIfGroupCanBookCreativeCall(){
 		}
 
 		if(in_array('Creative Director', $userCurrentProducts)){
-			echo "<style>.book_call_btn{display: flex !important;}</style>";
+			echo "<style>.group_book_call_btn{display: flex !important;}</style>";
 			echo "<script>
 			document.addEventListener('DOMContentLoaded', function(){
 				const creativeCallsNumber = document.querySelector('.creative_calls_number span')
@@ -509,7 +509,7 @@ function checkIfGroupCanBookCreativeCall(){
 			</script>";
 
 		}else if($groupCreativeCallsLeft){
-			echo "<style>.book_call_btn{display: flex !important;}</style>";
+			echo "<style>.group_book_call_btn{display: flex !important;}</style>";
 			echo "<script>
 			document.addEventListener('DOMContentLoaded', function(){
 				const creativeCallsNumber = document.querySelector('.creative_calls_number span')
@@ -518,12 +518,12 @@ function checkIfGroupCanBookCreativeCall(){
 			</script>";
 		}
 		else{
-			echo "<style>.book_call_btn{display: none !important;}</style>";
+			echo "<style>.group_book_call_btn{display: none !important;}</style>";
 		}
 	}
 
 }
-//add_action('template_redirect', 'checkIfGroupCanBookCreativeCall');
+add_action('template_redirect', 'checkIfGroupCanBookCreativeCall');
 
 
 
