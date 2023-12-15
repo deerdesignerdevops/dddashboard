@@ -958,24 +958,26 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
-	if($old_status !== 'pending'){
+	if($old_status !== 'pending' && $new_status !== 'cancelled'){
 		$subscriptionItems = $subscription->get_items();
 		$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
 		$customerEmail = $subscription->data['billing']['email'];
 		$subscriptionItemsGroup = [];
-
-		$newStatusLabel = "";
 		
 		switch ($new_status){
 			case 'on-hold':
 				$newStatusLabel = 'paused';
+				$messageTitle = 'Subscription Paused :double_vertical_bar:';
 				break;
+
 			case 'pending-cancel':
 				$newStatusLabel = 'pending-cancellation';
+				$messageTitle = 'Subscription Cancelled :alert:';
 				break;
 
 			default:
 				$newStatusLabel = $new_status;
+				$messageTitle = 'Subscription Reactivated :white_check_mark:';
 		}
 
 
@@ -985,7 +987,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 
 		$slackMessageBody = [
-				'text'  => '<!channel> Subscription Updated :alert:
+				'text'  => '<!channel> ' . $messageTitle . '
 		*Client:* ' . $customerName . ' | ' . $customerEmail . '
 		*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)) . '
 		:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",
