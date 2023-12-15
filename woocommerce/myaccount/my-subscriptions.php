@@ -342,11 +342,11 @@ document.addEventListener("DOMContentLoaded", function(){
 				currentTypeOfRequest = 'Downgrade Active Task';
 			}else{
 				if(e.currentTarget.dataset.requestType === 'Pause'){
-					currentTypeOfRequest = 'Pause plan motive'
+					currentTypeOfRequest = 'Pause Request'
 				}else if(e.currentTarget.dataset.requestType === 'Cancel'){
-					currentTypeOfRequest = 'Cancellation plan motive'
+					currentTypeOfRequest = 'Cancellation Request'
 				}else{
-					currentTypeOfRequest = 'Change plan request'
+					currentTypeOfRequest = 'Change Plan Request'
 				}
 			}
 			
