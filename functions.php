@@ -23,17 +23,17 @@ function hello_elementor_child_scripts_styles() {
 
 	// Dynamically get version number of the parent stylesheet (lets browsers re-cache your stylesheet when you update your theme)
 	$theme   = wp_get_theme( 'HelloElementorChild' );
-	$version = $theme->get( 'Version' );
+	$version = rand(0, 999);
 
 	// CSS
-	wp_enqueue_style( 'dd-custom-style', get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
-	wp_enqueue_style( 'slick', get_stylesheet_directory_uri() . '/libs/slick/css/slick.css', $version );
-	wp_enqueue_style( 'slick-theme', get_stylesheet_directory_uri() . '/libs/slick/css/slick-theme.css', $version );
+	wp_enqueue_style( "dd-custom-style-$version", get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
+	wp_enqueue_style( "slick-$version", get_stylesheet_directory_uri() . '/libs/slick/css/slick.css', $version );
+	wp_enqueue_style( "slick-theme-$version", get_stylesheet_directory_uri() . '/libs/slick/css/slick-theme.css', $version );
 
 	//JS
-	wp_enqueue_script('custom-jquery', get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
-	wp_enqueue_script('slick', get_stylesheet_directory_uri() . '/libs/slick/js/slick.min.js', $version);
-	wp_enqueue_script('dd-custom-scripts', get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
+	wp_enqueue_script("custom-jquery-$version", get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
+	wp_enqueue_script("slick-$version", get_stylesheet_directory_uri() . '/libs/slick/js/slick.min.js', $version);
+	wp_enqueue_script("dd-custom-scripts-$version", get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
 
 }
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
@@ -41,13 +41,13 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
-function removeScriptVersionNumberFromQuery($src)
-{
-    $parts = explode('?ver', $src);
-    return $parts[0];
-}
-add_filter('script_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
-add_filter('style_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
+// function removeScriptVersionNumberFromQuery($src)
+// {
+//     $parts = explode('?ver', $src);
+//     return $parts[0];
+// }
+// add_filter('script_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
+// add_filter('style_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
 
 
 //STRIPE API
@@ -500,7 +500,7 @@ function checkIfGroupCanBookCreativeCall(){
 		}
 
 		if(in_array('Creative Director', $userCurrentProducts)){
-			echo "<style>.book_call_btn{display: flex !important;}</style>";
+			echo "<style>.group_book_call_btn{display: flex !important;}</style>";
 			echo "<script>
 			document.addEventListener('DOMContentLoaded', function(){
 				const creativeCallsNumber = document.querySelector('.creative_calls_number span')
@@ -509,7 +509,7 @@ function checkIfGroupCanBookCreativeCall(){
 			</script>";
 
 		}else if($groupCreativeCallsLeft){
-			echo "<style>.book_call_btn{display: flex !important;}</style>";
+			echo "<style>.group_book_call_btn{display: flex !important;}</style>";
 			echo "<script>
 			document.addEventListener('DOMContentLoaded', function(){
 				const creativeCallsNumber = document.querySelector('.creative_calls_number span')
@@ -518,12 +518,12 @@ function checkIfGroupCanBookCreativeCall(){
 			</script>";
 		}
 		else{
-			echo "<style>.book_call_btn{display: none !important;}</style>";
+			echo "<style>.group_book_call_btn{display: none !important;}</style>";
 		}
 	}
 
 }
-//add_action('template_redirect', 'checkIfGroupCanBookCreativeCall');
+add_action('template_redirect', 'checkIfGroupCanBookCreativeCall');
 
 
 
@@ -550,8 +550,12 @@ add_filter( 'wcs_view_subscription_actions', 'changeActionsButtonsLabel', 10, 2 
 function redirectUserAfterSubscriptionStatusUpdated(){
 	$url = site_url() . "/subscriptions";
 
-	if(is_user_logged_in() && (is_wc_endpoint_url('view-subscription') || is_wc_endpoint_url('payment-methods')) ){
+	if(is_user_logged_in() && is_wc_endpoint_url('view-subscription')){
 		wp_safe_redirect($url);
+		exit;
+	}
+	else if(is_user_logged_in() && is_wc_endpoint_url('payment-methods')){
+		wp_safe_redirect(site_url() . '/edit-account');
 		exit;
 	}
 }
@@ -565,10 +569,21 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 		$orderData = $order->get_data();
 		$orderItems = $order->get_items();
 		$orderItemsGroup = [];
+		$productType = "";
+		$notificationFinalMsg = "";
 
 		foreach( $orderItems as $item_id => $item ){
 			$itemName = $item->get_name();
-			array_push($orderItemsGroup, $itemName);
+			$orderItemsGroup[] = $itemName;
+
+			if(has_term('active-task', 'product_cat', $item->get_product_id())){
+				$productType = 'Product';
+			}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
+				$productType = 'Add on';
+			}else{
+				$productType = 'Plan';
+				$notificationFinalMsg = 'Let\'s wait for the onboarding rocket :muscle::skin-tone-2:';
+			}
 		}
 
 		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
@@ -576,8 +591,8 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 		$slackMessageBody = [
 			'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
 	*Client:* ' . $customerName . ' ' . $customerEmail . '
-	*Plan:* ' . implode(" | ", $orderItemsGroup) . '
-	Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
+	*' . $productType . ':* ' . implode(" | ", $orderItemsGroup) . '
+	' . $notificationFinalMsg . '',
 			'username' => 'Marcus',
 		];
 
@@ -629,7 +644,7 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		slackNotifications($slackMessageBody);
 	}
 }
-//add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
+add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
 
 
 
@@ -647,7 +662,7 @@ function checkIfUserIsActive(){
                 $product_id = $product->get_product_id();
 				$terms = get_the_terms( $product_id, 'product_cat' );
 				$productCategory = $terms[0]->slug;
-				array_push($productsCategories, $productCategory);
+				$productsCategories[] = $productCategory;
             }
 
 		}
@@ -735,14 +750,27 @@ function redirectToOnboardingFormAfterCheckout( $orderId ) {
 	$isUserOnboarded =  get_user_meta($user->id, 'is_user_onboarded', true);
     $url = site_url() . '/sign-up/onboarding';
 	$order = wc_get_order( $orderId );
+	$confirmationAlertMsg = "";
 	
 	foreach( $order->get_items() as $item_id => $item ){
-		$orderItems[] = $item->get_name();
+		$itemName = $item->get_name();
+		$itemPrice = $item['total'];
+		$orderItems[] = $itemName;
+
+		if(str_contains(strtolower($itemName), 'task')){
+			$confirmationAlertMsg .= "For this $itemName, starting today, we will charge <strong>$$itemPrice</strong> per month to the card on your account.";
+		}else if(str_contains(strtolower($itemName), 'call')){
+			$confirmationAlertMsg .= "We will charge <strong> $$itemPrice </strong> to the card on your account.";
+		}else if(str_contains(strtolower($itemName), 'director') || str_contains(strtolower($itemName), 'assets')){
+			$confirmationAlertMsg .= "For the $itemName, starting today, we will charge <strong>$$itemPrice</strong> per month to the card on your account.";
+		}else{
+			$confirmationAlertMsg = "";
+		}
 	}
 
 	$productNames = implode(" | ", array_unique($orderItems));
 
-	wc_add_notice("Your $productNames was added to your account!", 'success');
+	wc_add_notice("Your $productNames was added to your account! <p>$confirmationAlertMsg</p>", 'success');
 
 	if($isUserOnboarded || current_user_can('administrator')){
 		$url = site_url() . "/subscriptions";
@@ -918,9 +946,9 @@ add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToS
 
 function showBracketsAroundVariationName($name, $product) {
     if (str_contains($name, '-') !== false) {
-        $modified_name_last = substr($name, strrpos($name, '-') + 1);
-        $modified_name_first = substr($name, 0, strrpos($name, "-"));
-        $name = $modified_name_first . '(' . $modified_name_last . ')';
+        $modifiedNameLast = substr($name, strrpos($name, '-') + 1);
+        $modifiedNameFirst = substr($name, 0, strrpos($name, '-'));
+        $name = $modifiedNameFirst . '(' . trim($modifiedNameLast) . ')';
     }
 
     return $name;
@@ -930,24 +958,26 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
-	if($old_status !== 'pending'){
+	if($old_status !== 'pending' && $new_status !== 'cancelled'){
 		$subscriptionItems = $subscription->get_items();
 		$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
 		$customerEmail = $subscription->data['billing']['email'];
 		$subscriptionItemsGroup = [];
-
-		$newStatusLabel = "";
 		
 		switch ($new_status){
 			case 'on-hold':
 				$newStatusLabel = 'paused';
+				$messageTitle = 'Subscription Paused :double_vertical_bar:';
 				break;
+
 			case 'pending-cancel':
 				$newStatusLabel = 'pending-cancellation';
+				$messageTitle = 'Subscription Cancelled :alert:';
 				break;
 
 			default:
 				$newStatusLabel = $new_status;
+				$messageTitle = 'Subscription Reactivated :white_check_mark:';
 		}
 
 
@@ -957,7 +987,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 
 		$slackMessageBody = [
-				'text'  => '<!channel> Subscription Updated :alert:
+				'text'  => '<!channel> ' . $messageTitle . '
 		*Client:* ' . $customerName . ' | ' . $customerEmail . '
 		*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)) . '
 		:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",

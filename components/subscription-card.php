@@ -1,9 +1,14 @@
 <?php 
-function subscriptionCardComponent($subscription){ 
+function subscriptionCardComponent($subscription, $currentProductId){ 
     $siteUrl = site_url();
     $activeTasksProductId = 1600;
     $subscriptionStatus = $subscription->get_status();
+    $currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+    $currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
+    $pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
 
+    $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? false : true;
+    
     ?>
     <div class="dd__subscription_card <?php 
         foreach($subscription->get_items() as $subsItem){
@@ -18,15 +23,10 @@ function subscriptionCardComponent($subscription){
                         <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus);  ?>
                         <br> </strong>
                         <?php
-                        if($subscriptionStatus === 'pending-cancel'){ ?>
-                             Your Deer Designer team is still available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
+                        if($subscriptionStatus !== 'active'){ ?>
+                             Your Deer Designer team is still available until <?php echo $pausedPlanBillingPeriodEndingDate; ?></span>
                         <?php } ?> 
-                        
-                        
-                        
-
                 </div>
-
             <?php 
             $currentSubscriptionPlan = "";
             
@@ -67,18 +67,28 @@ function subscriptionCardComponent($subscription){
         <div>
             <?php if($subscriptionStatus === 'active'){ ?>
                 <div class="btn__wrapper">
-                    <a href="<?php echo $siteUrl; ?>/?add-to-cart=<?php echo $activeTasksProductId; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks">Add Active Task</a>
+                    <a href='<?php echo "$siteUrl/?buy-now=$activeTasksProductId&with-cart=0"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks one__click_purchase">Add Active Task</a>
                 </div>
             <?php } ?>
+
+
+            <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
+            <?php if(!$showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
+                <div class="btn__wrapper">
+                    <a href='<?php echo "$siteUrl/?buy-now=$currentProductId&qty=1&with-cart=0"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button">Reactivate</a>	
+                </div>
+            <?php } ?>
+            <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
 
             <div class="dd__subscription_actions_form">
                 <?php if($subscriptionStatus === "active"){ ?>
                     <a href="<?php echo $siteUrl; ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
                 <?php } ?>
 
+                <!--SUBSCRIPTION ACTIONS-->
                 <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
 
-                if($subscriptionStatus === 'pending-cancel'){
+                if($subscriptionStatus === 'pending-cancel' || !$showReactivateButton){
                     unset($actions['reactivate']);
                 }
                 
@@ -86,7 +96,7 @@ function subscriptionCardComponent($subscription){
                     <?php if ( ! empty( $actions ) ) { ?>
                         <div class="dd__subscriptions_buttons_wrapper">						
                             <?php foreach ( $actions as $key => $action ) : ?>															
-                                <a href="<?php echo esc_url( $action['url'] ); ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscriptionStatus; ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
+                                <a href="<?php echo esc_url( $action['url'] ); ?>" data-product-cat="plan" data-request-type=<?php echo $action['name']; ?> data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>"  data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscriptionStatus; ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?></a>
                             <?php endforeach; ?>
                         </div>
                     <?php }; ?>
@@ -96,7 +106,7 @@ function subscriptionCardComponent($subscription){
 <?php } ?>
 
  
-<?php add_action('subscriptionCardComponentHook', 'subscriptionCardComponent'); ?>
+<?php add_action('subscriptionCardComponentHook', 'subscriptionCardComponent', 10, 2); ?>
 
 
 

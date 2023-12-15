@@ -20,16 +20,18 @@ $siteUrl = site_url();
 $elementorPopupID = 1570;
 
 //ARRAY OF SUBSCRIPTION NAMES
-$activeSubscriptionsGroup = [];
+$otherSubscriptionsGroup = [];
 $allSubscriptionsGroup = [];
 
 //CREATE NEW SUBSCRIPTIONS ARRAY TO SHOW THE ACTIVES FIRST IN THE LIST
-$activeSubscriptions = [];
-$inactiveSubscriptions = [];
+$otherSubscriptions = [];
+$inotherSubscriptions = [];
 $userCurrentPlans = [];
 $userCurrentAddons = [];
 $userCurrentActiveTasks = [];
+$activePlanSubscriptions = [];
 
+//CREATE NEW SUBSCRIPTIONS ARRAY TO SHOW THE ACTIVES FIRST IN THE LIST;
 foreach($subscriptions as $sub){
 	$status = $sub->get_status();
 	$subItems = $sub->get_items();
@@ -48,11 +50,14 @@ foreach($subscriptions as $sub){
 		}
 	}
 
-	if($status === "active"){
-		$activeSubscriptions[] = $sub;
-	}else if($status !== "active" && $status !== "cancelled"){
-		$inactiveSubscriptions[] = $sub;
+	foreach($subItems as $item){
+		if(has_term('plan', 'product_cat', $item['product_id'])){
+			$activePlanSubscriptions[] = $sub;
+		}else{
+			$otherSubscriptions[] = $sub;
+		}
 	}
+	
 }
 
 
@@ -62,7 +67,8 @@ $allProductAddons = wc_get_products([
 ]);
 
 
-$sortedSubscriptions = array_merge($activeSubscriptions, $inactiveSubscriptions);
+$sortedSubscriptions = array_merge($activePlanSubscriptions, $otherSubscriptions);
+
 
 $invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
 $invoicesLimit = 5;
@@ -115,17 +121,15 @@ if(isset($_GET['change-plan'])){
 			<?php if(!empty($userCurrentPlans)){ ?>
 				<div class="woocommerce_account_subscriptions">	
 					<div class="dd__subscription_container">
-						<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
-							<?php if($subscription->get_status() !== "cancelled"){ 
-								foreach($subscription->get_items() as $subItem){
-									$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
-						
-									if($terms[0]->slug === 'plan'){ 
-										do_action('subscriptionCardComponentHook', $subscription);
-										}
-								}								
-								} ?>
-						<?php endforeach; ?>
+						<?php if($activePlanSubscriptions[0]->get_status() !== "cancelled"){ 
+							foreach($activePlanSubscriptions[0]->get_items() as $subItem){
+								$terms = get_the_terms( $subItem['product_id'], 'product_cat' );	
+
+								if($terms[0]->slug === 'plan'){ 
+									do_action('subscriptionCardComponentHook', $activePlanSubscriptions[0], $subItem['variation_id']);
+								}
+							}								
+							} ?>
 					</div>
 			</div>
 			<?php }else{ ?>
@@ -262,15 +266,41 @@ else{ ?>
 //IT CHANGES THE POPUP TEXT AND LINK BASED ON THE BUTTON CLICKED
 
 document.addEventListener("DOMContentLoaded", function(){
-	const subscriptionsActionsBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
-	const loadingSpinner = document.querySelector(".loading__spinner_wrapper");
+
 	function closePopup(){
 		const elementorPopups = Array.from(document.querySelectorAll(".elementor-popup-modal"))
 		elementorPopups.map((popup) => {
 			popup.style.display = "none"
 		})
 	}
-	
+
+	const addActiveTaskOrAddonBtn = Array.from(document.querySelectorAll('.one__click_purchase'))
+
+	addActiveTaskOrAddonBtn.map((btn) => {
+		btn.addEventListener('click', function(e){
+			e.preventDefault()
+			const addProductToCartLink = e.currentTarget.href
+			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
+			document.querySelector("#pause_popup .popup_msg h3").innerHTML = "ARE YOU SURE YOU WANT TO <br><span> ADD THIS ITEM TO YOUR ACCOUNT?</span>";
+			document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
+			document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
+			document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
+
+			document.querySelector(".confirm_btn a").addEventListener('click', function(){
+				location.href = addProductToCartLink
+				loadingSpinner.style.display = 'flex'
+				closePopup()
+			})
+			
+			document.querySelector(".cancel_btn a").addEventListener('click', function(){
+				closePopup()
+			})
+		})
+	})
+
+	const subscriptionsActionsBtns = Array.from(document.querySelectorAll(".dd__subscription_actions_form a"));
+	const loadingSpinner = document.querySelector(".loading__spinner_wrapper");
+
 	let popupMsgNewText = ""
 
 	function cancelFlow(currentPlan, currentLink, currentSubscriptionId){
@@ -306,6 +336,20 @@ document.addEventListener("DOMContentLoaded", function(){
 			const currentUpdatePlanUrl = e.currentTarget.href
 			const enablePauseFlow = <?php echo sizeof($subscriptions); ?>;
 			
+			let currentTypeOfRequest = ""
+
+			if(e.currentTarget.dataset.productCat === 'active-task'){
+				currentTypeOfRequest = 'Downgrade Active Task';
+			}else{
+				if(e.currentTarget.dataset.requestType === 'Pause'){
+					currentTypeOfRequest = 'Pause Request'
+				}else if(e.currentTarget.dataset.requestType === 'Cancel'){
+					currentTypeOfRequest = 'Cancellation Request'
+				}else{
+					currentTypeOfRequest = 'Change Plan Request'
+				}
+			}
+			
 			const changePlanOptionsText = () => {
 				if(currentPlan.includes('Standard')){
 					return "Business Plan and Agency Plan"
@@ -318,6 +362,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			
 			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
 			let confirmBtn = document.querySelector(".confirm_btn a");
+			document.querySelector(".update_plan_form form").elements['form_subscription_request_type'].value = currentTypeOfRequest
 
 			document.querySelector(".update_plan_form form").elements["btn_keep"].addEventListener("click", function(e){
 				e.preventDefault()
@@ -332,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		
 				confirmBtn.addEventListener("click", function(e){
 					e.preventDefault()
-					pauseFlow(currentPlan, currentSubscriptionId)
+					pauseFlow(currentPlan, currentSubscriptionId, currentTypeOfRequest)
 				})
 				
 				document.querySelector(".cancel_btn").addEventListener("click", function(e){
