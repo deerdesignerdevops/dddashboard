@@ -145,13 +145,17 @@ function sendEmailToUserWhenPausedPlan($subscription){
 	$userFirstName = $user->first_name;
 	$userLastName = $user->last_name;
 	$userEmail = $user->user_email;
+    $currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+    $currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
+	$billingCycle = $currentDate->format('F j, Y');
+	$firstSentence = time() == strtotime($currentDate->format('F j, Y')) ? "Your account has now been put on Pause." : "Your account has been put on Pause";
+	$tomorrowDate = date('F j, Y', strtotime('+1 days'));	
+	$subject = "Your account is set to Pause";
 
-	$subject = "Your account is set to 'Pause'";
-
-	$message = "
+	$messageA = "
 <h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userFirstName $userLastName</h2>
 
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your account has been put on Pause. Your team will still be available to work with you until the end of your current billing cycle (Day Month, Year).</p>
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>$firstSentence. Your team will still be available to work with you until the end of your current billing cycle ($billingCycle).</p>
 
 <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>To reactivate the account, just click on 'Reactivate' next to your plan and we will take care of it for you.</p>
 
@@ -161,7 +165,25 @@ function sendEmailToUserWhenPausedPlan($subscription){
 The Deer Designer Team.</p>
 ";
 
-	$body = emailTemplate($message);
+	$messageB = "
+<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userFirstName $userLastName</h2>
+
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Just a reminder that your Deer Designer account is scheduled to be paused tomorrow: $tomorrowDate.</p>
+
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If things changed and you'd like to keep your account active, just go to the Billing Portal and click on “Reactivate” next to your plan.</p>
+
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>I hope to see you again soon!.</p>
+
+<p>Thanks,<br>
+The Deer Designer Team.</p>
+";
+
+	if(strtotime($currentDate->format('F j, Y')) == $tomorrowDate){
+		$body = emailTemplate($messageB);
+	}else{
+		$body = emailTemplate($messageA);
+	}
+
 	wp_mail($userEmail, $subject, $body, $headers);
 
 }

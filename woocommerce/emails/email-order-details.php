@@ -26,18 +26,20 @@ $orderSubscriptions = wcs_get_subscriptions_for_order($order->get_id());
 $userId = $orderData['customer_id'];
 $userSubscriptions = wcs_get_users_subscriptions($userId);
 
+
 foreach($userSubscriptions as $sub){
 	foreach($sub->get_items() as $subItem){
 		if(has_term('plan', 'product_cat', $subItem['product_id'])){
 			$userPlanName = $subItem['name'];
+			$currentDate = new DateTime($sub->get_date_to_display( 'start' )); 
+			$currentDate->add(new DateInterval('P1' . strtoupper($sub->billing_period[0])));
+			$billingCycle = $currentDate->format('F j, Y');
+			$subscriptionStatus = $sub->get_status();
 		}
 	}
 }
 
 
-// foreach($orderSubscriptions as $orderSubs){
-// 	$billingPeriod = date('F j, Y', strtotime($orderSubs->get_date( 'start' )));
-// }
 
 foreach( $orderItems as $item_id => $item ){
 	$itemName = $item->get_name();
@@ -75,7 +77,7 @@ $couponDiscount = 0;
 	if ( $sent_to_admin ) {
 		$before = '<a class="link" href="' . esc_url( $order->get_edit_order_url() ) . '">';
 		$after  = '</a>';
-		$userDetailsForAdmin = '<p class="user__details"><strong>Receipt from:</strong>' . "$userName | $userEmail | $companyName" . '</p>';
+		$userDetailsForAdmin = '<p class="user__details"><strong>Receipt from:</strong>' . " $userName | $userEmail | $companyName" . '</p>';
 	} else {
 		$before = '';
 		$after  = ' - Deer Designer Subscription';
@@ -97,9 +99,11 @@ $couponDiscount = 0;
 
 	<p><?php echo $textBasedOnProduct; ?></p>
 <?php }else{ 
-	if($productCategory !== 'plan'){ ?>
-		<p style="text-align: center;">Plan: <?php echo $userPlanName; ?></p>
-	<?php }
+	if($productCategory === 'plan'){ ?>
+		<p style="text-align: center;">Plan: <?php echo $userPlanName; ?>
+			<?php if('on-hold'){ ?> <span style="text-align: center;"> | Effective on: <?php echo $billingCycle; ?></span><?php } ?> 
+		</p>
+		<?php }
 } ?>
 
 <div style="margin-bottom: 40px;">
