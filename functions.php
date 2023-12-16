@@ -50,8 +50,9 @@ add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 // add_filter('style_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
 
 
-//STRIPE API
 require_once('stripe/init.php');
+require_once('custom-email-notifications.php');
+
 
 
 function logoutWhitoutConfirm($action, $result)
@@ -1354,11 +1355,3 @@ function defineAddonPeriodToShowOnCards($addonName){
 	}
 }
 add_action('callAddonsPeriod', 'defineAddonPeriodToShowOnCards');
-
-
-
-
-
-
-
-

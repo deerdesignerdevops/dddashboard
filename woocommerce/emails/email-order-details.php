@@ -21,10 +21,53 @@ $text_align = is_rtl() ? 'right' : 'left';
 
 do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plain_text, $email ); 
 $orderData = $order->get_data();
-$userFirstName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+$orderItems = $order->get_items();
+$orderSubscriptions = wcs_get_subscriptions_for_order($order->get_id());
+$userId = $orderData['customer_id'];
+$userSubscriptions = wcs_get_users_subscriptions($userId);
+
+foreach($userSubscriptions as $sub){
+	foreach($sub->get_items() as $subItem){
+		if(has_term('plan', 'product_cat', $subItem['product_id'])){
+			$userPlanName = $subItem['name'];
+		}
+	}
+}
+
+
+// foreach($orderSubscriptions as $orderSubs){
+// 	$billingPeriod = date('F j, Y', strtotime($orderSubs->get_date( 'start' )));
+// }
+
+foreach( $orderItems as $item_id => $item ){
+	$itemName = $item->get_name();
+	$orderItemsGroup[] = $itemName;
+	$itemData = $item->get_data();
+	$terms = get_the_terms( $itemData['product_id'], 'product_cat' );
+	$productCategory = $terms[0]->slug;
+
+	if(str_contains(strtolower($itemName), 'director')){
+		$textBasedOnProduct = "You'll be able to book a call with our Creative Director right on your Dashboard.";
+
+	}else if(str_contains(strtolower($itemName), 'task')){
+		$textBasedOnProduct = "I'm glad to see that things are going great! <br><br> You've got an additional active task on your account, which means that you'll either get more time from your designer or an additional designer will also work on your requests every day. <br><br> Feel free to let your account manager know which tasks your team should prioritize.";
+
+	}else if(str_contains(strtolower($itemName), 'assets')){
+		$textBasedOnProduct = "We already let the team know, and they'll be using it on your requests starting today. ";
+
+	}else{
+		$textBasedOnProduct = "";
+		$orderProductCat = "";
+	}
+}
+
+
+
+$userName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 $userEmail = $orderData['billing']['email'];
 $companyName = $orderData['billing']['company'];
 $couponDiscount = 0;
+
 ?>
 
 <h2>
@@ -32,7 +75,7 @@ $couponDiscount = 0;
 	if ( $sent_to_admin ) {
 		$before = '<a class="link" href="' . esc_url( $order->get_edit_order_url() ) . '">';
 		$after  = '</a>';
-		$userDetailsForAdmin = '<p class="user__details"><strong>Receipt from:</strong>' . "$userFirstName | $userEmail | $companyName" . '</p>';
+		$userDetailsForAdmin = '<p class="user__details"><strong>Receipt from:</strong>' . "$userName | $userEmail | $companyName" . '</p>';
 	} else {
 		$before = '';
 		$after  = ' - Deer Designer Subscription';
@@ -44,6 +87,20 @@ $couponDiscount = 0;
 </h2>
 
 <?php echo $userDetailsForAdmin; ?>
+
+<?php if(!$sent_to_admin){ ?>
+	<h3>Hi, <?php echo $userName; ?></h3>
+
+	<?php if($productCategory === 'add-on'){ ?>
+		<p>Thank you for your purchase! You successfully added <?php echo implode(" | ", $orderItemsGroup); ?> to your subscription.</p>
+	<?php } ?>
+
+	<p><?php echo $textBasedOnProduct; ?></p>
+<?php }else{ 
+	if($productCategory !== 'plan'){ ?>
+		<p style="text-align: center;">Plan: <?php echo $userPlanName; ?></p>
+	<?php }
+} ?>
 
 <div style="margin-bottom: 40px;">
 	<h3 class="order__email_sumary">Sumary</h3>
