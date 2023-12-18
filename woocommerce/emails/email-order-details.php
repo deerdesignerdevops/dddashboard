@@ -99,11 +99,11 @@ $couponDiscount = 0;
 
 	<p><?php echo $textBasedOnProduct; ?></p>
 <?php }else{ 
-	if($productCategory === 'plan'){ ?>
+	 ?>
 		<p style="text-align: center;">Plan: <?php echo $userPlanName; ?>
-			<?php if('on-hold'){ ?> <span style="text-align: center;"> | Effective on: <?php echo $billingCycle; ?></span><?php } ?> 
+			<?php if($subscriptionStatus == 'on-hold' || $subscriptionStatus == 'pending-cancel'){ ?> <span style="text-align: center;"> | Effective on: <?php echo $billingCycle; ?></span><?php } ?> 
 		</p>
-		<?php }
+		<?php 
 } ?>
 
 <div style="margin-bottom: 40px;">
