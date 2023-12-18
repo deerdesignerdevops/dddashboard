@@ -1073,7 +1073,7 @@ function moveCancelledSubscriptionsToTrash($subscription){
         wp_trash_post($subscription->id);
     }
 }
-add_action('woocommerce_subscription_status_cancelled', 'moveCancelledSubscriptionsToTrash');
+//add_action('woocommerce_subscription_status_cancelled', 'moveCancelledSubscriptionsToTrash');
 
 
 

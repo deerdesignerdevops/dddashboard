@@ -23,7 +23,7 @@ do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
 <p>CTA: <a href='<?php esc_url( $order->get_checkout_payment_url() ); ?>'>Update Billing Information</a> </p>
 
-<p>Please reach out to billing@deerdesigner.com if you need any additional help.</p>
+<p>Please reach out to <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> if you need any additional help.</p>
 
 <p>The Deer Designer Team.</p>
 

@@ -27,18 +27,28 @@ $userId = $orderData['customer_id'];
 $userSubscriptions = wcs_get_users_subscriptions($userId);
 
 
-foreach($userSubscriptions as $sub){
-	foreach($sub->get_items() as $subItem){
-		if(has_term('plan', 'product_cat', $subItem['product_id'])){
-			$userPlanName = $subItem['name'];
-			$currentDate = new DateTime($sub->get_date_to_display( 'start' )); 
-			$currentDate->add(new DateInterval('P1' . strtoupper($sub->billing_period[0])));
-			$billingCycle = $currentDate->format('F j, Y');
-			$subscriptionStatus = $sub->get_status();
+if($order instanceof WC_Subscription){
+	foreach($order->get_items() as $subItem){
+		$userPlanName = $subItem['name'];
+		$currentDate = new DateTime($order->get_date_to_display( 'start' )); 
+		$currentDate->add(new DateInterval('P1' . strtoupper($order->billing_period[0])));
+		$billingCycle = $currentDate->format('F j, Y');
+		$billingPeriodEndingDate =  str_contains($order->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $order->get_date_to_display( 'end' );
+		$currentSubscriptionStatus = $order->get_status();
+	}
+}else{
+	foreach($userSubscriptions as $sub){
+		foreach($sub->get_items() as $subItem){
+			if(has_term('plan', 'product_cat', $subItem['product_id'])){
+				$userPlanName = $subItem['name'];
+				$currentDate = new DateTime($sub->get_date_to_display( 'start' )); 
+				$currentDate->add(new DateInterval('P1' . strtoupper($sub->billing_period[0])));
+				$billingCycle = $currentDate->format('F j, Y');
+				$currentSubscriptionStatus = $sub->get_status();
+			}
 		}
 	}
 }
-
 
 
 foreach( $orderItems as $item_id => $item ){
@@ -91,7 +101,9 @@ $couponDiscount = 0;
 <?php echo $userDetailsForAdmin; ?>
 
 <?php if(!$sent_to_admin){ ?>
-	<h3>Hi, <?php echo $userName; ?></h3>
+	<?php if($productCategory != 'plan'){ ?>
+		<h3>Hi, <?php echo $userName; ?></h3>
+	<?php } ?>
 
 	<?php if($productCategory === 'add-on'){ ?>
 		<p>Thank you for your purchase! You successfully added <?php echo implode(" | ", $orderItemsGroup); ?> to your subscription.</p>
@@ -100,10 +112,11 @@ $couponDiscount = 0;
 	<p><?php echo $textBasedOnProduct; ?></p>
 <?php }else{ 
 	 ?>
+	 <?php if($productCategory !== 'add-on'){?>
 		<p style="text-align: center;">Plan: <?php echo $userPlanName; ?>
-			<?php if($subscriptionStatus == 'on-hold' || $subscriptionStatus == 'pending-cancel'){ ?> <span style="text-align: center;"> | Effective on: <?php echo $billingCycle; ?></span><?php } ?> 
+			<?php if($currentSubscriptionStatus == 'on-hold' || $currentSubscriptionStatus == 'pending-cancel'){ ?> <span style="text-align: center;"> | Effective on: <?php echo $billingCycle; ?></span><?php } ?> 
 		</p>
-		<?php 
+	 <?php }
 } ?>
 
 <div style="margin-bottom: 40px;">
@@ -163,9 +176,6 @@ $couponDiscount = 0;
 				}
 			}
 			?>
-
-			
-
 		</tfoot>
 	</table>
 </div>
