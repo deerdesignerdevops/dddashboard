@@ -529,6 +529,11 @@ input.ff-read-only {
   font-size: 0.8rem;
 }
 
+.woocommerce-password-strength,
+.woocommerce-password-hint {
+  display: none !important;
+}
+
 .woocommerce p {
   color: var(--e-global-color-text);
   font-weight: 500;
