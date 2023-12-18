@@ -96,8 +96,8 @@ function sendEmailToAdminAfterUserProfileUpdated($userId, $oldUserData, $userDat
 		$subject = "User Profile Updated";
 		$toEmail = get_option( 'admin_email' );
 
-		$message =  "								
-				<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>New info:</h2>
+		$message =  "							
+				<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>User info:</h2>
 				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>First name: $userFirstName</p>
 				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Last name: $userLastName</p>
 				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Email: $userEmail</p>
@@ -106,33 +106,38 @@ function sendEmailToAdminAfterUserProfileUpdated($userId, $oldUserData, $userDat
 			";
 	
 		$body = emailTemplate($message);
+
 		wp_mail($toEmail, $subject, $body, $headers);
 	 }
 }
 add_action( 'profile_update', 'sendEmailToAdminAfterUserProfileUpdated', 10, 3);
 
 
-function userUpdatedPaymentMethods(){
-	global $headers;
-	$user = wp_get_current_user();
-	$userName = "$user->first_name $user->last_name";
-	$userEmail = $user->user_email;
 
-	$subject = "Payment method updated";
+function userUpdatedPaymentMethods($message){
 
-	$message = "
-<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+	if (str_contains($message, 'Payment method successfully added.')) {
+		global $headers;
+		$user = wp_get_current_user();
+		$userName = "$user->first_name $user->last_name";
+		$userEmail = $user->user_email;
 
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your payment method was updated. If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a>.</p>
+		$subject = "Payment method updated";
 
-<p>Thanks,<br.
-The Deer Designer Team.</p>
-";
+		$emailMessage = "
+	<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
 
-	$body = emailTemplate($message);
-	wp_mail($userEmail, $subject, $body, $headers);
+	<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your payment method was updated. If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a>.</p>
+
+	<p>Thanks,<br.
+	The Deer Designer Team.</p>
+	";
+
+		$body = emailTemplate($emailMessage);
+		wp_mail($userEmail, $subject, $body, $headers);
+    }
 }
-add_action('add_payment_method_action', 'userUpdatedPaymentMethods');
+add_action('woocommerce_add_message', 'userUpdatedPaymentMethods');
 
 
 
@@ -371,6 +376,28 @@ function sendEmailToAdminWhenReactivateSubscription($subscription, $newStatus, $
 
 }
 add_action('woocommerce_subscription_status_updated', 'sendEmailToAdminWhenReactivateSubscription', 10, 3);
+
+
+
+function customRetryPaymentRules( $default_retry_rules_array ) {
+    return array(
+            array(
+                'retry_after_interval'            => 30,
+                'email_template_customer'         => 'WCS_Email_Customer_Payment_Retry',
+                'email_template_admin'            => 'WCS_Email_Payment_Retry',
+                'status_to_apply_to_order'        => 'pending',
+                'status_to_apply_to_subscription' => 'active',
+            ),
+            array(
+                'retry_after_interval'            => 30,
+                'email_template_customer'         => 'WCS_Email_Customer_Payment_Retry',
+                'email_template_admin'            => 'WCS_Email_Payment_Retry',
+                'status_to_apply_to_order'        => 'pending',
+                'status_to_apply_to_subscription' => 'active',
+            )
+        );
+}
+add_filter( 'wcs_default_retry_rules', 'customRetryPaymentRules' );
 
 
 
