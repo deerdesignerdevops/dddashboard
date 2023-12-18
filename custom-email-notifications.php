@@ -115,27 +115,29 @@ add_action( 'profile_update', 'sendEmailToAdminAfterUserProfileUpdated', 10, 3);
 
 
 function userUpdatedPaymentMethods($message){
+	if(is_wc_endpoint_url('add-payment-method')){
+		if (str_contains($message, 'Payment method successfully added.')) {
+			global $headers;
+			$user = wp_get_current_user();
+			$userName = "$user->first_name $user->last_name";
+			$userEmail = $user->user_email;
 
-	if (str_contains($message, 'Payment method successfully added.')) {
-		global $headers;
-		$user = wp_get_current_user();
-		$userName = "$user->first_name $user->last_name";
-		$userEmail = $user->user_email;
+			$subject = "Payment method updated";
 
-		$subject = "Payment method updated";
+			$emailMessage = "
+		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
 
-		$emailMessage = "
-	<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your payment method was updated. If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a>.</p>
 
-	<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your payment method was updated. If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a>.</p>
+		<p>Thanks,<br> The Deer Designer Team.</p>
+		";
 
-	<p>Thanks,<br.
-	The Deer Designer Team.</p>
-	";
+			$body = emailTemplate($emailMessage);
+			wp_mail($userEmail, $subject, $body, $headers);
+		}
+	}
 
-		$body = emailTemplate($emailMessage);
-		wp_mail($userEmail, $subject, $body, $headers);
-    }
+	return $message;
 }
 add_action('woocommerce_add_message', 'userUpdatedPaymentMethods');
 
