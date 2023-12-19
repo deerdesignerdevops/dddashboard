@@ -280,11 +280,12 @@ document.addEventListener("DOMContentLoaded", function(){
 		btn.addEventListener('click', function(e){
 			e.preventDefault()
 			const addProductToCartLink = e.currentTarget.href
+			const productPrice = e.currentTarget.dataset.productPrice
+			const productName = e.currentTarget.dataset.productName
 			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = "ARE YOU SURE YOU WANT TO <br><span> ADD THIS ITEM TO YOUR ACCOUNT?</span>";
 			document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
 			document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
-			document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
 
 			document.querySelector(".confirm_btn a").addEventListener('click', function(){
 				location.href = addProductToCartLink
@@ -295,6 +296,14 @@ document.addEventListener("DOMContentLoaded", function(){
 			document.querySelector(".cancel_btn a").addEventListener('click', function(){
 				closePopup()
 			})
+
+			if(btn.classList.contains('active-tasks')){
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `For this ${productName}, starting today, we will charge <strong>$${productPrice}</strong> per month to the card on your account.`
+			}else if(btn.classList.contains('creative-call')){
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> $${productPrice} </strong> to the card on your account.`
+			}else{
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `For the ${productName}, starting today, we will charge <strong>$${productPrice}</strong> per month to the card on your account.`
+			}
 		})
 	})
 
@@ -311,6 +320,13 @@ document.addEventListener("DOMContentLoaded", function(){
 		document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
 		document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentLink
 		document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
+
+		if(currentPlan === "active-task"){
+			document.querySelector("#pause_popup .popup_msg h3").innerHTML = "WHY ARE YOU DOWNGRADING? <br><span>DID WE DO ANYTHING WRONG?</span>";
+			document.querySelector(".update_plan_form form .ff-btn-submit").innerText = "Confirm Downgrade"
+			document.querySelector(".update_plan_form form").elements['btn_keep'].innerText = "Keep Active Task"
+		}
+
 	}
 
 	function pauseFlow(currentPlan, currentSubscriptionId){
@@ -369,6 +385,13 @@ document.addEventListener("DOMContentLoaded", function(){
 				elementorProFrontend.modules.popup.closePopup( {}, event);
 			})
 
+			document.querySelector(".update_plan_form form .dd__subscription_cancel_btn").addEventListener("click", function(e){
+				closePopup()
+				loadingSpinner.style.display = "flex"
+			})
+
+
+
 			if(e.currentTarget.classList.contains("suspend")){
 				confirmBtn.href = currentUpdatePlanUrl;
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
@@ -400,6 +423,18 @@ document.addEventListener("DOMContentLoaded", function(){
 				document.querySelector(".cancel_btn").addEventListener("click", function(e){
 					e.preventDefault()
 					closePopup()
+				})
+			}
+			else if(e.currentTarget.classList.contains("active-task")){
+				popupMsgNewText = "ARE YOU SURE YOU WANT <br><span>TO REMOVE THIS ACTIVE TASK?</span>";
+				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, remove it"
+				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No, keep it"
+				document.querySelector(".form_subscription_update_message_field label").style.display = 'none'		
+				document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
+				
+				confirmBtn.addEventListener("click", function(e){
+					e.preventDefault()
+					cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
 				})
 			}
 			else if(e.currentTarget.classList.contains("cancel")){
@@ -438,7 +473,6 @@ document.addEventListener("DOMContentLoaded", function(){
 						closePopup();
 					})
 				}
-		
 			}
 			else{
 				confirmBtn.href = currentUpdatePlanUrl;

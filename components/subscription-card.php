@@ -2,6 +2,8 @@
 function subscriptionCardComponent($subscription, $currentProductId){ 
     $siteUrl = site_url();
     $activeTasksProductId = 1600;
+    $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
+    $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
     $subscriptionStatus = $subscription->get_status();
     $currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
     $currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
@@ -35,6 +37,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                 
                 if($currentCat === "Plan"){
                     $currentSubscriptionPlan = $item['name'];
+                    $activeTaskProductPrice = str_contains($currentSubscriptionPlan, 'Standard') ? $activeTaskProductPrice : ($activeTaskProductPrice - 50);
                 }										
                 ?>
         
@@ -67,7 +70,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
         <div>
             <?php if($subscriptionStatus === 'active'){ ?>
                 <div class="btn__wrapper">
-                    <a href='<?php echo "$siteUrl/?buy-now=$activeTasksProductId&with-cart=0"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks one__click_purchase">Add Active Task</a>
+                    <a href='<?php echo "$siteUrl/?buy-now=$activeTasksProductId&with-cart=0"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks one__click_purchase" data-product-price="<?php echo $activeTaskProductPrice; ?>" data-product-name="<?php echo $activeTaskProductName; ?>">Add Active Task</a>
                 </div>
             <?php } ?>
 

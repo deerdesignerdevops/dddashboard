@@ -689,7 +689,7 @@ input.ff-read-only {
   display: none !important;
 }
 
-.addos__button {
+.addons__button {
   border-radius: 50px !important;
   background-color: var(--e-global-color-f5169dc) !important;
   font-weight: 400 !important;
@@ -698,7 +698,7 @@ input.ff-read-only {
   padding: 10px !important;
 }
 
-.addos__button:hover {
+.addons__button:hover {
   background-color: var(--e-global-color-04b3e11) !important;
   color: var(--e-global-color-text) !important;
 }
@@ -1024,10 +1024,6 @@ input.ff-read-only {
 
 .form_subscription_update_message_field label:after {
   display: none !important;
-}
-
-.form_subscription_update_disclaimer {
-  padding: 20px 0;
 }
 
 .update_plan_form p,

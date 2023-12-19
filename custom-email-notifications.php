@@ -323,7 +323,7 @@ function sendEmailToUserWhenReactivateSubscription($subscription, $newStatus, $o
 			$userEmail = $user->user_email;
 			$productName = $subItem['name'];
 			
-			$subject = "Your account has been reactivated";
+			$subject = str_contains(strtolower($productName), 'task') ? "Your active task has been reactivated" : "Your account has been reactivated";
 
 			$message = "
 			<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>

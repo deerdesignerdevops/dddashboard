@@ -23,6 +23,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+  const placeOrderBtn = document.querySelector("#place_order");
+  console.log(placeOrderBtn);
+});
+
 $(document).ready(function ($) {
   $("form.woocommerce-checkout").on("checkout_place_order", function () {
     $("body").append('<div class="loading__spinner_wrapper"></div>');
