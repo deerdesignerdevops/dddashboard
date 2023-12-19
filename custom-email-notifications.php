@@ -364,7 +364,7 @@ function sendEmailToAdminWhenReactivateSubscription($subscription, $newStatus, $
 			$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
 			$billingCycle = $currentDate->format('F j, Y');
 			
-			$subject = "Account reactivated";
+			$subject = str_contains(strtolower($productName), 'task') ? "Active Task reactivated" : "Account reactivated";
 
 			$message = "
 			<p class='user__details'><strong>Account reactivated by: </strong>$userName | $userEmail | $companyName</p>
