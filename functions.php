@@ -1301,17 +1301,14 @@ add_filter( 'wcs_view_subscription_actions', 'removeMySubscriptionsButton', 100,
 
 
 function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
-
 	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 
 	foreach($subscription->get_items() as $item){
 		if(has_term( 'plan', 'product_cat', $item->get_product_id())){
 			foreach ($userSubscriptions as $subs){		
 				foreach ($subs->get_items() as $product) {			
-					if ( has_term( 'active-task', 'product_cat', $product->get_product_id() ) ){
-						if($new_status === "on-hold" || $new_status === "cancelled"){
-							$subs->update_status('cancelled');
-						}else if($new_status === "pending-cancel"){
+					if ( !has_term( 'plan', 'product_cat', $product->get_product_id() ) ){
+						if($new_status === "on-hold" || $new_status === "cancelled" || $new_status === "pending-cancel"){
 							$subs->update_status('pending-cancel');
 						}
 					};	
