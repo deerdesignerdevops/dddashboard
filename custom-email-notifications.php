@@ -384,14 +384,14 @@ add_action('woocommerce_subscription_status_updated', 'sendEmailToAdminWhenReact
 function customRetryPaymentRules( $default_retry_rules_array ) {
     return array(
             array(
-                'retry_after_interval'            => 30,
+                'retry_after_interval'            => 86400 /*24 HOURS*/,
                 'email_template_customer'         => 'WCS_Email_Customer_Payment_Retry',
                 'email_template_admin'            => 'WCS_Email_Payment_Retry',
                 'status_to_apply_to_order'        => 'pending',
                 'status_to_apply_to_subscription' => 'active',
             ),
             array(
-                'retry_after_interval'            => 30,
+                'retry_after_interval'            => 86400 /*24 HOURS*/,
                 'email_template_customer'         => 'WCS_Email_Customer_Payment_Retry',
                 'email_template_admin'            => 'WCS_Email_Payment_Retry',
                 'status_to_apply_to_order'        => 'pending',
