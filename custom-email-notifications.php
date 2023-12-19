@@ -41,7 +41,7 @@ function emailTemplate($content){
 														<table border="0" cellpadding="20" cellspacing="0" width="100%">
 															<tr>
 																<td valign="top" style="padding:48px 48px 32px;background-color:transparent;border:none;border-bottom:1px solid #eee">
-																	<div id="body_content_inner">' . $content . '</div>
+																	<div id="body_content_inner" style="font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;">' . $content . '</div>
 																</td>
 															</tr>
 														</table>
@@ -129,7 +129,7 @@ function userUpdatedPaymentMethods($message){
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your payment method was updated. If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a>.</p>
 
-		<p>Thanks,<br> The Deer Designer Team.</p>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br> The Deer Designer Team.</p>
 		";
 
 			$body = emailTemplate($emailMessage);
@@ -168,7 +168,7 @@ function sendEmailToUserWhenPausedPlan($subscription){
 
 	<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> if anything changes.</p>
 
-	<p>Thanks,<br>
+	<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 	The Deer Designer Team.</p>
 	";	
 
@@ -181,7 +181,7 @@ function sendEmailToUserWhenPausedPlan($subscription){
 
 	<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>I hope to see you again soon!.</p>
 
-	<p>Thanks,<br>
+	<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 	The Deer Designer Team.</p>
 	";
 
@@ -226,9 +226,9 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 
 				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before the account is cancelled.</p>
 
-				<p>Thanks for trusting us with your design work during this time.</p>
+				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks for trusting us with your design work during this time.</p>
 
-				<p>Thanks,<br>
+				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 				The Deer Designer Team.</p>
 				";
 
@@ -241,7 +241,7 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 
 				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>I hope to see you again soon!.</p>
 
-				<p>Thanks,<br>
+				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 				The Deer Designer Team.</p>
 				";
 
@@ -285,7 +285,7 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 
 				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before the additional task is cancelled.</p>
 
-				<p>Thanks,<br>
+				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 				The Deer Designer Team.</p>
 				";
 
@@ -296,7 +296,7 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 
 				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a>.</p>
 
-				<p>Thanks,<br>
+				<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 				The Deer Designer Team.</p>
 				";
 
@@ -332,11 +332,11 @@ function sendEmailToUserWhenReactivateSubscription($subscription, $newStatus, $o
 
 			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If your previous designer is still free, we'll assign them to you. Otherwise, the team will select a designer who will read your profile, preferences, and past tickets, and they will be ready to start working on your requests as soon as possible.</p>
 
-			<p>This process takes up to one business day, so feel free to log in and send a request! </p>
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>This process takes up to one business day, so feel free to log in and send a request! </p>
 
-			<p>Please reach out to help@deerdesigner.com if you need any additional help.</p>
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Please reach out to help@deerdesigner.com if you need any additional help.</p>
 
-			<p>Thanks,<br>
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 			The Deer Designer Team.</p>
 			";
 
