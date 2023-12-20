@@ -43,7 +43,7 @@ add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
 require_once('stripe/init.php');
-require_once('custom-email-notifications.php');
+//require_once('custom-email-notifications.php');
 
 
 
@@ -984,7 +984,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 		slackNotifications($slackMessageBody);
 	}
 }
-add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+//add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
 
 
 
@@ -1022,7 +1022,7 @@ function wooNoticesMessageBasedOnProduct($subscription, $new_status, $old_status
 		wc_add_notice($message, 'success');
 	}
 }
-add_action('woocommerce_subscription_status_updated', 'wooNoticesMessageBasedOnProduct', 10, 3);
+//add_action('woocommerce_subscription_status_updated', 'wooNoticesMessageBasedOnProduct', 10, 3);
 
 
 
@@ -1310,7 +1310,7 @@ function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
 	}
 	
 }
-add_action('woocommerce_subscription_status_updated', 'cancelActiveTasksByPausePlan', 10, 3);
+//add_action('woocommerce_subscription_status_updated', 'cancelActiveTasksByPausePlan', 10, 3);
 
 
 

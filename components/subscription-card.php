@@ -25,7 +25,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                         <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus);  ?>
                         <br> </strong>
                         <?php
-                        if($subscriptionStatus !== 'active'){ ?>
+                        if($subscriptionStatus !== 'active' && $showReactivateButton){ ?>
                              Your Deer Designer team is still available until <?php echo $pausedPlanBillingPeriodEndingDate; ?></span>
                         <?php } ?> 
                 </div>
@@ -41,16 +41,20 @@ function subscriptionCardComponent($subscription, $currentProductId){
                 }										
                 ?>
         
-                <span class="dd__subscription_title">														
-                    <?php if(sizeof($subscription->get_items()) > 1 && $subscriptionStatus === 'active') { ?>
+                <span class="dd__subscription_title">	
+                    <?php echo $item['name'];?>
+													
+                    <?php if(sizeof($subscription->get_items()) > 1 && $subscriptionStatus === 'active') { 
+                        if(!has_term('plan', 'product_cat', $item['product_id'])){ ?>
                             <span class="remove_item">
                                 <?php if ( wcs_can_item_be_removed( $item, $subscription ) ) : ?>
                                     <?php $confirm_notice = apply_filters( 'woocommerce_subscriptions_order_item_remove_confirmation_text', __( 'Are you sure you want remove this item from your subscription?', 'woocommerce-subscriptions' ), $item, $_product, $subscription );?>
                                     <a href="<?php echo esc_url( WCS_Remove_Item::get_remove_url( $subscription->get_id(), $subsItemId ) );?>" class="remove" onclick="return confirm('<?php printf( esc_html( $confirm_notice ) ); ?>');">&times;</a>
                                 <?php endif; ?>
                             </span>
+                        <?php }
+                        ?>
                     <?php } ?>
-                    <?php echo $item['name'];?>
                 </span>
                                 
             <?php } ?>
