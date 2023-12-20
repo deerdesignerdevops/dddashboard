@@ -212,14 +212,17 @@ foreach ($userSubscriptions as $subscription){
 	}
 }
 
+
 $allProductAddons = wc_get_products([
    'category' => get_term_by('slug', 'add-on', 'product_cat')->slug,
    'exclude' => $currentUserProducts,
+   'status' => 'publish'
 ]);
+
 
 ?>
 
-<?php if(sizeof($allProductAddons) > 0){ ?>
+<?php if(!empty($allProductAddons)){ ?>
 	<div class="cart__addons">
 		<h2 class="cart__header__title">Available Addons</h2>
 		<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">								

@@ -64,6 +64,7 @@ foreach($subscriptions as $sub){
 $allProductAddons = wc_get_products([
    'category' => get_term_by('slug', 'add-on', 'product_cat')->slug,
    'exclude' => $userCurrentAddons,
+   'status' => 'publish'
 ]);
 
 
@@ -195,7 +196,7 @@ if(isset($_GET['change-plan'])){
 	<?php } ?>
 
 	<!--AVAILABLE ADDONS-->
-	<?php if($activePlanSubscriptions[0]->get_status() === 'active'){ ?>
+	<?php if($activePlanSubscriptions[0]->get_status() === 'active' && !empty($allProductAddons)){ ?>
 		<section class="dd__bililng_portal_section">
 			<div class="subscriptions__addons_wrapper">
 				<div class="woocommerce_account_subscriptions">
