@@ -1381,3 +1381,17 @@ function changeCompletedOrderEmailSubjectBasedOnProduct($subject, $order) {
     return $newSubject;
 }
 add_filter('woocommerce_email_subject_customer_completed_order', 'changeCompletedOrderEmailSubjectBasedOnProduct', 10, 2);
+
+
+function redirectSpecificUsersToNewDashboard(){
+	if(is_user_logged_in()){
+		$user = wp_get_current_user();
+
+		if($user->user_email === 'steve@rocketmsp.io' && is_page('dash')){
+			wp_redirect(site_url() . '/dash-woo');
+			exit;
+		}
+	}
+}
+
+add_action('template_redirect', 'redirectSpecificUsersToNewDashboard');
