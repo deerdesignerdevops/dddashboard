@@ -1022,7 +1022,7 @@ function wooNoticesMessageBasedOnProduct($subscription, $new_status, $old_status
 		wc_add_notice($message, 'success');
 	}
 }
-//add_action('woocommerce_subscription_status_updated', 'wooNoticesMessageBasedOnProduct', 10, 3);
+add_action('woocommerce_subscription_status_updated', 'wooNoticesMessageBasedOnProduct', 10, 3);
 
 
 
