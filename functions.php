@@ -41,17 +41,10 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
-// function removeScriptVersionNumberFromQuery($src)
-// {
-//     $parts = explode('?ver', $src);
-//     return $parts[0];
-// }
-// add_filter('script_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
-// add_filter('style_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
 
-
-//STRIPE API
 require_once('stripe/init.php');
+require_once('custom-email-notifications.php');
+
 
 
 function logoutWhitoutConfirm($action, $result)
@@ -190,6 +183,7 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	$userCity = get_user_meta(get_current_user_id(), 'stripe_customer_city', true);
 	$userCountry = get_user_meta(get_current_user_id(), 'stripe_customer_country', true);
 	$currentUser = wp_get_current_user();
+	$companyName = get_user_meta($currentUser->id, 'billing_company', true);
 
 	if($form->id == 3){
 		echo "<script>
@@ -197,7 +191,7 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 				document.querySelector('[data-name=\"plan\"]').value='$userPlan'
 				document.querySelector('[data-name=\"city\"]').value='$userCity'
 				document.querySelector('[data-name=\"country\"]').value='$userCountry'
-				document.querySelector('.account_holder').innerText='$currentUser->user_email'
+				document.querySelector('[data-name=\"company_name\"]').value='$companyName'
 			})
 		</script>";
 	}
@@ -754,18 +748,7 @@ function redirectToOnboardingFormAfterCheckout( $orderId ) {
 	
 	foreach( $order->get_items() as $item_id => $item ){
 		$itemName = $item->get_name();
-		$itemPrice = $item['total'];
 		$orderItems[] = $itemName;
-
-		if(str_contains(strtolower($itemName), 'task')){
-			$confirmationAlertMsg .= "For this $itemName, starting today, we will charge <strong>$$itemPrice</strong> per month to the card on your account.";
-		}else if(str_contains(strtolower($itemName), 'call')){
-			$confirmationAlertMsg .= "We will charge <strong> $$itemPrice </strong> to the card on your account.";
-		}else if(str_contains(strtolower($itemName), 'director') || str_contains(strtolower($itemName), 'assets')){
-			$confirmationAlertMsg .= "For the $itemName, starting today, we will charge <strong>$$itemPrice</strong> per month to the card on your account.";
-		}else{
-			$confirmationAlertMsg = "";
-		}
 	}
 
 	$productNames = implode(" | ", array_unique($orderItems));
@@ -985,6 +968,9 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 			$subscriptionItemsGroup[] = $item['name'];
 		}
 
+		if($new_status === 'active'){
+			wc_add_notice('Your ' . implode(" | ", array_unique($subscriptionItemsGroup)) . ' has been reactivated.', 'success');
+		}
 
 		$slackMessageBody = [
 				'text'  => '<!channel> ' . $messageTitle . '
@@ -1004,7 +990,7 @@ add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSu
 
 function customSubscriptionNoticeText($message){
 
-	if (str_contains($message, 'Your subscription has been cancelled.')) {
+	if (str_contains($message, 'Your subscription has been cancelled.') || str_contains($message, 'Your subscription has been reactivated.')) {
 		unset($message);
     }else if(str_contains($message, 'hold')){
 		$message = 'Your account has been succesfully paused. Your Deer Designer team is still available until the end of your current billing period.';
@@ -1307,17 +1293,14 @@ add_filter( 'wcs_view_subscription_actions', 'removeMySubscriptionsButton', 100,
 
 
 function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
-
 	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 
 	foreach($subscription->get_items() as $item){
 		if(has_term( 'plan', 'product_cat', $item->get_product_id())){
 			foreach ($userSubscriptions as $subs){		
 				foreach ($subs->get_items() as $product) {			
-					if ( has_term( 'active-task', 'product_cat', $product->get_product_id() ) ){
-						if($new_status === "on-hold" || $new_status === "cancelled"){
-							$subs->update_status('cancelled');
-						}else if($new_status === "pending-cancel"){
+					if ( !has_term( 'plan', 'product_cat', $product->get_product_id() ) ){
+						if($new_status === "on-hold" || $new_status === "cancelled" || $new_status === "pending-cancel"){
 							$subs->update_status('pending-cancel');
 						}
 					};	
@@ -1357,8 +1340,44 @@ add_action('callAddonsPeriod', 'defineAddonPeriodToShowOnCards');
 
 
 
+function changeNewOrderEmailSubjectBasedOnProduct($subject, $order) {
+	$siteTitle = get_bloginfo( 'name' );
+	$orderItems = $order->get_items();
+
+	foreach($orderItems as $orderItem){
+		$productName = $orderItem->get_name();
+
+		if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
+			$newSubject = "[$siteTitle]: New Subscription";
+		}else{
+			$newSubject = "[$siteTitle]: New $productName";
+		}
+	}
+    
+    return $newSubject;
+}
+add_filter('woocommerce_email_subject_new_order', 'changeNewOrderEmailSubjectBasedOnProduct', 10, 2);
 
 
 
+function changeCompletedOrderEmailSubjectBasedOnProduct($subject, $order) {
+	$siteTitle = get_bloginfo( 'name' );
+	$orderItems = $order->get_items();
 
+	foreach($orderItems as $orderItem){
+		$productName = $orderItem->get_name();
 
+		if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
+			$newSubject = "[$siteTitle]: Thanks for joining Deer Designer - Receipt attached";
+
+		}elseif(has_term('add-on', 'product_cat', $orderItem->get_product_id())){
+			$newSubject = "[$siteTitle]: You've got a new Add on: $productName";
+
+		}else{
+			$newSubject = "[$siteTitle]: You've got an additional $productName";
+		}
+	}
+    
+    return $newSubject;
+}
+add_filter('woocommerce_email_subject_customer_completed_order', 'changeCompletedOrderEmailSubjectBasedOnProduct', 10, 2);
