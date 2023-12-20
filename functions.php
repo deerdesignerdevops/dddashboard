@@ -43,7 +43,7 @@ add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
 require_once('stripe/init.php');
-//require_once('custom-email-notifications.php');
+require_once('custom-email-notifications.php');
 
 
 
