@@ -41,14 +41,6 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
-// function removeScriptVersionNumberFromQuery($src)
-// {
-//     $parts = explode('?ver', $src);
-//     return $parts[0];
-// }
-// add_filter('script_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
-// add_filter('style_loader_src', 'removeScriptVersionNumberFromQuery', 15, 1);
-
 
 require_once('stripe/init.php');
 require_once('custom-email-notifications.php');
@@ -646,7 +638,7 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		slackNotifications($slackMessageBody);
 	}
 }
-add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
+//add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
 
 
 
@@ -1066,7 +1058,7 @@ function moveCancelledSubscriptionsToTrash($subscription){
         wp_trash_post($subscription->id);
     }
 }
-//add_action('woocommerce_subscription_status_cancelled', 'moveCancelledSubscriptionsToTrash');
+add_action('woocommerce_subscription_status_cancelled', 'moveCancelledSubscriptionsToTrash');
 
 
 

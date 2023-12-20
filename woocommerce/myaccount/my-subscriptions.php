@@ -123,9 +123,7 @@ if(isset($_GET['change-plan'])){
 					<div class="dd__subscription_container">
 						<?php if($activePlanSubscriptions[0]->get_status() !== "cancelled"){ 
 							foreach($activePlanSubscriptions[0]->get_items() as $subItem){
-								$terms = get_the_terms( $subItem['product_id'], 'product_cat' );	
-
-								if($terms[0]->slug === 'plan'){ 
+								if(has_term('plan', 'product_cat', $subItem['product_id'])){ 
 									do_action('subscriptionCardComponentHook', $activePlanSubscriptions[0], $subItem['variation_id']);
 								}
 							}								
@@ -158,11 +156,9 @@ if(isset($_GET['change-plan'])){
 						<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
 							<?php if($subscription->get_status() !== "cancelled"){ 
 								foreach($subscription->get_items() as $subItem){
-									$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
-						
-									if($terms[0]->slug === 'active-task'){ 
+									if(has_term('active-task', 'product_cat', $subItem['product_id'])){ 
 										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task');
-										}
+									}
 								}								
 								} ?>
 						<?php endforeach; ?>
@@ -185,11 +181,10 @@ if(isset($_GET['change-plan'])){
 				<div class="dd__subscription_container">
 					<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
 						<?php if($subscription->get_status() !== "cancelled"){ 
-							foreach($subscription->get_items() as $subItem){
-					
+							foreach($subscription->get_items() as $subItem){					
 								if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
 									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on');
-									}
+								}
 							}								
 							} ?>
 					<?php endforeach; ?>
@@ -200,15 +195,17 @@ if(isset($_GET['change-plan'])){
 	<?php } ?>
 
 	<!--AVAILABLE ADDONS-->
-	<section class="dd__bililng_portal_section">
-		<div class="subscriptions__addons_wrapper">
-			<div class="woocommerce_account_subscriptions">
-				<h2 class="dd__billing_portal_section_title">Available Add ons for you</h2>
+	<?php if($activePlanSubscriptions[0]->get_status() === 'active'){ ?>
+		<section class="dd__bililng_portal_section">
+			<div class="subscriptions__addons_wrapper">
+				<div class="woocommerce_account_subscriptions">
+					<h2 class="dd__billing_portal_section_title">Available Add ons for you</h2>
 
-				<?php do_action('addonsCarouselHook', array($allProductAddons)); ?>	
+					<?php do_action('addonsCarouselHook', array($allProductAddons)); ?>	
+				</div>
 			</div>
-		</div>
-	</section>
+		</section>
+	<?php } ?>
 <?php }
 
 else{ ?>
