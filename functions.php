@@ -43,7 +43,7 @@ add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
 require_once('stripe/init.php');
-require_once('custom-email-notifications.php');
+//require_once('custom-email-notifications.php');
 
 
 
@@ -756,7 +756,7 @@ function redirectToOnboardingFormAfterCheckout( $orderId ) {
 	wc_add_notice("Your $productNames was added to your account! <p>$confirmationAlertMsg</p>", 'success');
 
 	if($isUserOnboarded || current_user_can('administrator')){
-		$url = site_url() . "/subscriptions";
+		$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions";
 		wp_redirect( $url );
         exit;  
 	}else{
@@ -831,7 +831,7 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 							if($isCurrentUserHaveSubscriptionPlan){
 								WC()->cart->remove_cart_item( $cart_item_key );
 								wc_add_notice('You can\'t purchase this item! Please, use the Change Plan Button in your dashboard!', 'success', array('notice-type' => 'error'));
-								wp_redirect(site_url() . '/subscriptions');
+								wp_redirect('/subscriptions');
 								exit;
 							}
 						}
@@ -841,7 +841,7 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 		}
 	}	
 }
-add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
+//add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
 
 
 
