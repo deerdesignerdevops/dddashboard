@@ -152,7 +152,7 @@ $couponDiscount = 0;
 				if($couponDiscount){ ?>
 					<tr>
 						<th class="td" colspan="5">Dicount</th>
-						<td class="td" colspan="5" style="text-align: right;"><?php echo "-$couponDiscount%"?></td>
+						<td class="td" colspan="5" style="text-align: right;"><?php echo "-$couponDiscount"?></td>
 					</tr>
 			<?php }
 			?>
