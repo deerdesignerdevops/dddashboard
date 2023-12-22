@@ -984,7 +984,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 		slackNotifications($slackMessageBody);
 	}
 }
-add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+//add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
 
 
 
