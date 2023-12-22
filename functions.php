@@ -542,14 +542,14 @@ add_filter( 'wcs_view_subscription_actions', 'changeActionsButtonsLabel', 10, 2 
 
 
 function redirectUserAfterSubscriptionStatusUpdated(){
-	$url = site_url() . "/subscriptions";
+	$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions";
 
 	if(is_user_logged_in() && is_wc_endpoint_url('view-subscription')){
 		wp_safe_redirect($url);
 		exit;
 	}
 	else if(is_user_logged_in() && is_wc_endpoint_url('payment-methods')){
-		wp_safe_redirect(site_url() . '/edit-account');
+		wp_safe_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . '/edit-account');
 		exit;
 	}
 }
@@ -941,50 +941,76 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
-	if($old_status !== 'pending' && $new_status !== 'cancelled'){
-		$subscriptionItems = $subscription->get_items();
-		$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
-		$customerEmail = $subscription->data['billing']['email'];
-		$subscriptionItemsGroup = [];
-		
-		switch ($new_status){
-			case 'on-hold':
-				$newStatusLabel = 'paused';
-				$messageTitle = 'Subscription Paused :double_vertical_bar:';
-				break;
+	if(!is_admin()){
+		if($old_status !== 'pending' && $new_status !== 'cancelled'){
+			$subscriptionItems = $subscription->get_items();
+			$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
+			$customerEmail = $subscription->data['billing']['email'];
+			$subscriptionItemsGroup = [];
+			
+			switch ($new_status){
+				case 'on-hold':
+					$newStatusLabel = 'paused';
+					$messageTitle = 'Subscription Paused :double_vertical_bar:';
+					break;
 
-			case 'pending-cancel':
-				$newStatusLabel = 'pending-cancellation';
-				$messageTitle = 'Subscription Cancelled :alert:';
-				break;
+				case 'pending-cancel':
+					$newStatusLabel = 'pending-cancellation';
+					$messageTitle = 'Subscription Cancelled :alert:';
+					break;
 
-			default:
-				$newStatusLabel = $new_status;
-				$messageTitle = 'Subscription Reactivated :white_check_mark:';
+				default:
+					$newStatusLabel = $new_status;
+					$messageTitle = 'Subscription Reactivated :white_check_mark:';
+			}
+
+
+			foreach($subscriptionItems as $item){
+				$subscriptionItemsGroup[] = $item['name'];
+			}
+
+			if($new_status === 'active'){
+				wc_add_notice('Your ' . implode(" | ", array_unique($subscriptionItemsGroup)) . ' has been reactivated.', 'success');
+			}
+
+			$slackMessageBody = [
+					'text'  => '<!channel> ' . $messageTitle . '
+			*Client:* ' . $customerName . ' | ' . $customerEmail . '
+			*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)) . '
+			:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",
+					'username' => 'Marcus',
+				];
+
+
+			slackNotifications($slackMessageBody);
 		}
+	}
+	
+}
+add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
 
 
-		foreach($subscriptionItems as $item){
-			$subscriptionItemsGroup[] = $item['name'];
+
+function wooNoticesMessageBasedOnProduct($subscription, $new_status, $old_status){
+	if(!is_admin()){
+		if($new_status == 'pending-cancel'){
+			$message = "";
+
+			foreach($subscription->get_items() as $item){
+				if(has_term('active-task','product_cat', $item['product_id'])){
+					$message = 'This active task has been succesfully cancelled and will still be available until the end of your current billing period.';
+				}else if(has_term('add-on','product_cat', $item['product_id'])){
+					$message = 'This add on has been succesfully cancelled and will still be available until the end of your current billing period.';
+				}else{
+					$message = 'Your account has been succesfully cancelled. Your Deer Designer team is still available until the end of your current billing period.';
+				}
+			}
+
+			wc_add_notice($message, 'success');
 		}
-
-		if($new_status === 'active'){
-			wc_add_notice('Your ' . implode(" | ", array_unique($subscriptionItemsGroup)) . ' has been reactivated.', 'success');
-		}
-
-		$slackMessageBody = [
-				'text'  => '<!channel> ' . $messageTitle . '
-		*Client:* ' . $customerName . ' | ' . $customerEmail . '
-		*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)) . '
-		:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",
-				'username' => 'Marcus',
-			];
-
-
-		slackNotifications($slackMessageBody);
 	}
 }
-//add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+add_action('woocommerce_subscription_status_updated', 'wooNoticesMessageBasedOnProduct', 10, 3);
 
 
 
@@ -1002,28 +1028,6 @@ function customSubscriptionNoticeText($message){
 
 }
 add_filter('woocommerce_add_message', 'customSubscriptionNoticeText');
-
-
-
-function wooNoticesMessageBasedOnProduct($subscription, $new_status, $old_status){
-	if($new_status == 'pending-cancel'){
-		$message = "";
-
-		foreach($subscription->get_items() as $item){
-			if(has_term('active-task','product_cat', $item['product_id'])){
-				$message = 'This active task has been succesfully cancelled and will still be available until the end of your current billing period.';
-			}else if(has_term('add-on','product_cat', $item['product_id'])){
-				$message = 'This add on has been succesfully cancelled and will still be available until the end of your current billing period.';
-			}else{
-				$message = 'Your account has been succesfully cancelled. Your Deer Designer team is still available until the end of your current billing period.';
-			}
-		}
-
-		wc_add_notice($message, 'success');
-	}
-}
-add_action('woocommerce_subscription_status_updated', 'wooNoticesMessageBasedOnProduct', 10, 3);
-
 
 
 
