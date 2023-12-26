@@ -346,6 +346,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			e.preventDefault();
 			const currentSubscriptionId = e.currentTarget.dataset.subscriptionId
 			const currentSubscriptionStatus = e.currentTarget.dataset.subscriptionStatus
+			const productPrice = e.currentTarget.dataset.productPrice
 			const currentPlan = e.currentTarget.dataset.plan
 			const currentUpdatePlanUrl = e.currentTarget.href
 			const enablePauseFlow = <?php echo sizeof($subscriptions); ?>;
@@ -399,6 +400,23 @@ document.addEventListener("DOMContentLoaded", function(){
 				confirmBtn.addEventListener("click", function(e){
 					e.preventDefault()
 					pauseFlow(currentPlan, currentSubscriptionId, currentTypeOfRequest)
+				})
+				
+				document.querySelector(".cancel_btn").addEventListener("click", function(e){
+					e.preventDefault()
+					closePopup()
+				})
+			}
+			else if(e.currentTarget.classList.contains("rebill")){
+				confirmBtn.href = currentUpdatePlanUrl;
+				popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> $${productPrice} </strong> to the card on your account.`
+				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
+				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
+
+				confirmBtn.addEventListener("click", function(e){
+					closePopup()
+					loadingSpinner.style.display = "flex"
 				})
 				
 				document.querySelector(".cancel_btn").addEventListener("click", function(e){

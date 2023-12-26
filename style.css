@@ -1190,6 +1190,10 @@ input.ff-read-only {
   display: none;
 }
 
+.team_members_form thead th {
+  display: none !important;
+}
+
 /*MEDIA QUERIES*/
 @media (max-width: 768px) {
   .form-row {
