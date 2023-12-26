@@ -634,7 +634,7 @@ function checkIfUserIsActive(){
 	$userSubscriptions = wcs_get_users_subscriptions($user_id);
 
 	$product_id = "";
-	$productsCategories = ['plan'];
+	$productsCategories = [];
 
 	foreach ($userSubscriptions as $subscription){
 		if ($subscription->has_status(array('active'))) {
