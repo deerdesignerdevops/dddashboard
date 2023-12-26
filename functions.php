@@ -43,7 +43,7 @@ add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 
 require_once('stripe/init.php');
-//require_once('custom-email-notifications.php');
+require_once('custom-email-notifications.php');
 
 
 
@@ -63,127 +63,137 @@ add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
 //STRIPE ENDPOINT FOR WEBHOOKS
-function stripeInvoiceGenerationWebhook($req){
-	$invoiceId = $req['data']['object']['id'];
-	$response_data_arr = file_get_contents('php://input');	
-	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
-}
+// function stripeInvoiceGenerationWebhook($req){
+// 	$invoiceId = $req['data']['object']['id'];
+// 	$response_data_arr = file_get_contents('php://input');	
+// 	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
+// }
 
-add_action( 'rest_api_init', function () {
-  register_rest_route( '/stripe/v1','invoicegenerated', array(
-    'methods' => 'POST',
-    'callback' => 'stripeInvoiceGenerationWebhook',
-  ) );
-} );
-
-
-
-function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan){
-	$slackMessageBody = [
-		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
-*Client:* ' . $customerName . ' ' . $customerEmail . '
-*Plan:* ' . $customerPlan . '
-Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
-		'username' => 'Marcus',
-	];
-
-	slackNotifications($slackMessageBody);
-}
+// add_action( 'rest_api_init', function () {
+//   register_rest_route( '/stripe/v1','invoicegenerated', array(
+//     'methods' => 'POST',
+//     'callback' => 'stripeInvoiceGenerationWebhook',
+//   ) );
+// } );
 
 
-function sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl){
-	$body = "<p style='font-family: Helvetica, Arial, sans-serif; font-size: 15px;line-height: 1.5em;font-weight: bold;'>Let's get you on board!</p>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi there, Thanks for signing up! 😍</p>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>To confirm your email and start onboarding, please click the button below:</p>
-<br>
-<a rel='noopener' target='_blank' href='$customerUrl' style='background-color: #43b5a0; font-size: 15px; font-family: Helvetica, Arial, sans-serif; font-weight: bold; text-decoration: none; padding: 10px 20px; color: #ffffff; border-radius: 50px; display: inline-block; mso-padding-alt: 0;'>
-    <!--[if mso]>
-    <i style='letter-spacing: 25px; mso-font-width: -100%; mso-text-raise: 30pt;'>&nbsp;</i>
-    <![endif]-->
-    <span style='mso-text-raise: 15pt;'>Fill out onboarding form</span>
-    <!--[if mso]>S
-    <i style='letter-spacing: 25px; mso-font-width: -100%;'>&nbsp;</i>
-    <![endif]-->
-</a>
-<br><br>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>For your first access use these credentials below:<br>
-username: $customerEmail <br>
-password: change_123
-</p>
-<br><br>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>As soon as you complete the onboarding form, we'll create your profile and match you with a designer (up to 1 business day). Feel free to log in and send your first request.</p>
-<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br> Deer Designer Team</p>
-    <a href='https://deerdesigner.com'><img src='https://deerdesigner.com/wp-content/uploads/logo-horizontal.png' style='width:150px' alt=''></a>";
+
+// function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan){
+// 	$slackMessageBody = [
+// 		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
+// *Client:* ' . $customerName . ' ' . $customerEmail . '
+// *Plan:* ' . $customerPlan . '
+// Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
+// 		'username' => 'Marcus',
+// 	];
+
+// 	slackNotifications($slackMessageBody);
+// }
+
+
+// function sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl){
+// 	$body = "<p style='font-family: Helvetica, Arial, sans-serif; font-size: 15px;line-height: 1.5em;font-weight: bold;'>Let's get you on board!</p>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi there, Thanks for signing up! 😍</p>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>To confirm your email and start onboarding, please click the button below:</p>
+// <br>
+// <a rel='noopener' target='_blank' href='$customerUrl' style='background-color: #43b5a0; font-size: 15px; font-family: Helvetica, Arial, sans-serif; font-weight: bold; text-decoration: none; padding: 10px 20px; color: #ffffff; border-radius: 50px; display: inline-block; mso-padding-alt: 0;'>
+//     <!--[if mso]>
+//     <i style='letter-spacing: 25px; mso-font-width: -100%; mso-text-raise: 30pt;'>&nbsp;</i>
+//     <![endif]-->
+//     <span style='mso-text-raise: 15pt;'>Fill out onboarding form</span>
+//     <!--[if mso]>S
+//     <i style='letter-spacing: 25px; mso-font-width: -100%;'>&nbsp;</i>
+//     <![endif]-->
+// </a>
+// <br><br>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>For your first access use these credentials below:<br>
+// username: $customerEmail <br>
+// password: change_123
+// </p>
+// <br><br>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>As soon as you complete the onboarding form, we'll create your profile and match you with a designer (up to 1 business day). Feel free to log in and send your first request.</p>
+// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br> Deer Designer Team</p>
+//     <a href='https://deerdesigner.com'><img src='https://deerdesigner.com/wp-content/uploads/logo-horizontal.png' style='width:150px' alt=''></a>";
 
 	
-	$subject = "Start your onboarding process now!";
+// 	$subject = "Start your onboarding process now!";
 
-    $headers = array(
-        'Content-Type: text/html; charset=UTF-8',
-        'Reply-To: Wanessa <help@deerdesigner.com>',
-    );
+//     $headers = array(
+//         'Content-Type: text/html; charset=UTF-8',
+//         'Reply-To: Wanessa <help@deerdesigner.com>',
+//     );
 
-	wp_mail($customerEmail, $subject, $body, $headers);
-}
+// 	wp_mail($customerEmail, $subject, $body, $headers);
+// }
 
 
 
-function createUserAfterStripePurchase($req){
-	$stripe = new \Stripe\StripeClient(STRIPE_API);
-	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
-	$invoiceId = $req['data']['object']['id'];
-	$customerName = $customer->name;
-	$customerEmail = $customer->email;
-	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['name'];
-	$customerCity = $customer->address->city;
-	$customerCountry = $customer->address->country;
+// function createUserAfterStripePurchase($req){
+// 	$stripe = new \Stripe\StripeClient(STRIPE_API);
+// 	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
+// 	$invoiceId = $req['data']['object']['id'];
+// 	$customerName = $customer->name;
+// 	$customerEmail = $customer->email;
+// 	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['name'];
+// 	$customerCity = $customer->address->city;
+// 	$customerCountry = $customer->address->country;
 	
-	$response_data_arr = file_get_contents('php://input');
+// 	$response_data_arr = file_get_contents('php://input');
 	
-	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
+// 	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
 
-	$customerUrl = "https://dash.deerdesigner.com/sign-up/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
+// 	$customerUrl = "https://dash.deerdesigner.com/sign-up/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
 
-	if(empty(get_user_by('email', $customerEmail))){
-		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
-		add_user_meta( $newUserId, 'stripe_customer_plan', $customerPlan );
-		add_user_meta( $newUserId, 'stripe_customer_city', $customerCity );
-		add_user_meta( $newUserId, 'stripe_customer_country', $customerCountry );
-		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
-		do_action('emailReminderHook', $customerEmail, $customerUrl);
+// 	if(empty(get_user_by('email', $customerEmail))){
+// 		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
+// 		add_user_meta( $newUserId, 'stripe_customer_plan', $customerPlan );
+// 		add_user_meta( $newUserId, 'stripe_customer_city', $customerCity );
+// 		add_user_meta( $newUserId, 'stripe_customer_country', $customerCountry );
+// 		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
+// 		do_action('emailReminderHook', $customerEmail, $customerUrl);
 
-		if(str_contains($customerPlan, 'Agency')){
-			add_user_meta( $newUserId, 'creative_calls', 4 );
-		}
-	}else{
-		if(str_contains($customerPlan, 'Agency')){
-			$user = get_user_by('email', $customerEmail);
-			$userCreativeCallsLeft =  get_user_meta($user->id, 'creative_calls', true);
-			update_user_meta( $user->id, 'creative_calls', $userCreativeCallsLeft + 4 );
-		}
-	}
+// 		if(str_contains($customerPlan, 'Agency')){
+// 			add_user_meta( $newUserId, 'creative_calls', 4 );
+// 		}
+// 	}else{
+// 		if(str_contains($customerPlan, 'Agency')){
+// 			$user = get_user_by('email', $customerEmail);
+// 			$userCreativeCallsLeft =  get_user_meta($user->id, 'creative_calls', true);
+// 			update_user_meta( $user->id, 'creative_calls', $userCreativeCallsLeft + 4 );
+// 		}
+// 	}
 
-	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
-	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
-}
+// 	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
+// 	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
+// }
 
 
 
-add_action( 'rest_api_init', function () {
-  register_rest_route( '/stripe/v1','paymentcheck', array(
-    'methods' => 'POST',
-    'callback' => 'createUserAfterStripePurchase',
-  ) );
-} );
+// add_action( 'rest_api_init', function () {
+//   register_rest_route( '/stripe/v1','paymentcheck', array(
+//     'methods' => 'POST',
+//     'callback' => 'createUserAfterStripePurchase',
+//   ) );
+// } );
 
 
 
 function populateOnboardingFormHiddenFieldsWithUserMeta($form){
-	$userPlan = get_user_meta(get_current_user_id(), 'stripe_customer_plan', true);
-	$userCity = get_user_meta(get_current_user_id(), 'stripe_customer_city', true);
-	$userCountry = get_user_meta(get_current_user_id(), 'stripe_customer_country', true);
 	$currentUser = wp_get_current_user();
+	$userCity = $currentUser->billing_city;
+	$userCountry = $currentUser->billing_country;
 	$companyName = get_user_meta($currentUser->id, 'billing_company', true);
+
+	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+
+	foreach($userSubscriptions as $sub){
+		foreach($sub->get_items() as $subItem){
+			if(has_term('plan', 'product_cat', $subItem['product_id'])){
+				$userPlan = $subItem['name'];
+			}
+		}
+	}
+
 
 	if($form->id == 3){
 		echo "<script>
@@ -280,32 +290,32 @@ add_action('template_redirect', 'checkIfUserASweredPlanPricingForm');
 
 
 
-function sendStripePaymentFailedNotificationToSlack($req){
-	$stripe = new \Stripe\StripeClient(STRIPE_API);
-	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
-	$customerName = $customer->name;
-	$customerEmail = $customer->email;
+// function sendStripePaymentFailedNotificationToSlack($req){
+// 	$stripe = new \Stripe\StripeClient(STRIPE_API);
+// 	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
+// 	$customerName = $customer->name;
+// 	$customerEmail = $customer->email;
 		
-	$slackMessageBody = [
-		'text'  => '<!channel> Payment failed :x:
-' . $customerName . ' - ' . $customerEmail . '
-:arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
-		'username' => 'Marcus',
-	];
+// 	$slackMessageBody = [
+// 		'text'  => '<!channel> Payment failed :x:
+// ' . $customerName . ' - ' . $customerEmail . '
+// :arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
+// 		'username' => 'Marcus',
+// 	];
 
-	slackNotifications($slackMessageBody);
+// 	slackNotifications($slackMessageBody);
 
-	echo "Payment failed for: $customerName - $customerEmail";
-}
+// 	echo "Payment failed for: $customerName - $customerEmail";
+// }
 
 
 
-add_action( 'rest_api_init', function () {
-  register_rest_route( '/stripe/v1','paymentfailed', array(
-    'methods' => 'POST',
-    'callback' => 'sendStripePaymentFailedNotificationToSlack',
-  ) );
-} );
+// add_action( 'rest_api_init', function () {
+//   register_rest_route( '/stripe/v1','paymentfailed', array(
+//     'methods' => 'POST',
+//     'callback' => 'sendStripePaymentFailedNotificationToSlack',
+//   ) );
+// } );
 
 
 
@@ -381,29 +391,30 @@ add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboard
 
 
 
-function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
-	if($form->id === 3){
-		$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-		$customerCompany = $formData['company_name'];
-		$customerCity = $formData['city'];
-		$customerCountry = $formData['country'];
+// function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
+// 	if($form->id === 3){
+// 		$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+// 		$customerCompany = $formData['company_name'];
+// 		$customerCity = $formData['city'];
+// 		$customerCountry = $formData['country'];
 
-		$slackMessageBody = [
-			'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
-			'username' => 'Marcus',
-		];
+// 		$slackMessageBody = [
+// 			'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
+// 			'username' => 'Marcus',
+// 		];
 
-		slackNotifications($slackMessageBody);
-	}
-}
-add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
+// 		slackNotifications($slackMessageBody);
+// 	}
+// }
+// add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
 
 
 
 function subscribeUserToMoosendEmailList($entryId, $formData, $form){
 	if($form->id === 3){
-		$user_name = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-		$user_email = $formData['email'];
+		$currentUser = wp_get_current_user();
+		$userName = $currentUser->first_name . " " . $currentUser->last_name;
+		$userEmail = $currentUser->user_email;		
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
@@ -413,7 +424,7 @@ function subscribeUserToMoosendEmailList($entryId, $formData, $form){
 			'Content-Type: application/json',
 			'Accept: application/json',
 		]);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$user_name\",\n    \"Email\" : \"$user_email\",\n    \"HasExternalDoubleOptIn\": false}");
+		curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$userName\",\n    \"Email\" : \"$userEmail\",\n    \"HasExternalDoubleOptIn\": false}");
 
 		curl_exec($ch);
 
@@ -624,8 +635,8 @@ add_action( 'woocommerce_subscription_renewal_payment_complete', 'sendRenewalCom
 
 function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form){
 	if($form->id === 3){
-		$userName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-		$currentUser = wp_get_current_user(get_current_user_id());
+		$currentUser = wp_get_current_user();
+		$userName = $currentUser->first_name . " " . $currentUser->last_name;
 		$companyName = $formData['company_name'];
 		$userCity = $currentUser->billing_city;
 		$userCountry = $currentUser->billing_country;
@@ -638,7 +649,7 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		slackNotifications($slackMessageBody);
 	}
 }
-//add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
+add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
 
 
 
@@ -987,7 +998,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 	}
 	
 }
-add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+//add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
 
 
 
@@ -1385,17 +1396,3 @@ function changeCompletedOrderEmailSubjectBasedOnProduct($subject, $order) {
     return $newSubject;
 }
 add_filter('woocommerce_email_subject_customer_completed_order', 'changeCompletedOrderEmailSubjectBasedOnProduct', 10, 2);
-
-
-function redirectSpecificUsersToNewDashboard(){
-	if(is_user_logged_in()){
-		$user = wp_get_current_user();
-
-		if($user->user_email === 'steve@rocketmsp.io' && is_page('dash')){
-			wp_redirect(site_url() . '/dash-woo');
-			exit;
-		}
-	}
-}
-
-add_action('template_redirect', 'redirectSpecificUsersToNewDashboard');
