@@ -95,7 +95,7 @@ function generateInvoicePdfUrl($orderId){
 
 if(isset($_GET['change-plan'])){
 	wc_add_notice('switch', 'success');
-	wp_redirect(site_url() . '/subscriptions');
+	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . '/subscriptions');
 	exit;
 }
 ?>
@@ -238,8 +238,8 @@ else{ ?>
 
 	<?php if($currentUserOrders->max_num_pages > 1){ ?>
 		<div class="user__invoices_pagination">
-			<?php $prevUrl = "$siteUrl/subscriptions/?invoices_page=" . $invoicesPageNumber - 1; ?>
-			<?php $nextUrl = "$siteUrl/subscriptions/?invoices_page=" . $invoicesPageNumber + 1; ?>
+			<?php $prevUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?invoices_page=" . $invoicesPageNumber - 1; ?>
+			<?php $nextUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?invoices_page=" . $invoicesPageNumber + 1; ?>
 			
 			<a href="<?php echo $prevUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber > 1 ? 'btn_active' : 'btn_inactive'; ?>">Prev</a>
 		

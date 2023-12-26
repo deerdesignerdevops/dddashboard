@@ -177,6 +177,53 @@ add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 // } );
 
 
+// function sendStripePaymentFailedNotificationToSlack($req){
+// 	$stripe = new \Stripe\StripeClient(STRIPE_API);
+// 	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
+// 	$customerName = $customer->name;
+// 	$customerEmail = $customer->email;
+		
+// 	$slackMessageBody = [
+// 		'text'  => '<!channel> Payment failed :x:
+// ' . $customerName . ' - ' . $customerEmail . '
+// :arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
+// 		'username' => 'Marcus',
+// 	];
+
+// 	slackNotifications($slackMessageBody);
+
+// 	echo "Payment failed for: $customerName - $customerEmail";
+// }
+
+
+
+// add_action( 'rest_api_init', function () {
+//   register_rest_route( '/stripe/v1','paymentfailed', array(
+//     'methods' => 'POST',
+//     'callback' => 'sendStripePaymentFailedNotificationToSlack',
+//   ) );
+// } );
+
+
+
+// function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
+// 	if($form->id === 3){
+// 		$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
+// 		$customerCompany = $formData['company_name'];
+// 		$customerCity = $formData['city'];
+// 		$customerCountry = $formData['country'];
+
+// 		$slackMessageBody = [
+// 			'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
+// 			'username' => 'Marcus',
+// 		];
+
+// 		slackNotifications($slackMessageBody);
+// 	}
+// }
+// add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
+
+
 
 function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	$currentUser = wp_get_current_user();
@@ -290,35 +337,6 @@ add_action('template_redirect', 'checkIfUserASweredPlanPricingForm');
 
 
 
-// function sendStripePaymentFailedNotificationToSlack($req){
-// 	$stripe = new \Stripe\StripeClient(STRIPE_API);
-// 	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
-// 	$customerName = $customer->name;
-// 	$customerEmail = $customer->email;
-		
-// 	$slackMessageBody = [
-// 		'text'  => '<!channel> Payment failed :x:
-// ' . $customerName . ' - ' . $customerEmail . '
-// :arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
-// 		'username' => 'Marcus',
-// 	];
-
-// 	slackNotifications($slackMessageBody);
-
-// 	echo "Payment failed for: $customerName - $customerEmail";
-// }
-
-
-
-// add_action( 'rest_api_init', function () {
-//   register_rest_route( '/stripe/v1','paymentfailed', array(
-//     'methods' => 'POST',
-//     'callback' => 'sendStripePaymentFailedNotificationToSlack',
-//   ) );
-// } );
-
-
-
 function displayCompanyFieldOnAdminPanel($contactmethods){
 	$newFieldsArray = array(
 	'company_name'   => __('Company Name'),
@@ -389,24 +407,6 @@ function updateIsUserOnboardedAfterOnboardingForm($entryId, $formData, $form){
 }
 add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboardingForm', 10 ,3);
 
-
-
-// function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
-// 	if($form->id === 3){
-// 		$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-// 		$customerCompany = $formData['company_name'];
-// 		$customerCity = $formData['city'];
-// 		$customerCountry = $formData['country'];
-
-// 		$slackMessageBody = [
-// 			'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
-// 			'username' => 'Marcus',
-// 		];
-
-// 		slackNotifications($slackMessageBody);
-// 	}
-// }
-// add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
 
 
 
@@ -606,30 +606,6 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 	}
 }
 add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
-
-
-
-function sendRenewalCompleteNotificationToSlack($subscription){
-	$subscriptionProducts = $subscription->get_items();
-	
-	foreach ($subscriptionProducts as $product) {					
-		$userProductsNames[] = $product['name'];
-	}
-
-	$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
-	$customerEmail = $subscription->data['billing']['email'];
-	
-	$slackMessageBody = [
-			'text'  => 'We have a subscription renewal, <!channel> :smiling_face_with_3_hearts:
-	*Client:* ' . $customerName . ' ' . $customerEmail . '
-	*Plan:* ' . implode(" | ", $userProductsNames),
-			'username' => 'Marcus',
-		];
-
-	slackNotifications($slackMessageBody);
-
-}
-add_action( 'woocommerce_subscription_renewal_payment_complete', 'sendRenewalCompleteNotificationToSlack');
 
 
 
@@ -842,7 +818,7 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 							if($isCurrentUserHaveSubscriptionPlan){
 								WC()->cart->remove_cart_item( $cart_item_key );
 								wc_add_notice('You can\'t purchase this item! Please, use the Change Plan Button in your dashboard!', 'success', array('notice-type' => 'error'));
-								wp_redirect('/subscriptions');
+								wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions");
 								exit;
 							}
 						}
@@ -852,7 +828,7 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 		}
 	}	
 }
-//add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
+add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
 
 
 
@@ -998,7 +974,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 	}
 	
 }
-//add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
 
 
 
@@ -1325,7 +1301,7 @@ function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
 	}
 	
 }
-//add_action('woocommerce_subscription_status_updated', 'cancelActiveTasksByPausePlan', 10, 3);
+add_action('woocommerce_subscription_status_updated', 'cancelActiveTasksByPausePlan', 10, 3);
 
 
 
@@ -1396,3 +1372,17 @@ function changeCompletedOrderEmailSubjectBasedOnProduct($subject, $order) {
     return $newSubject;
 }
 add_filter('woocommerce_email_subject_customer_completed_order', 'changeCompletedOrderEmailSubjectBasedOnProduct', 10, 2);
+
+
+
+function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
+	$renewal_order = wcs_create_renewal_order($subscription);
+	$payment_method = 'stripe';
+	$renewal_order->set_payment_method($payment_method);
+	$renewal_order->calculate_totals();
+	$renewal_order->payment_complete();
+
+	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . '/subscriptions');
+	exit;
+}
+add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');

@@ -8,8 +8,17 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
     $currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
     $pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
-
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? false : true;
+
+    $reactivateUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions/?reactivate_plan=true";
+    $reactivateUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $reactivateUrl );
+
+
+    if(isset($_GET['reactivate_plan']) && isset($_GET['_wpnonce'])){
+        if(wp_verify_nonce($_GET['_wpnonce'], 'action')){
+            do_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', $subscription);
+        }
+    }
     
     ?>
     <div class="dd__subscription_card <?php 
@@ -79,17 +88,17 @@ function subscriptionCardComponent($subscription, $currentProductId){
             <?php } ?>
 
 
-            <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
-            <?php if(!$showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
-                <div class="btn__wrapper">
-                    <a href='<?php echo "$siteUrl/?buy-now=$currentProductId&qty=1&with-cart=0"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button">Reactivate</a>	
-                </div>
-            <?php } ?>
-            <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
+
 
             <div class="dd__subscription_actions_form">
+                <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
+                <?php if(!$showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
+                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate">Reactivate</a>
+                <?php } ?>
+                <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
+
                 <?php if($subscriptionStatus === "active"){ ?>
-                    <a href="<?php echo $siteUrl; ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
+                    <a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' ) ); ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
                 <?php } ?>
 
                 <!--SUBSCRIPTION ACTIONS-->
