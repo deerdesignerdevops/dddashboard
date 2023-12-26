@@ -253,7 +253,7 @@ else{ ?>
 <?php echo do_shortcode('[elementor-template id="1201"]'); ?>
 
 <style>
-	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation, .dd-checklist, .dd-insights{
+	.welcome-h1, .dash__menu, .woocommerce-MyAccount-navigation, .dd-checklist, .dd-insights, .dd-cta{
 		display: none !important;
 	}
 

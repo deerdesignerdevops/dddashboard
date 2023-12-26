@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 ?>
 
 <style>
-.dash__menu, .welcome-h1, .dd-checklist {
+.dash__menu, .welcome-h1, .dd-checklist, .dd-insights, .dd-cta {
 	display: none;
 }
 
