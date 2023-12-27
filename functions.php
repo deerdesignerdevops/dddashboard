@@ -553,14 +553,14 @@ add_filter( 'wcs_view_subscription_actions', 'changeActionsButtonsLabel', 10, 2 
 
 
 function redirectUserAfterSubscriptionStatusUpdated(){
-	$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions";
+	$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions";
 
 	if(is_user_logged_in() && is_wc_endpoint_url('view-subscription')){
 		wp_safe_redirect($url);
 		exit;
 	}
 	else if(is_user_logged_in() && is_wc_endpoint_url('payment-methods')){
-		wp_safe_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . '/edit-account');
+		wp_safe_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'edit-account');
 		exit;
 	}
 }
@@ -743,7 +743,7 @@ function redirectToOnboardingFormAfterCheckout( $orderId ) {
 	wc_add_notice("Your $productNames was added to your account! <p>$confirmationAlertMsg</p>", 'success');
 
 	if($isUserOnboarded || current_user_can('administrator')){
-		$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions";
+		$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions";
 		wp_redirect( $url );
         exit;  
 	}else{
@@ -818,7 +818,7 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 							if($isCurrentUserHaveSubscriptionPlan){
 								WC()->cart->remove_cart_item( $cart_item_key );
 								wc_add_notice('You can\'t purchase this item! Please, use the Change Plan Button in your dashboard!', 'success', array('notice-type' => 'error'));
-								wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions");
+								wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions");
 								exit;
 							}
 						}
@@ -1387,7 +1387,7 @@ function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	$renewal_order->calculate_totals();
 	$renewal_order->payment_complete();
 
-	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . '/subscriptions');
+	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
 	exit;
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
