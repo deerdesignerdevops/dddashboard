@@ -117,7 +117,7 @@ add_action( 'profile_update', 'sendEmailToAdminAfterUserProfileUpdated', 10, 3);
 
 
 function userUpdatedPaymentMethods($message){
-	if(is_wc_endpoint_url('add-payment-method')){
+	if(!is_admin()){
 		if (str_contains($message, 'Payment method successfully added.')) {
 			global $headers;
 			$user = wp_get_current_user();
@@ -146,7 +146,7 @@ add_action('woocommerce_add_message', 'userUpdatedPaymentMethods');
 
 
 function sendEmailToUserWhenPausedPlan($subscription){
-	if(!is_admin()){
+	if(isset($_GET['change_subscription_to'])){
 		global $headers;
 		$user = wp_get_current_user();
 		$userName = "$user->first_name $user->last_name";
@@ -203,7 +203,7 @@ add_action('woocommerce_subscription_status_on-hold', 'sendEmailToUserWhenPaused
 
 
 function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus){
-	if(!is_admin()){
+	if(isset($_GET['change_subscription_to'])){
 		if($newStatus == 'pending-cancel'){
 			foreach($subscription->get_items() as $subItem){
 				if(has_term('plan', 'product_cat', $subItem['product_id'])){
@@ -269,7 +269,7 @@ add_action('woocommerce_subscription_status_updated', 'sendEmailToUserWhenCancel
 
 
 function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldStatus){
-	if(!is_admin()){
+	if(isset($_GET['change_subscription_to'])){
 		if($newStatus == 'pending-cancel'){
 			foreach($subscription->get_items() as $subItem){
 				if(has_term('active-task', 'product_cat', $subItem['product_id'])){
@@ -323,7 +323,7 @@ add_action('woocommerce_subscription_status_updated', 'sendEmailToUserWhenCancel
 
 
 function sendEmailToUserWhenReactivateSubscription($subscription, $newStatus, $oldStatus){
-	if(!is_admin()){
+	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($oldStatus !== 'pending' && $newStatus == 'active'){
 			foreach($subscription->get_items() as $subItem){
 				global $headers;
@@ -361,7 +361,7 @@ add_action('woocommerce_subscription_status_updated', 'sendEmailToUserWhenReacti
 
 
 function sendEmailToAdminWhenReactivateSubscription($subscription, $newStatus, $oldStatus){
-	if(!is_admin()){
+	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($oldStatus !== 'pending' && $newStatus == 'active'){
 			foreach($subscription->get_items() as $subItem){
 				global $headers;
