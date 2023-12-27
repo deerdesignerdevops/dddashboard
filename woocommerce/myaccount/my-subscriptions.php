@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once get_stylesheet_directory() . '/components/subscription-card.php';
 require_once get_stylesheet_directory() . '/components/tasks-addons-card.php';
 require_once get_stylesheet_directory() . '/components/addons-carousel.php';
+require_once get_stylesheet_directory() . '/components/invoices.php';
 
 
 $siteUrl = site_url();
@@ -70,28 +71,6 @@ $allProductAddons = wc_get_products([
 
 $sortedSubscriptions = array_merge($activePlanSubscriptions, $otherSubscriptions);
 
-
-$invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
-$invoicesLimit = 5;
-
-$currentUserOrders = wc_get_orders(array(
-	'customer_id' => get_current_user_id(),
-	'status' => array('wc-completed'),
-	'limit' => $invoicesLimit,
-	'paginate' => true,
-	'paged' => $invoicesPageNumber
-));
-
-function generateInvoicePdfUrl($orderId){
-	$pdfUrl = wp_nonce_url( add_query_arg( array(
-	'action'        => 'generate_wpo_wcpdf',
-	'document_type' => 'invoice',
-	'order_ids'     => $orderId,
-	'my-account'    => true,
-	), admin_url( 'admin-ajax.php' ) ), 'generate_wpo_wcpdf' );
-
-	return $pdfUrl;
-}
 
 if(isset($_GET['change-plan'])){
 	wc_add_notice('switch', 'success');
@@ -225,31 +204,9 @@ else{ ?>
 	</section>
 <?php } ?>
 
-<section class="user__invoices_section" style="margin-top: 40px;">
-	<h2 class="dd__billing_portal_section_title">Your Invoices</h2>
-	<div class="user__invoices_wrapper">
-		<?php foreach($currentUserOrders->orders as $order){ ?>
-			<div class="user__invoice_row">
-				<span>#<?php echo $order->id; ?> - Invoice from <?php echo wc_format_datetime($order->get_date_completed()); ?></span>
-				<a target="_blank" href="<?php echo generateInvoicePdfUrl($order->id); ?>">Download Invoice</a>
-			</div>
-		<?php } ?>
-	</div>
 
+<?php do_action('currentUserInvoicesComponentHook'); ?>
 
-	<?php if($currentUserOrders->max_num_pages > 1){ ?>
-		<div class="user__invoices_pagination">
-			<?php $prevUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?invoices_page=" . $invoicesPageNumber - 1; ?>
-			<?php $nextUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?invoices_page=" . $invoicesPageNumber + 1; ?>
-			
-			<a href="<?php echo $prevUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber > 1 ? 'btn_active' : 'btn_inactive'; ?>">Prev</a>
-		
-			<span><?php echo $invoicesPageNumber; ?></span>
-
-			<a href="<?php echo $nextUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber < $currentUserOrders->max_num_pages ? 'btn_active' : 'btn_inactive'; ?>">Next</a>
-		</div>
-	<?php } ?>
-</section>
 
 <?php echo do_shortcode('[elementor-template id="1201"]'); ?>
 
