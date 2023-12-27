@@ -940,21 +940,23 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 			$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
 			$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
 			$billingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
-			
-			switch ($new_status){
-				case 'on-hold':
-					$messageTitle = 'Subscription Paused :double_vertical_bar:';
-					break;
 
-				case 'pending-cancel':
-					$messageTitle = 'Subscription Cancelled :alert:';
-					$billingMsg = " requested to 'Cancel'. Their billing date is on: $billingPeriodEndingDate";
-					break;
 
-				default:
-					$messageTitle = 'Subscription Reactivated :white_check_mark:';
+			if($new_status === "on-hold"){
+				$messageTitle = 'Subscription Paused :double_vertical_bar:';
+
+			}else if($new_status === "pending-cancel"){
+				$messageTitle = 'Subscription Cancelled :alert:';
+				$billingMsg = " requested to 'Cancel'. Their billing date is on: $billingPeriodEndingDate";
+
+			}else if($old_status === "pending-cancel" && $new_status === "active"){
+				$messageTitle = 'Subscription Cancelled :alert:';
+				$billingMsg = "'s account will not be 'canceled' anymore. Keep the work going";
+
+			}else{
+				$messageTitle = 'Subscription Reactivated :white_check_mark:';
+
 			}
-
 
 			foreach($subscriptionItems as $item){
 				$subscriptionItemsGroup[] = $item['name'];
