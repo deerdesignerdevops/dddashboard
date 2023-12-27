@@ -59,13 +59,13 @@ foreach( $orderItems as $item_id => $item ){
 	$productCategory = $terms[0]->slug;
 
 	if(str_contains(strtolower($itemName), 'director')){
-		$textBasedOnProduct = "You'll be able to book a call with our Creative Director right on your Dashboard.";
+		$textBasedOnProduct = "You've added the Creative Director add-on to your account. From now on, you'll be able to book as many calls with our Creative Director as you want! Feel free to do so right from the Dashboard.";
 
 	}else if(str_contains(strtolower($itemName), 'task')){
-		$textBasedOnProduct = "I'm glad to see that things are going great! <br><br> You've got an additional active task on your account, which means that you'll either get more time from your designer or an additional designer will also work on your requests every day. <br><br> Feel free to let your account manager know which tasks your team should prioritize.";
+		$textBasedOnProduct = "You've added an additional active task to your account. This means you'll get either more time with your designer or an another designer to work on your requests every day. Feel free to let your account manager know which tasks your team should prioritize.";
 
 	}else if(str_contains(strtolower($itemName), 'assets')){
-		$textBasedOnProduct = "We already let the team know, and they'll be using it on your requests starting today. ";
+		$textBasedOnProduct = "You've added the Premium Stock Assets add-on to your account. We've sent a notification to your design team, and they'll be using it on your requests starting today. You can read more the terms and conditions <a href='https://help.deerdesigner.com/article/show/170385-use-of-premium-stock-assets'>here</a>.";
 
 	}else{
 		$textBasedOnProduct = "";
@@ -75,7 +75,7 @@ foreach( $orderItems as $item_id => $item ){
 
 
 
-$userName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+$userName = $orderData['billing']['first_name'];
 $userEmail = $orderData['billing']['email'];
 $companyName = $orderData['billing']['company'];
 $couponDiscount = 0;
@@ -102,11 +102,7 @@ $couponDiscount = 0;
 
 <?php if(!$sent_to_admin){ ?>
 	<?php if($productCategory != 'plan'){ ?>
-		<h3>Hi, <?php echo $userName; ?></h3>
-	<?php } ?>
-
-	<?php if($productCategory === 'add-on'){ ?>
-		<p>Thank you for your purchase! You successfully added <?php echo implode(" | ", $orderItemsGroup); ?> to your subscription.</p>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi <?php echo $userName; ?>,</p>
 	<?php } ?>
 
 	<p><?php echo $textBasedOnProduct; ?></p>
@@ -177,4 +173,5 @@ $couponDiscount = 0;
 		</tfoot>
 	</table>
 </div>
+
 

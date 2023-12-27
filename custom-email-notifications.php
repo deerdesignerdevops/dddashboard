@@ -149,7 +149,7 @@ function sendEmailToUserWhenPausedPlan($subscription){
 	if(isset($_GET['change_subscription_to'])){
 		global $headers;
 		$user = wp_get_current_user();
-		$userName = "$user->first_name $user->last_name";
+		$userName = $user->first_name;
 		$userEmail = $user->user_email;
 		
 		$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
@@ -159,13 +159,12 @@ function sendEmailToUserWhenPausedPlan($subscription){
 		$tomorrowDate = date('F j, Y', strtotime('+1 days'));	
 		$oneDayBeforeBillingPeriodEnds = strtotime('-1 day', $billingDate);
 		
-		$firstSentence = time() == $billingDate ? "Your account has now been put on Pause" : "Your account has been put on Pause";	
-		$subject = "Your account is set to Pause";
+		$subject = "Your account has been paused";
 
 		$messageA = "
-		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
 
-		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>$firstSentence. Your team will still be available to work with you until the end of your current billing cycle ($billingCycle).</p>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your account has been paused and you can still work with your team until your billing period ends on $billingCycle.</p>
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>To reactivate the account, just click on 'Reactivate' next to your plan and we will take care of it for you.</p>
 
@@ -176,7 +175,7 @@ function sendEmailToUserWhenPausedPlan($subscription){
 		";	
 
 		$messageB = "
-		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Just a reminder that your Deer Designer account is scheduled to be paused tomorrow: $tomorrowDate.</p>
 
@@ -209,7 +208,7 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 				if(has_term('plan', 'product_cat', $subItem['product_id'])){
 					global $headers;
 					$user = wp_get_current_user();
-					$userName = "$user->first_name $user->last_name";
+					$userName = $user->first_name;
 					$userEmail = $user->user_email;
 					
 					$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
@@ -219,17 +218,16 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					$tomorrowDate = date('F j, Y', strtotime('+1 days'));	
 					$oneDayBeforeBillingPeriodEnds = strtotime('-1 day', $billingDate);
 					
-					$firstSentence = time() == $billingDate ? "Your account has now been Cancelled" : "Your account is set to be Cancelled.";	
 					$subject = "Your account is set to Cancel";
 
 					$messageA = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>$firstSentence. Your team will still be available to work with you until the end of your current billing cycle ($billingCycle).</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your account has been canceled and you can still work with your team until your billing period ends on $billingCycle.</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>After that date, you'll lose access to your tickets, communication, and designs.</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before the account is cancelled.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you think this is a mistake, please email us at <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before the account is cancelled.</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks for trusting us with your design work during this time.</p>
 
@@ -238,11 +236,11 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					";
 
 						$messageB = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Just a reminder that your Deer Designer account is scheduled to be cancelled tomorrow: $tomorrowDate.</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before the account is cancelled.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you think this is a mistake, please email us at <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before the account is cancelled.</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>I hope to see you again soon!.</p>
 
@@ -275,7 +273,7 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 				if(has_term('active-task', 'product_cat', $subItem['product_id'])){
 					global $headers;
 					$user = wp_get_current_user();
-					$userName = "$user->first_name $user->last_name";
+					$userName = $user->first_name;
 					$userEmail = $user->user_email;
 					
 					$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
@@ -283,21 +281,21 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					$billingDate = strtotime($currentDate->format('F j, Y'));
 					$billingCycle = $currentDate->format('F j, Y');
 					
-					$subject = "Your additional task is set to Cancel";
+					$subject = "Your additional active task has been canceled";
 
 					$messageA = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional task is set to be canceled and it'll still be available until the end of its current billing cycle ($billingCycle).</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional active task has been canceled and it'll still be available until it's billing period ends on $billingCycle.</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before the additional task is cancelled.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you think this is a mistake, please email us at <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before this active task is cancelled.</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 					The Deer Designer Team.</p>
 					";
 
 					$messageB = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional task has now been canceled.</p>
 
@@ -339,11 +337,11 @@ function sendEmailToUserWhenReactivateSubscription($subscription, $newStatus, $o
 					$message = "
 					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your $productName has been reactivated!.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>your account has been reactivated on the $productName!.</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If your previous designer is still free, we'll assign them to you. Otherwise, the team will select a designer who will read your profile, preferences, and past tickets, and they will be ready to start working on your requests as soon as possible.</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>This process takes up to one business day, so feel free to log in and send a request! </p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>This process takes up to one business day, so feel free to log in and send a request!</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Please reach out to help@deerdesigner.com if you need any additional help.</p>
 

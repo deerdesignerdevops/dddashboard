@@ -1364,7 +1364,7 @@ function changeCompletedOrderEmailSubjectBasedOnProduct($subject, $order) {
 		$productName = $orderItem->get_name();
 
 		if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
-			$newSubject = "[$siteTitle]: Thanks for joining Deer Designer - Receipt attached";
+			$newSubject = "[$siteTitle]: Thanks for signing up! Here's your receipt.";
 
 		}elseif(has_term('add-on', 'product_cat', $orderItem->get_product_id())){
 			$newSubject = "[$siteTitle]: You've got a new Add on: $productName";

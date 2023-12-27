@@ -185,7 +185,7 @@ if(isset($_GET['change-plan'])){
 						<?php if($subscription->get_status() !== "cancelled"){ 
 							foreach($subscription->get_items() as $subItem){					
 								if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
-									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on');
+									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on', $activePlanSubscriptions[0]->get_status());
 								}
 							}								
 							} ?>
