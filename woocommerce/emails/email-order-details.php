@@ -113,9 +113,7 @@ $couponDiscount = 0;
 <?php }else{ 
 	 ?>
 	 <?php if($productCategory !== 'add-on'){?>
-		<p style="text-align: center;">Plan: <?php echo $userPlanName; ?>
-			<?php if($currentSubscriptionStatus == 'on-hold' || $currentSubscriptionStatus == 'pending-cancel'){ ?> <span style="text-align: center;"> | Effective on: <?php echo $billingCycle; ?></span><?php } ?> 
-		</p>
+		<p style="text-align: center;">Plan: <?php echo $userPlanName; ?></p>
 	 <?php }
 } ?>
 

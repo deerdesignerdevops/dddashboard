@@ -933,21 +933,25 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 			$subscriptionItems = $subscription->get_items();
 			$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
 			$customerEmail = $subscription->data['billing']['email'];
+			$customerCompany = $subscription->data['billing']['company'];
 			$subscriptionItemsGroup = [];
+			$billingMsg = '';
+
+			$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+			$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
+			$billingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
 			
 			switch ($new_status){
 				case 'on-hold':
-					$newStatusLabel = 'paused';
 					$messageTitle = 'Subscription Paused :double_vertical_bar:';
 					break;
 
 				case 'pending-cancel':
-					$newStatusLabel = 'pending-cancellation';
 					$messageTitle = 'Subscription Cancelled :alert:';
+					$billingMsg = " requested to 'Cancel'. Their billing date is on: $billingPeriodEndingDate";
 					break;
 
 				default:
-					$newStatusLabel = $new_status;
 					$messageTitle = 'Subscription Reactivated :white_check_mark:';
 			}
 
@@ -956,20 +960,19 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 				$subscriptionItemsGroup[] = $item['name'];
 			}
 
-			if($new_status === 'active'){
-				wc_add_notice('Your ' . implode(" | ", array_unique($subscriptionItemsGroup)) . ' has been reactivated.', 'success');
-			}
-
 			$slackMessageBody = [
 					'text'  => '<!channel> ' . $messageTitle . '
-			*Client:* ' . $customerName . ' | ' . $customerEmail . '
-			*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)) . '
-			:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",
+			*Client:* ' . $customerName . ' | ' . $customerCompany . $billingMsg . '
+			*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)),
 					'username' => 'Marcus',
 				];
 
 
 			slackNotifications($slackMessageBody);
+
+			if($new_status === 'active'){
+				wc_add_notice('Your ' . implode(" | ", array_unique($subscriptionItemsGroup)) . ' has been reactivated.', 'success');
+			}
 		}
 	}
 	
