@@ -127,7 +127,7 @@ function userUpdatedPaymentMethods($message){
 			$subject = "Payment method updated";
 
 			$emailMessage = "
-		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName</h2>
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your payment method was updated. If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a>.</p>
 
@@ -162,7 +162,7 @@ function sendEmailToUserWhenPausedPlan($subscription){
 		$subject = "Your account has been paused";
 
 		$messageA = "
-		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
+		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your account has been paused and you can still work with your team until your billing period ends on $billingCycle.</p>
 
@@ -175,7 +175,7 @@ function sendEmailToUserWhenPausedPlan($subscription){
 		";	
 
 		$messageB = "
-		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
+		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Just a reminder that your Deer Designer account is scheduled to be paused tomorrow: $tomorrowDate.</p>
 
@@ -221,7 +221,7 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					$subject = "Your account is set to Cancel";
 
 					$messageA = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
+					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your account has been canceled and you can still work with your team until your billing period ends on $billingCycle.</p>
 
@@ -236,7 +236,7 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					";
 
 						$messageB = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
+					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Just a reminder that your Deer Designer account is scheduled to be cancelled tomorrow: $tomorrowDate.</p>
 
@@ -284,7 +284,7 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					$subject = "Your additional active task has been canceled";
 
 					$messageA = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
+					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional active task has been canceled and it'll still be available until it's billing period ends on $billingCycle.</p>
 
@@ -295,7 +295,7 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					";
 
 					$messageB = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName,</h2>
+					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional task has now been canceled.</p>
 
@@ -335,7 +335,7 @@ function sendEmailToUserWhenReactivateSubscription($subscription, $newStatus, $o
 					$subject = "Your account has been reactivated";
 
 					$message = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi, $userName</h2>
+					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName</h2>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>your account has been reactivated on the $productName!.</p>
 
