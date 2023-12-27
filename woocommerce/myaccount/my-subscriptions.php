@@ -125,7 +125,8 @@ if(isset($_GET['change-plan'])){
 						<?php if($activePlanSubscriptions[0]->get_status() !== "cancelled"){ 
 							foreach($activePlanSubscriptions[0]->get_items() as $subItem){
 								if(has_term('plan', 'product_cat', $subItem['product_id'])){ 
-									do_action('subscriptionCardComponentHook', $activePlanSubscriptions[0], $subItem['variation_id']);
+									$currentProductId = $subItem['variation_id'] ? $subItem['variation_id'] : $subItem['product_id'];
+									do_action('subscriptionCardComponentHook', $activePlanSubscriptions[0], $currentProductId);
 								}
 							}								
 							} ?>

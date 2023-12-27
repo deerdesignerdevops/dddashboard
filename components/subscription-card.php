@@ -3,7 +3,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $siteUrl = site_url();
     $activeTasksProductId = 1600;
     $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
-    //$subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
+    $subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
     $subscriptionStatus = $subscription->get_status();
     $currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
@@ -94,7 +94,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
             <div class="dd__subscription_actions_form">
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
                 <?php if(!$showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
-                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price="">Reactivate</a>
+                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price=<?php echo $subscriptionPlanPrice; ?>>Reactivate</a>
                 <?php } ?>
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
 
