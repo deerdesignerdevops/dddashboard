@@ -54,17 +54,17 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
 
     <section class="user__invoices_section" style="margin-top: 40px;">
         <div class="user__invoices_btn_wrapper">            
-            <?php if(!empty($stripeInvoices)){ ?>
+            <?php if(!empty($stripeInvoices->data)){ ?>
                 <button class="user__invoices_btn" <?php echo !isset($_GET['invoices_page']) ? 'autofocus' : '';  ?> id="previous__invoices_btn">Previous Invoices</button>
             <?php } ?>
 
-            <?php if(!empty($currentUserOrders)){ ?>
-                <button class="user__invoices_btn" <?php if(isset($_GET['invoices_page']) || empty($stripeInvoices)){ echo 'autofocus'; } ?> id="newer__invoices_btn">Your Invoices</button>
+            <?php if(!empty($currentUserOrders->orders)){ ?>
+                <button class="user__invoices_btn" <?php if(isset($_GET['invoices_page']) || empty($stripeInvoices->data)){ echo 'autofocus'; } ?> id="newer__invoices_btn">Your Invoices</button>
             <?php } ?>
         </div>
 
         <div class="user__invoices_container">
-            <?php if(!empty($stripeInvoices)){ ?>
+            <?php if(!empty($stripeInvoices->data)){ ?>
                 <div class="user__invoices_col <?php echo isset($_GET['invoices_page']) ? '' : 'show__content'; ?>" id="previous__invoices">            
                     <div class="user__invoices_wrapper">
                         <?php foreach($stripeInvoices->data as $stripeInvoice){ 
@@ -94,7 +94,7 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
                 </div>
             <?php } ?>
 
-            <?php if(!empty($currentUserOrders)){ ?>
+            <?php if(!empty($currentUserOrders->orders)){ ?>
             <div class="user__invoices_col <?php echo isset($_GET['invoices_page']) ? 'show__content' : ''; ?>" id="newer__invoices">            
                 <div class="user__invoices_wrapper">
                     <?php foreach($currentUserOrders->orders as $order){ ?>
@@ -127,7 +127,7 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
 
     <style>
         .user__invoices_col{
-            display: <?php echo !empty($stripeInvoices) ? 'none' : 'block'; ?>;
+            display: <?php echo !empty($stripeInvoices->data) ? 'none' : 'block'; ?>;
         }
 
         .user__invoices_btn_wrapper{
