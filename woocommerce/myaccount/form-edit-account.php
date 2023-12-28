@@ -17,6 +17,17 @@
 
 defined( 'ABSPATH' ) || exit;
 
+$user = wp_get_current_user();
+$currentUserRoles = $user->roles;
+
+$userCurrentProducts = [];
+$groups_user = new Groups_User( get_current_user_id() );
+$groupId = $groups_user->groups[1]->group_id;
+
+$group = new Groups_Group( $groupId );
+$membersOfCurrentUserGroup = $group->users;
+
+
 ?>
 
 <style>
@@ -39,10 +50,9 @@ fieldset {
 	
 	<div class="account__details_row">
 		<div class="account__details_col">
-			<h2 class="myaccount__page_title">Your details</h2>
-
 			<form class="woocommerce-EditAccountForm edit-account" action="" method="post" <?php do_action( 'woocommerce_edit_account_form_tag' ); ?> >
 				<?php do_action( 'woocommerce_edit_account_form_start' ); ?>
+				<h2 class="myaccount__page_title">Your details</h2>
 
 				<p class="woocommerce-form-row woocommerce-form-row--first form-row form-row-first">
 					<label for="account_first_name"><?php esc_html_e( 'First name', 'woocommerce' ); ?>&nbsp;<span class="required">*</span></label>
@@ -97,74 +107,105 @@ fieldset {
 			<?php do_action( 'woocommerce_after_edit_account_form' ); ?>
 		</div>
 
-		<div class="account__details_col">
-			<?php 
-			//PAYMENT METHODS
-			$saved_methods = wc_get_customer_saved_methods_list( get_current_user_id() );
-			$has_methods   = (bool) $saved_methods;
-			$types         = wc_get_account_payment_methods_types();
 
-			do_action( 'woocommerce_before_account_payment_methods', $has_methods ); ?>
+		<?php if(!in_array('team_member', $currentUserRoles)){ ?>
+			<div class="account__details_col">
+				<div class="payment__methods">
+					<?php 
+					//PAYMENT METHODS
+					$saved_methods = wc_get_customer_saved_methods_list( get_current_user_id() );
+					$has_methods   = (bool) $saved_methods;
+					$types         = wc_get_account_payment_methods_types();
 
-			<?php if ( $has_methods ) : ?>
+					do_action( 'woocommerce_before_account_payment_methods', $has_methods ); ?>
 
-				<h2 class="myaccount__page_title">Payment Methods</h2>
-					
-				<?php foreach ( $saved_methods as $type => $methods ) :  ?>
-					<?php foreach ( $methods as $method ) : ?>
-						<div class="user__invoice_row">
-								<?php foreach ( wc_get_account_payment_methods_columns() as $column_id => $column_name ) : ?>
-										<?php
-											if ( has_action( 'woocommerce_account_payment_methods_column_' . $column_id ) ) {
-												do_action( 'woocommerce_account_payment_methods_column_' . $column_id, $method );
-											} elseif ( 'method' === $column_id ) { ?>
-												<span>
-													<?php
-														if ( ! empty( $method['method']['last4'] ) ) {
-															echo sprintf( esc_html__( '%1$s ending in %2$s', 'woocommerce' ), esc_html( wc_get_credit_card_type_label( $method['method']['brand'] ) ), esc_html( $method['method']['last4'] ) );
-														} else {
-															echo esc_html( wc_get_credit_card_type_label( $method['method']['brand'] ) );
-														}
-													?>
-												
-													<?php
-													} elseif ( 'expires' === $column_id ) {
-														echo ' - ' . esc_html( $method['expires'] );
-													?>
+					<?php if ( $has_methods ) : ?>
 
-												</span>
-											<?php
-											} elseif ( 'actions' === $column_id ) { ?>
-												<div style="display: flex; gap: 12px;">
-
+						<h2 class="myaccount__page_title">Payment Methods</h2>
+							
+						<?php foreach ( $saved_methods as $type => $methods ) :  ?>
+							<?php foreach ( $methods as $method ) : ?>
+								<div class="user__invoice_row">
+										<?php foreach ( wc_get_account_payment_methods_columns() as $column_id => $column_name ) : ?>
 												<?php
-												foreach ( $method['actions'] as $key => $action ) {
-													echo '<a href="' . esc_url( $action['url'] ) . '" >' . esc_html( $action['name'] ) . '</a>';
-												}
+													if ( has_action( 'woocommerce_account_payment_methods_column_' . $column_id ) ) {
+														do_action( 'woocommerce_account_payment_methods_column_' . $column_id, $method );
+													} elseif ( 'method' === $column_id ) { ?>
+														<span>
+															<?php
+																if ( ! empty( $method['method']['last4'] ) ) {
+																	echo sprintf( esc_html__( '%1$s ending in %2$s', 'woocommerce' ), esc_html( wc_get_credit_card_type_label( $method['method']['brand'] ) ), esc_html( $method['method']['last4'] ) );
+																} else {
+																	echo esc_html( wc_get_credit_card_type_label( $method['method']['brand'] ) );
+																}
+															?>
+														
+															<?php
+															} elseif ( 'expires' === $column_id ) {
+																echo ' - ' . esc_html( $method['expires'] );
+															?>
+
+														</span>
+													<?php
+													} elseif ( 'actions' === $column_id ) { ?>
+														<div style="display: flex; gap: 12px;">
+
+														<?php
+														foreach ( $method['actions'] as $key => $action ) {
+															echo '<a href="' . esc_url( $action['url'] ) . '" >' . esc_html( $action['name'] ) . '</a>';
+														}
+														?>
+														</div>
+													<?php }
 												?>
-												</div>
-											<?php }
-										?>
+										<?php endforeach; ?>
+									</div>
 								<?php endforeach; ?>
-							</div>
 						<?php endforeach; ?>
-				<?php endforeach; ?>
 
-			<?php else : ?>
+					<?php else : ?>
 
-				<?php wc_print_notice( esc_html__( 'No saved payment methods found.', 'woocommerce' ), 'notice' ); ?>
+						<?php wc_print_notice( esc_html__( 'No saved payment methods found.', 'woocommerce' ), 'notice' ); ?>
 
-			<?php endif; ?>
+					<?php endif; ?>
 
-			<?php do_action( 'woocommerce_after_account_payment_methods', $has_methods ); ?>
+					<?php do_action( 'woocommerce_after_account_payment_methods', $has_methods ); ?>
 
-			<?php if ( WC()->payment_gateways->get_available_payment_gateways() ) : ?>
-				<div style="margin-top: 20px;">
-					<a class="dd__primary_button" href="<?php echo esc_url( wc_get_endpoint_url( 'add-payment-method' ) ); ?>"><?php esc_html_e( 'Add payment method', 'woocommerce' ); ?></a>
+					<?php if ( WC()->payment_gateways->get_available_payment_gateways() ) : ?>
+						<div style="margin-top: 20px;">
+							<a class="woocommerce-Button button dd__primary_button" href="<?php echo esc_url( wc_get_endpoint_url( 'add-payment-method' ) ); ?>"><?php esc_html_e( 'Add payment method', 'woocommerce' ); ?></a>
+						</div>
+					<?php endif; ?>
 				</div>
-			<?php endif; ?>
-		</div>
+
+				<div class="team__members">
+					<h2 class="myaccount__page_title">Additional Users</h2>
+
+					<?php if(!empty($membersOfCurrentUserGroup) && sizeof($membersOfCurrentUserGroup) > 1){ ?>
+						<div class="team__members_list">
+
+							<?php foreach($membersOfCurrentUserGroup as $group){ ?>
+								<?php if($group->user->id !== get_current_user_id()){ ?>
+									<div class="team__members_row">
+										<span><?php echo $group->user->first_name; ?></span>
+										<span><?php echo $group->user->user_email; ?></span>
+										<a href="<?php echo get_permalink(wc_get_page_id( 'myaccount' )) ?>edit-account/?remove_additional_user=<?php echo $group->user->id ?>">-</a>
+
+									</div>
+								<?php } ?>
+							<?php } ?>
+							
+						</div>	
+					<?php } ?>
+					
+					<?php echo do_shortcode('[fluentform id="7"]'); ?>
+				</div>
+
+
+			</div>
+		<?php } ?>
 	</div>
+
 
 </section>
 

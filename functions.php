@@ -1391,3 +1391,55 @@ function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	exit;
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
+
+
+
+function checkCurrentUserRole(){
+	if(is_user_logged_in()){
+		$user = wp_get_current_user();
+		$currentUserRoles = $user->roles;
+
+		if(in_array('team_member', $currentUserRoles)){
+			echo "<style>
+			.btn__billing{display: none !important;}
+			.paused__user_banner{display: none !important}
+			.account__details_col{width: 100% !important;}
+			</style>";
+			
+			if(is_wc_endpoint_url('subscriptions')){
+				wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
+				exit;
+			}
+		}
+	}
+}
+
+add_action('template_redirect', 'checkCurrentUserRole');
+
+
+function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
+	if($form->id == 7){		
+		foreach($formData['team_members_form'] as $additionalUser){
+			
+			$additionalUserName = $additionalUser[0];
+			$additionalUserEmail = $additionalUser[1];
+			
+			$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+
+			$newUserId = wp_create_user($additionalUserEmail, 'change_123', $additionalUserEmail);
+			if($newUserId){
+				$additionalUser = new WP_User($newUserId);
+				$additionalUser->set_role('team_member');
+				wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
+				
+			}
+		}
+
+		$text = implode(', ', $additionalUsersAdded);
+
+		wc_add_notice("The users $text <br>were successfully added to your team!", 'success');
+
+	}
+	
+}
+add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingForm', 10, 3 );

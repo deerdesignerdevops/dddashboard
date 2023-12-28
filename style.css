@@ -295,8 +295,7 @@ input.ff-read-only {
   font-size: 16px !important;
   line-height: 1.5em !important;
   font-weight: 400 !important;
-  transition: none !important;
-  border-radius: 0px !important;
+  transition: 0.5s !important;
   padding: 10px 30px !important;
 }
 
@@ -973,7 +972,7 @@ input.ff-read-only {
   font-size: 16px !important;
   font-weight: 400 !important;
   line-height: 26px !important;
-  border-radius: 50px 50px 50px 50px !important;
+  border-radius: 50px !important;
   padding: 10px 30px 10px 30px !important;
   text-align: center !important;
   border: 3px solid #000 !important;
@@ -1188,6 +1187,13 @@ input.ff-read-only {
 
 .woocommerce-Button {
   background-color: var(--e-global-color-f5169dc) !important;
+  transition: 0.5s !important;
+}
+
+.woocommerce-Button:hover {
+  color: var(--e-global-color-text) !important;
+  background-color: var(--e-global-color-04b3e11) !important;
+  opacity: 1 !important;
 }
 
 #payment,
