@@ -1443,3 +1443,14 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 	
 }
 add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingForm', 10, 3 );
+
+
+function removeAdditionalUserFromDatabase($userId){
+	wp_delete_user($userId);
+	wc_add_notice("The user was successfully removed from your account!", 'success');
+
+	wp_redirect(get_permalink(wc_get_page_id('myaccount')) . "edit-account");
+	exit;
+}
+
+add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');

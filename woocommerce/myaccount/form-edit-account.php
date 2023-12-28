@@ -27,6 +27,13 @@ $groupId = $groups_user->groups[1]->group_id;
 $group = new Groups_Group( $groupId );
 $membersOfCurrentUserGroup = $group->users;
 
+//REMOVE ADDITIONAL USER FROM DATABASE
+if(isset($_GET['remove_additional_user']) && isset($_GET['_wpnonce'])){
+	if(wp_verify_nonce($_GET['_wpnonce'], 'action')){
+		do_action('removeAdditionalUserFromDatabaseHook', $_GET['remove_additional_user']);
+	}
+}
+
 
 ?>
 
@@ -118,11 +125,9 @@ fieldset {
 					$types         = wc_get_account_payment_methods_types();
 
 					do_action( 'woocommerce_before_account_payment_methods', $has_methods ); ?>
-
-					<?php if ( $has_methods ) : ?>
-
-						<h2 class="myaccount__page_title">Payment Methods</h2>
-							
+					
+					<h2 class="myaccount__page_title">Payment Methods</h2>
+					<?php if ( $has_methods ) : ?>							
 						<?php foreach ( $saved_methods as $type => $methods ) :  ?>
 							<?php foreach ( $methods as $method ) : ?>
 								<div class="user__invoice_row">
@@ -186,11 +191,19 @@ fieldset {
 
 							<?php foreach($membersOfCurrentUserGroup as $group){ ?>
 								<?php if($group->user->id !== get_current_user_id()){ ?>
-									<div class="team__members_row">
-										<span><?php echo $group->user->first_name; ?></span>
-										<span><?php echo $group->user->user_email; ?></span>
-										<a href="<?php echo get_permalink(wc_get_page_id( 'myaccount' )) ?>edit-account/?remove_additional_user=<?php echo $group->user->id ?>">-</a>
+									
+									<?php
+									$removeAdditionalUserUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/edit-account/?remove_additional_user=" . $group->user->id;
+									$removeAdditionalUserUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $removeAdditionalUserUrl );
+									?>
 
+									<div class="team__members_row">
+										<span><strong><?php echo $group->user->first_name; ?></strong></span>
+										
+										<span><?php echo $group->user->user_email; ?>
+											<a href="<?php echo $removeAdditionalUserUrlWithNonce; ?>" onclick="return confirm('Are you sure?')"><i class="fa-solid fa-circle-minus"></i></a>
+										</span>
+										
 									</div>
 								<?php } ?>
 							<?php } ?>
