@@ -21,8 +21,8 @@ $user = wp_get_current_user();
 $currentUserRoles = $user->roles;
 
 $userCurrentProducts = [];
-$groups_user = new Groups_User( get_current_user_id() );
-$groupId = $groups_user->groups[1]->group_id;
+$groupsUser = new Groups_User( get_current_user_id() );
+$groupId = $groupsUser->groups[1]->group_id;
 
 $group = new Groups_Group( $groupId );
 $membersOfCurrentUserGroup = $group->users;

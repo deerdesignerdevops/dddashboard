@@ -1431,18 +1431,18 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 				$additionalUser = new WP_User($newUserId);
 				$additionalUser->set_role('team_member');
 				wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
-				
+				addTeamMembersToCurrentUsersGroup($newUserId);				
 			}
 		}
 
-		$text = implode(', ', $additionalUsersAdded);
 
-		wc_add_notice("The users $text <br>were successfully added to your team!", 'success');
+		wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
 
 	}
 	
 }
 add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingForm', 10, 3 );
+
 
 
 function removeAdditionalUserFromDatabase($userId){
@@ -1454,3 +1454,25 @@ function removeAdditionalUserFromDatabase($userId){
 }
 
 add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');
+
+
+
+function addTeamMembersToCurrentUsersGroup($newUserId){
+	global $wpdb;
+	$groupsUser = new Groups_User( get_current_user_id() );
+
+	$groupId = $groupsUser->groups[1]->group_id;
+	$groupName = $groupsUser->groups[1]->name;
+	$tableName = _groups_get_tablename( 'group' );
+
+	$existingRow = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT * FROM $tableName WHERE name = %s",
+			$groupName,
+		)
+	);
+
+	if($existingRow){
+		Groups_User_Group::create( array( 'user_id' => $newUserId, 'group_id' => $groupId ) );
+	}
+}
