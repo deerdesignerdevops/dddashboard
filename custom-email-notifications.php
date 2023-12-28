@@ -193,7 +193,7 @@ function sendEmailToUserWhenPausedPlan($subscription){
 			wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
 		}else{
 			wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
-			wp_schedule_single_event(time() + 60, 'scheduleEmailToBeSentOnDayBeforeBillingDateEndsHook', array($subscription->id, $userEmail, $subject, emailTemplate($messageB), $headers));
+			wp_schedule_single_event($oneDayBeforeBillingPeriodEnds, 'scheduleEmailToBeSentOnDayBeforeBillingDateEndsHook', array($subscription->id, $userEmail, $subject, emailTemplate($messageB), $headers));
 		}
 	}
 }
@@ -254,7 +254,7 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 						wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
 					}else{
 						wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
-						wp_schedule_single_event(time() + 60, 'scheduleEmailToBeSentOnDayBeforeBillingDateEndsHook', array($subscription->id, $userEmail, $subject, emailTemplate($messageB), $headers));
+						wp_schedule_single_event($oneDayBeforeBillingPeriodEnds, 'scheduleEmailToBeSentOnDayBeforeBillingDateEndsHook', array($subscription->id, $userEmail, $subject, emailTemplate($messageB), $headers));
 					}
 				}
 			}
