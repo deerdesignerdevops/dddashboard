@@ -3,26 +3,30 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
     $stripe = new \Stripe\StripeClient(STRIPE_API);
     $invoicesLimit = 5;
 
-    try{
-        $currentStripeCustomer = $stripe->customers->retrieve($currentUserStripeCustomerId, []);
-        
-        if($currentStripeCustomer){
-            if(isset($_GET["starting_after"])){
-                $stripeInvoices = $stripe->invoices->all(['limit' => 5, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid', 'starting_after' => $_GET["starting_after"]]);
-            }else if(isset($_GET["ending_before"])){
-                $stripeInvoices = $stripe->invoices->all(['limit' => 5, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid', 'ending_before' => $_GET["ending_before"]]);
-            }else{
-                $stripeInvoices = $stripe->invoices->all(['limit' => $invoicesLimit, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid']);
+    if($currentUserStripeCustomerId){
+        try{
+            $currentStripeCustomer = $stripe->customers->retrieve($currentUserStripeCustomerId, []);
+            
+            if($currentStripeCustomer){
+                if(isset($_GET["starting_after"])){
+                    $stripeInvoices = $stripe->invoices->all(['limit' => 5, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid', 'starting_after' => $_GET["starting_after"]]);
+                }else if(isset($_GET["ending_before"])){
+                    $stripeInvoices = $stripe->invoices->all(['limit' => 5, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid', 'ending_before' => $_GET["ending_before"]]);
+                }else{
+                    $stripeInvoices = $stripe->invoices->all(['limit' => $invoicesLimit, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid']);
+                }
             }
+
+            $firstInvoice = $stripeInvoices->data[0];
+            $lastInvoice = end($stripeInvoices->data);
+
+        }catch(Exception $e){
+            $errorMessage = $e->getMessage();
+            echo "Error: $errorMessage";
         }
-
-        $firstInvoice = $stripeInvoices->data[0];
-        $lastInvoice = end($stripeInvoices->data);
-
-    }catch(Exception $e){
-        $errorMessage = $e->getMessage();
-        echo "Error: $errorMessage";
     }
+
+
 
     $invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
     $stripeInvoicesPageNumber = isset($_GET["stripe_invoices_page"]) ? $_GET["stripe_invoices_page"] : 1;
