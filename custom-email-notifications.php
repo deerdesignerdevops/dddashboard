@@ -148,11 +148,12 @@ add_action('woocommerce_add_message', 'userUpdatedPaymentMethods');
 function sendEmailToUserWhenPausedPlan($subscription){
 	if(isset($_GET['change_subscription_to'])){
 		global $headers;
+		$dateToDisplay = $subscription->get_date_to_display( 'last_order_date_created' ) !== "-" ? $subscription->get_date_to_display( 'last_order_date_created' ) : $subscription->get_date_to_display( 'start' );
+
 		$user = wp_get_current_user();
 		$userName = $user->first_name;
 		$userEmail = $user->user_email;
-		
-		$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+		$currentDate = new DateTime($dateToDisplay); 
 		$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
 		$billingDate = strtotime($currentDate->format('F j, Y'));
 		$billingCycle = $currentDate->format('F j, Y');
@@ -193,7 +194,11 @@ function sendEmailToUserWhenPausedPlan($subscription){
 			wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
 		}else{
 			wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
-			wp_schedule_single_event($oneDayBeforeBillingPeriodEnds, 'scheduleEmailToBeSentOnDayBeforeBillingDateEndsHook', array($subscription->id, $userEmail, $subject, emailTemplate($messageB), $headers));
+
+			if(time() < $oneDayBeforeBillingPeriodEnds){
+				wp_schedule_single_event($oneDayBeforeBillingPeriodEnds, 'scheduleEmailToBeSentOnDayBeforeBillingDateEndsHook', array($subscription->id, $userEmail, $subject, emailTemplate($messageB), $headers));
+			}
+
 		}
 	}
 }
@@ -210,8 +215,9 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					$user = wp_get_current_user();
 					$userName = $user->first_name;
 					$userEmail = $user->user_email;
+					$dateToDisplay = $subscription->get_date_to_display( 'last_order_date_created' ) !== "-" ? $subscription->get_date_to_display( 'last_order_date_created' ) : $subscription->get_date_to_display( 'start' );
 					
-					$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+					$currentDate = new DateTime($dateToDisplay); 
 					$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
 					$billingDate = strtotime($currentDate->format('F j, Y'));
 					$billingCycle = $currentDate->format('F j, Y');
@@ -254,7 +260,10 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 						wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
 					}else{
 						wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
-						wp_schedule_single_event($oneDayBeforeBillingPeriodEnds, 'scheduleEmailToBeSentOnDayBeforeBillingDateEndsHook', array($subscription->id, $userEmail, $subject, emailTemplate($messageB), $headers));
+
+						if(time() < $oneDayBeforeBillingPeriodEnds){
+							wp_schedule_single_event($oneDayBeforeBillingPeriodEnds, 'scheduleEmailToBeSentOnDayBeforeBillingDateEndsHook', array($subscription->id, $userEmail, $subject, emailTemplate($messageB), $headers));
+						}
 					}
 				}
 			}
@@ -275,8 +284,9 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					$user = wp_get_current_user();
 					$userName = $user->first_name;
 					$userEmail = $user->user_email;
+					$dateToDisplay = $subscription->get_date_to_display( 'last_order_date_created' ) !== "-" ? $subscription->get_date_to_display( 'last_order_date_created' ) : $subscription->get_date_to_display( 'start' );
 					
-					$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+					$currentDate = new DateTime($dateToDisplay); 
 					$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
 					$billingDate = strtotime($currentDate->format('F j, Y'));
 					$billingCycle = $currentDate->format('F j, Y');
