@@ -1,12 +1,13 @@
 <?php 
 function subscriptionCardComponent($subscription, $currentProductId){ 
+    $dateToDisplay = $subscription->get_date_to_display( 'last_order_date_created' ) !== "-" ? $subscription->get_date_to_display( 'last_order_date_created' ) : $subscription->get_date_to_display( 'start' );
     $siteUrl = site_url();
     $activeTasksProductId = 1600;
     $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
     $subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
     $subscriptionStatus = $subscription->get_status();
-    $currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+    $currentDate = new DateTime($dateToDisplay); 
     $currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
     $pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? false : true;
