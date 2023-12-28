@@ -132,7 +132,7 @@ body a {
 
 /*WOOCOMMERCE MY ACCOUNT PAGE*/
 .myaccount__page_title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: var(--e-global-color-primary);
   border-bottom: 1px solid;
   font-weight: 700;
