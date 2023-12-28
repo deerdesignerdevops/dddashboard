@@ -689,6 +689,23 @@ input.ff-read-only {
   display: none !important;
 }
 
+@keyframes show__content_animation {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: initial;
+  }
+}
+
+.show__content {
+  animation: show__content_animation 0.5s forwards;
+  display: block !important;
+}
+
 .addons__button {
   border-radius: 50px !important;
   background-color: var(--e-global-color-f5169dc) !important;

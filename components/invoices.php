@@ -2,7 +2,7 @@
 function currentUserInvoicesComponent($currentUserStripeCustomerId){
     $stripe = new \Stripe\StripeClient(STRIPE_API);
     $invoicesLimit = 5;
-
+    
     if($currentUserStripeCustomerId){
         try{
             $currentStripeCustomer = $stripe->customers->retrieve($currentUserStripeCustomerId, []);
@@ -49,45 +49,53 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
         'paginate' => true,
         'paged' => $invoicesPageNumber
     ));
+    
     ?>
 
     <section class="user__invoices_section" style="margin-top: 40px;">
-        <div class="user__invoices_container">
-
+        <div class="user__invoices_btn_wrapper">            
             <?php if(!empty($stripeInvoices)){ ?>
-            <div class="user__invoices_col">            
-                <h2 class="dd__billing_portal_section_title">Previous Invoices</h2>
-                <div class="user__invoices_wrapper">
-                    <?php foreach($stripeInvoices->data as $stripeInvoice){ 
-                        $startingAfter = $lastInvoice->id;
-                        $endingBefore = $firstInvoice->id;
-                        ?>
-                        <div class="user__invoice_row">
-                            <span>#<?php echo substr($stripeInvoice->id, -4); ?> - Invoice from <?php echo date('F j, Y', $stripeInvoice->created); ; ?></span>
-                            <a target="_blank" href="<?php echo $stripeInvoice->invoice_pdf; ?>">Download Invoice</a>
+                <button class="user__invoices_btn" <?php echo !isset($_GET['invoices_page']) ? 'autofocus' : '';  ?> id="previous__invoices_btn">Previous Invoices</button>
+            <?php } ?>
+
+            <?php if(!empty($currentUserOrders)){ ?>
+                <button class="user__invoices_btn" <?php if(isset($_GET['invoices_page']) || empty($stripeInvoices)){ echo 'autofocus'; } ?> id="newer__invoices_btn">Your Invoices</button>
+            <?php } ?>
+        </div>
+
+        <div class="user__invoices_container">
+            <?php if(!empty($stripeInvoices)){ ?>
+                <div class="user__invoices_col <?php echo isset($_GET['invoices_page']) ? '' : 'show__content'; ?>" id="previous__invoices">            
+                    <div class="user__invoices_wrapper">
+                        <?php foreach($stripeInvoices->data as $stripeInvoice){ 
+                            $startingAfter = $lastInvoice->id;
+                            $endingBefore = $firstInvoice->id;
+                            ?>
+                            <div class="user__invoice_row">
+                                <span>#<?php echo substr($stripeInvoice->id, -4); ?> - Invoice from <?php echo date('F j, Y', $stripeInvoice->created); ; ?></span>
+                                <a target="_blank" href="<?php echo $stripeInvoice->invoice_pdf; ?>">Download Invoice</a>
+                            </div>
+                        <?php } ?>
+                    </div>
+
+
+                    <?php if(sizeof($stripeInvoices) == 5){ ?>
+                        <div class="user__invoices_pagination">
+                            <?php $prevUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?ending_before=$endingBefore&stripe_invoices_page=" . $stripeInvoicesPageNumber - 1; ?>
+                            <?php $nextUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?starting_after=$startingAfter&stripe_invoices_page=" . $stripeInvoicesPageNumber + 1; ?>
+                            
+                            <a href="<?php echo $prevUrl; ?>" class="user__invoices_pagination_btn <?php echo $stripeInvoicesPageNumber > 1 ? 'btn_active' : 'btn_inactive'; ?>">Prev</a>
+                        
+                            <span><?php echo $stripeInvoicesPageNumber; ?></span>
+
+                            <a href="<?php echo $nextUrl; ?>" class="user__invoices_pagination_btn <?php echo sizeof($stripeInvoices->data) == $invoicesLimit  ? 'btn_active' : 'btn_inactive'; ?>">Next</a>
                         </div>
                     <?php } ?>
                 </div>
-
-
-                <?php if(sizeof($stripeInvoices) == 5){ ?>
-                    <div class="user__invoices_pagination">
-                        <?php $prevUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?ending_before=$endingBefore&stripe_invoices_page=" . $stripeInvoicesPageNumber - 1; ?>
-                        <?php $nextUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?starting_after=$startingAfter&stripe_invoices_page=" . $stripeInvoicesPageNumber + 1; ?>
-                        
-                        <a href="<?php echo $prevUrl; ?>" class="user__invoices_pagination_btn <?php echo $stripeInvoicesPageNumber > 1 ? 'btn_active' : 'btn_inactive'; ?>">Prev</a>
-                    
-                        <span><?php echo $stripeInvoicesPageNumber; ?></span>
-
-                        <a href="<?php echo $nextUrl; ?>" class="user__invoices_pagination_btn <?php echo sizeof($stripeInvoices->data) == $invoicesLimit  ? 'btn_active' : 'btn_inactive'; ?>">Next</a>
-                    </div>
-                </div>
-                <?php } ?>
-            </div>
             <?php } ?>
 
-            <div class="user__invoices_col">            
-                <h2 class="dd__billing_portal_section_title">Your Invoices</h2>
+            <?php if(!empty($currentUserOrders)){ ?>
+            <div class="user__invoices_col <?php echo isset($_GET['invoices_page']) ? 'show__content' : ''; ?>" id="newer__invoices">            
                 <div class="user__invoices_wrapper">
                     <?php foreach($currentUserOrders->orders as $order){ ?>
                         <div class="user__invoice_row">
@@ -112,8 +120,62 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
                 </div>
                 <?php } ?>
             </div>
+            <?php } ?>
         </div>
     </section>
+
+
+    <style>
+        .user__invoices_col{
+            display: <?php echo !empty($stripeInvoices) ? 'none' : 'block'; ?>;
+        }
+
+        .user__invoices_btn_wrapper{
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .user__invoices_btn{
+            background-color: transparent !important;
+            border: none !important;
+            border-bottom: 2px solid transparent !important;
+            border-radius: 0 !important;
+            color: #aaa !important;
+            padding: 10px 0 !important;            
+        }
+
+        .user__invoices_btn:focus{
+            color: var(--e-global-color-text) !important;
+            border-bottom: 2px solid var(--e-global-color-f5169dc) !important;
+            outline: unset !important;
+        }
+
+        
+    </style>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            const previousInvoicesContent = document.querySelector('#previous__invoices')
+            const newerInvoicesContent = document.querySelector('#newer__invoices')
+
+            document.querySelector('#previous__invoices_btn').addEventListener('click', function(){
+                showInvoiceContent(previousInvoicesContent, newerInvoicesContent)
+            });
+           
+            document.querySelector('#newer__invoices_btn').addEventListener('click', function(){
+                showInvoiceContent(newerInvoicesContent, previousInvoicesContent)
+            });
+
+            function showInvoiceContent(invoiceContentToShow, invoiceContentoHide){
+                invoiceContentToShow.classList.add('show__content');
+                invoiceContentoHide.classList.remove('show__content');
+            }
+
+        })
+
+    </script>
 <?php }
 
 
