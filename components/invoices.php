@@ -1,26 +1,33 @@
 <?php
-function currentUserInvoicesComponent(){
+function currentUserInvoicesComponent($currentUserStripeCustomerId){
     $stripe = new \Stripe\StripeClient(STRIPE_API);
     $invoicesLimit = 5;
-    $currentUserStripeCustomerId = get_user_meta(get_current_user_id(), '_stripe_customer_id', true);
 
-    $invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
-    $stripeInvoicesPageNumber = isset($_GET["stripe_invoices_page"]) ? $_GET["stripe_invoices_page"] : 1;
-
-    if($currentUserStripeCustomerId !== ''){
-        if(isset($_GET["starting_after"])){
-            $stripeInvoices = $stripe->invoices->all(['limit' => 5, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid', 'starting_after' => $_GET["starting_after"]]);
-        }else if(isset($_GET["ending_before"])){
-            $stripeInvoices = $stripe->invoices->all(['limit' => 5, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid', 'ending_before' => $_GET["ending_before"]]);
-        }else{
-            $stripeInvoices = $stripe->invoices->all(['limit' => $invoicesLimit, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid']);
+    try{
+        $currentStripeCustomer = $stripe->customers->retrieve($currentUserStripeCustomerId, []);
+        
+        if($currentStripeCustomer){
+            if(isset($_GET["starting_after"])){
+                $stripeInvoices = $stripe->invoices->all(['limit' => 5, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid', 'starting_after' => $_GET["starting_after"]]);
+            }else if(isset($_GET["ending_before"])){
+                $stripeInvoices = $stripe->invoices->all(['limit' => 5, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid', 'ending_before' => $_GET["ending_before"]]);
+            }else{
+                $stripeInvoices = $stripe->invoices->all(['limit' => $invoicesLimit, 'customer' => $currentUserStripeCustomerId, 'status' => 'paid']);
+            }
         }
 
         $firstInvoice = $stripeInvoices->data[0];
         $lastInvoice = end($stripeInvoices->data);
+
+    }catch(Exception $e){
+        $errorMessage = $e->getMessage();
+        echo "Error: $errorMessage";
     }
 
+    $invoicesPageNumber = isset($_GET["invoices_page"]) ? $_GET["invoices_page"] : 1;
+    $stripeInvoicesPageNumber = isset($_GET["stripe_invoices_page"]) ? $_GET["stripe_invoices_page"] : 1;
 
+  
     function generateInvoicePdfUrl($orderId){
         $pdfUrl = wp_nonce_url( add_query_arg( array(
         'action'        => 'generate_wpo_wcpdf',
@@ -59,7 +66,7 @@ function currentUserInvoicesComponent(){
                 </div>
 
 
-                <?php if($currentUserOrders->max_num_pages > 1){ ?>
+                <?php if(sizeof($stripeInvoices) == 5){ ?>
                     <div class="user__invoices_pagination">
                         <?php $prevUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?ending_before=$endingBefore&stripe_invoices_page=" . $stripeInvoicesPageNumber - 1; ?>
                         <?php $nextUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?starting_after=$startingAfter&stripe_invoices_page=" . $stripeInvoicesPageNumber + 1; ?>

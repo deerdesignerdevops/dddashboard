@@ -205,7 +205,10 @@ else{ ?>
 <?php } ?>
 
 
-<?php do_action('currentUserInvoicesComponentHook'); ?>
+<?php 
+	$stripeCustomerId = get_post_meta($activePlanSubscriptions[0]->id, '_stripe_customer_id', true);
+	do_action('currentUserInvoicesComponentHook', $stripeCustomerId);
+?>
 
 
 <?php echo do_shortcode('[elementor-template id="1201"]'); ?>
