@@ -90,6 +90,12 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
 
             <div class="dd__subscription_actions_form">
+                <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
+                <?php if($showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
+                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price=<?php echo $subscriptionPlanPrice; ?>>Reactivate</a>
+                <?php } ?>
+                <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
+
                 <?php if($subscriptionStatus === "active"){ ?>
                     <a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' ) ); ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
                 <?php } ?>
@@ -101,14 +107,6 @@ function subscriptionCardComponent($subscription, $currentProductId){
                 }
                 
                 ?>
-
-                <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
-                <?php if(($subscriptionStatus === 'on-hold' && !$actions['reactivate']) || ($subscriptionStatus === 'on-hold' && $showReactivateButton)){ ?>    
-                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price=<?php echo $subscriptionPlanPrice; ?>>Reactivate</a>
-                <?php } ?>
-                <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
-
-
                     <?php if ( ! empty( $actions ) ) { ?>
                         <div class="dd__subscriptions_buttons_wrapper">						
                             <?php foreach ( $actions as $key => $action ) : ?>															
