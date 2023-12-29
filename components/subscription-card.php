@@ -5,15 +5,12 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
     $subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
-    $subscriptionStatus = $subscription->get_status();
-    $currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
-    $currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-    $pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
-    $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? false : true;
+    $subscriptionStatus = $subscription->get_status();    
+    $pausedPlanBillingPeriodEndingDate = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
+    $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? true : false;
 
     $reactivateUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions/?reactivate_plan=true";
     $reactivateUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $reactivateUrl );
-
 
     if(isset($_GET['reactivate_plan']) && isset($_GET['_wpnonce'])){
         if(wp_verify_nonce($_GET['_wpnonce'], 'action')){
@@ -35,7 +32,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                         <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus);  ?>
                         <br> </strong>
                         <?php
-                        if($subscriptionStatus !== 'active' && $showReactivateButton){ ?>
+                        if($subscriptionStatus !== 'active' && !$showReactivateButton){ ?>
                              Your Deer Designer team is still available until <?php echo $pausedPlanBillingPeriodEndingDate; ?></span>
                         <?php } ?> 
                 </div>
@@ -73,7 +70,11 @@ function subscriptionCardComponent($subscription, $currentProductId){
             </span>
 
             <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
-            <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+
+            <?php if($currentSubscriptionLastOrderStatus === 'completed'){ ?>
+                <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+            <?php } ?>
+            
             
             <?php if($subscriptionStatus === "active"){ ?>
                 <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
@@ -93,7 +94,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
             <div class="dd__subscription_actions_form">
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
-                <?php if(!$showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
+                <?php if($showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
                     <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price=<?php echo $subscriptionPlanPrice; ?>>Reactivate</a>
                 <?php } ?>
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
@@ -105,7 +106,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                 <!--SUBSCRIPTION ACTIONS-->
                 <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
 
-                if($subscriptionStatus === 'pending-cancel' || !$showReactivateButton){
+                if($subscriptionStatus === 'pending-cancel' || $showReactivateButton){
                     unset($actions['reactivate']);
                 }
                 
