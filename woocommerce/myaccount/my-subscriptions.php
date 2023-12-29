@@ -413,6 +413,11 @@ document.addEventListener("DOMContentLoaded", function(){
 					e.preventDefault()
 					cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
 				})
+
+				document.querySelector(".cancel_btn").addEventListener("click", function(e){
+					e.preventDefault()
+					closePopup()
+				})
 			}
 			else if(e.currentTarget.classList.contains("cancel")){
 				popupMsgNewText = "Why are you cancelling? <br><span>Did we do anything wrong?</span>";

@@ -24,6 +24,12 @@ $userCurrentProducts = [];
 $groupsUser = new Groups_User( get_current_user_id() );
 $groupId = $groupsUser->groups[1]->group_id;
 
+foreach($groupsUser->groups as $group){
+	if($group->name !== "Registered"){
+		$groupId = $group->group_id;
+	}
+}
+
 $group = new Groups_Group( $groupId );
 $membersOfCurrentUserGroup = $group->users;
 
