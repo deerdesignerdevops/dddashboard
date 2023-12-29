@@ -633,23 +633,17 @@ function checkIfUserIsActive(){
 	$user_id = get_current_user_id();
 	$userSubscriptions = wcs_get_users_subscriptions($user_id);
 
-	$product_id = "";
-	$productsCategories = [];
-
 	foreach ($userSubscriptions as $subscription){
 		if ($subscription->has_status(array('active'))) {
-			$subscription_products = $subscription->get_items();
-			foreach ($subscription_products as $product) {			
-                $product_id = $product->get_product_id();
-				$terms = get_the_terms( $product_id, 'product_cat' );
-				$productCategory = $terms[0]->slug;
-				$productsCategories[] = $productCategory;
-            }
-
+			foreach ($subscription->get_items() as $product) {			
+				if(has_term('plan', 'product_cat', $product->get_product_id())){
+					$userIsActive = true;
+				}
+			}
 		}
 	}
 
-	if(!in_array("plan", $productsCategories)){
+	if(!$userIsActive){
 		echo "<style>
 			.paused__user_btn{display: none !important}
 			.dd__dashboard_navbar_item{width: 25% !important}
@@ -1460,6 +1454,8 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 					addTeamMembersToCurrentUsersGroup($newUserId);				
 				}
 			}else{
+				$additionalUser = new WP_User($userAlreadyExists->id);
+				$additionalUser->set_role('team_member');
 				addTeamMembersToCurrentUsersGroup($userAlreadyExists->id);	
 			}	
 		};
