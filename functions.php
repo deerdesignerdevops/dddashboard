@@ -1391,3 +1391,26 @@ function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	exit;
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
+
+
+function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
+	$orderId = reset($subscription->get_related_orders());
+	$order = wc_get_order( $orderId );
+	$pausedPlanBillingPeriodEndingDate = 0;
+
+	if($order){
+		if($order->get_data()['status'] === 'completed'){
+			$dateToDisplay = $subscription->get_date( 'last_payment' );
+			$currentDate = new DateTime($dateToDisplay); 
+			$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
+			$pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
+		}
+	}else{
+		$dateToDisplay = $subscription->get_date( 'start' );
+		$currentDate = new DateTime($dateToDisplay); 
+		$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
+		$pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
+	}
+
+	return $pausedPlanBillingPeriodEndingDate;
+}

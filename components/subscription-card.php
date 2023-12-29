@@ -1,20 +1,16 @@
 <?php 
 function subscriptionCardComponent($subscription, $currentProductId){ 
-    $dateToDisplay = $subscription->get_date_to_display( 'last_order_date_created' ) !== "-" ? $subscription->get_date_to_display( 'last_order_date_created' ) : $subscription->get_date_to_display( 'start' );
     $siteUrl = site_url();
     $activeTasksProductId = 1600;
     $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
     $subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
-    $subscriptionStatus = $subscription->get_status();
-    $currentDate = new DateTime($dateToDisplay); 
-    $currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-    $pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
+    $subscriptionStatus = $subscription->get_status();    
+    $pausedPlanBillingPeriodEndingDate = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? true : false;
 
     $reactivateUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions/?reactivate_plan=true";
     $reactivateUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $reactivateUrl );
-
 
     if(isset($_GET['reactivate_plan']) && isset($_GET['_wpnonce'])){
         if(wp_verify_nonce($_GET['_wpnonce'], 'action')){
@@ -74,7 +70,11 @@ function subscriptionCardComponent($subscription, $currentProductId){
             </span>
 
             <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
-            <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+
+            <?php if($currentSubscriptionLastOrderStatus === 'completed'){ ?>
+                <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+            <?php } ?>
+            
             
             <?php if($subscriptionStatus === "active"){ ?>
                 <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
