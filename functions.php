@@ -1071,25 +1071,27 @@ add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddT
 
 
 function prepareOrderDataToCreateTheUserGroupOnDataBase($orderId){
-	$order = wc_get_order( $orderId );
-	$orderData = $order->get_data();
-	$orderItems = $order->get_items();
-	$groupName = strtolower(str_replace(' ', '_', $orderData['billing']['company']));
-	$companyName = $orderData['billing']['company'];
-	$creativeCalls = 0;
-	
-	foreach( $orderItems as $item_id => $item ){
-		if(str_contains(strtolower($item->get_name()), 'call')){
-			$creativeCalls = 1;
+	if(!wcs_order_contains_renewal($orderId)){
+		$order = wc_get_order( $orderId );
+		$orderData = $order->get_data();
+		$orderItems = $order->get_items();
+		$groupName = strtolower(str_replace(' ', '_', $orderData['billing']['company']));
+		$companyName = $orderData['billing']['company'];
+		$creativeCalls = 0;
+		
+		foreach( $orderItems as $item_id => $item ){
+			if(str_contains(strtolower($item->get_name()), 'call')){
+				$creativeCalls = 1;
+			}
+			else if(str_contains(strtolower($item->get_name()), 'agency')){
+				$creativeCalls = 4;
+			}else{
+				$creativeCalls = 0;
+			}
 		}
-		else if(str_contains(strtolower($item->get_name()), 'agency')){
-			$creativeCalls = 4;
-		}else{
-			$creativeCalls = 0;
-		}
-	}
 
-	createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls);
+		createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls);
+	}
 
 }
 add_action('woocommerce_payment_complete', 'prepareOrderDataToCreateTheUserGroupOnDataBase');
