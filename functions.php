@@ -1446,37 +1446,31 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 					$additionalUser = new WP_User($newUserId);
 					$additionalUser->set_role('team_member');
 					wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
-					addTeamMembersToCurrentUsersGroup($newUserId);				
+					update_user_meta( $newUserId, 'is_user_onboarded', 1 );
+					update_user_meta( $newUserId, 'is_first_access', 0 );
+					addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
 				}
 			}else{
-				$additionalUser = new WP_User($userAlreadyExists->id);
-				$additionalUser->set_role('team_member');
-				addTeamMembersToCurrentUsersGroup($userAlreadyExists->id);	
-			}	
-		};
-		
-		wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+				if(in_array('administrator', $userAlreadyExists->roles)){
+					wc_add_notice("You can't add this user!", 'error');
 
-	}
-	
+				}else{
+					$additionalUser = new WP_User($userAlreadyExists->id);
+					$additionalUser->set_role('team_member');
+					update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
+					update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
+					addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
+				}
+
+			}	
+		}		
+	}	
 }
 add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingForm', 10, 3 );
 
 
 
-function removeAdditionalUserFromDatabase($userId){
-	wp_delete_user($userId);
-	wc_add_notice("The user was successfully removed from your account!", 'success');
-
-	wp_redirect(get_permalink(wc_get_page_id('myaccount')) . "edit-account");
-	exit;
-}
-
-add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');
-
-
-
-function addTeamMembersToCurrentUsersGroup($newUserId){
+function addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded){
 	global $wpdb;
 	$groupsUser = new Groups_User( get_current_user_id() );
 	$tableName = _groups_get_tablename( 'group' );
@@ -1498,5 +1492,27 @@ function addTeamMembersToCurrentUsersGroup($newUserId){
 
 	if($existingRow){
 		Groups_User_Group::create( array( 'user_id' => $newUserId, 'group_id' => $groupId ) );
+		wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
 	}
 }
+
+
+
+function removeAdditionalUserFromDatabase($userId){
+	$userToBeDeleted = get_user_by( 'id', $userId);
+
+	if(in_array('administrator', $userToBeDeleted->roles)){
+		wc_add_notice("You can't remove this user!", 'error');
+	}else{
+		wp_delete_user($userId);
+		wc_add_notice("The user was successfully removed from your account!", 'success');
+	}
+
+
+	wp_redirect(get_permalink(wc_get_page_id('myaccount')) . "edit-account");
+	exit;
+}
+
+add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');
+
+
