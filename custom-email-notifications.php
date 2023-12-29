@@ -185,7 +185,7 @@ function sendEmailToUserWhenPausedPlan($subscription){
 		The Deer Designer Team.</p>
 		";
 
-		if(strtotime($billingCycle) == $tomorrowDate){
+		if(strtotime($billingCycle) == strtotime($tomorrowDate)){
 			wp_mail($userEmail, $subject, emailTemplate($messageB), $headers);
 		}else if(strtotime($billingCycle) == time()){
 			wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
@@ -247,7 +247,7 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					The Deer Designer Team.</p>
 					";
 
-					if(strtotime($billingCycle) == $tomorrowDate){
+					if(strtotime($billingCycle) == strtotime($tomorrowDate)){
 						wp_mail($userEmail, $subject, emailTemplate($messageB), $headers);
 					}else if(strtotime($billingCycle) == time()){
 						wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
