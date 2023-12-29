@@ -1426,16 +1426,21 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 			
 			$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
 
-			$newUserId = wp_create_user($additionalUserEmail, 'change_123', $additionalUserEmail);
-			if($newUserId){
-				$additionalUser = new WP_User($newUserId);
-				$additionalUser->set_role('team_member');
-				wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
-				addTeamMembersToCurrentUsersGroup($newUserId);				
-			}
-		}
+			$userAlreadyExists = get_user_by( 'email', $additionalUserEmail );
 
-
+			if(empty($userAlreadyExists)){
+				$newUserId = wp_create_user($additionalUserEmail, 'change_123', $additionalUserEmail);
+				if($newUserId){
+					$additionalUser = new WP_User($newUserId);
+					$additionalUser->set_role('team_member');
+					wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
+					addTeamMembersToCurrentUsersGroup($newUserId);				
+				}
+			}else{
+				addTeamMembersToCurrentUsersGroup($userAlreadyExists->id);	
+			}	
+		};
+		
 		wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
 
 	}
@@ -1460,10 +1465,15 @@ add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromData
 function addTeamMembersToCurrentUsersGroup($newUserId){
 	global $wpdb;
 	$groupsUser = new Groups_User( get_current_user_id() );
-
-	$groupId = $groupsUser->groups[1]->group_id;
-	$groupName = $groupsUser->groups[1]->name;
 	$tableName = _groups_get_tablename( 'group' );
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$groupId = $group->group_id;
+			$groupName = $group->name;
+		}
+	}
+
 
 	$existingRow = $wpdb->get_row(
 		$wpdb->prepare(
