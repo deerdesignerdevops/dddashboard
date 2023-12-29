@@ -930,18 +930,16 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 			$customerCompany = $subscription->data['billing']['company'];
 			$subscriptionItemsGroup = [];
 			$billingMsg = '';
-
-			$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
-			$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-			$billingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
+			$billingPeriodEndingDate =  calculateBillingEndingDateWhenPausedOrCancelled($subscription);
 
 
 			if($new_status === "on-hold"){
 				$messageTitle = 'Subscription Paused :double_vertical_bar:';
+				$billingMsg = " requested to Pause. Their billing date is on: $billingPeriodEndingDate";
 
 			}else if($new_status === "pending-cancel"){
 				$messageTitle = 'Subscription Cancelled :alert:';
-				$billingMsg = " requested to 'Cancel'. Their billing date is on: $billingPeriodEndingDate";
+				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate";
 
 			}else if($old_status === "pending-cancel" && $new_status === "active"){
 				$messageTitle = 'Subscription Cancelled :alert:';
@@ -958,7 +956,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 			$slackMessageBody = [
 					'text'  => '<!channel> ' . $messageTitle . '
-			*Client:* ' . $customerName . ' | ' . $customerCompany . $billingMsg . '
+			*Client:* ' . $customerName . ' | ' . $customerEmail . ' | ' . "($customerCompany)" . $billingMsg . '
 			*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)),
 					'username' => 'Marcus',
 				];
@@ -1388,22 +1386,17 @@ add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUs
 
 
 function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
-	$orderId = reset($subscription->get_related_orders());
-	$order = wc_get_order( $orderId );
-	$pausedPlanBillingPeriodEndingDate = 0;
+	
+	if($subscription->get_status() === 'on-hold'){
+		$newDateTime = new DateTime($subscription->get_date('next_payment'));
+		$pausedPlanBillingPeriodEndingDate = $newDateTime->format('F d, Y');
 
-	if($order){
-		if($order->get_data()['status'] === 'completed'){
-			$dateToDisplay = $subscription->get_date( 'last_payment' );
-			$currentDate = new DateTime($dateToDisplay); 
-			$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-			$pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
-		}
+	}else if($subscription->get_status() === 'pending-cancel'){
+		$newDateTime = new DateTime($subscription->get_date('end'));
+		$pausedPlanBillingPeriodEndingDate = $newDateTime->format('F d, Y');
+
 	}else{
-		$dateToDisplay = $subscription->get_date( 'start' );
-		$currentDate = new DateTime($dateToDisplay); 
-		$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-		$pausedPlanBillingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
+		$pausedPlanBillingPeriodEndingDate = 0;
 	}
 
 	return $pausedPlanBillingPeriodEndingDate;

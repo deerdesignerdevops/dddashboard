@@ -71,10 +71,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
             <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
 
-            <?php if($currentSubscriptionLastOrderStatus === 'completed'){ ?>
-                <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
-            <?php } ?>
-            
+            <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
             
             <?php if($subscriptionStatus === "active"){ ?>
                 <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
@@ -105,7 +102,6 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
                 <!--SUBSCRIPTION ACTIONS-->
                 <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
-
                 if($subscriptionStatus === 'pending-cancel' || $showReactivateButton){
                     unset($actions['reactivate']);
                 }

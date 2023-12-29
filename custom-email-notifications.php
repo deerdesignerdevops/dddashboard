@@ -98,7 +98,7 @@ function sendEmailToAdminAfterUserProfileUpdated($userId, $oldUserData, $userDat
 			$toEmail = get_option( 'admin_email' );
 
 			$message =  "							
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>User info:</h2>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>User info:</p>
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>First name: $userFirstName</p>
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Last name: $userLastName</p>
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Email: $userEmail</p>
@@ -127,7 +127,7 @@ function userUpdatedPaymentMethods($message){
 			$subject = "Payment method updated";
 
 			$emailMessage = "
-		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName</h2>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName</p>
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your payment method was updated. If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a>.</p>
 
@@ -148,22 +148,19 @@ add_action('woocommerce_add_message', 'userUpdatedPaymentMethods');
 function sendEmailToUserWhenPausedPlan($subscription){
 	if(isset($_GET['change_subscription_to'])){
 		global $headers;
-		$dateToDisplay = $subscription->get_date_to_display( 'last_order_date_created' ) !== "-" ? $subscription->get_date_to_display( 'last_order_date_created' ) : $subscription->get_date_to_display( 'start' );
 
 		$user = wp_get_current_user();
 		$userName = $user->first_name;
 		$userEmail = $user->user_email;
-		$currentDate = new DateTime($dateToDisplay); 
-		$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-		$billingDate = strtotime($currentDate->format('F j, Y'));
-		$billingCycle = $currentDate->format('F j, Y');
+
+		$billingCycle = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
 		$tomorrowDate = date('F j, Y', strtotime('+1 days'));	
-		$oneDayBeforeBillingPeriodEnds = strtotime('-1 day', $billingDate);
+		$oneDayBeforeBillingPeriodEnds = strtotime('-1 day', strtotime($billingCycle));
 		
 		$subject = "Your account has been paused";
 
 		$messageA = "
-		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your account has been paused and you can still work with your team until your billing period ends on $billingCycle.</p>
 
@@ -176,9 +173,9 @@ function sendEmailToUserWhenPausedPlan($subscription){
 		";	
 
 		$messageB = "
-		<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
-		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Just a reminder that your Deer Designer account is scheduled to be paused tomorrow: $tomorrowDate.</p>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Just a reminder that your Deer Designer account is scheduled to be paused tomorrow: $billingCycle.</p>
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If things changed and you'd like to keep your account active, just go to the Billing Portal and click on “Reactivate” next to your plan.</p>
 
@@ -188,9 +185,9 @@ function sendEmailToUserWhenPausedPlan($subscription){
 		The Deer Designer Team.</p>
 		";
 
-		if($billingDate == $tomorrowDate){
+		if(strtotime($billingCycle) == $tomorrowDate){
 			wp_mail($userEmail, $subject, emailTemplate($messageB), $headers);
-		}else if($billingDate == time()){
+		}else if(strtotime($billingCycle) == time()){
 			wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
 		}else{
 			wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
@@ -215,19 +212,15 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					$user = wp_get_current_user();
 					$userName = $user->first_name;
 					$userEmail = $user->user_email;
-					$dateToDisplay = $subscription->get_date_to_display( 'last_order_date_created' ) !== "-" ? $subscription->get_date_to_display( 'last_order_date_created' ) : $subscription->get_date_to_display( 'start' );
 					
-					$currentDate = new DateTime($dateToDisplay); 
-					$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-					$billingDate = strtotime($currentDate->format('F j, Y'));
-					$billingCycle = $currentDate->format('F j, Y');
+					$billingCycle = esc_html( $subscription->get_date_to_display( 'end' ) );
 					$tomorrowDate = date('F j, Y', strtotime('+1 days'));	
-					$oneDayBeforeBillingPeriodEnds = strtotime('-1 day', $billingDate);
+					$oneDayBeforeBillingPeriodEnds = strtotime('-1 day', strtotime($billingCycle));
 					
 					$subject = "Your account is set to Cancel";
 
 					$messageA = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your account has been canceled and you can still work with your team until your billing period ends on $billingCycle.</p>
 
@@ -242,9 +235,9 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					";
 
 						$messageB = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Just a reminder that your Deer Designer account is scheduled to be cancelled tomorrow: $tomorrowDate.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Just a reminder that your Deer Designer account is scheduled to be cancelled tomorrow: $billingCycle.</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you think this is a mistake, please email us at <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before the account is cancelled.</p>
 
@@ -254,9 +247,9 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					The Deer Designer Team.</p>
 					";
 
-					if($billingDate == $tomorrowDate){
+					if(strtotime($billingCycle) == $tomorrowDate){
 						wp_mail($userEmail, $subject, emailTemplate($messageB), $headers);
-					}else if($billingDate == time()){
+					}else if(strtotime($billingCycle) == time()){
 						wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
 					}else{
 						wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
@@ -284,17 +277,13 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					$user = wp_get_current_user();
 					$userName = $user->first_name;
 					$userEmail = $user->user_email;
-					$dateToDisplay = $subscription->get_date_to_display( 'last_order_date_created' ) !== "-" ? $subscription->get_date_to_display( 'last_order_date_created' ) : $subscription->get_date_to_display( 'start' );
-					
-					$currentDate = new DateTime($dateToDisplay); 
-					$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-					$billingDate = strtotime($currentDate->format('F j, Y'));
-					$billingCycle = $currentDate->format('F j, Y');
+
+					$billingCycle = esc_html( $subscription->get_date_to_display( 'end' ) );
 					
 					$subject = "Your additional active task has been canceled";
 
 					$messageA = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional active task has been canceled and it'll still be available until it's billing period ends on $billingCycle.</p>
 
@@ -305,7 +294,7 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					";
 
 					$messageB = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</h2>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional task has now been canceled.</p>
 
@@ -315,7 +304,7 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					The Deer Designer Team.</p>
 					";
 
-					if(time() == $billingDate){
+					if(time() == strtotime($billingCycle)){
 						wp_mail($userEmail, $subject, emailTemplate($messageB), $headers);
 					}else{
 						wp_mail($userEmail, $subject, emailTemplate($messageA), $headers);
@@ -345,7 +334,7 @@ function sendEmailToUserWhenReactivateSubscription($subscription, $newStatus, $o
 					$subject = "Your account has been reactivated";
 
 					$message = "
-					<h2 style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName</h2>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>your account has been reactivated on the $productName!.</p>
 
