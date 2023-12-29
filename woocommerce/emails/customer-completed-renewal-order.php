@@ -32,7 +32,7 @@ if ( $additional_content ) {
 }
 ?>
 
-<p style="text-align: center;">You're receiving this email because you have <br>an active subscription with <a href="https://deerdesigner.com">Deer Designer.</a></p>
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>You're receiving this email because you have <br>an active subscription with <a href="https://deerdesigner.com">Deer Designer.</a></p>
 
 <?php
 do_action( 'woocommerce_email_footer', $email );

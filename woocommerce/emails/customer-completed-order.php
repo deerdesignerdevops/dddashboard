@@ -58,6 +58,5 @@ do_action( 'woocommerce_email_customer_details', $order, $sent_to_admin, $plain_
  * @hooked WC_Emails::email_footer() Output the email footer
  */
 ?>
-	<p style="text-align: center;">Thanks, <br> The Deer Designer Team.</p>
 <?php
 do_action( 'woocommerce_email_footer', $email );

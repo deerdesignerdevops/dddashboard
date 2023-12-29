@@ -553,14 +553,14 @@ add_filter( 'wcs_view_subscription_actions', 'changeActionsButtonsLabel', 10, 2 
 
 
 function redirectUserAfterSubscriptionStatusUpdated(){
-	$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions";
+	$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions";
 
 	if(is_user_logged_in() && is_wc_endpoint_url('view-subscription')){
 		wp_safe_redirect($url);
 		exit;
 	}
 	else if(is_user_logged_in() && is_wc_endpoint_url('payment-methods')){
-		wp_safe_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . '/edit-account');
+		wp_safe_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'edit-account');
 		exit;
 	}
 }
@@ -743,7 +743,7 @@ function redirectToOnboardingFormAfterCheckout( $orderId ) {
 	wc_add_notice("Your $productNames was added to your account! <p>$confirmationAlertMsg</p>", 'success');
 
 	if($isUserOnboarded || current_user_can('administrator')){
-		$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions";
+		$url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions";
 		wp_redirect( $url );
         exit;  
 	}else{
@@ -818,7 +818,7 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 							if($isCurrentUserHaveSubscriptionPlan){
 								WC()->cart->remove_cart_item( $cart_item_key );
 								wc_add_notice('You can\'t purchase this item! Please, use the Change Plan Button in your dashboard!', 'success', array('notice-type' => 'error'));
-								wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions");
+								wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions");
 								exit;
 							}
 						}
@@ -928,48 +928,53 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
-	if(!is_admin()){
+	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($old_status !== 'pending' && $new_status !== 'cancelled'){
 			$subscriptionItems = $subscription->get_items();
 			$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
 			$customerEmail = $subscription->data['billing']['email'];
+			$customerCompany = $subscription->data['billing']['company'];
 			$subscriptionItemsGroup = [];
-			
-			switch ($new_status){
-				case 'on-hold':
-					$newStatusLabel = 'paused';
-					$messageTitle = 'Subscription Paused :double_vertical_bar:';
-					break;
+			$billingMsg = '';
 
-				case 'pending-cancel':
-					$newStatusLabel = 'pending-cancellation';
-					$messageTitle = 'Subscription Cancelled :alert:';
-					break;
+			$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+			$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
+			$billingPeriodEndingDate =  str_contains($subscription->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $subscription->get_date_to_display( 'end' );
 
-				default:
-					$newStatusLabel = $new_status;
-					$messageTitle = 'Subscription Reactivated :white_check_mark:';
+
+			if($new_status === "on-hold"){
+				$messageTitle = 'Subscription Paused :double_vertical_bar:';
+
+			}else if($new_status === "pending-cancel"){
+				$messageTitle = 'Subscription Cancelled :alert:';
+				$billingMsg = " requested to 'Cancel'. Their billing date is on: $billingPeriodEndingDate";
+
+			}else if($old_status === "pending-cancel" && $new_status === "active"){
+				$messageTitle = 'Subscription Cancelled :alert:';
+				$billingMsg = "'s account will not be 'canceled' anymore. Keep the work going";
+
+			}else{
+				$messageTitle = 'Subscription Reactivated :white_check_mark:';
+
 			}
-
 
 			foreach($subscriptionItems as $item){
 				$subscriptionItemsGroup[] = $item['name'];
 			}
 
-			if($new_status === 'active'){
-				wc_add_notice('Your ' . implode(" | ", array_unique($subscriptionItemsGroup)) . ' has been reactivated.', 'success');
-			}
-
 			$slackMessageBody = [
 					'text'  => '<!channel> ' . $messageTitle . '
-			*Client:* ' . $customerName . ' | ' . $customerEmail . '
-			*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)) . '
-			:arrow_right: Client has changed his subscription to -> ' . "*$newStatusLabel*",
+			*Client:* ' . $customerName . ' | ' . $customerCompany . $billingMsg . '
+			*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)),
 					'username' => 'Marcus',
 				];
 
 
 			slackNotifications($slackMessageBody);
+
+			if($new_status === 'active'){
+				wc_add_notice('Your ' . implode(" | ", array_unique($subscriptionItemsGroup)) . ' has been reactivated.', 'success');
+			}
 		}
 	}
 	
@@ -1359,7 +1364,7 @@ function changeCompletedOrderEmailSubjectBasedOnProduct($subject, $order) {
 		$productName = $orderItem->get_name();
 
 		if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
-			$newSubject = "[$siteTitle]: Thanks for joining Deer Designer - Receipt attached";
+			$newSubject = "[$siteTitle]: Thanks for signing up! Here's your receipt.";
 
 		}elseif(has_term('add-on', 'product_cat', $orderItem->get_product_id())){
 			$newSubject = "[$siteTitle]: You've got a new Add on: $productName";
@@ -1382,7 +1387,92 @@ function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	$renewal_order->calculate_totals();
 	$renewal_order->payment_complete();
 
-	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . '/subscriptions');
+	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
 	exit;
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
+
+
+
+function checkCurrentUserRole(){
+	if(is_user_logged_in()){
+		$user = wp_get_current_user();
+		$currentUserRoles = $user->roles;
+
+		if(in_array('team_member', $currentUserRoles)){
+			echo "<style>
+			.btn__billing{display: none !important;}
+			.paused__user_banner{display: none !important}
+			.account__details_col{width: 100% !important;}
+			</style>";
+			
+			if(is_wc_endpoint_url('subscriptions')){
+				wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
+				exit;
+			}
+		}
+	}
+}
+
+add_action('template_redirect', 'checkCurrentUserRole');
+
+
+function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
+	if($form->id == 7){		
+		foreach($formData['team_members_form'] as $additionalUser){
+			
+			$additionalUserName = $additionalUser[0];
+			$additionalUserEmail = $additionalUser[1];
+			
+			$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+
+			$newUserId = wp_create_user($additionalUserEmail, 'change_123', $additionalUserEmail);
+			if($newUserId){
+				$additionalUser = new WP_User($newUserId);
+				$additionalUser->set_role('team_member');
+				wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
+				addTeamMembersToCurrentUsersGroup($newUserId);				
+			}
+		}
+
+
+		wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+
+	}
+	
+}
+add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingForm', 10, 3 );
+
+
+
+function removeAdditionalUserFromDatabase($userId){
+	wp_delete_user($userId);
+	wc_add_notice("The user was successfully removed from your account!", 'success');
+
+	wp_redirect(get_permalink(wc_get_page_id('myaccount')) . "edit-account");
+	exit;
+}
+
+add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');
+
+
+
+function addTeamMembersToCurrentUsersGroup($newUserId){
+	global $wpdb;
+	$groupsUser = new Groups_User( get_current_user_id() );
+
+	$groupId = $groupsUser->groups[1]->group_id;
+	$groupName = $groupsUser->groups[1]->name;
+	$tableName = _groups_get_tablename( 'group' );
+
+	$existingRow = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT * FROM $tableName WHERE name = %s",
+			$groupName,
+		)
+	);
+
+	if($existingRow){
+		Groups_User_Group::create( array( 'user_id' => $newUserId, 'group_id' => $groupId ) );
+	}
+}

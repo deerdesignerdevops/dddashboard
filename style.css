@@ -132,7 +132,7 @@ body a {
 
 /*WOOCOMMERCE MY ACCOUNT PAGE*/
 .myaccount__page_title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: var(--e-global-color-primary);
   border-bottom: 1px solid;
   font-weight: 700;
@@ -295,8 +295,7 @@ input.ff-read-only {
   font-size: 16px !important;
   line-height: 1.5em !important;
   font-weight: 400 !important;
-  transition: none !important;
-  border-radius: 0px !important;
+  transition: 0.5s !important;
   padding: 10px 30px !important;
 }
 
@@ -689,6 +688,23 @@ input.ff-read-only {
   display: none !important;
 }
 
+@keyframes show__content_animation {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: initial;
+  }
+}
+
+.show__content {
+  animation: show__content_animation 0.5s forwards;
+  display: block !important;
+}
+
 .addons__button {
   border-radius: 50px !important;
   background-color: var(--e-global-color-f5169dc) !important;
@@ -956,7 +972,7 @@ input.ff-read-only {
   font-size: 16px !important;
   font-weight: 400 !important;
   line-height: 26px !important;
-  border-radius: 50px 50px 50px 50px !important;
+  border-radius: 50px !important;
   padding: 10px 30px 10px 30px !important;
   text-align: center !important;
   border: 3px solid #000 !important;
@@ -1171,6 +1187,13 @@ input.ff-read-only {
 
 .woocommerce-Button {
   background-color: var(--e-global-color-f5169dc) !important;
+  transition: 0.5s !important;
+}
+
+.woocommerce-Button:hover {
+  color: var(--e-global-color-text) !important;
+  background-color: var(--e-global-color-04b3e11) !important;
+  opacity: 1 !important;
 }
 
 #payment,
@@ -1192,6 +1215,40 @@ input.ff-read-only {
 
 .team_members_form thead th {
   display: none !important;
+}
+
+/*EDIT ACCOUNT PAGE*/
+.account__details_row {
+  display: flex;
+  gap: 40px;
+  justify-content: space-between;
+}
+
+.account__details_col {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.team__members_row,
+.team__members_row span {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0 0 20px 0;
+  color: var(--e-global-color-text);
+  font-size: 1rem;
+}
+
+.team__members_row a {
+  color: var(--e-global-color-secondary);
+  font-size: 1.5rem;
+}
+
+.team__members_row a:hover {
+  color: var(--e-global-color-text);
 }
 
 /*MEDIA QUERIES*/

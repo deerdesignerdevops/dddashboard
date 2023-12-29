@@ -17,6 +17,10 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Please reach out to <a href="mailto:help@deerdesigner.com">help@deerdesigner.com</a> if you need any additional help.</p>
+
+<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+The Deer Designer Team.</p>
 																		</div>
 																	</td>
 																</tr>

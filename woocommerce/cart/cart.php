@@ -222,7 +222,7 @@ $allProductAddons = wc_get_products([
 
 ?>
 
-<?php if(!empty($allProductAddons)){ ?>
+<?php if(!empty($allProductAddons) && current_user_can('administrator')){ ?>
 	<div class="cart__addons">
 		<h2 class="cart__header__title">Available Addons</h2>
 		<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">								
