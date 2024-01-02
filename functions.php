@@ -1141,16 +1141,20 @@ add_filter('woocommerce_email_subject_customer_completed_order', 'changeComplete
 
 
 function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
-	$renewal_order = wcs_create_renewal_order($subscription);
-	$payment_method = 'stripe';
-	$renewal_order->set_payment_method($payment_method);
-	$renewal_order->calculate_totals();
-	$renewal_order->payment_complete();
+	$renewalOrder = wcs_create_renewal_order($subscription);
+	$paymentMethod = 'stripe';
+	$renewalOrder->set_payment_method($paymentMethod);
+	$renewalOrder->calculate_totals();
+	$renewalOrder->payment_complete();
+	$newSubscriptionStartDate = $renewalOrder->date_created->date('Y-m-d H:i:s');
+	$subscription->update_dates(array('start' => $newSubscriptionStartDate));
+
 
 	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
 	exit;
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
+
 
 
 function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
