@@ -438,7 +438,7 @@ function checkIfUserIsActive(){
 	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 
 	foreach ($userSubscriptions as $subscription){
-		if ($subscription->has_status(array('active'))) {
+		if ($subscription->has_status(array('active', 'on-hold'))) {
 			foreach ($subscription->get_items() as $product) {	
 				if(has_term('plan', 'product_cat', $product['product_id'])){
 					$isCurrentUserActive = true;
