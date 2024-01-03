@@ -516,4 +516,40 @@ function sendWelcomeEmailAfterOnboardingFormOneWeekLater($userName, $userEmail){
 add_action('sendWelcomeEmailAfterOnboardingFormOneWeekLaterHook', 'sendWelcomeEmailAfterOnboardingFormOneWeekLater', 10, 2);
 
 
+function sendWelcomeEmailToAdditionalTeamMembers($userName, $userEmail, $accountOwnerId, $userPassword = false){
+	global $headers;
+	$accountOwner = get_user_by( 'id', $accountOwnerId);
+	$companyName = get_user_meta($accountOwnerId, 'billing_company', true);
+
+	$subject = "Welcome to Deer Designer";
+
+	$messageA = "
+		Hey $userName,<br><br>
+		$accountOwner->first_name from $companyName just added you to their group in our system!<br><br>
+
+		Here is your credentials: <br><br>
+		Login: $userEmail<br>
+		Password: $userPassword<br>
+
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+		The Deer Designer Team.</p>
+	";
+
+	$messageB = "
+		Hey $userName,<br><br>
+		$accountOwner->first_name from $companyName just added you to their group in our system!<br><br>
+
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+		The Deer Designer Team.</p>
+	";
+
+	if($userPassword){
+		$finalMessage = $messageA;
+	}else{
+		$finalMessage = $messageB;
+	}
+
+	wp_mail($userEmail, $subject, emailTemplate($finalMessage), $headers);
+}
+
 ?>

@@ -37,7 +37,6 @@ foreach ($userSubscriptions as $subscription){
 
 
 $groupsUser = new Groups_User( get_current_user_id() );
-$groupId = $groupsUser->groups[1]->group_id;
 
 foreach($groupsUser->groups as $group){
 	if($group->name !== "Registered"){

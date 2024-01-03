@@ -441,8 +441,29 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 
 
-function checkIfUserIsActive(){
-	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+function getCurrentUserAccountOwner(){
+	$groupsUser = new Groups_User( get_current_user_id() );
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$currentUserGroup = new Groups_Group( $group->group_id );
+		}
+	}
+	
+	foreach($currentUserGroup->users as $group){
+		$groupUserData = get_userdata($group->user->id);
+		
+		if(in_array('subscriber', $groupUserData->roles)){
+			checkIfUserIsActive($group->user->id);
+		}
+	}
+}
+add_action('template_redirect', 'getCurrentUserAccountOwner');
+
+
+
+function checkIfUserIsActive($accountOwnerId){
+	$userSubscriptions = wcs_get_users_subscriptions($accountOwnerId);
 
 	foreach ($userSubscriptions as $subscription){
 		if ($subscription->has_status(array('active', 'on-hold'))) {
@@ -457,17 +478,14 @@ function checkIfUserIsActive(){
 	if(!$isCurrentUserActive){
 		echo "<style>
 			.paused__user_btn{display: none !important}
-			.dd__dashboard_navbar_item{width: 25% !important}
 		</style>";
 	}else{
 		echo "<style>
 			.paused__user_banner{display: none !important}
-			.dd__dashboard_navbar_item{width: 33% !important}
 		</style>";
 	}
 
 }
-add_action('template_redirect', 'checkIfUserIsActive');
 
 
 
@@ -1218,13 +1236,12 @@ add_action('template_redirect', 'hideBillingPortalFromTeamMembers');
 
 function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 	if($form->id == 7){		
-		foreach($formData['team_members_form'] as $additionalUser){
-			
-			$additionalUserName = $additionalUser[0];
-			$additionalUserEmail = $additionalUser[1];
-			
-			$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+		
+		$additionalUsersAdded = [];
 
+		foreach($formData['team_members_form'] as $additionalUser){
+			$additionalUserName = $additionalUser[0];
+			$additionalUserEmail = $additionalUser[1];			
 			$userAlreadyExists = get_user_by( 'email', $additionalUserEmail );
 
 			if($userAlreadyExists){
@@ -1236,25 +1253,34 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 					$additionalUser->set_role('team_member');
 					update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
 					update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
+					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
 					addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
+					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
 				}
 
 			}else{
 				$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 				$passwordCharactersLength = 8;
 				$newUserRandomPassword = substr(str_shuffle($characters), 0, $passwordCharactersLength);
-
 				$newUserId = wp_create_user($additionalUserEmail, $newUserRandomPassword, $additionalUserEmail);
+
 				if($newUserId){
 					$additionalUser = new WP_User($newUserId);
 					$additionalUser->set_role('team_member');
 					wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
 					update_user_meta( $newUserId, 'is_user_onboarded', 1 );
 					update_user_meta( $newUserId, 'is_first_access', 0 );
+					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
 					addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
+					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
 				};
 			}	
-		}		
+		}	
+		
+		if(!empty($additionalUsersAdded)){
+			sendAdditionalusersNotificationToSlack($additionalUsersAdded);
+			wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+		}
 	}	
 }
 add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingForm', 10, 3 );
@@ -1263,8 +1289,6 @@ add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingFo
 
 function addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded){
 	global $wpdb;
-	$accountOwner = wp_get_current_user();
-	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
 	$groupsUser = new Groups_User( get_current_user_id() );
 	$tableName = _groups_get_tablename( 'group' );
 
@@ -1285,18 +1309,24 @@ function addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded){
 
 	if($existingRow){
 		Groups_User_Group::create( array( 'user_id' => $newUserId, 'group_id' => $groupId ) );
-		wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
-		
-		$slackMessageBody = [
-				'text'  => '<!channel> A client just added new team members to their account:  ' . '
-		*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
-		*Team Members:* ' . implode(', ', $additionalUsersAdded),
-				'username' => 'Marcus',
-			];
-
-
-		slackNotifications($slackMessageBody);
 	}
+}
+
+
+
+function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
+	$accountOwner = wp_get_current_user();
+	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
+
+	$slackMessageBody = [
+			'text'  => '<!channel> A client just added new team members to their account:  ' . '
+	*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
+	*Team Members:* ' . implode(', ', $additionalUsersAdded),
+			'username' => 'Marcus',
+		];
+
+
+	slackNotifications($slackMessageBody);
 }
 
 
