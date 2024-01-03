@@ -402,14 +402,14 @@ function customRetryPaymentRules( $default_retry_rules_array ) {
                 'email_template_customer'         => 'WCS_Email_Customer_Payment_Retry',
                 'email_template_admin'            => 'WCS_Email_Payment_Retry',
                 'status_to_apply_to_order'        => 'pending',
-                'status_to_apply_to_subscription' => 'active',
+                'status_to_apply_to_subscription' => 'on-hold',
             ),
             array(
                 'retry_after_interval'            => 86400 /*24 HOURS*/,
                 'email_template_customer'         => 'WCS_Email_Customer_Payment_Retry',
                 'email_template_admin'            => 'WCS_Email_Payment_Retry',
                 'status_to_apply_to_order'        => 'pending',
-                'status_to_apply_to_subscription' => 'active',
+                'status_to_apply_to_subscription' => 'on-hold',
             )
         );
 }
