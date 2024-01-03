@@ -27,9 +27,9 @@ do_action( 'woocommerce_email_customer_details', $order, $sent_to_admin, $plain_
 /**
  * Show user-defined additional content - this is set in each email's settings.
  */
-if ( $additional_content ) {
-	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
-}
+// if ( $additional_content ) {
+// 	echo wp_kses_post( wpautop( wptexturize( $additional_content ) ) );
+// }
 ?>
 
 <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>You're receiving this email because you have <br>an active subscription with <a href="https://deerdesigner.com">Deer Designer.</a></p>
