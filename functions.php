@@ -415,8 +415,12 @@ add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSl
 
 function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form){
 	if($form->id === 3){
+		$weekInSeconds = 7 * 24 * 60 * 60;
+		$fiveMin = 5 * 60;
+
 		$currentUser = wp_get_current_user();
 		$userName = $currentUser->first_name . " " . $currentUser->last_name;
+		$userEmail = $currentUser->user_email;
 		$companyName = $formData['company_name'];
 		$userCity = $currentUser->billing_city;
 		$userCountry = $currentUser->billing_country;
@@ -428,6 +432,9 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		];
 
 		slackNotifications($slackMessageBody);
+		wp_schedule_single_event(time() + $fiveMin, 'sendWelcomeEmailAfterOnboardingFormHook', array($userName, $userEmail));
+		wp_schedule_single_event(time() + $weekInSeconds, 'sendWelcomeEmailAfterOnboardingFormOneWeekLaterHook', array($userName, $userEmail));
+
 	}
 }
 add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
@@ -1145,15 +1152,24 @@ function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	$paymentMethod = 'stripe';
 	$renewalOrder->set_payment_method($paymentMethod);
 	$renewalOrder->calculate_totals();
-	$renewalOrder->payment_complete();
-	$newSubscriptionStartDate = $renewalOrder->date_created->date('Y-m-d H:i:s');
-	$subscription->update_dates(array('start' => $newSubscriptionStartDate));
-
+	
+	do_action('woocommerce_order_action_wcs_retry_renewal_payment', $renewalOrder);
 
 	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
 	exit;
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
+
+
+
+function showPaymentFailedNoticeToUserWhenReactivateSubscription($orderId){
+	$accountDetailsUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . 'edit-account';
+	if(isset($_GET['reactivate_plan'])){
+		wc_add_notice("The plan was not reactivated because the payment has failed! Update your <a href='" . $accountDetailsUrl . "'>payment details</a> and try again.", 'error');
+	}
+
+}
+add_action( 'woocommerce_order_status_failed', 'showPaymentFailedNoticeToUserWhenReactivateSubscription');
 
 
 
