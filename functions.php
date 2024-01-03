@@ -415,8 +415,12 @@ add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSl
 
 function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form){
 	if($form->id === 3){
+		$weekInSeconds = 7 * 24 * 60 * 60;
+		$fiveMin = 5 * 60;
+
 		$currentUser = wp_get_current_user();
 		$userName = $currentUser->first_name . " " . $currentUser->last_name;
+		$userEmail = $currentUser->user_email;
 		$companyName = $formData['company_name'];
 		$userCity = $currentUser->billing_city;
 		$userCountry = $currentUser->billing_country;
@@ -428,6 +432,9 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		];
 
 		slackNotifications($slackMessageBody);
+		wp_schedule_single_event(time() + $fiveMin, 'sendWelcomeEmailAfterOnboardingFormHook', array($userName, $userEmail));
+		wp_schedule_single_event(time() + $weekInSeconds, 'sendWelcomeEmailAfterOnboardingFormOneWeekLaterHook', array($userName, $userEmail));
+
 	}
 }
 add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);

@@ -445,5 +445,75 @@ add_action('scheduleEmailToBeSentOnDayBeforeBillingDateEndsHook', 'scheduleEmail
 
 
 
+function sendWelcomeEmailAfterOnboardingForm($userName, $userEmail){
+	$headers = array(
+		'Content-Type: text/html; charset=UTF-8',
+		'From: Thiago <thiago@deerdesigner.com>',
+		'Reply-To: Thiago <thiago@deerdesigner.com>',
+	);
+
+	$subject = "Hey $userName, Thiago here!😉";
+
+	$message = "
+		Hey $userName, welcome to the team!
+		<br><br>
+
+		I'm thrilled to have you on board! Every time someone joins Deer Designer, we ring our 🔔 and celebrate! 🎉🍾
+		<br><br>
+
+		Thank you for answering the onboarding questions. They help us understand your needs and create your client profile in our platform. This process will take around 1 business day and we'll email you as soon as we're ready for your first request.
+		<br><br>
+
+		In your first month with us, different members of our team will work with you and keep an eye on your requests. During this time, your feedback is more important than ever and will allow us to settle on the best account manager and designer to work with you in the long run. 
+		<br><br>
+
+		While you wait to send your first request, <a href='https://deerdesigner.com/our-processes' target='_blank' style='color: #54c1a2;'>here's what you should know about our processes</a>.
+		<br><br>
+
+		We also created a <a href='https://help.deerdesigner.com/' target='_blank' style='color: #54c1a2;'>Help Centre</a> where you can check some of our clients' frequently asked questions.
+		<br><br>
+
+		Speak soon,<br>
+		Thiago<br><br>
+
+		PS: If you'd like a quick onboarding call to get things started, please <a href='https://book.deer.tools/client-onboarding/' target='_blank' style='color: #54c1a2;'>book the best time that suits you here</a>.
+	";
+
+	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+}
+
+
+add_action('sendWelcomeEmailAfterOnboardingFormHook', 'sendWelcomeEmailAfterOnboardingForm', 10, 2);
+
+
+
+function sendWelcomeEmailAfterOnboardingFormOneWeekLater($userName, $userEmail){
+	$headers = array(
+		'Content-Type: text/html; charset=UTF-8',
+		'From: Thiago <thiago@deerdesigner.com>',
+		'Reply-To: Thiago <thiago@deerdesigner.com>',
+	);
+
+	$subject = "A week already?⚡";
+
+	$message = "
+		Hey $userName, Thiago here again.<br><br>
+		It's been a week now since you've joined Deer Designer. It goes fast, hey? 🚀<br><br>
+
+		I'd love to hear your thoughts on the service so far. Do you have any questions or ideas? <br><br>
+
+		Just hit reply and let me know!<br><br>
+
+		Cheers,<br>
+		Thiago<br>
+		Founder @ Deer Designer
+	";
+
+	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+}
+
+
+add_action('sendWelcomeEmailAfterOnboardingFormOneWeekLaterHook', 'sendWelcomeEmailAfterOnboardingFormOneWeekLater', 10, 2);
+
 
 ?>
