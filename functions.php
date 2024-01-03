@@ -1145,12 +1145,24 @@ function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	$paymentMethod = 'stripe';
 	$renewalOrder->set_payment_method($paymentMethod);
 	$renewalOrder->calculate_totals();
-	$renewalOrder->payment_complete();
+	
+	do_action('woocommerce_order_action_wcs_retry_renewal_payment', $renewalOrder);
 
 	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
 	exit;
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
+
+
+
+function showPaymentFailedNoticeToUserWhenReactivateSubscription($orderId){
+	$accountDetailsUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . 'edit-account';
+	if(isset($_GET['reactivate_plan'])){
+		wc_add_notice("The plan was not reactivated because the payment has failed! Update your <a href='" . $accountDetailsUrl . "'>payment details</a> and try again.", 'error');
+	}
+
+}
+add_action( 'woocommerce_order_status_failed', 'showPaymentFailedNoticeToUserWhenReactivateSubscription');
 
 
 
