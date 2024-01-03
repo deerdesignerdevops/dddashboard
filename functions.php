@@ -1146,9 +1146,6 @@ function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	$renewalOrder->set_payment_method($paymentMethod);
 	$renewalOrder->calculate_totals();
 	$renewalOrder->payment_complete();
-	$newSubscriptionStartDate = $renewalOrder->date_created->date('Y-m-d H:i:s');
-	$subscription->update_dates(array('start' => $newSubscriptionStartDate));
-
 
 	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
 	exit;
