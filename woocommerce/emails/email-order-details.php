@@ -26,7 +26,6 @@ $orderSubscriptions = wcs_get_subscriptions_for_order($order->get_id());
 $userId = $orderData['customer_id'];
 $userSubscriptions = wcs_get_users_subscriptions($userId);
 
-
 if($order instanceof WC_Subscription){
 	foreach($order->get_items() as $subItem){
 		$userPlanName = $subItem['name'];
@@ -79,7 +78,6 @@ $userName = $orderData['billing']['first_name'];
 $userEmail = $orderData['billing']['email'];
 $companyName = $orderData['billing']['company'];
 $couponDiscount = 0;
-
 ?>
 
 <h2>
@@ -100,7 +98,7 @@ $couponDiscount = 0;
 
 <?php echo $userDetailsForAdmin; ?>
 
-<?php if(!$sent_to_admin){ ?>
+<?php if(!$sent_to_admin && $email->id === 'customer_completed_order'){ ?>
 	<?php if($productCategory != 'plan'){ ?>
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi <?php echo $userName; ?>,</p>
 	<?php } ?>

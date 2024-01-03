@@ -9,7 +9,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $pausedPlanBillingPeriodEndingDate = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? true : false;
 
-    $reactivateUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/subscriptions/?reactivate_plan=true";
+    $reactivateUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?reactivate_plan=true";
     $reactivateUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $reactivateUrl );
 
     if(isset($_GET['reactivate_plan']) && isset($_GET['_wpnonce'])){

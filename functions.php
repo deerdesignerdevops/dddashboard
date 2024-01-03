@@ -60,171 +60,6 @@ add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
 
-
-
-//STRIPE ENDPOINT FOR WEBHOOKS
-// function stripeInvoiceGenerationWebhook($req){
-// 	$invoiceId = $req['data']['object']['id'];
-// 	$response_data_arr = file_get_contents('php://input');	
-// 	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
-// }
-
-// add_action( 'rest_api_init', function () {
-//   register_rest_route( '/stripe/v1','invoicegenerated', array(
-//     'methods' => 'POST',
-//     'callback' => 'stripeInvoiceGenerationWebhook',
-//   ) );
-// } );
-
-
-
-// function sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan){
-// 	$slackMessageBody = [
-// 		'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
-// *Client:* ' . $customerName . ' ' . $customerEmail . '
-// *Plan:* ' . $customerPlan . '
-// Let\'s wait for the onboarding rocket :muscle::skin-tone-2:',
-// 		'username' => 'Marcus',
-// 	];
-
-// 	slackNotifications($slackMessageBody);
-// }
-
-
-// function sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl){
-// 	$body = "<p style='font-family: Helvetica, Arial, sans-serif; font-size: 15px;line-height: 1.5em;font-weight: bold;'>Let's get you on board!</p>
-// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi there, Thanks for signing up! 😍</p>
-// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>To confirm your email and start onboarding, please click the button below:</p>
-// <br>
-// <a rel='noopener' target='_blank' href='$customerUrl' style='background-color: #43b5a0; font-size: 15px; font-family: Helvetica, Arial, sans-serif; font-weight: bold; text-decoration: none; padding: 10px 20px; color: #ffffff; border-radius: 50px; display: inline-block; mso-padding-alt: 0;'>
-//     <!--[if mso]>
-//     <i style='letter-spacing: 25px; mso-font-width: -100%; mso-text-raise: 30pt;'>&nbsp;</i>
-//     <![endif]-->
-//     <span style='mso-text-raise: 15pt;'>Fill out onboarding form</span>
-//     <!--[if mso]>S
-//     <i style='letter-spacing: 25px; mso-font-width: -100%;'>&nbsp;</i>
-//     <![endif]-->
-// </a>
-// <br><br>
-// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>For your first access use these credentials below:<br>
-// username: $customerEmail <br>
-// password: change_123
-// </p>
-// <br><br>
-// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>As soon as you complete the onboarding form, we'll create your profile and match you with a designer (up to 1 business day). Feel free to log in and send your first request.</p>
-// <p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br> Deer Designer Team</p>
-//     <a href='https://deerdesigner.com'><img src='https://deerdesigner.com/wp-content/uploads/logo-horizontal.png' style='width:150px' alt=''></a>";
-
-	
-// 	$subject = "Start your onboarding process now!";
-
-//     $headers = array(
-//         'Content-Type: text/html; charset=UTF-8',
-//         'Reply-To: Wanessa <help@deerdesigner.com>',
-//     );
-
-// 	wp_mail($customerEmail, $subject, $body, $headers);
-// }
-
-
-
-// function createUserAfterStripePurchase($req){
-// 	$stripe = new \Stripe\StripeClient(STRIPE_API);
-// 	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
-// 	$invoiceId = $req['data']['object']['id'];
-// 	$customerName = $customer->name;
-// 	$customerEmail = $customer->email;
-// 	$customerPlan = $req['data']['object']['items']['data'][0]['plan']['name'];
-// 	$customerCity = $customer->address->city;
-// 	$customerCountry = $customer->address->country;
-	
-// 	$response_data_arr = file_get_contents('php://input');
-	
-// 	file_put_contents("wp-content/uploads/stripe_webhooks_logs/stripe_response_".date('Y_m_d')."_".$invoiceId.".log", $response_data_arr);
-
-// 	$customerUrl = "https://dash.deerdesigner.com/sign-up/onboarding/?first_name=$customerName&last_name=&email=$customerEmail&city=$customerCity&country=$customerCountry&plan=$customerPlan";
-
-// 	if(empty(get_user_by('email', $customerEmail))){
-// 		$newUserId = wp_create_user($customerEmail, 'change_123', $customerEmail);
-// 		add_user_meta( $newUserId, 'stripe_customer_plan', $customerPlan );
-// 		add_user_meta( $newUserId, 'stripe_customer_city', $customerCity );
-// 		add_user_meta( $newUserId, 'stripe_customer_country', $customerCountry );
-// 		sendWelcomeEmailAfterStripePayment($customerName, $customerEmail, $customerUrl);
-// 		do_action('emailReminderHook', $customerEmail, $customerUrl);
-
-// 		if(str_contains($customerPlan, 'Agency')){
-// 			add_user_meta( $newUserId, 'creative_calls', 4 );
-// 		}
-// 	}else{
-// 		if(str_contains($customerPlan, 'Agency')){
-// 			$user = get_user_by('email', $customerEmail);
-// 			$userCreativeCallsLeft =  get_user_meta($user->id, 'creative_calls', true);
-// 			update_user_meta( $user->id, 'creative_calls', $userCreativeCallsLeft + 4 );
-// 		}
-// 	}
-
-// 	sendStripeNotificationPaymentUpdatedToSlack($customerName, $customerEmail, $customerPlan);
-// 	echo "Customer Name: $customerName, Customer Email: $customerEmail, Customer City: $customerCity, Customer Country: $customerCountry, Plan: $customerPlan";
-// }
-
-
-
-// add_action( 'rest_api_init', function () {
-//   register_rest_route( '/stripe/v1','paymentcheck', array(
-//     'methods' => 'POST',
-//     'callback' => 'createUserAfterStripePurchase',
-//   ) );
-// } );
-
-
-// function sendStripePaymentFailedNotificationToSlack($req){
-// 	$stripe = new \Stripe\StripeClient(STRIPE_API);
-// 	$customer = $stripe->customers->retrieve($req['data']['object']['customer'],[]);
-// 	$customerName = $customer->name;
-// 	$customerEmail = $customer->email;
-		
-// 	$slackMessageBody = [
-// 		'text'  => '<!channel> Payment failed :x:
-// ' . $customerName . ' - ' . $customerEmail . '
-// :arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
-// 		'username' => 'Marcus',
-// 	];
-
-// 	slackNotifications($slackMessageBody);
-
-// 	echo "Payment failed for: $customerName - $customerEmail";
-// }
-
-
-
-// add_action( 'rest_api_init', function () {
-//   register_rest_route( '/stripe/v1','paymentfailed', array(
-//     'methods' => 'POST',
-//     'callback' => 'sendStripePaymentFailedNotificationToSlack',
-//   ) );
-// } );
-
-
-
-// function sendUserOnboardedNotificationToSlack($entryId, $formData, $form){
-// 	if($form->id === 3){
-// 		$customerName = $formData['names']['first_name'] . " " . $formData['names']['last_name'];
-// 		$customerCompany = $formData['company_name'];
-// 		$customerCity = $formData['city'];
-// 		$customerCountry = $formData['country'];
-
-// 		$slackMessageBody = [
-// 			'text'  => '<!channel> :rocket:Onboarded: ' . $customerName . ' ( ' . $customerCompany . ' ) from ' . $customerCity . ', ' . $customerCountry,
-// 			'username' => 'Marcus',
-// 		];
-
-// 		slackNotifications($slackMessageBody);
-// 	}
-// }
-// add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationToSlack', 10, 3);
-
-
-
 function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	$currentUser = wp_get_current_user();
 	$userCity = $currentUser->billing_city;
@@ -271,6 +106,7 @@ function hideAdminBarForNonAdminUser(){
 add_action('wp_head', 'hideAdminBarForNonAdminUser');
 
 
+
 function redirectNonAdminUsersToHomepage(){
 	if ( is_admin() && !current_user_can( 'administrator' ) && !current_user_can( 'editor' )) {
 		wp_redirect( home_url() );
@@ -278,7 +114,6 @@ function redirectNonAdminUsersToHomepage(){
 	}
 }
 add_action('admin_head', 'redirectNonAdminUsersToHomepage');
-
 
 
 
@@ -337,19 +172,6 @@ add_action('template_redirect', 'checkIfUserASweredPlanPricingForm');
 
 
 
-function displayCompanyFieldOnAdminPanel($contactmethods){
-	$newFieldsArray = array(
-	'company_name'   => __('Company Name'),
-	);
-
-	$contactmethods = $newFieldsArray + $contactmethods;
-
-	return $contactmethods;
-}
-add_filter('user_contactmethods', 'displayCompanyFieldOnAdminPanel');
-
-
-
 function displayAdditionalUserDataOnAdminPanel( $user ) { 
     $userCreativeCallsLeft = get_the_author_meta('creative_calls',$user->ID,true ); 
 	$isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true );
@@ -358,15 +180,6 @@ function displayAdditionalUserDataOnAdminPanel( $user ) {
 <h2>Additional Data</h2>
     <table class="form-table" role="presentation">
         <tbody>
-            <tr>
-                <th>Creative Calls Left:</th>
-                <td>
-                    <p><label>
-						<input type="number" min="0" name="creative_calls" value="<?php echo $userCreativeCallsLeft; ?>">
-                    </label></p>
-                </td>
-            </tr>
-
 			<tr>
                 <th>Is User Onboarded:</th>
                 <td>
@@ -384,7 +197,6 @@ add_action( 'edit_user_profile', 'displayAdditionalUserDataOnAdminPanel' );
 
 
 function updateAditionalUserDataOnAdminPanel($user_id){
-	update_user_meta( $user_id, 'creative_calls', $_POST['creative_calls'] );
 	update_user_meta( $user_id, 'is_user_onboarded', $_POST['is_user_onboarded'] );
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
@@ -397,16 +209,6 @@ function addFirstAccessUserMetaToNewUsers($user_id) {
    add_user_meta( $user_id, 'is_user_onboarded', 0 );
 }
 add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
-
-
-
-function updateIsUserOnboardedAfterOnboardingForm($entryId, $formData, $form){
-	if($form->id === 3){
-		update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
-	}
-}
-add_action( 'fluentform/submission_inserted', 'updateIsUserOnboardedAfterOnboardingForm', 10 ,3);
-
 
 
 
@@ -542,6 +344,8 @@ function slackNotifications($slackMessageBody){
 	) );
 }
 
+
+
 function changeActionsButtonsLabel( $actions, $subscription ){
     if( isset( $actions['suspend'] ) ){
         $actions['suspend']['name'] = __( 'Pause', 'woocommerce-subscriptions' );
@@ -611,11 +415,16 @@ add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSl
 
 function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form){
 	if($form->id === 3){
+		$weekInSeconds = 7 * 24 * 60 * 60;
+		$fiveMin = 5 * 60;
+
 		$currentUser = wp_get_current_user();
 		$userName = $currentUser->first_name . " " . $currentUser->last_name;
+		$userEmail = $currentUser->user_email;
 		$companyName = $formData['company_name'];
 		$userCity = $currentUser->billing_city;
 		$userCountry = $currentUser->billing_country;
+		update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
 
 		$slackMessageBody = [
 			'text'  => '<!channel> :rocket:Onboarded: ' . $userName . ' (' . $companyName . ') ' . 'from ' . $userCity . ', ' . $userCountry,
@@ -623,40 +432,60 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		];
 
 		slackNotifications($slackMessageBody);
+		wp_schedule_single_event(time() + $fiveMin, 'sendWelcomeEmailAfterOnboardingFormHook', array($userName, $userEmail));
+		wp_schedule_single_event(time() + $weekInSeconds, 'sendWelcomeEmailAfterOnboardingFormOneWeekLaterHook', array($userName, $userEmail));
+
 	}
 }
 add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFromWooToSlack', 10, 3);
 
 
 
-function checkIfUserIsActive(){
-	$user_id = get_current_user_id();
-	$userSubscriptions = wcs_get_users_subscriptions($user_id);
+function getCurrentUserAccountOwner(){
+	$groupsUser = new Groups_User( get_current_user_id() );
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$currentUserGroup = new Groups_Group( $group->group_id );
+		}
+	}
+	
+	foreach($currentUserGroup->users as $group){
+		$groupUserData = get_userdata($group->user->id);
+		
+		if(in_array('subscriber', $groupUserData->roles)){
+			checkIfUserIsActive($group->user->id);
+		}
+	}
+}
+add_action('template_redirect', 'getCurrentUserAccountOwner');
+
+
+
+function checkIfUserIsActive($accountOwnerId){
+	$userSubscriptions = wcs_get_users_subscriptions($accountOwnerId);
 
 	foreach ($userSubscriptions as $subscription){
-		if ($subscription->has_status(array('active'))) {
-			foreach ($subscription->get_items() as $product) {			
-				if(has_term('plan', 'product_cat', $product->get_product_id())){
-					$userIsActive = true;
-				}
-			}
+		if ($subscription->has_status(array('active', 'on-hold'))) {
+			foreach ($subscription->get_items() as $product) {	
+				if(has_term('plan', 'product_cat', $product['product_id'])){
+					$isCurrentUserActive = true;
+				}		
+            }
 		}
 	}
 
-	if(!$userIsActive){
+	if(!$isCurrentUserActive){
 		echo "<style>
 			.paused__user_btn{display: none !important}
-			.dd__dashboard_navbar_item{width: 25% !important}
 		</style>";
 	}else{
 		echo "<style>
 			.paused__user_banner{display: none !important}
-			.dd__dashboard_navbar_item{width: 33% !important}
 		</style>";
 	}
 
 }
-add_action('template_redirect', 'checkIfUserIsActive');
 
 
 
@@ -761,8 +590,6 @@ add_filter( 'woocommerce_billing_fields', 'moveCheckoutEmailFieldToTop' );
 function changeOrderStatusToCompleteAfterPayment( $orderId ) {
     $order = wc_get_order( $orderId );
     $order->update_status( 'completed' ); 
-	
-	
 }
 add_action( 'woocommerce_payment_complete', 'changeOrderStatusToCompleteAfterPayment' );
 
@@ -823,7 +650,6 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 	}	
 }
 add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
-
 
 
 
@@ -956,7 +782,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 			$slackMessageBody = [
 					'text'  => '<!channel> ' . $messageTitle . '
-			*Client:* ' . $customerName . ' | ' . $customerEmail . ' | ' . "($customerCompany)" . $billingMsg . '
+			*Client:* ' . $customerName . ' | ' . $customerEmail . " ($customerCompany)" . $billingMsg . '
 			*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)),
 					'username' => 'Marcus',
 				];
@@ -1015,31 +841,6 @@ add_filter('woocommerce_add_message', 'customSubscriptionNoticeText');
 
 
 
-function notificationToSlackForSwitchSubscription($order){
-	$orderItems = $order->get_items();
-	$currentUser = wp_get_current_user();
-	$customerName = $currentUser->display_name;
-	$customerEmail = $currentUser->user_email;
-	$orderItemsGroup = [];
-
-	foreach($orderItems as $item){
-		array_push($orderItemsGroup, $item['name']);
-	}
-
-	$slackMessageBody = [
-		'text'  => '<!channel> Subscription Switched :alert:
-*Client:* ' . $customerName . ' | ' . $customerEmail . '
-:arrow_right: Client has switched his plan to ' . '*' . implode(" | ", $orderItemsGroup) . '*',
-		'username' => 'Marcus',
-	];
-
-
-	slackNotifications($slackMessageBody);
-}
-add_action('woocommerce_subscriptions_switch_completed', 'notificationToSlackForSwitchSubscription');
-
-
-
 function moveCancelledSubscriptionsToTrash($subscription){
 
     if ($subscription && 'cancelled' === $subscription->get_status()) {
@@ -1056,10 +857,6 @@ function renameSubscriptionStatus($subscription_statuses){
     return $subscription_statuses;
 }
 add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
-
-
-
-
 
 
 
@@ -1258,16 +1055,10 @@ add_filter( 'wc_add_to_cart_message_html', '__return_false' );
 
 
 
-function removeMySubscriptionsButton( $actions, $subscription ) {
+function disableSubscriptionActions( $actions, $subscription ) {
 	foreach ( $actions as $action_key => $action ) {
 		switch ( $action_key ) {
-			case 'change_payment_method':	// Hide "Change Payment Method" button?
-//			case 'change_address':		// Hide "Change Address" button?
-//			case 'switch':			// Hide "Switch Subscription" button?
-//			case 'resubscribe':		// Hide "Resubscribe" button from an expired or cancelled subscription?
-//			case 'pay':			// Hide "Pay" button on subscriptions that are "on-hold" as they require payment?
-//			case 'reactivate':		// Hide "Reactive" button on subscriptions that are "on-hold"?
-//			case 'cancel':			// Hide "Cancel" button on subscriptions that are "active" or "on-hold"?
+			case 'change_payment_method':
 				unset( $actions[ $action_key ] );
 				break;
 			default: 
@@ -1278,7 +1069,7 @@ function removeMySubscriptionsButton( $actions, $subscription ) {
 
 	return $actions;
 }
-add_filter( 'wcs_view_subscription_actions', 'removeMySubscriptionsButton', 100, 2 );
+add_filter( 'wcs_view_subscription_actions', 'disableSubscriptionActions', 10, 2 );
 
 
 
@@ -1375,16 +1166,29 @@ add_filter('woocommerce_email_subject_customer_completed_order', 'changeComplete
 
 
 function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
-	$renewal_order = wcs_create_renewal_order($subscription);
-	$payment_method = 'stripe';
-	$renewal_order->set_payment_method($payment_method);
-	$renewal_order->calculate_totals();
-	$renewal_order->payment_complete();
+	$renewalOrder = wcs_create_renewal_order($subscription);
+	$paymentMethod = 'stripe';
+	$renewalOrder->set_payment_method($paymentMethod);
+	$renewalOrder->calculate_totals();
+	
+	do_action('woocommerce_order_action_wcs_retry_renewal_payment', $renewalOrder);
 
 	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
 	exit;
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
+
+
+
+function showPaymentFailedNoticeToUserWhenReactivateSubscription($orderId){
+	$accountDetailsUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . 'edit-account';
+	if(isset($_GET['reactivate_plan'])){
+		wc_add_notice("The plan was not reactivated because the payment has failed! Update your <a href='" . $accountDetailsUrl . "'>payment details</a> and try again.", 'error');
+	}
+
+}
+add_action( 'woocommerce_order_status_failed', 'showPaymentFailedNoticeToUserWhenReactivateSubscription');
+
 
 
 function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
@@ -1406,7 +1210,7 @@ function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
 
 
 
-function checkCurrentUserRole(){
+function hideBillingPortalFromTeamMembers(){
 	if(is_user_logged_in()){
 		$user = wp_get_current_user();
 		$currentUserRoles = $user->roles;
@@ -1415,7 +1219,7 @@ function checkCurrentUserRole(){
 			echo "<style>
 			.btn__billing{display: none !important;}
 			.paused__user_banner{display: none !important}
-			.account__details_col{width: 100% !important;}
+			.account__details_col{width: 100% !important;}get_user_by
 			</style>";
 			
 			if(is_wc_endpoint_url('subscriptions')){
@@ -1426,31 +1230,21 @@ function checkCurrentUserRole(){
 	}
 }
 
-add_action('template_redirect', 'checkCurrentUserRole');
+add_action('template_redirect', 'hideBillingPortalFromTeamMembers');
+
 
 
 function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 	if($form->id == 7){		
-		foreach($formData['team_members_form'] as $additionalUser){
-			
-			$additionalUserName = $additionalUser[0];
-			$additionalUserEmail = $additionalUser[1];
-			
-			$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+		
+		$additionalUsersAdded = [];
 
+		foreach($formData['team_members_form'] as $additionalUser){
+			$additionalUserName = $additionalUser[0];
+			$additionalUserEmail = $additionalUser[1];			
 			$userAlreadyExists = get_user_by( 'email', $additionalUserEmail );
 
-			if(empty($userAlreadyExists)){
-				$newUserId = wp_create_user($additionalUserEmail, 'change_123', $additionalUserEmail);
-				if($newUserId){
-					$additionalUser = new WP_User($newUserId);
-					$additionalUser->set_role('team_member');
-					wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
-					update_user_meta( $newUserId, 'is_user_onboarded', 1 );
-					update_user_meta( $newUserId, 'is_first_access', 0 );
-					addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
-				}
-			}else{
+			if($userAlreadyExists){
 				if(in_array('administrator', $userAlreadyExists->roles)){
 					wc_add_notice("You can't add this user!", 'error');
 
@@ -1459,11 +1253,34 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 					$additionalUser->set_role('team_member');
 					update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
 					update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
+					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
 					addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
+					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
 				}
 
+			}else{
+				$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+				$passwordCharactersLength = 8;
+				$newUserRandomPassword = substr(str_shuffle($characters), 0, $passwordCharactersLength);
+				$newUserId = wp_create_user($additionalUserEmail, $newUserRandomPassword, $additionalUserEmail);
+
+				if($newUserId){
+					$additionalUser = new WP_User($newUserId);
+					$additionalUser->set_role('team_member');
+					wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
+					update_user_meta( $newUserId, 'is_user_onboarded', 1 );
+					update_user_meta( $newUserId, 'is_first_access', 0 );
+					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+					addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
+					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
+				};
 			}	
-		}		
+		}	
+		
+		if(!empty($additionalUsersAdded)){
+			sendAdditionalusersNotificationToSlack($additionalUsersAdded);
+			wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+		}
 	}	
 }
 add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingForm', 10, 3 );
@@ -1492,8 +1309,24 @@ function addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded){
 
 	if($existingRow){
 		Groups_User_Group::create( array( 'user_id' => $newUserId, 'group_id' => $groupId ) );
-		wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
 	}
+}
+
+
+
+function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
+	$accountOwner = wp_get_current_user();
+	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
+
+	$slackMessageBody = [
+			'text'  => '<!channel> A client just added new team members to their account:  ' . '
+	*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
+	*Team Members:* ' . implode(', ', $additionalUsersAdded),
+			'username' => 'Marcus',
+		];
+
+
+	slackNotifications($slackMessageBody);
 }
 
 
