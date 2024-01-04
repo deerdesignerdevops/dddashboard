@@ -2,6 +2,7 @@
 function subscriptionCardComponent($subscription, $currentProductId){ 
     $siteUrl = site_url();
     $activeTasksProductId = 1600;
+    $standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
     $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
     $subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
@@ -44,7 +45,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                 
                 if($currentCat === "Plan"){
                     $currentSubscriptionPlan = $item['name'];
-                    $activeTaskProductPrice = str_contains($currentSubscriptionPlan, 'Standard') ? $activeTaskProductPrice : ($activeTaskProductPrice - 50);
+                    $activeTaskProductPrice = str_contains($currentSubscriptionPlan, 'Standard') ? $standardPlanMonthlyPrice : ($activeTaskProductPrice - 50);
                 }										
                 ?>
         
@@ -102,7 +103,8 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
                 <!--SUBSCRIPTION ACTIONS-->
                 <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
-                if($subscriptionStatus === 'pending-cancel' || $showReactivateButton){
+            
+                if($showReactivateButton && $subscriptionStatus === 'on-hold'){
                     unset($actions['reactivate']);
                 }
                 

@@ -643,6 +643,7 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
 	if ( did_action( 'woocommerce_before_calculate_totals' ) >= 2 )
     return;
 
+	$standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
 	$cart = WC()->cart->get_cart();
 
 	if(is_user_logged_in()){
@@ -661,15 +662,15 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
 	
 	}
 
-	$activeTaskDiscount =  str_contains($currentUserSubscriptionPlan, 'Standard' ) ? 0 : 50;
 
 	if($cart){
 		foreach ( $cart as $cart_item_key => $values) {
 			$terms = get_the_terms( $values['data']->id, 'product_cat' );
 			$productPrice = $values['data']->get_price();
-			
+			$activeTaskFinalPrice = str_contains($currentUserSubscriptionPlan, 'Standard' ) ? $standardPlanMonthlyPrice : ($productPrice - 50);
+
 			if($terms[0]->slug === 'active-task'){
-				$values['data']->set_price($productPrice - $activeTaskDiscount);
+				$values['data']->set_price($activeTaskFinalPrice);
 
 			}
 			
