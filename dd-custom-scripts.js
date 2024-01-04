@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if (closeNoticesPopupBtn) {
     closeNoticesPopupBtn.map((btn) => {
       btn.addEventListener("click", function (e) {
-        console.log("closeNoticesPopupBtn");
         e.preventDefault();
         noticesPopupWrapper.map((popup) => {
           popup.style.display = "none";
@@ -20,11 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-  const placeOrderBtn = document.querySelector("#place_order");
-  console.log(placeOrderBtn);
 });
 
 $(document).ready(function ($) {

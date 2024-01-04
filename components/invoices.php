@@ -160,19 +160,20 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
             const previousInvoicesContent = document.querySelector('#previous__invoices')
             const newerInvoicesContent = document.querySelector('#newer__invoices')
 
-            document.querySelector('#previous__invoices_btn').addEventListener('click', function(){
-                showInvoiceContent(previousInvoicesContent, newerInvoicesContent)
-            });
-           
-            document.querySelector('#newer__invoices_btn').addEventListener('click', function(){
-                showInvoiceContent(newerInvoicesContent, previousInvoicesContent)
-            });
-
             function showInvoiceContent(invoiceContentToShow, invoiceContentoHide){
                 invoiceContentToShow.classList.add('show__content');
                 invoiceContentoHide.classList.remove('show__content');
             }
 
+            if(document.querySelector('#previous__invoices_btn')){
+                document.querySelector('#previous__invoices_btn').addEventListener('click', function(){
+                    showInvoiceContent(previousInvoicesContent, newerInvoicesContent)
+                });
+            
+                document.querySelector('#newer__invoices_btn').addEventListener('click', function(){
+                    showInvoiceContent(newerInvoicesContent, previousInvoicesContent)
+                });
+            }
         })
 
     </script>

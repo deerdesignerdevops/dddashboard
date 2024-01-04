@@ -346,8 +346,10 @@ document.addEventListener("DOMContentLoaded", function(){
 			})
 
 			document.querySelector(".update_plan_form form .dd__subscription_cancel_btn").addEventListener("click", function(e){
-				closePopup()
-				loadingSpinner.style.display = "flex"
+				if(document.querySelector('.update_plan_form textarea').value !== ""){
+					closePopup()
+					loadingSpinner.style.display = "flex"
+				}
 			})
 
 
