@@ -631,7 +631,7 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 		}
 	}	
 }
-add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
+//add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
 
 
 
