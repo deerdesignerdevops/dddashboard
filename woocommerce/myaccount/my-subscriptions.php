@@ -74,7 +74,7 @@ $sortedSubscriptions = array_merge($activePlanSubscriptions, $otherSubscriptions
 
 if(isset($_GET['change-plan'])){
 	wc_add_notice('switch', 'success');
-	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . '/subscriptions');
+	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
 	exit;
 }
 ?>

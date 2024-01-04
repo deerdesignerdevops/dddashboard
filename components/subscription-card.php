@@ -97,7 +97,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
 
                 <?php if($subscriptionStatus === "active"){ ?>
-                    <a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' ) ); ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
+                    <a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' ) ); ?>subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
                 <?php } ?>
 
                 <!--SUBSCRIPTION ACTIONS-->
