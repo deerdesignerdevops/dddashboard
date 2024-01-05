@@ -1182,3 +1182,16 @@ function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
 
 	return $pausedPlanBillingPeriodEndingDate;
 }
+
+
+function unserializedOnboardingFieldInUserProfilePage($user){
+	$frequentRequests = get_the_author_meta('frequent_requests',$user->ID,true );
+	$unserializedValue = unserialize($frequentRequests);
+	$finalValue = $unserializedValue[0];
+
+	echo "<script>
+		document.querySelector('#frequent_requests input').value = '$finalValue'	
+	</script>";
+}
+
+add_action('show_user_profile', 'unserializedOnboardingFieldInUserProfilePage');
