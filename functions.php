@@ -758,7 +758,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate";
 
 			}else if($old_status === "pending-cancel" && $new_status === "active"){
-				$messageTitle = 'Subscription Cancelled :alert:';
+				$messageTitle = 'Subscription Reactivated :white_check_mark:';
 				$billingMsg = "'s account will not be 'canceled' anymore. Keep the work going";
 
 			}else{
