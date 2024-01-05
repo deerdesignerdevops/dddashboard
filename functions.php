@@ -426,8 +426,41 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 
 
-function checkIfUserIsActive(){
-	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+function getCurrentUserRole(){
+	$currentUser = wp_get_current_user();
+	if(!current_user_can('administrator')){
+
+		if(in_array('subscriber', $currentUser->roles) || in_array('paused', $currentUser->roles)){
+			checkIfUserIsActive($currentUser->id);
+
+		}else if(in_array('team_member', $currentUser->roles)){
+			echo "<style>
+			.btn__billing{display: none !important;}
+			.paused__user_banner{display: none !important;}
+			.account__details_col{width: 100% !important;}
+			</style>";
+			
+			if(is_wc_endpoint_url('subscriptions')){
+				wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
+				exit;
+			}
+			
+			getCurrentTeamMemberAccountOwner();
+
+		}else{
+			echo "<style>
+				.paused__user_btn{display: none !important}
+			</style>";
+		}
+	}
+
+}
+add_action('template_redirect', 'getCurrentUserRole');
+
+
+
+function checkIfUserIsActive($userId){
+	$userSubscriptions = wcs_get_users_subscriptions($userId);
 	$currentUserSubscriptionStatus = '';
 
 	foreach ($userSubscriptions as $subscription){
@@ -442,7 +475,7 @@ function checkIfUserIsActive(){
 	switch($currentUserSubscriptionStatus){
 		case 'on-hold':
 			echo "<style>
-				.paused__user_btn, .paused__user_banner{display: none !important}
+				.paused__user_btn, .paused__user_banner, .group_book_call_btn {display: none !important}
 			</style>";
 			break;
 		
@@ -454,12 +487,31 @@ function checkIfUserIsActive(){
 		
 		default:
 			echo "<style>
-				.paused__user_btn{display: none !important}
+				.paused__user_btn, .group_book_call_btn {display: none !important}
 			</style>";
 	}
 
 }
-add_action('template_redirect', 'checkIfUserIsActive');
+
+
+
+function getCurrentTeamMemberAccountOwner(){
+	$groupsUser = new Groups_User( get_current_user_id() );
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$currentUserGroup = new Groups_Group( $group->group_id );
+		}
+	}
+	
+	foreach($currentUserGroup->users as $group){
+		$groupUserData = get_userdata($group->user->id);
+		
+		if(in_array('subscriber', $groupUserData->roles) || in_array('paused', $groupUserData->roles)){
+			checkIfUserIsActive($group->user->id);
+		}
+	}
+}
 
 
 
@@ -1195,3 +1247,120 @@ function unserializedOnboardingFieldInUserProfilePage($user){
 }
 
 add_action('show_user_profile', 'unserializedOnboardingFieldInUserProfilePage');
+
+
+
+//TEAM MEMBERS FEATURE
+function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
+	if($form->id == 7){		
+		
+		$additionalUsersAdded = [];
+
+		foreach($formData['team_members_form'] as $additionalUser){
+			$additionalUserName = $additionalUser[0];
+			$additionalUserEmail = $additionalUser[1];			
+			$userAlreadyExists = get_user_by( 'email', $additionalUserEmail );
+
+			if($userAlreadyExists){
+				if(in_array('administrator', $userAlreadyExists->roles)){
+					wc_add_notice("You can't add this user!", 'error');
+
+				}else{
+					$additionalUser = new WP_User($userAlreadyExists->id);
+					$additionalUser->set_role('team_member');
+					update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
+					update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
+					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+					addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
+					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
+				}
+
+			}else{
+				$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+				$passwordCharactersLength = 8;
+				$newUserRandomPassword = substr(str_shuffle($characters), 0, $passwordCharactersLength);
+				$newUserId = wp_create_user($additionalUserEmail, $newUserRandomPassword, $additionalUserEmail);
+
+				if($newUserId){
+					$additionalUser = new WP_User($newUserId);
+					$additionalUser->set_role('team_member');
+					wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
+					update_user_meta( $newUserId, 'is_user_onboarded', 1 );
+					update_user_meta( $newUserId, 'is_first_access', 0 );
+					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+					addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
+					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
+				};
+			}	
+		}	
+		
+		if(!empty($additionalUsersAdded)){
+			sendAdditionalusersNotificationToSlack($additionalUsersAdded);
+			wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+		}
+	}	
+}
+add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingForm', 10, 3 );
+
+
+
+function addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded){
+	global $wpdb;
+	$groupsUser = new Groups_User( get_current_user_id() );
+	$tableName = _groups_get_tablename( 'group' );
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$groupId = $group->group_id;
+			$groupName = $group->name;
+		}
+	}
+
+
+	$existingRow = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT * FROM $tableName WHERE name = %s",
+			$groupName,
+		)
+	);
+
+	if($existingRow){
+		Groups_User_Group::create( array( 'user_id' => $newUserId, 'group_id' => $groupId ) );
+	}
+}
+
+
+
+function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
+	$accountOwner = wp_get_current_user();
+	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
+
+	$slackMessageBody = [
+			'text'  => '<!channel> A client just added new team members to their account:  ' . '
+	*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
+	*Team Members:* ' . implode(', ', $additionalUsersAdded),
+			'username' => 'Marcus',
+		];
+
+
+	slackNotifications($slackMessageBody);
+}
+
+
+
+function removeAdditionalUserFromDatabase($userId){
+	$userToBeDeleted = get_user_by( 'id', $userId);
+
+	if(in_array('administrator', $userToBeDeleted->roles)){
+		wc_add_notice("You can't remove this user!", 'error');
+	}else{
+		wp_delete_user($userId);
+		wc_add_notice("The user was successfully removed from your account!", 'success');
+	}
+
+
+	wp_redirect(get_permalink(wc_get_page_id('myaccount')) . "edit-account");
+	exit;
+}
+
+add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');
