@@ -550,4 +550,25 @@ function sendWelcomeEmailToAdditionalTeamMembers($userName, $userEmail, $account
 
 	wp_mail($userEmail, $subject, emailTemplate($finalMessage), $headers);
 }
+
+
+
+function sendEmailToProductionWhenNewTeamMemberIsAdded($accountOwnerId, $additionalUsersAdded){
+	global $headers;
+	$accountOwner = get_user_by( 'id', $accountOwnerId);
+	$companyName = get_user_meta($accountOwnerId, 'billing_company', true);
+	$productionEmail = 'production@deerdesigner.com';
+	$additionalUsers = implode(', ', $additionalUsersAdded);
+
+	$subject = "New Team Member Added";
+
+	$message = "
+		A client just added new team members to their account: ,<br><br>
+		<strong>Owner:</strong> $accountOwner->first_name | $accountOwner->user_email ($companyName)<br>
+		<strong>Team Members:</strong> $additionalUsers.
+	";
+
+
+	wp_mail($productionEmail, $subject, emailTemplate($message), $headers);
+}
 ?>
