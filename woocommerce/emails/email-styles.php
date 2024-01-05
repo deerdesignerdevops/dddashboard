@@ -265,6 +265,7 @@ p{
 h2, .user__details{
 	text-align: center;
 	text-wrap: balance;
+	margin: 0 !important;
 }
 
 h2 span{

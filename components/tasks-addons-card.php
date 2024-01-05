@@ -62,7 +62,7 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat, $
             $actions['cancel']['name'] = __( $cancelBtnLabel, 'woocommerce-subscriptions' );
             unset($actions['suspend']);
            
-            if($productCat == "add-on" || $planStatus !== "active"){
+            if($planStatus !== "active"){
                 unset($actions['reactivate']);
             }
 

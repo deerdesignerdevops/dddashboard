@@ -334,13 +334,11 @@ function sendEmailToUserWhenReactivateSubscription($subscription, $newStatus, $o
 					$subject = "Your account has been reactivated";
 
 					$message = "
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>your account has been reactivated on the $productName!.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your account has been reactivated on the plan $productName!.</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If your previous designer is still free, we'll assign them to you. Otherwise, the team will select a designer who will read your profile, preferences, and past tickets, and they will be ready to start working on your requests as soon as possible.</p>
-
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>This process takes up to one business day, so feel free to log in and send a request!</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If your previous designer is available, they'll be reassigned to you. If not, we'll pick someone new who'll review your profile and past requests and be ready within a business day. Feel free to log in and send requests anytime!</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Please reach out to help@deerdesigner.com if you need any additional help.</p>
 
@@ -402,14 +400,14 @@ function customRetryPaymentRules( $default_retry_rules_array ) {
                 'email_template_customer'         => 'WCS_Email_Customer_Payment_Retry',
                 'email_template_admin'            => 'WCS_Email_Payment_Retry',
                 'status_to_apply_to_order'        => 'pending',
-                'status_to_apply_to_subscription' => 'active',
+                'status_to_apply_to_subscription' => 'on-hold',
             ),
             array(
                 'retry_after_interval'            => 86400 /*24 HOURS*/,
                 'email_template_customer'         => 'WCS_Email_Customer_Payment_Retry',
                 'email_template_admin'            => 'WCS_Email_Payment_Retry',
                 'status_to_apply_to_order'        => 'pending',
-                'status_to_apply_to_subscription' => 'active',
+                'status_to_apply_to_subscription' => 'on-hold',
             )
         );
 }
@@ -551,5 +549,7 @@ function sendWelcomeEmailToAdditionalTeamMembers($userName, $userEmail, $account
 
 	wp_mail($userEmail, $subject, emailTemplate($finalMessage), $headers);
 }
+
+
 
 ?>

@@ -2,6 +2,7 @@
 function subscriptionCardComponent($subscription, $currentProductId){ 
     $siteUrl = site_url();
     $activeTasksProductId = 1600;
+    $standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
     $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
     $subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
@@ -44,7 +45,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                 
                 if($currentCat === "Plan"){
                     $currentSubscriptionPlan = $item['name'];
-                    $activeTaskProductPrice = str_contains($currentSubscriptionPlan, 'Standard') ? $activeTaskProductPrice : ($activeTaskProductPrice - 50);
+                    $activeTaskProductPrice = str_contains($currentSubscriptionPlan, 'Standard') ? $standardPlanMonthlyPrice : ($activeTaskProductPrice - 50);
                 }										
                 ?>
         
@@ -97,12 +98,13 @@ function subscriptionCardComponent($subscription, $currentProductId){
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
 
                 <?php if($subscriptionStatus === "active"){ ?>
-                    <a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' ) ); ?>/subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
+                    <a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' ) ); ?>subscriptions/?change-plan=true" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button change">Change Plan</a>	
                 <?php } ?>
 
                 <!--SUBSCRIPTION ACTIONS-->
                 <?php $actions = wcs_get_all_user_actions_for_subscription( $subscription, get_current_user_id() ); 
-                if($subscriptionStatus === 'pending-cancel' || $showReactivateButton){
+            
+                if($showReactivateButton && $subscriptionStatus === 'on-hold'){
                     unset($actions['reactivate']);
                 }
                 

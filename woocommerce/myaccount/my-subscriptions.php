@@ -74,7 +74,7 @@ $sortedSubscriptions = array_merge($activePlanSubscriptions, $otherSubscriptions
 
 if(isset($_GET['change-plan'])){
 	wc_add_notice('switch', 'success');
-	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . '/subscriptions');
+	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
 	exit;
 }
 ?>
@@ -93,7 +93,7 @@ if(isset($_GET['change-plan'])){
 </section>
 
 <!--PLANS-->
-<?php if ( ! empty( $subscriptions ) ) { ?>
+<?php if (!empty($subscriptions) && !empty($activePlanSubscriptions)) { ?>
 	<section class="dd__bililng_portal_section">
 		<div style="max-width: 1140px; margin: auto">
 			<h2 class="dd__billing_portal_section_title">Plans</h2>
@@ -206,7 +206,7 @@ else{ ?>
 
 
 <?php 
-	$stripeCustomerId = get_post_meta($activePlanSubscriptions[0]->id, '_stripe_customer_id', true);
+	$stripeCustomerId = $activePlanSubscriptions[0] ? get_post_meta($activePlanSubscriptions[0]->id, '_stripe_customer_id', true) : 0;
 	do_action('currentUserInvoicesComponentHook', $stripeCustomerId);
 ?>
 
@@ -346,8 +346,10 @@ document.addEventListener("DOMContentLoaded", function(){
 			})
 
 			document.querySelector(".update_plan_form form .dd__subscription_cancel_btn").addEventListener("click", function(e){
-				closePopup()
-				loadingSpinner.style.display = "flex"
+				if(document.querySelector('.update_plan_form textarea').value !== ""){
+					closePopup()
+					loadingSpinner.style.display = "flex"
+				}
 			})
 
 

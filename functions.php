@@ -173,7 +173,6 @@ add_action('template_redirect', 'checkIfUserASweredPlanPricingForm');
 
 
 function displayAdditionalUserDataOnAdminPanel( $user ) { 
-    $userCreativeCallsLeft = get_the_author_meta('creative_calls',$user->ID,true ); 
 	$isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true );
 
 ?>
@@ -268,20 +267,6 @@ function removePageTitleFromAllPages($return){
 	return false;
 }
 add_filter('hello_elementor_page_title', 'removePageTitleFromAllPages');
-
-
-
-function checkIfUserCanBookCreativeCall(){
-	$userCreativeCallsLeft =  get_user_meta(get_current_user_id(), 'creative_calls', true);
-
-	if($userCreativeCallsLeft){
-		echo "<style>.book_call_btn{display: flex !important;}</style>";
-	}else{
-		echo "<style>.book_call_btn{display: none !important;}</style>";
-	}
-
-}
-add_action('template_redirect', 'checkIfUserCanBookCreativeCall');
 
 
 
@@ -441,7 +426,76 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 
 
-function getCurrentUserAccountOwner(){
+function getCurrentUserRole(){
+	$currentUser = wp_get_current_user();
+	if(!current_user_can('administrator')){
+
+		if(in_array('subscriber', $currentUser->roles) || in_array('paused', $currentUser->roles)){
+			checkIfUserIsActive($currentUser->id);
+
+		}else if(in_array('team_member', $currentUser->roles)){
+			echo "<style>
+			.btn__billing{display: none !important;}
+			.paused__user_banner{display: none !important;}
+			.account__details_col{width: 100% !important;}
+			</style>";
+			
+			if(is_wc_endpoint_url('subscriptions')){
+				wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
+				exit;
+			}
+			
+			getCurrentTeamMemberAccountOwner();
+
+		}else{
+			echo "<style>
+				.paused__user_btn{display: none !important}
+			</style>";
+		}
+	}
+
+}
+add_action('template_redirect', 'getCurrentUserRole');
+
+
+
+function checkIfUserIsActive($userId){
+	$userSubscriptions = wcs_get_users_subscriptions($userId);
+	$currentUserSubscriptionStatus = '';
+
+	foreach ($userSubscriptions as $subscription){
+		foreach ($subscription->get_items() as $product) {	
+			if(has_term('plan', 'product_cat', $product['product_id'])){
+				$currentUserSubscriptionStatus = $subscription->get_status();
+			}		
+		}
+	}
+
+
+	switch($currentUserSubscriptionStatus){
+		case 'on-hold':
+			echo "<style>
+				.paused__user_btn, .paused__user_banner, .group_book_call_btn {display: none !important}
+			</style>";
+			break;
+		
+		case 'active':
+			echo "<style>
+				.paused__user_banner{display: none !important}
+			</style>";
+			break;
+		
+		default:
+			echo "<style>
+				.paused__user_btn, .group_book_call_btn {display: none !important}
+			</style>";
+	}
+
+}
+
+
+
+function getCurrentTeamMemberAccountOwner(){
 	$groupsUser = new Groups_User( get_current_user_id() );
 
 	foreach($groupsUser->groups as $group){
@@ -453,38 +507,10 @@ function getCurrentUserAccountOwner(){
 	foreach($currentUserGroup->users as $group){
 		$groupUserData = get_userdata($group->user->id);
 		
-		if(in_array('subscriber', $groupUserData->roles)){
+		if(in_array('subscriber', $groupUserData->roles) || in_array('paused', $groupUserData->roles)){
 			checkIfUserIsActive($group->user->id);
 		}
 	}
-}
-add_action('template_redirect', 'getCurrentUserAccountOwner');
-
-
-
-function checkIfUserIsActive($accountOwnerId){
-	$userSubscriptions = wcs_get_users_subscriptions($accountOwnerId);
-
-	foreach ($userSubscriptions as $subscription){
-		if ($subscription->has_status(array('active', 'on-hold'))) {
-			foreach ($subscription->get_items() as $product) {	
-				if(has_term('plan', 'product_cat', $product['product_id'])){
-					$isCurrentUserActive = true;
-				}		
-            }
-		}
-	}
-
-	if(!$isCurrentUserActive){
-		echo "<style>
-			.paused__user_btn{display: none !important}
-		</style>";
-	}else{
-		echo "<style>
-			.paused__user_banner{display: none !important}
-		</style>";
-	}
-
 }
 
 
@@ -649,7 +675,7 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 		}
 	}	
 }
-add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
+//add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
 
 
 
@@ -661,6 +687,7 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
 	if ( did_action( 'woocommerce_before_calculate_totals' ) >= 2 )
     return;
 
+	$standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
 	$cart = WC()->cart->get_cart();
 
 	if(is_user_logged_in()){
@@ -679,15 +706,15 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
 	
 	}
 
-	$activeTaskDiscount =  str_contains($currentUserSubscriptionPlan, 'Standard' ) ? 0 : 50;
 
 	if($cart){
 		foreach ( $cart as $cart_item_key => $values) {
 			$terms = get_the_terms( $values['data']->id, 'product_cat' );
 			$productPrice = $values['data']->get_price();
-			
+			$activeTaskFinalPrice = str_contains($currentUserSubscriptionPlan, 'Standard' ) ? $standardPlanMonthlyPrice : ($productPrice - 50);
+
 			if($terms[0]->slug === 'active-task'){
-				$values['data']->set_price($productPrice - $activeTaskDiscount);
+				$values['data']->set_price($activeTaskFinalPrice);
 
 			}
 			
@@ -768,7 +795,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate";
 
 			}else if($old_status === "pending-cancel" && $new_status === "active"){
-				$messageTitle = 'Subscription Cancelled :alert:';
+				$messageTitle = 'Subscription Reactivated :white_check_mark:';
 				$billingMsg = "'s account will not be 'canceled' anymore. Keep the work going";
 
 			}else{
@@ -1209,31 +1236,21 @@ function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
 }
 
 
+function unserializedOnboardingFieldInUserProfilePage($user){
+	$frequentRequests = get_the_author_meta('frequent_requests',$user->ID,true );
+	$unserializedValue = unserialize($frequentRequests);
+	$finalValue = $unserializedValue[0];
 
-function hideBillingPortalFromTeamMembers(){
-	if(is_user_logged_in()){
-		$user = wp_get_current_user();
-		$currentUserRoles = $user->roles;
-
-		if(in_array('team_member', $currentUserRoles)){
-			echo "<style>
-			.btn__billing{display: none !important;}
-			.paused__user_banner{display: none !important}
-			.account__details_col{width: 100% !important;}get_user_by
-			</style>";
-			
-			if(is_wc_endpoint_url('subscriptions')){
-				wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
-				exit;
-			}
-		}
-	}
+	echo "<script>
+		document.querySelector('#frequent_requests input').value = '$finalValue'	
+	</script>";
 }
 
-add_action('template_redirect', 'hideBillingPortalFromTeamMembers');
+add_action('show_user_profile', 'unserializedOnboardingFieldInUserProfilePage');
 
 
 
+//TEAM MEMBERS FEATURE
 function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 	if($form->id == 7){		
 		
@@ -1347,5 +1364,3 @@ function removeAdditionalUserFromDatabase($userId){
 }
 
 add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');
-
-
