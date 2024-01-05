@@ -443,27 +443,34 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 function checkIfUserIsActive(){
 	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+	$currentUserSubscriptionStatus = '';
 
 	foreach ($userSubscriptions as $subscription){
-		if ($subscription->has_status(array('active', 'on-hold'))) {
-			foreach ($subscription->get_items() as $product) {	
-				if(has_term('plan', 'product_cat', $product['product_id'])){
-					$isCurrentUserActive = true;
-				}		
-            }
+		foreach ($subscription->get_items() as $product) {	
+			if(has_term('plan', 'product_cat', $product['product_id'])){
+				$currentUserSubscriptionStatus = $subscription->get_status();
+			}		
 		}
 	}
 
-	if(!$isCurrentUserActive){
-		echo "<style>
-			.paused__user_btn{display: none !important}
-			.dd__dashboard_navbar_item{width: 25% !important}
-		</style>";
-	}else{
-		echo "<style>
-			.paused__user_banner{display: none !important}
-			.dd__dashboard_navbar_item{width: 33% !important}
-		</style>";
+
+	switch($currentUserSubscriptionStatus){
+		case 'on-hold':
+			echo "<style>
+				.paused__user_btn, .paused__user_banner{display: none !important}
+			</style>";
+			break;
+		
+		case 'active':
+			echo "<style>
+				.paused__user_banner{display: none !important}
+			</style>";
+			break;
+		
+		default:
+			echo "<style>
+				.paused__user_btn{display: none !important}
+			</style>";
 	}
 
 }
