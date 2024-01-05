@@ -93,7 +93,7 @@ if(isset($_GET['change-plan'])){
 </section>
 
 <!--PLANS-->
-<?php if ( ! empty( $subscriptions ) ) { ?>
+<?php if (!empty($subscriptions) && !empty($activePlanSubscriptions)) { ?>
 	<section class="dd__bililng_portal_section">
 		<div style="max-width: 1140px; margin: auto">
 			<h2 class="dd__billing_portal_section_title">Plans</h2>
