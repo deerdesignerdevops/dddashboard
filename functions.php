@@ -428,30 +428,23 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 function getCurrentUserRole(){
 	$currentUser = wp_get_current_user();
-	if(!current_user_can('administrator')){
 
-		if(in_array('subscriber', $currentUser->roles) || in_array('paused', $currentUser->roles)){
-			checkIfUserIsActive($currentUser->id);
-
-		}else if(in_array('team_member', $currentUser->roles)){
-			echo "<style>
-			.btn__billing{display: none !important;}
-			.paused__user_banner{display: none !important;}
-			.account__details_col{width: 100% !important;}
-			</style>";
-			
-			if(is_wc_endpoint_url('subscriptions')){
-				wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
-				exit;
-			}
-			
-			getCurrentTeamMemberAccountOwner();
-
-		}else{
-			echo "<style>
-				.paused__user_btn{display: none !important}
-			</style>";
+	if(in_array('team_member', $currentUser->roles)){
+		echo "<style>
+		.btn__billing{display: none !important;}
+		.paused__user_banner{display: none !important;}
+		.account__details_col{width: 100% !important;}
+		</style>";
+		
+		if(is_wc_endpoint_url('subscriptions')){
+			wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
+			exit;
 		}
+		
+		getCurrentTeamMemberAccountOwner();
+
+	}else{
+		checkIfUserIsActive($currentUser->id);
 	}
 
 }
@@ -470,7 +463,6 @@ function checkIfUserIsActive($userId){
 			}		
 		}
 	}
-
 
 	switch($currentUserSubscriptionStatus){
 		case 'on-hold':
@@ -497,6 +489,7 @@ function checkIfUserIsActive($userId){
 
 function getCurrentTeamMemberAccountOwner(){
 	$groupsUser = new Groups_User( get_current_user_id() );
+	$rolesToCheck = ['administrator', 'subscriber', 'paused'];
 
 	foreach($groupsUser->groups as $group){
 		if($group->name !== "Registered"){
@@ -507,7 +500,7 @@ function getCurrentTeamMemberAccountOwner(){
 	foreach($currentUserGroup->users as $group){
 		$groupUserData = get_userdata($group->user->id);
 		
-		if(in_array('subscriber', $groupUserData->roles) || in_array('paused', $groupUserData->roles)){
+		if (!empty(array_intersect($groupUserData->roles, $rolesToCheck))) {
 			checkIfUserIsActive($group->user->id);
 		}
 	}
