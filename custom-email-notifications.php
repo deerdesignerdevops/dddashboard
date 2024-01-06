@@ -514,7 +514,6 @@ function sendWelcomeEmailAfterOnboardingFormOneWeekLater($userName, $userEmail){
 add_action('sendWelcomeEmailAfterOnboardingFormOneWeekLaterHook', 'sendWelcomeEmailAfterOnboardingFormOneWeekLater', 10, 2);
 
 
-
 function sendWelcomeEmailToAdditionalTeamMembers($userName, $userEmail, $accountOwnerId, $userPassword = false){
 	global $headers;
 	$accountOwner = get_user_by( 'id', $accountOwnerId);
