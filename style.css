@@ -995,6 +995,10 @@ input.ff-read-only {
   width: auto;
 }
 
+.stripe-source-errors {
+  position: relative !important;
+}
+
 /*CANCELLATION FORM*/
 .update_plan_form {
   display: none;

@@ -634,6 +634,8 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
 
 	$standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
 	$cart = WC()->cart->get_cart();
+	$currentUserSubscriptionPlan = "";
+
 
 	if(is_user_logged_in()){
 		$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
