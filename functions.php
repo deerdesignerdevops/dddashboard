@@ -27,19 +27,16 @@ function hello_elementor_child_scripts_styles() {
 
 	// CSS
 	wp_enqueue_style( "dd-custom-style-$version", get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
-	wp_enqueue_style( "slick-$version", get_stylesheet_directory_uri() . '/libs/slick/css/slick.css', $version );
-	wp_enqueue_style( "slick-theme-$version", get_stylesheet_directory_uri() . '/libs/slick/css/slick-theme.css', $version );
+	wp_enqueue_style( "glider-styles-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.css', $version );
 
 	//JS
-	wp_enqueue_script("custom-jquery-$version", get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
-	wp_enqueue_script("slick-$version", get_stylesheet_directory_uri() . '/libs/slick/js/slick.min.js', $version);
+	wp_enqueue_script("glider-scripts-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.js', $version);
 	wp_enqueue_script("dd-custom-scripts-$version", get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
 
 }
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
-
 
 
 require_once('stripe/init.php');
@@ -433,7 +430,7 @@ function getCurrentUserRole(){
 		echo "<style>
 		.btn__billing{display: none !important;}
 		.paused__user_banner{display: none !important;}
-		.account__details_col{width: 100% !important;}
+		.account__details_col{width: 50% !important; margin: auto !important;}
 		</style>";
 		
 		if(is_wc_endpoint_url('subscriptions')){
@@ -455,6 +452,7 @@ add_action('template_redirect', 'getCurrentUserRole');
 function checkIfUserIsActive($userId){
 	$userSubscriptions = wcs_get_users_subscriptions($userId);
 	$currentUserSubscriptionStatus = '';
+
 
 	foreach ($userSubscriptions as $subscription){
 		foreach ($subscription->get_items() as $product) {	
@@ -682,6 +680,8 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
 
 	$standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
 	$cart = WC()->cart->get_cart();
+	$currentUserSubscriptionPlan = "";
+
 
 	if(is_user_logged_in()){
 		$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
@@ -1230,7 +1230,7 @@ function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
 
 
 function unserializedOnboardingFieldInUserProfilePage($user){
-	$frequentRequests = get_the_author_meta('frequent_requests',$user->ID,true );
+	$frequentRequests = get_the_author_meta('company_frequent_requests',$user->ID,true );
 	$unserializedValue = unserialize($frequentRequests);
 	$finalValue = $unserializedValue[0];
 
@@ -1240,6 +1240,8 @@ function unserializedOnboardingFieldInUserProfilePage($user){
 }
 
 add_action('show_user_profile', 'unserializedOnboardingFieldInUserProfilePage');
+add_action( 'edit_user_profile', 'unserializedOnboardingFieldInUserProfilePage' );
+
 
 
 
@@ -1344,12 +1346,25 @@ function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
 
 function removeAdditionalUserFromDatabase($userId){
 	$userToBeDeleted = get_user_by( 'id', $userId);
+	$accountOwner = wp_get_current_user();
+	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
 
 	if(in_array('administrator', $userToBeDeleted->roles)){
 		wc_add_notice("You can't remove this user!", 'error');
 	}else{
-		wp_delete_user($userId);
 		wc_add_notice("The user was successfully removed from your account!", 'success');
+
+		$slackMessageBody = [
+			'text'  => '<!channel> A client just removed a team member from their account:  ' . '
+	*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
+	*Team Member:* ' . $userToBeDeleted->first_name . " ($userToBeDeleted->user_email)" ,
+			'username' => 'Marcus',
+		];
+
+		slackNotifications($slackMessageBody);
+		
+		wp_delete_user($userId);
+
 	}
 
 
@@ -1358,3 +1373,4 @@ function removeAdditionalUserFromDatabase($userId){
 }
 
 add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');
+
