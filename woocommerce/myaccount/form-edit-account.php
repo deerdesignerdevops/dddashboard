@@ -24,17 +24,8 @@ $userSubscriptions = wcs_get_users_subscriptions($user->id);
 
 $product_id = "";
 $productsCategories = [];
-
-foreach ($userSubscriptions as $subscription){
-	if ($subscription->has_status(array('active'))) {
-		foreach ($subscription->get_items() as $product) {			
-			if(has_term('plan', 'product_cat', $product->get_product_id())){
-				$userCanAddTeamMembers = true;
-			}
-		}
-	}
-}
-
+$userCanAddTeamMembers = 0;
+$userCurrentPlan = "";
 
 $groupsUser = new Groups_User( get_current_user_id() );
 
@@ -47,12 +38,36 @@ foreach($groupsUser->groups as $group){
 $group = new Groups_Group( $groupId );
 $membersOfCurrentUserGroup = $group->users;
 
+
+foreach ($userSubscriptions as $subscription){
+	if ($subscription->has_status(array('active'))) {
+		foreach ($subscription->get_items() as $product) {	
+			$userCurrentPlan = $product['name'];	
+
+			if(has_term('plan', 'product_cat', $product->get_product_id())){
+				
+				if(str_contains($userCurrentPlan, 'Standard')){
+					$userCanAddTeamMembers = false;
+				}else if(str_contains($userCurrentPlan, 'Business') && (sizeof($membersOfCurrentUserGroup) - 1) >= 4 ){
+					$userCanAddTeamMembers = false;
+				}else{
+					$userCanAddTeamMembers = true;
+				}
+
+			}
+		}
+	}
+}
+
+
 //REMOVE ADDITIONAL USER FROM DATABASE
 if(isset($_GET['remove_additional_user']) && isset($_GET['_wpnonce'])){
 	if(wp_verify_nonce($_GET['_wpnonce'], 'action')){
 		do_action('removeAdditionalUserFromDatabaseHook', $_GET['remove_additional_user']);
 	}
 }
+
+
 
 
 ?>
@@ -204,46 +219,42 @@ fieldset {
 					<?php endif; ?>
 				</div>
 
-				<?php if($userCanAddTeamMembers){ ?>
-					<div class="team__members">
-						<h2 class="myaccount__page_title">Additional Users</h2>
-	
-						<?php if(!empty($membersOfCurrentUserGroup) && sizeof($membersOfCurrentUserGroup) > 1){ ?>
-							<div class="team__members_list">
-	
-								<?php foreach($membersOfCurrentUserGroup as $group){ ?>
-									<?php if($group->user->id !== get_current_user_id()){ ?>
+				<div class="team__members">
+					<h2 class="myaccount__page_title">Additional Users</h2>
+
+					<?php if(!empty($membersOfCurrentUserGroup) && sizeof($membersOfCurrentUserGroup) > 1){ ?>
+						<div class="team__members_list">
+
+							<?php foreach($membersOfCurrentUserGroup as $group){ ?>
+								<?php if($group->user->id !== get_current_user_id()){ ?>
+									
+									<?php
+									$removeAdditionalUserUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/edit-account/?remove_additional_user=" . $group->user->id;
+									$removeAdditionalUserUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $removeAdditionalUserUrl );
+									?>
+
+									<div class="team__members_row">
+										<span><strong><?php echo $group->user->first_name; ?></strong></span>
 										
-										<?php
-										$removeAdditionalUserUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/edit-account/?remove_additional_user=" . $group->user->id;
-										$removeAdditionalUserUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $removeAdditionalUserUrl );
-										?>
-	
-										<div class="team__members_row">
-											<span><strong><?php echo $group->user->first_name; ?></strong></span>
-											
-											<span><?php echo $group->user->user_email; ?>
-												<a href="<?php echo $removeAdditionalUserUrlWithNonce; ?>" onclick="return confirm('Are you sure?')"><i class="fa-solid fa-circle-minus"></i></a>
-											</span>
-											
-										</div>
-									<?php } ?>
+										<span><?php echo $group->user->user_email; ?>
+											<a href="<?php echo $removeAdditionalUserUrlWithNonce; ?>" onclick="return confirm('Are you sure?')"><i class="fa-solid fa-circle-minus"></i></a>
+										</span>
+										
+									</div>
 								<?php } ?>
-								
-							</div>	
-						<?php } ?>
-						
-						<?php echo do_shortcode('[fluentform id="7"]'); ?>
-					</div>
-				<?php } ?>
+							<?php } ?>
+							
+						</div>	
+					<?php } ?>
+					
+					<?php 
+
+					if($userCanAddTeamMembers){
+						echo do_shortcode('[fluentform id="7"]'); 
+					}
+					?>
+				</div>
 			</div>
 		<?php } ?>
 	</div>
-
-
 </section>
-
-
-
-
-
