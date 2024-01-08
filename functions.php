@@ -1185,8 +1185,7 @@ function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
 
 
 function unserializedOnboardingFieldInUserProfilePage($user){
-	echo "unserializedOnboardingFieldInUserProfilePage";
-	$frequentRequests = get_the_author_meta('frequent_requests',$user->ID,true );
+	$frequentRequests = get_the_author_meta('company_frequent_requests',$user->ID,true );
 	$unserializedValue = unserialize($frequentRequests);
 	$finalValue = $unserializedValue[0];
 
