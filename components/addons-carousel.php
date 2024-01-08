@@ -3,7 +3,7 @@ function addonsCarouselComponent($allProductAddons){
     $siteUrl = site_url();
     ?>
     <div class="carousel__container">
-        <div class="addons__carousel_form">								
+        <div class="addons__carousel_form glider">								
             <?php
                 foreach($allProductAddons[0] as $addon){?>		
                         <div class="addon__card">
@@ -55,38 +55,21 @@ function addonsCarouselComponent($allProductAddons){
     }
 </style>
 
-<?php $slidesToShow = sizeof($allProductAddons[0]) > 1 ? 2 : 1; ?>
+<?php $carouselSlidesToShow = sizeof($allProductAddons[0]) > 1 ? 2 : 1; ?>
 
 <script>
-	document.addEventListener("DOMContentLoaded", function(){
-        $('.addons__carousel_form').slick({
-		autoplay: false,
-  		autoplaySpeed: 4000,
-		infinite: true,
-		speed: 300,
-		slidesToShow: <?php echo $slidesToShow; ?>,
-		responsive: [
-			{
-			breakpoint: 768,
-			settings: {
-				slidesToShow: 1,
-				slidesToScroll: 1
-			}
-			},
-			{
-			breakpoint: 480,
-			settings: {
-				slidesToShow: 1,
-				slidesToScroll: 1
-			}
-			}
-  		]
+	new Glider(document.querySelector('.glider'), {
+	slidesToShow: <?php echo $carouselSlidesToShow; ?>,
+	slidesToScroll: 1,
+	draggable: true,
+	dots: '.glider__dots',
+	arrows: {
+		prev: '.glider-prev',
+		next: '.glider-next'
+	},
+    dragVelocity: 3.3,
 	});
-    })
 </script>
 <?php } ?>
-
-
-
 
 <?php add_action('addonsCarouselHook', 'addonsCarouselComponent');
