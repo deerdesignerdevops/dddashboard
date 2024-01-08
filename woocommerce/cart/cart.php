@@ -225,7 +225,8 @@ $allProductAddons = wc_get_products([
 <?php if(!empty($allProductAddons) && current_user_can('administrator')){ ?>
 	<div class="cart__addons">
 		<h2 class="cart__header__title">Available Addons</h2>
-		<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form">								
+
+		<form action="" method="post" enctype="multipart/form-data" class="addons__carousel_form glider">								
 			<?php
 				foreach($allProductAddons as $addon){	?>		
 						<div class="addon__card">
@@ -261,28 +262,15 @@ $allProductAddons = wc_get_products([
 <?php $carouselSlidesToShow = sizeof($allProductAddons) > 1 ? 2 : 1; ?>
 
 <script>
-	$('.addons__carousel_form').slick({
-		autoplay: true,
-  		autoplaySpeed: 4000,
-		infinite: true,
-		speed: 300,
-		slidesToShow: <?php echo $carouselSlidesToShow; ?>,
-		responsive: [
-			{
-			breakpoint: 768,
-			settings: {
-				slidesToShow: 1,
-				slidesToScroll: 1
-			}
-			},
-			{
-			breakpoint: 480,
-			settings: {
-				slidesToShow: 1,
-				slidesToScroll: 1
-			}
-			}
-  		]
+	new Glider(document.querySelector('.glider'), {
+	slidesToShow: <?php echo $carouselSlidesToShow; ?>,
+	slidesToScroll: 1,
+	draggable: true,
+	dots: '.glider__dots',
+	arrows: {
+		prev: '.glider-prev',
+		next: '.glider-next'
+	}
 	});
 </script>
 

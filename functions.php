@@ -27,19 +27,16 @@ function hello_elementor_child_scripts_styles() {
 
 	// CSS
 	wp_enqueue_style( "dd-custom-style-$version", get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
-	wp_enqueue_style( "slick-$version", get_stylesheet_directory_uri() . '/libs/slick/css/slick.css', $version );
-	wp_enqueue_style( "slick-theme-$version", get_stylesheet_directory_uri() . '/libs/slick/css/slick-theme.css', $version );
+	wp_enqueue_style( "glider-styles-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.css', $version );
 
 	//JS
-	wp_enqueue_script("custom-jquery-$version", get_stylesheet_directory_uri() . '/libs/jquery/jquery.js', $version);
-	wp_enqueue_script("slick-$version", get_stylesheet_directory_uri() . '/libs/slick/js/slick.min.js', $version);
+	wp_enqueue_script("glider-scripts-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.js', $version);
 	wp_enqueue_script("dd-custom-scripts-$version", get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
 
 }
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
-
 
 
 require_once('stripe/init.php');

@@ -231,24 +231,28 @@ body a {
   font-size: 1rem;
 }
 
-.slick-next {
-  right: -30px !important;
-  z-index: 3;
+/*Glider Carousel*/
+.glider-prev,
+.glider-next {
+  user-select: none;
+  position: absolute;
+  outline: none;
+  position: absolute;
+  padding: 2px 2px 2px 3px;
   background: none !important;
-  font-size: 0 !important;
-}
-
-.slick-prev {
-  left: -60px !important;
-  z-index: 3;
-  background: none !important;
-  font-size: 0 !important;
-}
-
-.slick-next:before,
-.slick-prev:before {
-  color: var(--e-global-color-04b3e11) !important;
-  font-size: 2rem !important;
+  width: 51px;
+  z-index: 2;
+  font-size: 40px;
+  text-decoration: none;
+  left: -42px;
+  border: 0;
+  top: 40%;
+  cursor: pointer;
+  color: var(--e-global-color-primary) !important;
+  opacity: 1;
+  line-height: 1;
+  transition: opacity 0.25s cubic-bezier(0.17, 0.67, 0.83, 0.67),
+    color 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67);
 }
 
 .onboarding__videos_section {
@@ -633,15 +637,6 @@ input.ff-read-only {
   display: none;
 }
 
-.slick-dots button:before {
-  color: var(--e-global-color-primary) !important;
-}
-
-.slick-dots button:hover,
-.slick-dots button:focus {
-  background-color: transparent !important;
-}
-
 .woocommerce-message {
   border-color: var(--e-global-color-primary);
   color: var(--e-global-color-text);
@@ -994,24 +989,6 @@ input.ff-read-only {
 
 .addons__carousel_form {
   display: flex !important;
-}
-
-.addons__carousel_form .slick-prev:before,
-.addons__carousel_form .slick-next:before {
-  content: "";
-  display: block;
-  width: 40px;
-  height: 40px;
-  background-repeat: no-repeat;
-  background-size: 20px;
-}
-
-.addons__carousel_form .slick-prev:before {
-  background-image: url("assets/img/prev-arrow.svg");
-}
-
-.addons__carousel_form .slick-next:before {
-  background-image: url("assets/img/next-arrow.svg");
 }
 
 .addons__carousel_form .addon__card {
