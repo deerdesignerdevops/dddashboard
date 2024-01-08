@@ -1185,6 +1185,7 @@ function calculateBillingEndingDateWhenPausedOrCancelled($subscription){
 
 
 function unserializedOnboardingFieldInUserProfilePage($user){
+	echo "unserializedOnboardingFieldInUserProfilePage";
 	$frequentRequests = get_the_author_meta('frequent_requests',$user->ID,true );
 	$unserializedValue = unserialize($frequentRequests);
 	$finalValue = $unserializedValue[0];
@@ -1194,4 +1195,5 @@ function unserializedOnboardingFieldInUserProfilePage($user){
 	</script>";
 }
 
-add_action('show_user_profile', 'unserializedOnboardingFieldInUserProfilePage');
+add_action( 'show_user_profile', 'unserializedOnboardingFieldInUserProfilePage' );
+add_action( 'edit_user_profile', 'unserializedOnboardingFieldInUserProfilePage' );
