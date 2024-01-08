@@ -73,10 +73,11 @@ fieldset {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <section>
-	<a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' )); ?>" class="dd__bililng_portal_back"><i class="fa-solid fa-chevron-left"></i> Back to Dashboard</a>
 	
 	<div class="account__details_row">
 		<div class="account__details_col">
+			<a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' )); ?>" class="dd__bililng_portal_back"><i class="fa-solid fa-chevron-left"></i> Back to Dashboard</a>
+
 			<form class="woocommerce-EditAccountForm edit-account" action="" method="post" <?php do_action( 'woocommerce_edit_account_form_tag' ); ?> >
 				<?php do_action( 'woocommerce_edit_account_form_start' ); ?>
 				<h2 class="myaccount__page_title">Your details</h2>
