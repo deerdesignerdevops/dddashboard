@@ -21,22 +21,40 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-if ($) {
-  $(document).ready(function ($) {
-    $("form.woocommerce-checkout").on("checkout_place_order", function () {
-      $("body").append('<div class="loading__spinner_wrapper"></div>');
-      $(".loading__spinner_wrapper").html(
-        '<div class="loading-spinner"></div>'
-      );
+document.addEventListener("DOMContentLoaded", function () {
+  var form = document.querySelector("form.woocommerce-checkout");
 
-      $(":submit", this).attr("disabled", "disabled");
+  if (form) {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      var loadingSpinnerWrapper = document.createElement("div");
+      loadingSpinnerWrapper.className = "loading__spinner_wrapper";
+      document.body.appendChild(loadingSpinnerWrapper);
+
+      loadingSpinnerWrapper.innerHTML = '<div class="loading-spinner"></div>';
+
+      var submitButton = form.querySelector(":submit");
+      submitButton.setAttribute("disabled", "disabled");
     });
 
-    $(document).ajaxComplete(function (event, xhr, settings) {
+    document.addEventListener("ajaxComplete", function (event) {
+      var xhr = event.detail[0];
+      var settings = event.detail[1];
+
       if (settings.url.indexOf("wc-ajax=checkout") !== -1) {
-        $(".loading__spinner_wrapper").remove();
-        $(":submit").removeAttr("disabled");
+        var loadingSpinnerWrapper = document.querySelector(
+          ".loading__spinner_wrapper"
+        );
+        if (loadingSpinnerWrapper) {
+          loadingSpinnerWrapper.remove();
+        }
+
+        var submitButtons = document.querySelectorAll(":submit");
+        submitButtons.forEach(function (button) {
+          button.removeAttribute("disabled");
+        });
       }
     });
-  });
-}
+  }
+});

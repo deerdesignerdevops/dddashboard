@@ -424,6 +424,7 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 
 function checkIfUserIsActive(){
+	$currentUser = wp_get_current_user();
 	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 	$currentUserSubscriptionStatus = '';
 
@@ -436,23 +437,22 @@ function checkIfUserIsActive(){
 	}
 
 
-	switch($currentUserSubscriptionStatus){
-		case 'on-hold':
-			echo "<style>
-				.paused__user_btn, .paused__user_banner{display: none !important}
-			</style>";
-			break;
-		
-		case 'active':
-			echo "<style>
-				.paused__user_banner{display: none !important}
-			</style>";
-			break;
-		
-		default:
-			echo "<style>
-				.paused__user_btn{display: none !important}
-			</style>";
+	if(in_array('subscriber', $currentUser->roles)){
+		echo "<style>
+			.paused__user_banner{display: none !important}
+		</style>";
+	}else if(in_array('administrator', $currentUser->roles) && $userSubscriptions){
+		echo "<style>
+			.paused__user_banner{display: none !important}
+		</style>";
+	}else if(in_array('paused', $currentUser->roles) && $userSubscriptions){
+		echo "<style>
+			.paused__user_btn, .paused__user_banner{display: none !important}
+		</style>";
+	}else{
+		echo "<style>
+			.paused__user_btn{display: none !important}
+		</style>";
 	}
 
 }
