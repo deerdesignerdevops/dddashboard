@@ -1202,7 +1202,7 @@ input.ff-read-only {
 .account__details_row {
   display: flex;
   gap: 40px;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .account__details_col {

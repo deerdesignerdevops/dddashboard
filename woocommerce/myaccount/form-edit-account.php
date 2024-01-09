@@ -28,15 +28,20 @@ $userCanAddTeamMembers = 0;
 $userCurrentPlan = "";
 
 $groupsUser = new Groups_User( get_current_user_id() );
+$membersOfCurrentUserGroup = [];
 
 foreach($groupsUser->groups as $group){
 	if($group->name !== "Registered"){
 		$groupId = $group->group_id;
+		$group = new Groups_Group( $groupId );
+
+		foreach($group->users as $groupUser){
+			if($groupUser->id !== get_current_user_id()){
+				$membersOfCurrentUserGroup[] = $groupUser;
+			}
+		}
 	}
 }
-
-$group = new Groups_Group( $groupId );
-$membersOfCurrentUserGroup = $group->users;
 
 
 foreach ($userSubscriptions as $subscription){
@@ -45,10 +50,10 @@ foreach ($userSubscriptions as $subscription){
 			$userCurrentPlan = $product['name'];	
 
 			if(has_term('plan', 'product_cat', $product->get_product_id())){
-				
+
 				if(str_contains($userCurrentPlan, 'Standard')){
 					$userCanAddTeamMembers = false;
-				}else if(str_contains($userCurrentPlan, 'Business') && (sizeof($membersOfCurrentUserGroup) - 1) >= 4 ){
+				}else if(str_contains($userCurrentPlan, 'Business') && sizeof($membersOfCurrentUserGroup) >= 4 ){
 					$userCanAddTeamMembers = false;
 				}else{
 					$userCanAddTeamMembers = true;
@@ -67,9 +72,6 @@ if(isset($_GET['remove_additional_user']) && isset($_GET['_wpnonce'])){
 	}
 }
 
-
-
-
 ?>
 
 <style>
@@ -87,11 +89,11 @@ fieldset {
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-<section>
+<section class="account_details__section">
 	
+	<a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' )); ?>" class="dd__bililng_portal_back"><i class="fa-solid fa-chevron-left"></i> Back to Dashboard</a>
 	<div class="account__details_row">
 		<div class="account__details_col">
-			<a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' )); ?>" class="dd__bililng_portal_back"><i class="fa-solid fa-chevron-left"></i> Back to Dashboard</a>
 
 			<form class="woocommerce-EditAccountForm edit-account" action="" method="post" <?php do_action( 'woocommerce_edit_account_form_tag' ); ?> >
 				<?php do_action( 'woocommerce_edit_account_form_start' ); ?>
@@ -219,42 +221,72 @@ fieldset {
 					<?php endif; ?>
 				</div>
 
-				<div class="team__members">
-					<h2 class="myaccount__page_title">Additional Users</h2>
+				<?php if(!str_contains($userCurrentPlan, 'Standard')){ ?>
 
-					<?php if(!empty($membersOfCurrentUserGroup) && sizeof($membersOfCurrentUserGroup) > 1){ ?>
-						<div class="team__members_list">
-
-							<?php foreach($membersOfCurrentUserGroup as $group){ ?>
-								<?php if($group->user->id !== get_current_user_id()){ ?>
-									
-									<?php
-									$removeAdditionalUserUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/edit-account/?remove_additional_user=" . $group->user->id;
-									$removeAdditionalUserUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $removeAdditionalUserUrl );
-									?>
-
-									<div class="team__members_row">
-										<span><strong><?php echo $group->user->first_name; ?></strong></span>
+					<div class="team__members">
+						<h2 class="myaccount__page_title">Additional Users</h2>
+	
+						<?php if(!empty($membersOfCurrentUserGroup)){ ?>
+							<div class="team__members_list">
+	
+								<?php foreach($membersOfCurrentUserGroup as $group){ ?>
+									<?php if($group->user->id !== get_current_user_id()){ ?>
 										
-										<span><?php echo $group->user->user_email; ?>
-											<a href="<?php echo $removeAdditionalUserUrlWithNonce; ?>" onclick="return confirm('Are you sure?')"><i class="fa-solid fa-circle-minus"></i></a>
-										</span>
-										
-									</div>
+										<?php
+										$removeAdditionalUserUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/edit-account/?remove_additional_user=" . $group->user->id;
+										$removeAdditionalUserUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $removeAdditionalUserUrl );
+										?>
+	
+										<div class="team__members_row">
+											<span><strong><?php echo $group->user->first_name; ?></strong></span>
+											
+											<span><?php echo $group->user->user_email; ?>
+												<a href="<?php echo $removeAdditionalUserUrlWithNonce; ?>" onclick="return confirm('Are you sure?')"><i class="fa-solid fa-circle-minus"></i></a>
+											</span>
+											
+										</div>
+									<?php } ?>
 								<?php } ?>
-							<?php } ?>
-							
-						</div>	
-					<?php } ?>
-					
-					<?php 
-
-					if($userCanAddTeamMembers){
-						echo do_shortcode('[fluentform id="7"]'); 
-					}
-					?>
-				</div>
+								
+							</div>	
+						<?php } ?>
+						
+						<?php 
+	
+						if($userCanAddTeamMembers){
+							echo do_shortcode('[fluentform id="7"]'); 
+						}else{ ?>
+							<div class="dd__subscription_details">
+								<span class="dd__subscription_warning">You can't add new team members!</span>
+							</div>
+						<?php }
+						?>
+					</div>
+				<?php } ?>
 			</div>
 		<?php } ?>
 	</div>
 </section>
+
+
+<style>
+	.repeat-plus{
+		display: <?php echo sizeof($membersOfCurrentUserGroup) === 3 ? 'none' : 'block !important'; ?>;
+	}
+</style>
+
+<script>
+	const membersOfCurrentUserGroup = <?php echo sizeof($membersOfCurrentUserGroup) ?>;
+	const userCurrentPlan = "<?php echo $userCurrentPlan; ?>";
+	document.addEventListener('DOMContentLoaded', function(){
+		let dataMaxRepeat = document.querySelector('.team_members_form table')
+
+		if(dataMaxRepeat){
+			if(userCurrentPlan.includes('Agency')){
+				dataMaxRepeat.dataset.max_repeat = 0
+			}else{
+				dataMaxRepeat.dataset.max_repeat = 4 - membersOfCurrentUserGroup
+			}
+		}
+	})
+</script>

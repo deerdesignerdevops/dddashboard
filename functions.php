@@ -423,36 +423,9 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 
 
-function getCurrentUserRole(){
-	$currentUser = wp_get_current_user();
-
-	if(in_array('team_member', $currentUser->roles)){
-		echo "<style>
-		.btn__billing{display: none !important;}
-		.paused__user_banner{display: none !important;}
-		.account__details_col{width: 50% !important; margin: auto !important;}
-		</style>";
-		
-		if(is_wc_endpoint_url('subscriptions')){
-			wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
-			exit;
-		}
-		
-		getCurrentTeamMemberAccountOwner();
-
-	}else{
-		checkIfUserIsActive($currentUser->id);
-	}
-
-}
-add_action('template_redirect', 'getCurrentUserRole');
-
-
-
-function checkIfUserIsActive($userId){
-	$userSubscriptions = wcs_get_users_subscriptions($userId);
+function checkIfUserIsActive($currentUser){
+	$userSubscriptions = wcs_get_users_subscriptions($currentUser->id);
 	$currentUserSubscriptionStatus = '';
-
 
 	foreach ($userSubscriptions as $subscription){
 		foreach ($subscription->get_items() as $product) {	
@@ -462,31 +435,30 @@ function checkIfUserIsActive($userId){
 		}
 	}
 
-	switch($currentUserSubscriptionStatus){
-		case 'on-hold':
-			echo "<style>
-				.paused__user_btn, .paused__user_banner, .group_book_call_btn {display: none !important}
-			</style>";
-			break;
-		
-		case 'active':
-			echo "<style>
-				.paused__user_banner{display: none !important}
-			</style>";
-			break;
-		
-		default:
-			echo "<style>
-				.paused__user_btn, .group_book_call_btn {display: none !important}
-			</style>";
+	if(in_array('subscriber', $currentUser->roles)){
+		echo "<style>
+			.paused__user_banner{display: none !important}
+		</style>";
+	}else if(in_array('administrator', $currentUser->roles) && $userSubscriptions){
+		echo "<style>
+			.paused__user_banner{display: none !important}
+		</style>";
+	}else if(in_array('paused', $currentUser->roles) && $userSubscriptions){
+		echo "<style>
+			.paused__user_btn, .paused__user_banner{display: none !important}
+		</style>";
+	}else{
+		echo "<style>
+			.paused__user_btn{display: none !important}
+		</style>";
 	}
 
 }
 
 
 
-function getCurrentTeamMemberAccountOwner(){
-	$groupsUser = new Groups_User( get_current_user_id() );
+function getCurrentTeamMemberAccountOwner($currentUser){
+	$groupsUser = new Groups_User( $currentUser->id );
 	$rolesToCheck = ['administrator', 'subscriber', 'paused'];
 
 	foreach($groupsUser->groups as $group){
@@ -495,15 +467,31 @@ function getCurrentTeamMemberAccountOwner(){
 		}
 	}
 	
-	foreach($currentUserGroup->users as $group){
-		$groupUserData = get_userdata($group->user->id);
-		
-		if (!empty(array_intersect($groupUserData->roles, $rolesToCheck))) {
-			checkIfUserIsActive($group->user->id);
+	foreach($currentUserGroup->users as $group){		
+		if (!empty(array_intersect($group->user->roles, $rolesToCheck))) {
+			checkIfUserIsActive($group->user);
+			return;
 		}
 	}
 }
 
+
+function getCurrentUserRole(){
+	$currentUser = wp_get_current_user();
+
+	if(in_array('team_member', $currentUser->roles)){
+		echo "<style>
+			.btn__billing, .paused__user_banner{display:none !important;}
+			.account_details__section{width: 50%; margin: auto;}
+			.account__details_col{width: 100% !important;}
+		</style>";
+		getCurrentTeamMemberAccountOwner($currentUser);
+	}else{
+		checkIfUserIsActive($currentUser);
+	}
+}
+
+add_action('template_redirect', 'getCurrentUserRole');
 
 
 function sendWooMetadataToStripePaymentMetadata($metadata, $order) {
@@ -1246,53 +1234,100 @@ add_action( 'edit_user_profile', 'unserializedOnboardingFieldInUserProfilePage' 
 
 
 //TEAM MEMBERS FEATURE
+function userCanAddMoreTeamMembers($numberOfTeamMembersFromForm){
+	$userId = get_current_user_id();
+	$userSubscriptions = wcs_get_users_subscriptions($userId );
+	$groupsUser = new Groups_User( $userId  );
+	$currentUserTeamMembers = [];
+	$isCurrentUserCanAddMoreTeamMembers = false;
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$groupId = $group->group_id;
+			$group = new Groups_Group( $groupId );
+
+			foreach($group->users as $groupUser){
+				if(in_array('team_member', $groupUser->roles)){
+					$currentUserTeamMembers[] = $groupUser;
+				}
+			}
+		}
+	}
+
+	foreach ($userSubscriptions as $subscription){
+		if($subscription->has_status(array('active'))){;
+			foreach ($subscription->get_items() as $product) {	
+				if(has_term('plan', 'product_cat', $product['product_id'])){
+					
+					if(str_contains($product['name'], 'Business') && $numberOfTeamMembersFromForm + sizeof($currentUserTeamMembers) > 4 ){
+						$isCurrentUserCanAddMoreTeamMembers = false;
+					}else{
+						$isCurrentUserCanAddMoreTeamMembers = true;
+					}
+				}		
+			}
+		}
+	}
+
+	return $isCurrentUserCanAddMoreTeamMembers;
+	
+}
+
+
+
 function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 	if($form->id == 7){		
 		
 		$additionalUsersAdded = [];
 
-		foreach($formData['team_members_form'] as $additionalUser){
-			$additionalUserName = $additionalUser[0];
-			$additionalUserEmail = $additionalUser[1];			
-			$userAlreadyExists = get_user_by( 'email', $additionalUserEmail );
+		$isUserCanAddMoreTeamMembers = userCanAddMoreTeamMembers(sizeof($formData['team_members_form']));
 
-			if($userAlreadyExists){
-				if(in_array('administrator', $userAlreadyExists->roles)){
-					wc_add_notice("You can't add this user!", 'error');
-
+		if($isUserCanAddMoreTeamMembers){
+			foreach($formData['team_members_form'] as $additionalUser){
+				$additionalUserName = $additionalUser[0];
+				$additionalUserEmail = $additionalUser[1];			
+				$userAlreadyExists = get_user_by( 'email', $additionalUserEmail );
+	
+				if($userAlreadyExists){
+					if(in_array('administrator', $userAlreadyExists->roles)){
+						wc_add_notice("You can't add this user!", 'error');
+	
+					}else{
+						$additionalUser = new WP_User($userAlreadyExists->id);
+						$additionalUser->set_role('team_member');
+						update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
+						update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
+						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+						addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
+						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
+					}
+	
 				}else{
-					$additionalUser = new WP_User($userAlreadyExists->id);
-					$additionalUser->set_role('team_member');
-					update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
-					update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
-					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
-					addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
-					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
-				}
-
-			}else{
-				$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-				$passwordCharactersLength = 8;
-				$newUserRandomPassword = substr(str_shuffle($characters), 0, $passwordCharactersLength);
-				$newUserId = wp_create_user($additionalUserEmail, $newUserRandomPassword, $additionalUserEmail);
-
-				if($newUserId){
-					$additionalUser = new WP_User($newUserId);
-					$additionalUser->set_role('team_member');
-					wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
-					update_user_meta( $newUserId, 'is_user_onboarded', 1 );
-					update_user_meta( $newUserId, 'is_first_access', 0 );
-					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
-					addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
-					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
-				};
+					$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+					$passwordCharactersLength = 8;
+					$newUserRandomPassword = substr(str_shuffle($characters), 0, $passwordCharactersLength);
+					$newUserId = wp_create_user($additionalUserEmail, $newUserRandomPassword, $additionalUserEmail);
+	
+					if($newUserId){
+						$additionalUser = new WP_User($newUserId);
+						$additionalUser->set_role('team_member');
+						wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
+						update_user_meta( $newUserId, 'is_user_onboarded', 1 );
+						update_user_meta( $newUserId, 'is_first_access', 0 );
+						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+						addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
+						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
+					};
+				}	
 			}	
-		}	
-		
-		if(!empty($additionalUsersAdded)){
-			sendAdditionalusersNotificationToSlack($additionalUsersAdded);
-			sendEmailToProductionWhenNewTeamMemberIsAdded(get_current_user_id(), $additionalUsersAdded);
-			wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+			
+			if(!empty($additionalUsersAdded)){
+				sendAdditionalusersNotificationToSlack($additionalUsersAdded);
+				sendEmailToProductionWhenNewTeamMemberIsAdded(get_current_user_id(), $additionalUsersAdded);
+				wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+			}
+		}else{
+			wc_add_notice("Your additional team members limit is: 4. Upgrade your plan to add more!", 'error');
 		}
 	}	
 }
