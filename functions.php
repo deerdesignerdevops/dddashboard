@@ -435,24 +435,30 @@ function checkIfUserIsActive($currentUser){
 		}
 	}
 
-	if(in_array('subscriber', $currentUser->roles)){
-		echo "<style>
-			.paused__user_banner{display: none !important}
-		</style>";
-	}else if(in_array('administrator', $currentUser->roles) && $userSubscriptions){
-		echo "<style>
-			.paused__user_banner{display: none !important}
-		</style>";
-	}else if(in_array('paused', $currentUser->roles) && $userSubscriptions){
-		echo "<style>
-			.paused__user_btn, .paused__user_banner{display: none !important}
-		</style>";
-	}else{
-		echo "<style>
-			.paused__user_btn{display: none !important}
-		</style>";
+	switch($currentUserSubscriptionStatus){
+		case 'on-hold':
+			echo "<style>
+				.paused__user_btn, .paused__user_banner{display: none !important}
+			</style>";
+			break;
+		
+		case 'pending-cancel':
+			echo "<style>
+				.paused__user_btn, .paused__user_banner{display: none !important}
+			</style>";
+			break;
+		
+		case 'active':
+			echo "<style>
+				.paused__user_banner{display: none !important}
+			</style>";
+			break;
+		
+		default:
+			echo "<style>
+				.paused__user_btn{display: none !important}
+			</style>";
 	}
-
 }
 
 
