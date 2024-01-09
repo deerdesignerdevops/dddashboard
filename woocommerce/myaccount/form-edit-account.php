@@ -270,7 +270,7 @@ fieldset {
 
 
 <style>
-	.repeat-plus{
+	.repeat_btn{
 		display: <?php echo sizeof($membersOfCurrentUserGroup) === 3 ? 'none' : 'block !important'; ?>;
 	}
 </style>
