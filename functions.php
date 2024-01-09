@@ -423,36 +423,9 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 
 
-function getCurrentUserRole(){
-	$currentUser = wp_get_current_user();
-
-	if(in_array('team_member', $currentUser->roles)){
-		echo "<style>
-		.btn__billing{display: none !important;}
-		.paused__user_banner{display: none !important;}
-		.account__details_col{width: 50% !important; margin: auto !important;}
-		</style>";
-		
-		if(is_wc_endpoint_url('subscriptions')){
-			wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
-			exit;
-		}
-		
-		getCurrentTeamMemberAccountOwner();
-
-	}else{
-		checkIfUserIsActive($currentUser->id);
-	}
-
-}
-add_action('template_redirect', 'getCurrentUserRole');
-
-
-
-function checkIfUserIsActive($userId){
-	$userSubscriptions = wcs_get_users_subscriptions($userId);
+function checkIfUserIsActive($currentUser){
+	$userSubscriptions = wcs_get_users_subscriptions($currentUser->id);
 	$currentUserSubscriptionStatus = '';
-
 
 	foreach ($userSubscriptions as $subscription){
 		foreach ($subscription->get_items() as $product) {	
@@ -462,31 +435,30 @@ function checkIfUserIsActive($userId){
 		}
 	}
 
-	switch($currentUserSubscriptionStatus){
-		case 'on-hold':
-			echo "<style>
-				.paused__user_btn, .paused__user_banner, .group_book_call_btn {display: none !important}
-			</style>";
-			break;
-		
-		case 'active':
-			echo "<style>
-				.paused__user_banner{display: none !important}
-			</style>";
-			break;
-		
-		default:
-			echo "<style>
-				.paused__user_btn, .group_book_call_btn {display: none !important}
-			</style>";
+	if(in_array('subscriber', $currentUser->roles)){
+		echo "<style>
+			.paused__user_banner{display: none !important}
+		</style>";
+	}else if(in_array('administrator', $currentUser->roles) && $userSubscriptions){
+		echo "<style>
+			.paused__user_banner{display: none !important}
+		</style>";
+	}else if(in_array('paused', $currentUser->roles) && $userSubscriptions){
+		echo "<style>
+			.paused__user_btn, .paused__user_banner{display: none !important}
+		</style>";
+	}else{
+		echo "<style>
+			.paused__user_btn{display: none !important}
+		</style>";
 	}
 
 }
 
 
 
-function getCurrentTeamMemberAccountOwner(){
-	$groupsUser = new Groups_User( get_current_user_id() );
+function getCurrentTeamMemberAccountOwner($currentUser){
+	$groupsUser = new Groups_User( $currentUser->id );
 	$rolesToCheck = ['administrator', 'subscriber', 'paused'];
 
 	foreach($groupsUser->groups as $group){
@@ -495,15 +467,31 @@ function getCurrentTeamMemberAccountOwner(){
 		}
 	}
 	
-	foreach($currentUserGroup->users as $group){
-		$groupUserData = get_userdata($group->user->id);
-		
-		if (!empty(array_intersect($groupUserData->roles, $rolesToCheck))) {
-			checkIfUserIsActive($group->user->id);
+	foreach($currentUserGroup->users as $group){		
+		if (!empty(array_intersect($group->user->roles, $rolesToCheck))) {
+			checkIfUserIsActive($group->user);
+			return;
 		}
 	}
 }
 
+
+function getCurrentUserRole(){
+	$currentUser = wp_get_current_user();
+
+	if(in_array('team_member', $currentUser->roles)){
+		echo "<style>
+			.btn__billing, .paused__user_banner{display:none !important;}
+			.account_details__section{width: 50%; margin: auto;}
+			.account__details_col{width: 100% !important;}
+		</style>";
+		getCurrentTeamMemberAccountOwner($currentUser);
+	}else{
+		checkIfUserIsActive($currentUser);
+	}
+}
+
+add_action('template_redirect', 'getCurrentUserRole');
 
 
 function sendWooMetadataToStripePaymentMetadata($metadata, $order) {
