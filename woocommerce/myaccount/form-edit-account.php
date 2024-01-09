@@ -28,15 +28,20 @@ $userCanAddTeamMembers = 0;
 $userCurrentPlan = "";
 
 $groupsUser = new Groups_User( get_current_user_id() );
+$membersOfCurrentUserGroup = [];
 
 foreach($groupsUser->groups as $group){
 	if($group->name !== "Registered"){
 		$groupId = $group->group_id;
+		$group = new Groups_Group( $groupId );
+
+		foreach($group->users as $groupUser){
+			if($groupUser->id !== get_current_user_id()){
+				$membersOfCurrentUserGroup[] = $groupUser;
+			}
+		}
 	}
 }
-
-$group = new Groups_Group( $groupId );
-$membersOfCurrentUserGroup = $group->users;
 
 
 foreach ($userSubscriptions as $subscription){
@@ -48,7 +53,7 @@ foreach ($userSubscriptions as $subscription){
 				
 				if(str_contains($userCurrentPlan, 'Standard')){
 					$userCanAddTeamMembers = false;
-				}else if(str_contains($userCurrentPlan, 'Business') && (sizeof($membersOfCurrentUserGroup) - 1) >= 4 ){
+				}else if(str_contains($userCurrentPlan, 'Business') && sizeof($membersOfCurrentUserGroup) >= 4 ){
 					$userCanAddTeamMembers = false;
 				}else{
 					$userCanAddTeamMembers = true;
@@ -66,9 +71,6 @@ if(isset($_GET['remove_additional_user']) && isset($_GET['_wpnonce'])){
 		do_action('removeAdditionalUserFromDatabaseHook', $_GET['remove_additional_user']);
 	}
 }
-
-
-
 
 ?>
 
@@ -253,7 +255,11 @@ fieldset {
 	
 						if($userCanAddTeamMembers){
 							echo do_shortcode('[fluentform id="7"]'); 
-						}
+						}else{ ?>
+							<div class="dd__subscription_details">
+								<span class="dd__subscription_warning">You can't add new team members!</span>
+							</div>
+						<?php }
 						?>
 					</div>
 				<?php } ?>

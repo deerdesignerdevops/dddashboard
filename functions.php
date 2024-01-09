@@ -1234,53 +1234,100 @@ add_action( 'edit_user_profile', 'unserializedOnboardingFieldInUserProfilePage' 
 
 
 //TEAM MEMBERS FEATURE
+function userCanAddMoreTeamMembers($numberOfTeamMembersFromForm){
+	$userId = get_current_user_id();
+	$userSubscriptions = wcs_get_users_subscriptions($userId );
+	$groupsUser = new Groups_User( $userId  );
+	$currentUserTeamMembers = [];
+	$isCurrentUserCanAddMoreTeamMembers = false;
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$groupId = $group->group_id;
+			$group = new Groups_Group( $groupId );
+
+			foreach($group->users as $groupUser){
+				if(in_array('team_member', $groupUser->roles)){
+					$currentUserTeamMembers[] = $groupUser;
+				}
+			}
+		}
+	}
+
+	foreach ($userSubscriptions as $subscription){
+		if($subscription->has_status(array('active'))){;
+			foreach ($subscription->get_items() as $product) {	
+				if(has_term('plan', 'product_cat', $product['product_id'])){
+					
+					if(str_contains($product['name'], 'Business') && $numberOfTeamMembersFromForm + sizeof($currentUserTeamMembers) > 4 ){
+						$isCurrentUserCanAddMoreTeamMembers = false;
+					}else{
+						$isCurrentUserCanAddMoreTeamMembers = true;
+					}
+				}		
+			}
+		}
+	}
+
+	return $isCurrentUserCanAddMoreTeamMembers;
+	
+}
+
+
+
 function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 	if($form->id == 7){		
 		
 		$additionalUsersAdded = [];
 
-		foreach($formData['team_members_form'] as $additionalUser){
-			$additionalUserName = $additionalUser[0];
-			$additionalUserEmail = $additionalUser[1];			
-			$userAlreadyExists = get_user_by( 'email', $additionalUserEmail );
+		$isUserCanAddMoreTeamMembers = userCanAddMoreTeamMembers(sizeof($formData['team_members_form']));
 
-			if($userAlreadyExists){
-				if(in_array('administrator', $userAlreadyExists->roles)){
-					wc_add_notice("You can't add this user!", 'error');
-
+		if($isUserCanAddMoreTeamMembers){
+			foreach($formData['team_members_form'] as $additionalUser){
+				$additionalUserName = $additionalUser[0];
+				$additionalUserEmail = $additionalUser[1];			
+				$userAlreadyExists = get_user_by( 'email', $additionalUserEmail );
+	
+				if($userAlreadyExists){
+					if(in_array('administrator', $userAlreadyExists->roles)){
+						wc_add_notice("You can't add this user!", 'error');
+	
+					}else{
+						$additionalUser = new WP_User($userAlreadyExists->id);
+						$additionalUser->set_role('team_member');
+						update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
+						update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
+						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+						addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
+						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
+					}
+	
 				}else{
-					$additionalUser = new WP_User($userAlreadyExists->id);
-					$additionalUser->set_role('team_member');
-					update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
-					update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
-					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
-					addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
-					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
-				}
-
-			}else{
-				$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-				$passwordCharactersLength = 8;
-				$newUserRandomPassword = substr(str_shuffle($characters), 0, $passwordCharactersLength);
-				$newUserId = wp_create_user($additionalUserEmail, $newUserRandomPassword, $additionalUserEmail);
-
-				if($newUserId){
-					$additionalUser = new WP_User($newUserId);
-					$additionalUser->set_role('team_member');
-					wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
-					update_user_meta( $newUserId, 'is_user_onboarded', 1 );
-					update_user_meta( $newUserId, 'is_first_access', 0 );
-					$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
-					addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
-					sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
-				};
+					$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+					$passwordCharactersLength = 8;
+					$newUserRandomPassword = substr(str_shuffle($characters), 0, $passwordCharactersLength);
+					$newUserId = wp_create_user($additionalUserEmail, $newUserRandomPassword, $additionalUserEmail);
+	
+					if($newUserId){
+						$additionalUser = new WP_User($newUserId);
+						$additionalUser->set_role('team_member');
+						wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
+						update_user_meta( $newUserId, 'is_user_onboarded', 1 );
+						update_user_meta( $newUserId, 'is_first_access', 0 );
+						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+						addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
+						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
+					};
+				}	
 			}	
-		}	
-		
-		if(!empty($additionalUsersAdded)){
-			sendAdditionalusersNotificationToSlack($additionalUsersAdded);
-			sendEmailToProductionWhenNewTeamMemberIsAdded(get_current_user_id(), $additionalUsersAdded);
-			wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+			
+			if(!empty($additionalUsersAdded)){
+				sendAdditionalusersNotificationToSlack($additionalUsersAdded);
+				sendEmailToProductionWhenNewTeamMemberIsAdded(get_current_user_id(), $additionalUsersAdded);
+				wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+			}
+		}else{
+			wc_add_notice("Your additional team members limit is: 4. Upgrade your plan to add more!", 'error');
 		}
 	}	
 }
