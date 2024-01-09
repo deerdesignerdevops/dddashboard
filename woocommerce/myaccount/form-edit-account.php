@@ -50,7 +50,7 @@ foreach ($userSubscriptions as $subscription){
 			$userCurrentPlan = $product['name'];	
 
 			if(has_term('plan', 'product_cat', $product->get_product_id())){
-				
+
 				if(str_contains($userCurrentPlan, 'Standard')){
 					$userCanAddTeamMembers = false;
 				}else if(str_contains($userCurrentPlan, 'Business') && sizeof($membersOfCurrentUserGroup) >= 4 ){
@@ -226,7 +226,7 @@ fieldset {
 					<div class="team__members">
 						<h2 class="myaccount__page_title">Additional Users</h2>
 	
-						<?php if(!empty($membersOfCurrentUserGroup) && sizeof($membersOfCurrentUserGroup) > 1){ ?>
+						<?php if(!empty($membersOfCurrentUserGroup)){ ?>
 							<div class="team__members_list">
 	
 								<?php foreach($membersOfCurrentUserGroup as $group){ ?>
@@ -267,3 +267,26 @@ fieldset {
 		<?php } ?>
 	</div>
 </section>
+
+
+<style>
+	.repeat-plus{
+		display: <?php echo sizeof($membersOfCurrentUserGroup) === 3 ? 'none' : 'block !important'; ?>;
+	}
+</style>
+
+<script>
+	const membersOfCurrentUserGroup = <?php echo sizeof($membersOfCurrentUserGroup) ?>;
+	const userCurrentPlan = "<?php echo $userCurrentPlan; ?>";
+	document.addEventListener('DOMContentLoaded', function(){
+		let dataMaxRepeat = document.querySelector('.team_members_form table')
+
+		if(dataMaxRepeat){
+			if(userCurrentPlan.includes('Agency')){
+				dataMaxRepeat.dataset.max_repeat = 0
+			}else{
+				dataMaxRepeat.dataset.max_repeat = 4 - membersOfCurrentUserGroup
+			}
+		}
+	})
+</script>
