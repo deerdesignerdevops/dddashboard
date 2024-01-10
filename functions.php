@@ -41,6 +41,8 @@ add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 require_once('stripe/init.php');
 require_once('custom-email-notifications.php');
+require_once('integrations/freshdesk.php');
+require_once('integrations/moosend.php');
 
 
 
@@ -205,31 +207,6 @@ function addFirstAccessUserMetaToNewUsers($user_id) {
    add_user_meta( $user_id, 'is_user_onboarded', 0 );
 }
 add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
-
-
-
-function subscribeUserToMoosendEmailList($entryId, $formData, $form){
-	if($form->id === 3){
-		$currentUser = wp_get_current_user();
-		$userName = $currentUser->first_name . " " . $currentUser->last_name;
-		$userEmail = $currentUser->user_email;		
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Accept: application/json',
-		]);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$userName\",\n    \"Email\" : \"$userEmail\",\n    \"HasExternalDoubleOptIn\": false}");
-
-		curl_exec($ch);
-
-		curl_close($ch);
-	}
-}
-add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
 
 
 
