@@ -300,6 +300,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		document.querySelector(".form_subscription_update_message_field label").innerText = "Why are you pausing? Did we do anything wrong?"
 		document.querySelector(".form_subscription_update_message_field label").style.display = "block"
 		document.querySelector(".update_plan_form form button").innerText = "Pause Subscription"
+		document.querySelector(".update_plan_form form").elements['form_subscription_request_type'].value = "Pause Request"
 	}
 
 	subscriptionsActionsBtns.map((btn) => {
@@ -359,10 +360,10 @@ document.addEventListener("DOMContentLoaded", function(){
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
 				document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple active tasks, they will be automatically canceled."
 				document.querySelector(".form_subscription_update_message_field label").style.display = "none"
-		
+
 				confirmBtn.addEventListener("click", function(e){
 					e.preventDefault()
-					pauseFlow(currentPlan, currentSubscriptionId, currentTypeOfRequest)
+					pauseFlow(currentPlan, currentSubscriptionId)
 				})
 				
 				document.querySelector(".cancel_btn").addEventListener("click", function(e){
