@@ -36,7 +36,18 @@ function hello_elementor_child_scripts_styles() {
 }
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 
+
+
+function removeFileVersionFromStylesAndScripts($src)
+{
+    $parts = explode('?ver', $src);
+    return $parts[0];
+}
+add_filter('script_loader_src', 'removeFileVersionFromStylesAndScripts', 15, 1);
+add_filter('style_loader_src', 'removeFileVersionFromStylesAndScripts', 15, 1);
+
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
+
 
 
 require_once('stripe/init.php');
