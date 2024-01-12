@@ -514,28 +514,32 @@ function sendWelcomeEmailAfterOnboardingFormOneWeekLater($userName, $userEmail){
 add_action('sendWelcomeEmailAfterOnboardingFormOneWeekLaterHook', 'sendWelcomeEmailAfterOnboardingFormOneWeekLater', 10, 2);
 
 
+
 function sendWelcomeEmailToAdditionalTeamMembers($userName, $userEmail, $accountOwnerId, $userPassword = false){
 	global $headers;
 	$accountOwner = get_user_by( 'id', $accountOwnerId);
-	$companyName = get_user_meta($accountOwnerId, 'billing_company', true);
+	$dashboardUrl = get_permalink( wc_get_page_id( 'myaccount' ) );
+	$accountDetailsUrl = $url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "edit-account";
 
-	$subject = "Welcome to Deer Designer";
+	$subject = "You have just been added to a Deer Designer group!";
 
 	$messageA = "
-		Hey $userName,<br><br>
-		$accountOwner->first_name from $companyName just added you to their group in our system!<br><br>
+		Hi $userName,<br><br>
+		$accountOwner->first_name just added you to their Deer Designer group. You can now submit requests to your design team. <br><br>
 
-		Here is your credentials: <br><br>
+		Please access your <a href='$dashboardUrl'>Dashboard</a> with the credentials below: <br><br>
 		Login: $userEmail<br>
-		Password: $userPassword<br>
+		Password: $userPassword<br><br>
+
+		We advise you to change your password by going to Account Details in your Dashboard or clicking <a href='$accountDetailsUrl'>here</a>. 
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 		The Deer Designer Team.</p>
 	";
 
 	$messageB = "
-		Hey $userName,<br><br>
-		$accountOwner->first_name from $companyName just added you to their group in our system!<br><br>
+		Hi $userName,<br><br>
+		$accountOwner->first_name just added you to their Deer Designer group. You can now submit requests to your design team. <br><br>
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 		The Deer Designer Team.</p>
@@ -552,6 +556,30 @@ function sendWelcomeEmailToAdditionalTeamMembers($userName, $userEmail, $account
 
 
 
+function sendEmailToUserAboutAdditionalTeamMembers($accountOwnerId, $additionalUsersAdded){
+	global $headers;
+	$accountOwner = get_user_by( 'id', $accountOwnerId);
+	$additionalUsers = implode(', ', $additionalUsersAdded);
+
+	$subject = "A new user was added to your Deer Designer group";
+
+	$message = "
+		Hi $accountOwner->first_name,<br><br>
+		You successfully added a new user to your Deer Designer subscription. <br><br>
+
+		Users added: <br>$additionalUsers.<br><br>
+
+		The user will receive an email to set up their account. <br><br>
+
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+		The Deer Designer Team.</p>
+	";
+
+	wp_mail($accountOwner->user_email, $subject, emailTemplate($message), $headers);
+}
+
+
+
 function sendEmailToProductionWhenNewTeamMemberIsAdded($accountOwnerId, $additionalUsersAdded){
 	global $headers;
 	$accountOwner = get_user_by( 'id', $accountOwnerId);
@@ -559,12 +587,13 @@ function sendEmailToProductionWhenNewTeamMemberIsAdded($accountOwnerId, $additio
 	$productionEmail = 'production@deerdesigner.com';
 	$additionalUsers = implode(', ', $additionalUsersAdded);
 
-	$subject = "New Team Member Added";
+	$subject = "New team member added to $companyName";
 
 	$message = "
-		A client just added new team members to their account: ,<br><br>
-		<strong>Owner:</strong> $accountOwner->first_name | $accountOwner->user_email ($companyName)<br>
-		<strong>Team Members:</strong> $additionalUsers.
+		<strong>Action:</strong> New team member added <br>
+		<strong>Name:</strong> $accountOwner->first_name <br>
+		<strong>Company:</strong> $companyName <br>
+		<strong>New users:</strong> $additionalUsers 
 	";
 
 
