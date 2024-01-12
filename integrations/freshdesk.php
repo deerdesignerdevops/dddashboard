@@ -140,7 +140,7 @@ function updateUserInFreshdeskBasedOnSubscriptionStatus($subscription, $newStatu
 						if($contactStatusValue === $status){
 							 $freshdeskContactStatus[$contactStatusValue] = true;
 						}else{
-							 $freshdeskContactStatus[$contactStatusValue] = null;
+							 $freshdeskContactStatus[$contactStatusValue] = false;
 						}					
 					}
 
