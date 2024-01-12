@@ -100,7 +100,11 @@ function createCompanyInFreshdesk($entryId, $formData, $form){
 		} else {
 			echo "contact created";
 			$companyFreshdeskId = json_decode($response, true);
-			update_user_meta( $currentUser->id, 'company_freshdesk_id', $companyFreshdeskId['id'] );
+			
+			if($companyFreshdeskId['id']){
+				update_user_meta( $currentUser->id, 'company_freshdesk_id', $companyFreshdeskId['id'] );
+			}
+
 			createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId['id']);
 			file_put_contents("$uploadsDir/freshdesk_api_response_log.txt", $response . PHP_EOL, FILE_APPEND);
 		}
@@ -111,6 +115,22 @@ function createCompanyInFreshdesk($entryId, $formData, $form){
 }
 
 add_action( 'fluentform/submission_inserted', 'createCompanyInFreshdesk', 10, 3);
+
+
+function updateUserInFreshdeskBasedOnSubscriptionStatus($subscription, $new_status, $old_status){
+	if($old_status !== 'pending' && $new_status !== 'cancelled'){
+		foreach($subscription->get_items() as $subscritpionItem){
+			if(has_term('plan', 'product_cat', $subscritpionItem->id)){
+				$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
+				$customerEmail = $subscription->data['billing']['email'];
+				$customerCompany = $subscription->data['billing']['company'];
+				$companyFreshdeskId = get_user_meta( get_current_user_id(), 'company_freshdesk_id' );
+			}
+		}
+	}
+}
+//add_action('woocommerce_subscription_status_updated', 'updateUserInFreshdeskBasedOnSubscriptionStatus', 10, 3);
+
 
 
 ?>

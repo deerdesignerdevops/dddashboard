@@ -23,28 +23,20 @@ function hello_elementor_child_scripts_styles() {
 
 	// Dynamically get version number of the parent stylesheet (lets browsers re-cache your stylesheet when you update your theme)
 	$theme   = wp_get_theme( 'HelloElementorChild' );
-	$version = rand(0, 999);
+	$version = rand(111,999);
 
 	// CSS
-	wp_enqueue_style( "dd-custom-style-$version", get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
-	wp_enqueue_style( "glider-styles-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.css', $version );
+	wp_enqueue_style( "dd-custom-style", get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
+	wp_enqueue_style( "glider-styles", get_stylesheet_directory_uri() . '/libs/glider/glider.min.css', array(), $version );
 
 	//JS
-	wp_enqueue_script("glider-scripts-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.js', $version);
-	wp_enqueue_script("dd-custom-scripts-$version", get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
+	wp_enqueue_script("glider-scripts", get_stylesheet_directory_uri() . '/libs/glider/glider.min.js', array(), $version);
+	wp_enqueue_script("dd-custom-scripts", get_stylesheet_directory_uri() . '/dd-custom-scripts.js', array(), $version);
 
 }
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 
 
-
-function removeFileVersionFromStylesAndScripts($src)
-{
-    $parts = explode('?ver', $src);
-    return $parts[0];
-}
-add_filter('script_loader_src', 'removeFileVersionFromStylesAndScripts', 15, 1);
-add_filter('style_loader_src', 'removeFileVersionFromStylesAndScripts', 15, 1);
 
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
@@ -748,9 +740,9 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 
-function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
+function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStatus, $oldStatus){
 	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
-		if($old_status !== 'pending' && $new_status !== 'cancelled'){
+		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			$subscriptionItems = $subscription->get_items();
 			$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
 			$customerEmail = $subscription->data['billing']['email'];
@@ -765,24 +757,24 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 			$subscriptionItemsGroup = implode(" | ", array_unique($subscriptionItemsGroup));
 			
-			if($new_status === "on-hold"){
+			if($newStatus === "on-hold"){
 				$messageTitle = 'Subscription Paused :double_vertical_bar:';
 				$billingMsg = " requested to Pause. Their billing date is on: $billingPeriodEndingDate";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
-					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($new_status, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
+					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
 				}
 
-			}else if($new_status === "pending-cancel"){
+			}else if($newStatus === "pending-cancel"){
 				$messageTitle = 'Subscription Cancelled :alert:';
 				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
-					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($new_status, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
+					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
 				}
 
 
-			}else if($old_status === "pending-cancel" && $new_status === "active"){
+			}else if($oldStatus === "pending-cancel" && $newStatus === "active"){
 				$messageTitle = 'Subscription Reactivated :white_check_mark:';
 				$billingMsg = "'s account will not be 'canceled' anymore. Keep the work going";
 
@@ -798,7 +790,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 			slackNotifications($slackMessageBody);
 
-			if($new_status === 'active'){
+			if($newStatus === 'active'){
 				wc_add_notice("Your $subscriptionItemsGroup has been reactivated.", 'success');
 			}
 		}
@@ -827,9 +819,9 @@ add_action('scheduleSlackNotificationForSubscriptionStatusUpdateHook', 'schedule
 
 
 
-function wooNoticesMessageBasedOnProduct($subscription, $new_status, $old_status){
+function wooNoticesMessageBasedOnProduct($subscription, $newStatus, $oldStatus){
 	if(!is_admin()){
-		if($new_status == 'pending-cancel'){
+		if($newStatus == 'pending-cancel'){
 			$message = "";
 
 			foreach($subscription->get_items() as $item){
@@ -1099,7 +1091,7 @@ add_filter( 'wcs_view_subscription_actions', 'disableSubscriptionActions', 10, 2
 
 
 
-function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
+function cancelActiveTasksByPausePlan($subscription, $newStatus, $oldStatus){
 	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 
 	foreach($subscription->get_items() as $item){
@@ -1107,7 +1099,7 @@ function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
 			foreach ($userSubscriptions as $subs){		
 				foreach ($subs->get_items() as $product) {			
 					if ( !has_term( 'plan', 'product_cat', $product->get_product_id() ) ){
-						if($new_status === "on-hold" || $new_status === "cancelled" || $new_status === "pending-cancel"){
+						if($newStatus === "on-hold" || $newStatus === "cancelled" || $newStatus === "pending-cancel"){
 							$subs->update_status('pending-cancel');
 						}
 					};	
