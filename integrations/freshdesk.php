@@ -1,7 +1,7 @@
 <?php
 
 function postRequestToFreshdesk($apiEndpoint, $requestBody){
-	$apiUrl= "https://mafreitasfd.freshdesk.com/api/v2/$apiEndpoint";
+	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/$apiEndpoint";
 	$apiKey = FRESHDESK_API_KEY;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
 
@@ -32,7 +32,7 @@ function postRequestToFreshdesk($apiEndpoint, $requestBody){
 
 
 function putRequestToFreshdesk($freshdeskUserId, $requestBody){
-	$apiUrl= "https://mafreitasfd.freshdesk.com/api/v2/contacts/$freshdeskUserId";
+	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/contacts/$freshdeskUserId";
 	$apiKey = FRESHDESK_API_KEY;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
 
@@ -95,10 +95,9 @@ function createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId){
 			]
 	];
 
-	$contactFreshdesk = curlToFreshdesk('contacts', $requestBody);
+	$contactFreshdesk = postRequestToFreshdesk('contacts', $requestBody);
 
 	if($contactFreshdesk['id']){
-		echo "contact created<br>";
 		update_user_meta( $currentUser->id, 'contact_freshdesk_id', $contactFreshdesk['id'] );
 	}
 }
@@ -106,7 +105,7 @@ function createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId){
 
 
 function updateUserInFreshdeskBasedOnSubscriptionStatus($subscription, $newStatus, $oldStatus){
-	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){;
+	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			foreach($subscription->get_items() as $subscritpionItem){
 				if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
@@ -174,10 +173,9 @@ function createCompanyInFreshdesk($entryId, $formData, $form){
 			"domains" => [$companyWebsite]
 		];
 
-		$companyFreshdesk = curlToFreshdesk('companies', $requestBody);
+		$companyFreshdesk = postRequestToFreshdesk('companies', $requestBody);
 		
 		if($companyFreshdesk['id']){
-			echo "company created<br>";
 			update_user_meta( $currentUser->id, 'company_freshdesk_id', $companyFreshdesk['id'] );
 		}
 
