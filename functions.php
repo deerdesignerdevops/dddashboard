@@ -23,24 +23,29 @@ function hello_elementor_child_scripts_styles() {
 
 	// Dynamically get version number of the parent stylesheet (lets browsers re-cache your stylesheet when you update your theme)
 	$theme   = wp_get_theme( 'HelloElementorChild' );
-	$version = rand(0, 999);
+	$version = rand(111,999);
 
 	// CSS
-	wp_enqueue_style( "dd-custom-style-$version", get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
-	wp_enqueue_style( "glider-styles-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.css', $version );
+	wp_enqueue_style( "dd-custom-style", get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
+	wp_enqueue_style( "glider-styles", get_stylesheet_directory_uri() . '/libs/glider/glider.min.css', array(), $version );
 
 	//JS
-	wp_enqueue_script("glider-scripts-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.js', $version);
-	wp_enqueue_script("dd-custom-scripts-$version", get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
+	wp_enqueue_script("glider-scripts", get_stylesheet_directory_uri() . '/libs/glider/glider.min.js', array(), $version);
+	wp_enqueue_script("dd-custom-scripts", get_stylesheet_directory_uri() . '/dd-custom-scripts.js', array(), $version);
 
 }
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 
+
+
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
+
 
 
 require_once('stripe/init.php');
 require_once('custom-email-notifications.php');
+require_once('integrations/freshdesk.php');
+require_once('integrations/moosend.php');
 
 
 
@@ -208,31 +213,6 @@ add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
 
 
 
-function subscribeUserToMoosendEmailList($entryId, $formData, $form){
-	if($form->id === 3){
-		$currentUser = wp_get_current_user();
-		$userName = $currentUser->first_name . " " . $currentUser->last_name;
-		$userEmail = $currentUser->user_email;		
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Accept: application/json',
-		]);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$userName\",\n    \"Email\" : \"$userEmail\",\n    \"HasExternalDoubleOptIn\": false}");
-
-		curl_exec($ch);
-
-		curl_close($ch);
-	}
-}
-add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
-
-
-
 function googleTagManagerOnHead(){
 	echo "
 	<!-- Google Tag Manager -->
@@ -379,13 +359,13 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 
 		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 		$customerEmail = $orderData['billing']['email'];
+		$orderItemsGroup = implode(" | ", $orderItemsGroup);
+
 		$slackMessageBody = [
-			'text'  => 'We have a new subscription, <!channel> :smiling_face_with_3_hearts:
-	*Client:* ' . $customerName . ' ' . $customerEmail . '
-	*' . $productType . ':* ' . implode(" | ", $orderItemsGroup) . '
-	' . $notificationFinalMsg . '',
-			'username' => 'Marcus',
+			"text" => "We have a new subscription, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg",
+			"username" => "Marcus"
 		];
+
 
 		slackNotifications($slackMessageBody);
 
@@ -409,8 +389,8 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
 
 		$slackMessageBody = [
-			'text'  => '<!channel> :rocket:Onboarded: ' . $userName . ' (' . $companyName . ') ' . 'from ' . $userCity . ', ' . $userCountry,
-			'username' => 'Marcus',
+			"text" => "<!channel> :rocket:Onboarded: $userName ($companyName) from $userCity, $userCountry",
+			"username" => "Marcus",
 		];
 
 		slackNotifications($slackMessageBody);
@@ -735,11 +715,10 @@ function sendPaymentFailedNotificationToSlack($orderId){
 	$orderData = $order->get_data();
 	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 	$customerEmail = $orderData['billing']['email'];
+
 	$slackMessageBody = [
-		'text'  => '<!channel> Payment failed :x:
-' . $customerName . ' - ' . $customerEmail . '
-:arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.',
-		'username' => 'Marcus',
+		"text" => "<!channel> Payment failed :x:\n$customerName | $customerEmail\n:arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.",
+		"username" => "Marcus"
 	];
 
 	slackNotifications($slackMessageBody);
@@ -761,9 +740,9 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 
-function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
+function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStatus, $oldStatus){
 	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
-		if($old_status !== 'pending' && $new_status !== 'cancelled'){
+		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			$subscriptionItems = $subscription->get_items();
 			$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
 			$customerEmail = $subscription->data['billing']['email'];
@@ -772,16 +751,30 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 			$billingMsg = '';
 			$billingPeriodEndingDate =  calculateBillingEndingDateWhenPausedOrCancelled($subscription);
 
+			foreach($subscriptionItems as $item){
+				$subscriptionItemsGroup[] = $item['name'];
+			}
 
-			if($new_status === "on-hold"){
+			$subscriptionItemsGroup = implode(" | ", array_unique($subscriptionItemsGroup));
+			
+			if($newStatus === "on-hold"){
 				$messageTitle = 'Subscription Paused :double_vertical_bar:';
 				$billingMsg = " requested to Pause. Their billing date is on: $billingPeriodEndingDate";
 
-			}else if($new_status === "pending-cancel"){
+				if(time() < strtotime($billingPeriodEndingDate)){
+					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
+				}
+
+			}else if($newStatus === "pending-cancel"){
 				$messageTitle = 'Subscription Cancelled :alert:';
 				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate";
 
-			}else if($old_status === "pending-cancel" && $new_status === "active"){
+				if(time() < strtotime($billingPeriodEndingDate)){
+					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
+				}
+
+
+			}else if($oldStatus === "pending-cancel" && $newStatus === "active"){
 				$messageTitle = 'Subscription Reactivated :white_check_mark:';
 				$billingMsg = "'s account will not be 'canceled' anymore. Keep the work going";
 
@@ -790,22 +783,15 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 			}
 
-			foreach($subscriptionItems as $item){
-				$subscriptionItemsGroup[] = $item['name'];
-			}
-
 			$slackMessageBody = [
-					'text'  => '<!channel> ' . $messageTitle . '
-			*Client:* ' . $customerName . ' | ' . $customerEmail . " ($customerCompany)" . $billingMsg . '
-			*Plan:* ' . implode(" | ", array_unique($subscriptionItemsGroup)),
-					'username' => 'Marcus',
-				];
-
+				"text" => "<!channel> $messageTitle\n*Client:* $customerName | $customerEmail ($customerCompany)$billingMsg\n*Plan:* $subscriptionItemsGroup",
+				"username" => "Marcus"
+			];
 
 			slackNotifications($slackMessageBody);
 
-			if($new_status === 'active'){
-				wc_add_notice('Your ' . implode(" | ", array_unique($subscriptionItemsGroup)) . ' has been reactivated.', 'success');
+			if($newStatus === 'active'){
+				wc_add_notice("Your $subscriptionItemsGroup has been reactivated.", 'success');
 			}
 		}
 	}
@@ -815,9 +801,27 @@ add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSu
 
 
 
-function wooNoticesMessageBasedOnProduct($subscription, $new_status, $old_status){
+function scheduleSlackNotificationForSubscriptionStatusUpdate($status, $customerName, $customerEmail, $orderItemsGroup, $subscriptionId){
+	$subscription = wcs_get_subscription($subscriptionId);
+
+	if($subscription->get_status() === $status){
+		$subscriptionStatus = $status === "on-hold" ? "Subscription will be Paused Today:double_vertical_bar:" : "Subscription will be Cancelled Today:alert:";
+		
+		$slackMessageBody = [
+			"text" => "<!channel> $subscriptionStatus \n*Client:* $customerName | $customerEmail\n*Plan:* $orderItemsGroup",
+			"username" => "Marcus"
+		];
+	
+		slackNotifications($slackMessageBody);
+	}
+}
+add_action('scheduleSlackNotificationForSubscriptionStatusUpdateHook', 'scheduleSlackNotificationForSubscriptionStatusUpdate', 10, 5);
+
+
+
+function wooNoticesMessageBasedOnProduct($subscription, $newStatus, $oldStatus){
 	if(!is_admin()){
-		if($new_status == 'pending-cancel'){
+		if($newStatus == 'pending-cancel'){
 			$message = "";
 
 			foreach($subscription->get_items() as $item){
@@ -1087,7 +1091,7 @@ add_filter( 'wcs_view_subscription_actions', 'disableSubscriptionActions', 10, 2
 
 
 
-function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
+function cancelActiveTasksByPausePlan($subscription, $newStatus, $oldStatus){
 	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 
 	foreach($subscription->get_items() as $item){
@@ -1095,7 +1099,7 @@ function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
 			foreach ($userSubscriptions as $subs){		
 				foreach ($subs->get_items() as $product) {			
 					if ( !has_term( 'plan', 'product_cat', $product->get_product_id() ) ){
-						if($new_status === "on-hold" || $new_status === "cancelled" || $new_status === "pending-cancel"){
+						if($newStatus === "on-hold" || $newStatus === "cancelled" || $newStatus === "pending-cancel"){
 							$subs->update_status('pending-cancel');
 						}
 					};	
@@ -1330,6 +1334,7 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 			if(!empty($additionalUsersAdded)){
 				sendAdditionalusersNotificationToSlack($additionalUsersAdded);
 				sendEmailToProductionWhenNewTeamMemberIsAdded(get_current_user_id(), $additionalUsersAdded);
+				sendEmailToUserAboutAdditionalTeamMembers(get_current_user_id(), $additionalUsersAdded);
 				wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
 			}
 		}else{
@@ -1415,3 +1420,48 @@ function removeAdditionalUserFromDatabase($userId){
 
 add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');
 
+
+
+
+function sendNotificationToSlackWhenOrderFailedToProcessing($orderId, $oldStatus, $newStatus, $order){
+	if($oldStatus === "failed" && $newStatus === "processing"){
+		if(wcs_order_contains_renewal($orderId)){
+			$order = wc_get_order( $orderId );
+			$orderData = $order->get_data();
+			$orderItems = $order->get_items();
+			$orderItemsGroup = [];
+			$productType = "";
+			$notificationFinalMsg = 'Keep the work going.';
+
+			foreach( $orderItems as $item_id => $item ){
+				$itemName = $item->get_name();
+				$orderItemsGroup[] = $itemName;
+
+				if(has_term('active-task', 'product_cat', $item->get_product_id())){
+					$productType = 'Product';
+				}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
+					$productType = 'Add on';
+				}else{
+					$productType = 'Plan';
+				}
+			}
+
+			$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+			$customerEmail = $orderData['billing']['email'];
+			$orderItemsGroup = implode(" | ", $orderItemsGroup);
+
+			$slackMessageBody = [
+				"text" => 
+				"Payment was resolved, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg",
+
+				"username" => "Marcus"
+			];
+
+			slackNotifications($slackMessageBody);
+
+		}
+		
+	}
+
+}
+add_action('woocommerce_order_status_changed', 'sendNotificationToSlackWhenOrderFailedToProcessing', 10, 4);

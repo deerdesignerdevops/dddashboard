@@ -21,40 +21,37 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-  var form = document.querySelector("form.woocommerce-checkout");
+// document.addEventListener("DOMContentLoaded", function () {
+//   var form = document.querySelector("form.woocommerce-checkout");
 
-  if (form) {
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
+//   if (form) {
+//     form.addEventListener("submit", function (event) {
+//       event.preventDefault();
 
-      var loadingSpinnerWrapper = document.createElement("div");
-      loadingSpinnerWrapper.className = "loading__spinner_wrapper";
-      document.body.appendChild(loadingSpinnerWrapper);
+//       var loadingSpinnerWrapper = document.createElement("div");
+//       loadingSpinnerWrapper.className = "loading__spinner_wrapper";
+//       document.body.appendChild(loadingSpinnerWrapper);
 
-      loadingSpinnerWrapper.innerHTML = '<div class="loading-spinner"></div>';
+//       loadingSpinnerWrapper.innerHTML = '<div class="loading-spinner"></div>';
+//     });
 
-      var submitButton = form.querySelector(":submit");
-      submitButton.setAttribute("disabled", "disabled");
-    });
+//     document.addEventListener("ajaxComplete", function (event) {
+//       var xhr = event.detail[0];
+//       var settings = event.detail[1];
 
-    document.addEventListener("ajaxComplete", function (event) {
-      var xhr = event.detail[0];
-      var settings = event.detail[1];
+//       if (settings.url.indexOf("wc-ajax=checkout") !== -1) {
+//         var loadingSpinnerWrapper = document.querySelector(
+//           ".loading__spinner_wrapper"
+//         );
+//         if (loadingSpinnerWrapper) {
+//           loadingSpinnerWrapper.remove();
+//         }
 
-      if (settings.url.indexOf("wc-ajax=checkout") !== -1) {
-        var loadingSpinnerWrapper = document.querySelector(
-          ".loading__spinner_wrapper"
-        );
-        if (loadingSpinnerWrapper) {
-          loadingSpinnerWrapper.remove();
-        }
-
-        var submitButtons = document.querySelectorAll(":submit");
-        submitButtons.forEach(function (button) {
-          button.removeAttribute("disabled");
-        });
-      }
-    });
-  }
-});
+//         var submitButtons = document.querySelectorAll(":submit");
+//         submitButtons.forEach(function (button) {
+//           button.removeAttribute("disabled");
+//         });
+//       }
+//     });
+//   }
+// });
