@@ -1286,7 +1286,16 @@ function userCanAddMoreTeamMembers($numberOfTeamMembersFromForm){
 
 
 function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
-	if($form->id == 7){		
+	if($form->id == 7){	
+		$currentUser = wp_get_current_user();	
+		$companyFreshdeskId = get_user_meta( get_current_user_id(), 'company_freshdesk_id', true );
+		$companyWebsite = get_user_meta( get_current_user_id(), 'company_website', true );
+
+		
+		$userAdditionalData = [
+			'url' => $companyWebsite,
+			'job_title' => 'Team Member'
+		];
 		
 		$additionalUsersAdded = [];
 
@@ -1307,9 +1316,11 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 						$additionalUser->set_role('team_member');
 						update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
 						update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
+						update_user_meta( $userAlreadyExists->id, 'billing_company', $currentUser->billing_company );
 						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
 						addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
 						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
+						createContactInFreshdesk($additionalUser, $userAdditionalData, intval($companyFreshdeskId));
 					}
 	
 				}else{
@@ -1324,9 +1335,11 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 						wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
 						update_user_meta( $newUserId, 'is_user_onboarded', 1 );
 						update_user_meta( $newUserId, 'is_first_access', 0 );
+						update_user_meta( $newUserId, 'billing_company', $currentUser->billing_company );
 						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
 						addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
 						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
+						createContactInFreshdesk($additionalUser, $userAdditionalData, intval($companyFreshdeskId));
 					};
 				}	
 			}	

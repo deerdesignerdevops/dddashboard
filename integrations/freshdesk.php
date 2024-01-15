@@ -60,10 +60,9 @@ function putRequestToFreshdesk($freshdeskUserId, $requestBody){
 
 
 function createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId){	
-	$currentUser = wp_get_current_user();
 	$userName = "$currentUser->first_name $currentUser->last_name";
 	$userEmail = $currentUser->user_email;
-	$userAddress = "$currentUser->billing_city, $currentUser->billing_country";
+	$userAddress = $currentUser->billing_city ? "$currentUser->billing_city, $currentUser->billing_country" : "";
 	$companyName = $currentUser->billing_company;
 	$companyWebsite = $formData['url'];
 	$userJobTitle = $formData['job_title'];
