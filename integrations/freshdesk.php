@@ -133,12 +133,11 @@ function deleteContactFromFreshdesk($freshdeskUserId){
 
 
 
-function updateUserInFreshdeskBasedOnSubscriptionStatus($subscription, $newStatus, $oldStatus){
+function synchronizeFreshdeskContactWithSubscription($subscription, $newStatus, $oldStatus){
 	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			foreach($subscription->get_items() as $subscritpionItem){
 				if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
-					$freshdeskUserId = get_user_meta(get_current_user_id(), 'contact_freshdesk_id', true);
 					
 					$freshdeskContactStatus = [
 						"registered_user" => "registered_user",
@@ -177,14 +176,32 @@ function updateUserInFreshdeskBasedOnSubscriptionStatus($subscription, $newStatu
 						"custom_fields" => $freshdeskContactStatus
 					];
 
-					putRequestToFreshdesk($freshdeskUserId, $requestBody);	
+					updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($requestBody);	
 				}
 			}
 		}
 	}
 
 }
-add_action('woocommerce_subscription_status_updated', 'updateUserInFreshdeskBasedOnSubscriptionStatus', 10, 3);
+add_action('woocommerce_subscription_status_updated', 'synchronizeFreshdeskContactWithSubscription', 10, 3);
+
+
+
+function updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($requestBody){	
+	$groupsUser = new Groups_User( get_current_user_id() );
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$groupId = $group->group_id;
+			$group = new Groups_Group( $groupId );
+
+			foreach($group->users as $groupUser){
+				$freshdeskUserId = get_user_meta($groupUser->id, 'contact_freshdesk_id', true);
+				putRequestToFreshdesk($freshdeskUserId, $requestBody);
+			}
+		}
+	}
+}
 
 
 
