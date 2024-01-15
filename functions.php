@@ -1424,44 +1424,61 @@ add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromData
 
 
 function sendNotificationToSlackWhenOrderFailedToProcessing($orderId, $oldStatus, $newStatus, $order){
-	if($oldStatus === "failed" && $newStatus === "processing"){
+	if($newStatus === "completed"){
 		if(wcs_order_contains_renewal($orderId)){
-			$order = wc_get_order( $orderId );
-			$orderData = $order->get_data();
-			$orderItems = $order->get_items();
-			$orderItemsGroup = [];
-			$productType = "";
-			$notificationFinalMsg = 'Keep the work going.';
+			$orderFailedBefore = false;
+			$orderNotes = wc_get_order_notes(array(
+				'order_id' => $orderId,
+				'type' => 'system_status_change',
+				'orderby' => 'date_created',
+				'order' => 'DESC',
+			));
 
-			foreach( $orderItems as $item_id => $item ){
-				$itemName = $item->get_name();
-				$orderItemsGroup[] = $itemName;
-
-				if(has_term('active-task', 'product_cat', $item->get_product_id())){
-					$productType = 'Product';
-				}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
-					$productType = 'Add on';
-				}else{
-					$productType = 'Plan';
+			foreach ($orderNotes as $orderNote) {
+				$notificationFinalMsg = $orderNote->content;
+				if(str_contains($orderNote->content, 'Failed')){
+					$orderFailedBefore = true;
+					break;
 				}
 			}
 
-			$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
-			$customerEmail = $orderData['billing']['email'];
-			$orderItemsGroup = implode(" | ", $orderItemsGroup);
-
-			$slackMessageBody = [
-				"text" => 
-				"Payment was resolved, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg",
-
-				"username" => "Marcus"
-			];
-
-			slackNotifications($slackMessageBody);
-
-		}
-		
+			if($orderFailedBefore){
+				$orderData = $order->get_data();
+				$orderItems = $order->get_items();
+				$orderItemsGroup = [];
+				$productType = "";
+				$notificationFinalMsg = 'Keep the work going.';
+	
+				foreach( $orderItems as $item_id => $item ){
+					$itemName = $item->get_name();
+					$orderItemsGroup[] = $itemName;
+	
+					if(has_term('active-task', 'product_cat', $item->get_product_id())){
+						$productType = 'Product';
+					}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
+						$productType = 'Add on';
+					}else{
+						$productType = 'Plan';
+					}
+				}
+	
+				$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+				$customerEmail = $orderData['billing']['email'];
+				$orderItemsGroup = implode(" | ", $orderItemsGroup);
+	
+				$slackMessageBody = [
+					"text" => 
+					"Payment was resolved, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg",
+	
+					"username" => "Marcus"
+				];
+	
+				slackNotifications($slackMessageBody);
+			}
+		}		
 	}
-
 }
 add_action('woocommerce_order_status_changed', 'sendNotificationToSlackWhenOrderFailedToProcessing', 10, 4);
+
+
+
