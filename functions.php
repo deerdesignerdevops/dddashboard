@@ -1405,6 +1405,7 @@ function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
 
 function removeAdditionalUserFromDatabase($userId){
 	$userToBeDeleted = get_user_by( 'id', $userId);
+	$freshdeskUserId = get_user_meta($userToBeDeleted->id, 'contact_freshdesk_id', true);
 	$accountOwner = wp_get_current_user();
 	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
 
@@ -1412,6 +1413,7 @@ function removeAdditionalUserFromDatabase($userId){
 		wc_add_notice("You can't remove this user!", 'error');
 	}else{
 		wc_add_notice("The user was successfully removed from your account!", 'success');
+		
 
 		$slackMessageBody = [
 			'text'  => '<!channel> A client just removed a team member from their account:  ' . '
@@ -1421,11 +1423,10 @@ function removeAdditionalUserFromDatabase($userId){
 		];
 
 		slackNotifications($slackMessageBody);
-		
+		deleteContactFromFreshdesk($freshdeskUserId);
 		wp_delete_user($userId);
 
 	}
-
 
 	wp_redirect(get_permalink(wc_get_page_id('myaccount')) . "edit-account");
 	exit;
