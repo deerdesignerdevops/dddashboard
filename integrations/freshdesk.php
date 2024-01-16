@@ -104,35 +104,6 @@ function createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId){
 
 
 
-function deleteContactFromFreshdesk($freshdeskUserId){
-	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/contacts/$freshdeskUserId/hard_delete?force=true";
-	$apiKey = FRESHDESK_API_KEY;
-	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
-
-	$ch = curl_init($apiUrl);
-
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-	curl_setopt($ch, CURLOPT_USERPWD, "$apiKey:X");
-	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-
-	$response = curl_exec($ch);
-
-	if (curl_errno($ch)) {
-		$error_message = 'Error: ' . curl_error($ch);
-		echo $error_message;
-		error_log($error_message, 3, "$uploadsDir/freshdesk_api_error_log.txt");
-		$response = false;
-	} else {
-		file_put_contents("$uploadsDir/freshdesk_api_response_log_delete_request.txt", $response . PHP_EOL, FILE_APPEND);
-		$response = json_decode($response, true);
-	}
-
-	curl_close($ch);
-}
-
-
-
 function synchronizeFreshdeskContactWithSubscription($subscription, $newStatus, $oldStatus){
 	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){

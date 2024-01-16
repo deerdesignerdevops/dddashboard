@@ -1408,6 +1408,13 @@ function removeAdditionalUserFromDatabase($userId){
 	$freshdeskUserId = get_user_meta($userToBeDeleted->id, 'contact_freshdesk_id', true);
 	$accountOwner = wp_get_current_user();
 	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
+	$requestBody = [
+		"custom_fields" => [
+			"registered_user" => false,
+			"paused" => false,
+			"cancelled" => true
+		]
+	];
 
 	if(in_array('administrator', $userToBeDeleted->roles)){
 		wc_add_notice("You can't remove this user!", 'error');
@@ -1423,7 +1430,7 @@ function removeAdditionalUserFromDatabase($userId){
 		];
 
 		slackNotifications($slackMessageBody);
-		deleteContactFromFreshdesk($freshdeskUserId);
+		putRequestToFreshdesk($freshdeskUserId, $requestBody);
 		wp_delete_user($userId);
 
 	}

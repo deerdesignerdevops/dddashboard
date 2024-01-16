@@ -92,7 +92,6 @@ fieldset {
 	<a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' )); ?>" class="dd__bililng_portal_back"><i class="fa-solid fa-chevron-left"></i> Back to Dashboard</a>
 	<div class="account__details_row">
 		<div class="account__details_col">
-
 			<form class="woocommerce-EditAccountForm edit-account" action="" method="post" <?php do_action( 'woocommerce_edit_account_form_tag' ); ?> >
 				<?php do_action( 'woocommerce_edit_account_form_start' ); ?>
 				<h2 class="myaccount__page_title">Your details</h2>
