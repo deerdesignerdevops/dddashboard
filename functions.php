@@ -1265,17 +1265,15 @@ function userCanAddMoreTeamMembers($numberOfTeamMembersFromForm){
 	}
 
 	foreach ($userSubscriptions as $subscription){
-		if($subscription->has_status(array('active'))){;
-			foreach ($subscription->get_items() as $product) {	
-				if(has_term('plan', 'product_cat', $product['product_id'])){
-					
-					if(str_contains($product['name'], 'Business') && $numberOfTeamMembersFromForm + sizeof($currentUserTeamMembers) > 4 ){
-						$isCurrentUserCanAddMoreTeamMembers = false;
-					}else{
-						$isCurrentUserCanAddMoreTeamMembers = true;
-					}
-				}		
-			}
+		foreach ($subscription->get_items() as $product) {	
+			if(has_term('plan', 'product_cat', $product['product_id'])){
+				
+				if(str_contains($product['name'], 'Business') && $numberOfTeamMembersFromForm + sizeof($currentUserTeamMembers) > 4 ){
+					$isCurrentUserCanAddMoreTeamMembers = false;
+				}else{
+					$isCurrentUserCanAddMoreTeamMembers = true;
+				}
+			}		
 		}
 	}
 
@@ -1320,7 +1318,7 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
 						addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
 						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
-						createContactInFreshdesk($additionalUser, $userAdditionalData, intval($companyFreshdeskId));
+						createTeamMemberInFreshDesk($currentUser, $additionalUser, $userAdditionalData, intval($companyFreshdeskId));
 					}
 	
 				}else{
@@ -1339,7 +1337,7 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
 						addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
 						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
-						createContactInFreshdesk($additionalUser, $userAdditionalData, intval($companyFreshdeskId));
+						createTeamMemberInFreshDesk($currentUser, $additionalUser, $userAdditionalData, intval($companyFreshdeskId));
 					};
 				}	
 			}	

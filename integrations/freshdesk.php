@@ -104,47 +104,97 @@ function createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId){
 
 
 
+function createTeamMemberInFreshDesk($accountOwner, $teamMember, $formData, $companyFreshdeskId){	
+	$userName = "$teamMember->first_name $teamMember->last_name";
+	$userEmail = $teamMember->user_email;
+	$userAddress = $teamMember->billing_city ? "$teamMember->billing_city, $teamMember->billing_country" : "";
+	$companyName = $teamMember->billing_company;
+	$companyWebsite = $formData['url'];
+	$userJobTitle = $formData['job_title'];
+	$userCurrentPlan = '';
+
+	$userSubscriptions = wcs_get_users_subscriptions($accountOwner->id);
+
+	foreach($userSubscriptions as $subscription){
+		if($subscription->has_status(array('active'))){
+			foreach($subscription->get_items() as $subItem){
+				if(has_term('plan', 'product_cat', $subItem->get_product_id())){
+					$userCurrentPlan = $subItem['name'];
+				}
+			}
+		}
+	}
+
+	$requestBody = [
+		"active" => true,
+		"company_id" => $companyFreshdeskId,
+		"name" => $userName,
+		"email" => $userEmail,
+		"address" => $userAddress,
+		"description" => "Company: $companyName \n Website: $companyWebsite",
+		"job_title" => $userJobTitle,
+		"tags" => [$userCurrentPlan],
+		"custom_fields" => [
+				"registered_user" => true,
+			]
+	];
+
+	$contactFreshdesk = postRequestToFreshdesk('contacts', $requestBody);
+
+	if($contactFreshdesk['id']){
+		update_user_meta( $teamMember->id, 'contact_freshdesk_id', $contactFreshdesk['id'] );
+	}
+}
+
+
+
+function buildCustomFieldsToUpdateFreshdeskContact($currentPlanStatus){
+	$freshdeskContactStatus = [
+		"registered_user" => "registered_user",
+		"paused" => "paused",
+		"cancelled" => "cancelled"
+	];
+	
+	$status = "";
+
+	switch($currentPlanStatus){
+		case "active":
+			$status = "registered_user";
+			break;
+		
+		case "on-hold":
+			$status = "paused";
+			break;
+		
+		case "pending-cancel":
+			$status = "cancelled";
+			break;
+		
+		default:
+			$status = "paused";
+	}
+
+	foreach($freshdeskContactStatus as $contactStatusValue){
+		if($contactStatusValue === $status){
+				$freshdeskContactStatus[$contactStatusValue] = true;
+		}else{
+				$freshdeskContactStatus[$contactStatusValue] = false;
+		}					
+	}
+
+	return $freshdeskContactStatus;
+}
+
+
 function synchronizeFreshdeskContactWithSubscription($subscription, $newStatus, $oldStatus){
 	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			foreach($subscription->get_items() as $subscritpionItem){
 				if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
-					
-					$freshdeskContactStatus = [
-						"registered_user" => "registered_user",
-						"paused" => "paused",
-						"cancelled" => "cancelled"
-					];
-					
-					$status = "";
 
-					switch($newStatus){
-						case "active":
-							$status = "registered_user";
-							break;
-						
-						case "on-hold":
-							$status = "paused";
-							break;
-						
-						case "pending-cancel":
-							$status = "cancelled";
-							break;
-						
-						default:
-							$status = "paused";
-					}
-
-					foreach($freshdeskContactStatus as $contactStatusValue){
-						if($contactStatusValue === $status){
-							 $freshdeskContactStatus[$contactStatusValue] = true;
-						}else{
-							 $freshdeskContactStatus[$contactStatusValue] = false;
-						}					
-					}
 
 					$requestBody = [
-						"custom_fields" => $freshdeskContactStatus
+						"custom_fields" => 	buildCustomFieldsToUpdateFreshdeskContact($newStatus)
 					];
 
 					updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($requestBody);	
