@@ -119,7 +119,7 @@ function createTeamMemberInFreshDesk($accountOwner, $teamMember, $formData, $com
 		if($subscription->has_status(array('active'))){
 			foreach($subscription->get_items() as $subItem){
 				if(has_term('plan', 'product_cat', $subItem->get_product_id())){
-					$userCurrentPlan = $subItem['name'];
+					$accountOwnerSubscriptionStatus = $subscription->get_status();
 				}
 			}
 		}
@@ -134,9 +134,7 @@ function createTeamMemberInFreshDesk($accountOwner, $teamMember, $formData, $com
 		"description" => "Company: $companyName \n Website: $companyWebsite",
 		"job_title" => $userJobTitle,
 		"tags" => [$userCurrentPlan],
-		"custom_fields" => [
-				"registered_user" => true,
-			]
+		"custom_fields" => buildCustomFieldsToUpdateFreshdeskContact($accountOwnerSubscriptionStatus)
 	];
 
 	$contactFreshdesk = postRequestToFreshdesk('contacts', $requestBody);
