@@ -1232,6 +1232,32 @@ input.ff-read-only {
   color: var(--e-global-color-text);
 }
 
+.payment__methods .myaccount__page_title {
+  color: var(--e-global-color-secondary);
+}
+
+.payment__methods .dd__primary_button {
+  background-color: var(--e-global-color-secondary) !important;
+}
+
+.payment__methods .dd__primary_button:hover {
+  background-color: var(--e-global-color-f5169dc) !important;
+  color: #f8f8f8 !important;
+}
+
+.team__members .myaccount__page_title {
+  color: var(--e-global-color-f5169dc);
+}
+
+.woocommerce-EditAccountForm .dd__primary_button {
+  background-color: var(--e-global-color-primary) !important;
+}
+
+.woocommerce-EditAccountForm .dd__primary_button:hover {
+  background-color: var(--e-global-color-f5169dc) !important;
+  color: #f8f8f8 !important;
+}
+
 /*MEDIA QUERIES*/
 @media (max-width: 768px) {
   .form-row {
