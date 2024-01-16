@@ -45,23 +45,21 @@ foreach($groupsUser->groups as $group){
 
 
 foreach ($userSubscriptions as $subscription){
-	if ($subscription->has_status(array('active'))) {
-		foreach ($subscription->get_items() as $product) {	
-			$userCurrentPlan = $product['name'];	
+	foreach ($subscription->get_items() as $product) {	
+		$userCurrentPlan = $product['name'];	
 
-			if(has_term('plan', 'product_cat', $product->get_product_id())){
+		if(has_term('plan', 'product_cat', $product->get_product_id())){
 
-				if(str_contains($userCurrentPlan, 'Standard')){
-					$userCanAddTeamMembers = false;
-				}else if(str_contains($userCurrentPlan, 'Business') && sizeof($membersOfCurrentUserGroup) >= 4 ){
-					$userCanAddTeamMembers = false;
-				}else{
-					$userCanAddTeamMembers = true;
-				}
-
+			if(str_contains($userCurrentPlan, 'Standard')){
+				$userCanAddTeamMembers = false;
+			}else if(str_contains($userCurrentPlan, 'Business') && sizeof($membersOfCurrentUserGroup) >= 4 ){
+				$userCanAddTeamMembers = false;
+			}else{
+				$userCanAddTeamMembers = true;
 			}
+
 		}
-	}
+	}	
 }
 
 
