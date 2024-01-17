@@ -1301,14 +1301,16 @@ function redirectUserToCheckoutIfHasFailedOrderOnFirstAccess(){
     		'limit' => 1]
 		);
 
-		$orderStatus = $mostRecentOrder[0]->get_status();
-		$orderKey = $mostRecentOrder[0]->get_order_key();
-		$paymentUrl = wc_get_checkout_url() . 'order-pay/' . $mostRecentOrder[0]->id . '/?pay_for_order=true&key=' . $orderKey;
-
-
-		if($isFirstAccess && $orderStatus !== 'completed'){
-			wp_redirect($paymentUrl);
-			exit;
+		if($mostRecentOrder){
+			$orderStatus = $mostRecentOrder[0]->get_status();
+			$orderKey = $mostRecentOrder[0]->get_order_key();
+			$paymentUrl = wc_get_checkout_url() . 'order-pay/' . $mostRecentOrder[0]->id . '/?pay_for_order=true&key=' . $orderKey;
+	
+	
+			if($isFirstAccess && $orderStatus !== 'completed'){
+				wp_redirect($paymentUrl);
+				exit;
+			}
 		}
 	}
 }
