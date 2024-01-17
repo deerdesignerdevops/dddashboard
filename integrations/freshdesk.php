@@ -230,7 +230,7 @@ function scheduleFreshdeskUpdateStatus($subscription, $newStatus, $oldStatus){
 			$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
 
 			if(time() < $billingPeriodEndingDate){
-				wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'synchronizeFreshdeskContactWithSubscriptionHook', array($subscription->id, $newStatus, $currentUserId));
+				wp_schedule_single_event($billingPeriodEndingDate, 'synchronizeFreshdeskContactWithSubscriptionHook', array($subscription->id, $newStatus, $currentUserId));
 			}else{
 				synchronizeFreshdeskContactWithSubscription($subscription->id, $newStatus, $currentUserId);
 			}

@@ -15,6 +15,7 @@ function curlToMoosend($userName, $userEmail, $status){
 
 	curl_close($ch);
 }
+add_action('curlToMoosendHook', 'curlToMoosend', 10, 3);
 
 
 
@@ -35,6 +36,7 @@ function updateUserInMoosendBasedOnSubscriptionStatus($subscription, $newStatus,
 		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			foreach($subscription->get_items() as $subscritpionItem){
 				if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
+					$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
 					$userName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
 					$userEmail = $subscription->data['billing']['email'];
 					$status = "";
@@ -56,7 +58,12 @@ function updateUserInMoosendBasedOnSubscriptionStatus($subscription, $newStatus,
 							$status = "paused";
 					}
 
-					curlToMoosend($userName, $userEmail, $status);	
+					
+					if(time() < $billingPeriodEndingDate){
+						wp_schedule_single_event($billingPeriodEndingDate, 'curlToMoosendHook', array($userName, $userEmail, $status));
+					}else{
+						curlToMoosend($userName, $userEmail, $status);
+					}
 				}
 			}
 		}
