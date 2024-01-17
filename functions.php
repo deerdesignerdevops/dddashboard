@@ -1292,3 +1292,25 @@ add_action('woocommerce_order_status_changed', 'sendNotificationToSlackWhenOrder
 
 
 
+function redirectUserToCheckoutIfHasFailedOrderOnFirstAccess(){
+	if(is_user_logged_in() && is_page('onboarding')){
+		$currentUserId = get_current_user_id();
+		$isFirstAccess = get_user_meta($currentUserId, 'is_first_access', true);
+		$mostRecentOrder = wc_get_orders([   
+			'customer_id' => $currentUserId,
+    		'limit' => 1]
+		);
+
+		$orderStatus = $mostRecentOrder[0]->get_status();
+
+		if($isFirstAccess && $orderStatus !== 'completed'){
+			$payNowUrl = site_url() . "/sign-up/?failed";
+			wp_redirect($payNowUrl);
+			exit;
+		}
+	}
+}
+add_action('template_redirect', 'redirectUserToCheckoutIfHasFailedOrderOnFirstAccess');
+
+
+
