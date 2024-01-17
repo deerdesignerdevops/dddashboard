@@ -25,6 +25,7 @@ $orderItems = $order->get_items();
 $orderSubscriptions = wcs_get_subscriptions_for_order($order->get_id());
 $userId = $orderData['customer_id'];
 $userSubscriptions = wcs_get_users_subscriptions($userId);
+$userPlanName = '';
 
 if($order instanceof WC_Subscription){
 	foreach($order->get_items() as $subItem){
@@ -78,6 +79,7 @@ $userName = $orderData['billing']['first_name'];
 $userEmail = $orderData['billing']['email'];
 $companyName = $orderData['billing']['company'];
 $couponDiscount = 0;
+$userDetailsForAdmin = '';
 ?>
 
 <h2>
@@ -118,7 +120,7 @@ $couponDiscount = 0;
 		</thead>
 		<tbody>
 			<?php
-			echo wc_get_email_order_items( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wc_get_email_order_items(
 				$order,
 				array(
 					'show_sku'      => $sent_to_admin,
