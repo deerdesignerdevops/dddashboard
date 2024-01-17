@@ -184,30 +184,29 @@ function buildCustomFieldsToUpdateFreshdeskContact($currentPlanStatus){
 }
 
 
-function synchronizeFreshdeskContactWithSubscription($subscription, $newStatus, $oldStatus){
-	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
-		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
-			foreach($subscription->get_items() as $subscritpionItem){
-				if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
+function synchronizeFreshdeskContactWithSubscription($subscriptionId, $newStatus, $accountOwnerId){
+	$subscription = wcs_get_subscription($subscriptionId);
 
+	if($subscription->get_status() === $newStatus){		
+		foreach($subscription->get_items() as $subscritpionItem){
+			if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
 
-					$requestBody = [
-						"custom_fields" => 	buildCustomFieldsToUpdateFreshdeskContact($newStatus)
-					];
-
-					updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($requestBody);	
-				}
+				$requestBody = [
+					"custom_fields" => 	buildCustomFieldsToUpdateFreshdeskContact($newStatus)
+				];
+	
+				updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($accountOwnerId, $requestBody);			
 			}
 		}
+
 	}
-
 }
-add_action('woocommerce_subscription_status_updated', 'synchronizeFreshdeskContactWithSubscription', 10, 3);
+add_action('synchronizeFreshdeskContactWithSubscriptionHook', 'synchronizeFreshdeskContactWithSubscription', 10, 3);
 
 
 
-function updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($requestBody){	
-	$groupsUser = new Groups_User( get_current_user_id() );
+function updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($accountOwnerId, $requestBody){	
+	$groupsUser = new Groups_User( $accountOwnerId );
 
 	foreach($groupsUser->groups as $group){
 		if($group->name !== "Registered"){
@@ -221,6 +220,25 @@ function updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($requestBody){
 		}
 	}
 }
+
+
+
+function scheduleFreshdeskUpdateStatus($subscription, $newStatus, $oldStatus){
+	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
+		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
+			$currentUserId = get_current_user_id();
+			$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
+
+			if(time() < $billingPeriodEndingDate){
+				wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'synchronizeFreshdeskContactWithSubscriptionHook', array($subscription->id, $newStatus, $currentUserId));
+			}else{
+				synchronizeFreshdeskContactWithSubscription($subscription->id, $newStatus, $currentUserId);
+			}
+		}
+	}
+}
+add_action('woocommerce_subscription_status_updated', 'scheduleFreshdeskUpdateStatus', 10, 3);
+
 
 
 
