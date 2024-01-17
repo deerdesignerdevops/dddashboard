@@ -1302,10 +1302,12 @@ function redirectUserToCheckoutIfHasFailedOrderOnFirstAccess(){
 		);
 
 		$orderStatus = $mostRecentOrder[0]->get_status();
+		$orderKey = $mostRecentOrder[0]->get_order_key();
+		$paymentUrl = wc_get_checkout_url() . 'order-pay/' . $mostRecentOrder[0]->id . '/?pay_for_order=true&key=' . $orderKey;
+
 
 		if($isFirstAccess && $orderStatus !== 'completed'){
-			$payNowUrl = site_url() . "/sign-up/?failed";
-			wp_redirect($payNowUrl);
+			wp_redirect($paymentUrl);
 			exit;
 		}
 	}
