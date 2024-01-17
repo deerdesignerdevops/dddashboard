@@ -1318,3 +1318,14 @@ add_action('template_redirect', 'redirectUserToCheckoutIfHasFailedOrderOnFirstAc
 
 
 
+function customEmailExistsMsg($msg, $email) {
+    $loginUrl = site_url();
+    $customMessage = "An account is already registered with this email ($email). <a href='$loginUrl'>Please log in</a> or use a different email address.";
+
+    return $customMessage;
+}
+add_filter('woocommerce_registration_error_email_exists', 'customEmailExistsMsg', 10, 2);
+
+
+
+
