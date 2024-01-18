@@ -106,7 +106,7 @@ fieldset {
 				</p>
 				<div class="clear"></div>
 
-				<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+				<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide account_display_name">
 					<label for="account_display_name"><?php esc_html_e( 'Display name', 'woocommerce' ); ?>&nbsp;<span class="required">*</span></label>
 					<input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="account_display_name" id="account_display_name" value="<?php echo esc_attr( $user->display_name ); ?>" /> <span><em><?php esc_html_e( 'This will be how your name will be displayed in the account section and in reviews', 'woocommerce' ); ?></em></span>
 				</p>

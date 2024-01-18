@@ -1258,6 +1258,10 @@ input.ff-read-only {
   color: #f8f8f8 !important;
 }
 
+.account_display_name,
+.account_email {
+  display: none !important;
+}
 /*MEDIA QUERIES*/
 @media (max-width: 768px) {
   .form-row {
