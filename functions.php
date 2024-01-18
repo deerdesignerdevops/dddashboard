@@ -1352,4 +1352,13 @@ add_filter('woocommerce_registration_error_email_exists', 'customEmailExistsMsg'
 
 
 
+function woocommerceNewCustomerDataSetRole( $customer_data ){
+	$customer_data['role'] = 'subscriber';
+	return $customer_data;
+}
+add_filter( 'woocommerce_new_customer_data', 'woocommerceNewCustomerDataSetRole' );
+
+
+
+
 
