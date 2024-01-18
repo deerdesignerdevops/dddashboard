@@ -182,6 +182,9 @@ add_action('template_redirect', 'checkIfUserASweredPlanPricingForm');
 
 function displayAdditionalUserDataOnAdminPanel( $user ) { 
 	$isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true );
+	$companyFreshdeskId = get_the_author_meta('company_freshdesk_id',$user->ID,true );
+	$contactFreshdeskId = get_the_author_meta('contact_freshdesk_id',$user->ID,true );
+
 
 ?>
 <h2>Additional Data</h2>
@@ -195,6 +198,24 @@ function displayAdditionalUserDataOnAdminPanel( $user ) {
                     </label></p>
                 </td>
             </tr>
+
+			<tr>
+            	<th>Freshdesk Company ID:</th>
+                <td>
+                    <p><label>
+                        <input type="text" name="company_freshdesk_id" value="<?php echo $companyFreshdeskId; ?>">
+                    </label></p>
+                </td>
+            </tr>
+
+			<tr>
+            	<th>Freshdesk Contact ID:</th>
+                <td>
+                    <p><label>
+                        <input type="text" name="contact_freshdesk_id" value="<?php echo $contactFreshdeskId; ?>">
+                    </label></p>
+                </td>
+            </tr>
         </tbody>
     </table>
 <?php } 
@@ -205,6 +226,8 @@ add_action( 'edit_user_profile', 'displayAdditionalUserDataOnAdminPanel' );
 
 function updateAditionalUserDataOnAdminPanel($user_id){
 	update_user_meta( $user_id, 'is_user_onboarded', $_POST['is_user_onboarded'] );
+	update_user_meta( $user_id, 'company_freshdesk_id', $_POST['company_freshdesk_id'] );
+	update_user_meta( $user_id, 'contact_freshdesk_id', $_POST['contact_freshdesk_id'] );
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
 add_action( 'edit_user_profile_update', 'updateAditionalUserDataOnAdminPanel' );
@@ -734,10 +757,11 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
 	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($old_status !== 'pending' && $new_status !== 'cancelled'){
+			$currentUser = wp_get_current_user();
 			$subscriptionItems = $subscription->get_items();
-			$customerName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
-			$customerEmail = $subscription->data['billing']['email'];
-			$customerCompany = $subscription->data['billing']['company'];
+			$customerName = $currentUser->first_name . " " . $currentUser->last_name;
+			$customerEmail = $currentUser->user_email;
+			$customerCompany = $currentUser->billing_company;
 			$subscriptionItemsGroup = [];
 			$billingMsg = '';
 			$billingPeriodEndingDate =  calculateBillingEndingDateWhenPausedOrCancelled($subscription);
