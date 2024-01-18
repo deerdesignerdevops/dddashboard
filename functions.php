@@ -471,7 +471,7 @@ function checkIfUserIsActive(){
 	}
 
 
-	if(in_array('subscriber', $currentUser->roles)){
+	if(in_array('subscriber', $currentUser->roles) || in_array('team_member', $currentUser->roles)){
 		echo "<style>
 			.paused__user_banner{display: none !important}
 		</style>";
