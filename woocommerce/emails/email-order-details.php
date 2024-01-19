@@ -24,8 +24,14 @@ $orderData = $order->get_data();
 $orderItems = $order->get_items();
 $orderSubscriptions = wcs_get_subscriptions_for_order($order->get_id());
 $userId = $orderData['customer_id'];
+$currentUser = get_user_by('id', $userId);
 $userSubscriptions = wcs_get_users_subscriptions($userId);
 $userPlanName = '';
+$userName = $currentUser->first_name;
+$userEmail = $currentUser->user_email;
+$companyName = $currentUser->billing_company;
+$couponDiscount = 0;
+$userDetailsForAdmin = '';
 
 if($order instanceof WC_Subscription){
 	foreach($order->get_items() as $subItem){
@@ -73,13 +79,6 @@ foreach( $orderItems as $item_id => $item ){
 	}
 }
 
-
-
-$userName = $orderData['billing']['first_name'];
-$userEmail = $orderData['billing']['email'];
-$companyName = $orderData['billing']['company'];
-$couponDiscount = 0;
-$userDetailsForAdmin = '';
 ?>
 
 <h2>
