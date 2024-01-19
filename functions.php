@@ -23,28 +23,20 @@ function hello_elementor_child_scripts_styles() {
 
 	// Dynamically get version number of the parent stylesheet (lets browsers re-cache your stylesheet when you update your theme)
 	$theme   = wp_get_theme( 'HelloElementorChild' );
-	$version = rand(0, 999);
+	$version = rand(111,999);
 
 	// CSS
-	wp_enqueue_style( "dd-custom-style-$version", get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
-	wp_enqueue_style( "glider-styles-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.css', $version );
+	wp_enqueue_style( "dd-custom-style", get_stylesheet_directory_uri() . '/style.css', array( 'hello-elementor-theme-style' ), $version );
+	wp_enqueue_style( "glider-styles", get_stylesheet_directory_uri() . '/libs/glider/glider.min.css', array(), $version );
 
 	//JS
-	wp_enqueue_script("glider-scripts-$version", get_stylesheet_directory_uri() . '/libs/glider/glider.min.js', $version);
-	wp_enqueue_script("dd-custom-scripts-$version", get_stylesheet_directory_uri() . '/dd-custom-scripts.js', $version);
+	wp_enqueue_script("glider-scripts", get_stylesheet_directory_uri() . '/libs/glider/glider.min.js', array(), $version);
+	wp_enqueue_script("dd-custom-scripts", get_stylesheet_directory_uri() . '/dd-custom-scripts.js', array(), $version);
 
 }
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 
 
-
-function removeFileVersionFromStylesAndScripts($src)
-{
-    $parts = explode('?ver', $src);
-    return $parts[0];
-}
-add_filter('script_loader_src', 'removeFileVersionFromStylesAndScripts', 15, 1);
-add_filter('style_loader_src', 'removeFileVersionFromStylesAndScripts', 15, 1);
 
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
@@ -52,7 +44,8 @@ add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 
 require_once('stripe/init.php');
 require_once('custom-email-notifications.php');
-
+require_once('integrations/freshdesk.php');
+require_once('integrations/moosend.php');
 
 
 function logoutWhitoutConfirm($action, $result)
@@ -242,31 +235,6 @@ add_action( 'user_register', 'addFirstAccessUserMetaToNewUsers');
 
 
 
-function subscribeUserToMoosendEmailList($entryId, $formData, $form){
-	if($form->id === 3){
-		$currentUser = wp_get_current_user();
-		$userName = $currentUser->first_name . " " . $currentUser->last_name;
-		$userEmail = $currentUser->user_email;		
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Accept: application/json',
-		]);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$userName\",\n    \"Email\" : \"$userEmail\",\n    \"HasExternalDoubleOptIn\": false}");
-
-		curl_exec($ch);
-
-		curl_close($ch);
-	}
-}
-add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
-
-
-
 function googleTagManagerOnHead(){
 	echo "
 	<!-- Google Tag Manager -->
@@ -351,8 +319,8 @@ add_action('template_redirect', 'checkIfGroupCanBookCreativeCall');
 
 
 //***************CUSTOM CODES FOR WOOCOMMERCE
-function slackNotifications($slackMessageBody){
-	wp_remote_post( SLACK_WEBHOOK_URL, array(
+function slackNotifications($slackMessageBody, $slackWebHook = SLACK_WEBHOOK_URL){
+	wp_remote_post( $slackWebHook, array(
 		'body'        => wp_json_encode( $slackMessageBody ),
 		'headers' => array(
 			'Content-type: application/json'
@@ -457,9 +425,8 @@ add_action( 'fluentform/submission_inserted', 'sendUserOnboardedNotificationFrom
 
 
 
-function checkIfUserIsActive(){
-	$currentUser = wp_get_current_user();
-	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+function checkIfUserIsActive($currentUser){
+	$userSubscriptions = wcs_get_users_subscriptions($currentUser->id);
 	$currentUserSubscriptionStatus = '';
 
 	foreach ($userSubscriptions as $subscription){
@@ -470,28 +437,69 @@ function checkIfUserIsActive(){
 		}
 	}
 
-
-	if(in_array('subscriber', $currentUser->roles) || in_array('team_member', $currentUser->roles)){
-		echo "<style>
-			.paused__user_banner{display: none !important}
-		</style>";
-	}else if(in_array('administrator', $currentUser->roles) && $userSubscriptions){
-		echo "<style>
-			.paused__user_banner{display: none !important}
-		</style>";
-	}else if(in_array('paused', $currentUser->roles) && $userSubscriptions){
-		echo "<style>
-			.paused__user_btn, .paused__user_banner{display: none !important}
-		</style>";
-	}else{
-		echo "<style>
-			.paused__user_btn{display: none !important}
-		</style>";
+	switch($currentUserSubscriptionStatus){
+		case 'on-hold':
+			echo "<style>
+				.paused__user_btn, .paused__user_banner{display: none !important}
+			</style>";
+			break;
+		
+		case 'pending-cancel':
+			echo "<style>
+				.paused__user_btn, .paused__user_banner{display: none !important}
+			</style>";
+			break;
+		
+		case 'active':
+			echo "<style>
+				.paused__user_banner{display: none !important}
+			</style>";
+			break;
+		
+		default:
+			echo "<style>
+				.paused__user_btn{display: none !important}
+			</style>";
 	}
-
 }
-add_action('template_redirect', 'checkIfUserIsActive');
 
+
+
+function getCurrentTeamMemberAccountOwner($currentUser){
+	$groupsUser = new Groups_User( $currentUser->id );
+	$rolesToCheck = ['administrator', 'subscriber', 'paused'];
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$currentUserGroup = new Groups_Group( $group->group_id );
+		}
+	}
+	
+	foreach($currentUserGroup->users as $group){		
+		if (!empty(array_intersect($group->user->roles, $rolesToCheck))) {
+			checkIfUserIsActive($group->user);
+			return;
+		}
+	}
+}
+
+
+function getCurrentUserRole(){
+	$currentUser = wp_get_current_user();
+
+	if(in_array('team_member', $currentUser->roles)){
+		echo "<style>
+			.btn__billing, .paused__user_banner{display:none !important;}
+			.account_details__section{width: 50%; margin: auto;}
+			.account__details_col{width: 100% !important;}
+		</style>";
+		getCurrentTeamMemberAccountOwner($currentUser);
+	}else{
+		checkIfUserIsActive($currentUser);
+	}
+}
+
+add_action('template_redirect', 'getCurrentUserRole');
 
 
 function sendWooMetadataToStripePaymentMetadata($metadata, $order) {
@@ -754,9 +762,9 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 
-function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_status, $old_status){
+function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStatus, $oldStatus){
 	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
-		if($old_status !== 'pending' && $new_status !== 'cancelled'){
+		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			$currentUser = wp_get_current_user();
 			$subscriptionItems = $subscription->get_items();
 			$customerName = $currentUser->first_name . " " . $currentUser->last_name;
@@ -772,24 +780,24 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 			$subscriptionItemsGroup = implode(" | ", array_unique($subscriptionItemsGroup));
 			
-			if($new_status === "on-hold"){
+			if($newStatus === "on-hold"){
 				$messageTitle = 'Subscription Paused :double_vertical_bar:';
 				$billingMsg = " requested to Pause. Their billing date is on: $billingPeriodEndingDate";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
-					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($new_status, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
+					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
 				}
 
-			}else if($new_status === "pending-cancel"){
+			}else if($newStatus === "pending-cancel"){
 				$messageTitle = 'Subscription Cancelled :alert:';
 				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
-					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($new_status, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
+					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
 				}
 
 
-			}else if($old_status === "pending-cancel" && $new_status === "active"){
+			}else if($oldStatus === "pending-cancel" && $newStatus === "active"){
 				$messageTitle = 'Subscription Reactivated :white_check_mark:';
 				$billingMsg = "'s account will not be 'canceled' anymore. Keep the work going";
 
@@ -805,7 +813,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $new_sta
 
 			slackNotifications($slackMessageBody);
 
-			if($new_status === 'active'){
+			if($newStatus === 'active'){
 				wc_add_notice("Your $subscriptionItemsGroup has been reactivated.", 'success');
 			}
 		}
@@ -834,9 +842,9 @@ add_action('scheduleSlackNotificationForSubscriptionStatusUpdateHook', 'schedule
 
 
 
-function wooNoticesMessageBasedOnProduct($subscription, $new_status, $old_status){
+function wooNoticesMessageBasedOnProduct($subscription, $newStatus, $oldStatus){
 	if(!is_admin()){
-		if($new_status == 'pending-cancel'){
+		if($newStatus == 'pending-cancel'){
 			$message = "";
 
 			foreach($subscription->get_items() as $item){
@@ -1106,7 +1114,7 @@ add_filter( 'wcs_view_subscription_actions', 'disableSubscriptionActions', 10, 2
 
 
 
-function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
+function cancelActiveTasksByPausePlan($subscription, $newStatus, $oldStatus){
 	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 
 	foreach($subscription->get_items() as $item){
@@ -1114,7 +1122,7 @@ function cancelActiveTasksByPausePlan($subscription, $new_status, $old_status){
 			foreach ($userSubscriptions as $subs){		
 				foreach ($subs->get_items() as $product) {			
 					if ( !has_term( 'plan', 'product_cat', $product->get_product_id() ) ){
-						if($new_status === "on-hold" || $new_status === "cancelled" || $new_status === "pending-cancel"){
+						if($newStatus === "on-hold" || $newStatus === "cancelled" || $newStatus === "pending-cancel"){
 							$subs->update_status('pending-cancel');
 						}
 					};	
@@ -1252,8 +1260,210 @@ function unserializedOnboardingFieldInUserProfilePage($user){
 	</script>";
 }
 
-add_action( 'show_user_profile', 'unserializedOnboardingFieldInUserProfilePage' );
+add_action('show_user_profile', 'unserializedOnboardingFieldInUserProfilePage');
 add_action( 'edit_user_profile', 'unserializedOnboardingFieldInUserProfilePage' );
+
+
+
+
+//TEAM MEMBERS FEATURE
+function userCanAddMoreTeamMembers($numberOfTeamMembersFromForm){
+	$userId = get_current_user_id();
+	$userSubscriptions = wcs_get_users_subscriptions($userId );
+	$groupsUser = new Groups_User( $userId  );
+	$currentUserTeamMembers = [];
+	$isCurrentUserCanAddMoreTeamMembers = false;
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$groupId = $group->group_id;
+			$group = new Groups_Group( $groupId );
+
+			foreach($group->users as $groupUser){
+				if(in_array('team_member', $groupUser->roles)){
+					$currentUserTeamMembers[] = $groupUser;
+				}
+			}
+		}
+	}
+
+	foreach ($userSubscriptions as $subscription){
+		foreach ($subscription->get_items() as $product) {	
+			if(has_term('plan', 'product_cat', $product['product_id'])){
+				
+				if(str_contains($product['name'], 'Business') && $numberOfTeamMembersFromForm + sizeof($currentUserTeamMembers) > 4 ){
+					$isCurrentUserCanAddMoreTeamMembers = false;
+				}else{
+					$isCurrentUserCanAddMoreTeamMembers = true;
+				}
+			}		
+		}
+	}
+
+	return $isCurrentUserCanAddMoreTeamMembers;
+	
+}
+
+
+
+function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
+	if($form->id == 7){	
+		$currentUser = wp_get_current_user();	
+		$companyFreshdeskId = get_user_meta( get_current_user_id(), 'company_freshdesk_id', true );
+		$companyWebsite = get_user_meta( get_current_user_id(), 'company_website', true );
+
+		
+		$userAdditionalData = [
+			'url' => $companyWebsite,
+			'job_title' => 'Team Member'
+		];
+		
+		$additionalUsersAdded = [];
+
+		$isUserCanAddMoreTeamMembers = userCanAddMoreTeamMembers(sizeof($formData['team_members_form']));
+
+		if($isUserCanAddMoreTeamMembers){
+			foreach($formData['team_members_form'] as $additionalUser){
+				$additionalUserName = $additionalUser[0];
+				$additionalUserEmail = $additionalUser[1];			
+				$userAlreadyExists = get_user_by( 'email', $additionalUserEmail );
+	
+				if($userAlreadyExists){
+					if(in_array('administrator', $userAlreadyExists->roles)){
+						wc_add_notice("You can't add this user!", 'error');
+	
+					}else{
+						$additionalUser = new WP_User($userAlreadyExists->id);
+						$additionalUser->set_role('team_member');
+						update_user_meta( $userAlreadyExists->id, 'is_user_onboarded', 1 );
+						update_user_meta( $userAlreadyExists->id, 'is_first_access', 0 );
+						update_user_meta( $userAlreadyExists->id, 'billing_company', $currentUser->billing_company );
+						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+						addTeamMembersToCurrentUsersGroup($userAlreadyExists->id, $additionalUsersAdded);
+						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id());
+						createTeamMemberInFreshDesk($currentUser, $additionalUser, $userAdditionalData, intval($companyFreshdeskId));
+					}
+	
+				}else{
+					$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+					$passwordCharactersLength = 8;
+					$newUserRandomPassword = substr(str_shuffle($characters), 0, $passwordCharactersLength);
+					$newUserId = wp_create_user($additionalUserEmail, $newUserRandomPassword, $additionalUserEmail);
+	
+					if($newUserId){
+						$additionalUser = new WP_User($newUserId);
+						$additionalUser->set_role('team_member');
+						wp_update_user(['ID' => $newUserId, 'first_name' => $additionalUserName]);
+						update_user_meta( $newUserId, 'is_user_onboarded', 1 );
+						update_user_meta( $newUserId, 'is_first_access', 0 );
+						update_user_meta( $newUserId, 'billing_company', $currentUser->billing_company );
+						$additionalUsersAdded[] = "$additionalUserName ($additionalUserEmail)";
+						addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded);
+						sendWelcomeEmailToAdditionalTeamMembers($additionalUserName, $additionalUserEmail, get_current_user_id(), $newUserRandomPassword);
+						createTeamMemberInFreshDesk($currentUser, $additionalUser, $userAdditionalData, intval($companyFreshdeskId));
+					};
+				}	
+			}	
+			
+			if(!empty($additionalUsersAdded)){
+				sendAdditionalusersNotificationToSlack($additionalUsersAdded);
+				sendEmailToProductionWhenNewTeamMemberIsAdded(get_current_user_id(), $additionalUsersAdded);
+				sendEmailToUserAboutAdditionalTeamMembers(get_current_user_id(), $additionalUsersAdded);
+				wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
+			}
+		}else{
+			wc_add_notice("Your additional team members limit is: 4. Upgrade your plan to add more!", 'error');
+		}
+	}	
+}
+add_action( 'fluentform/submission_inserted', 'createAdditionalUserBySubmitingForm', 10, 3 );
+
+
+
+function addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded){
+	global $wpdb;
+	$groupsUser = new Groups_User( get_current_user_id() );
+	$tableName = _groups_get_tablename( 'group' );
+
+	foreach($groupsUser->groups as $group){
+		if($group->name !== "Registered"){
+			$groupId = $group->group_id;
+			$groupName = $group->name;
+		}
+	}
+
+
+	$existingRow = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT * FROM $tableName WHERE name = %s",
+			$groupName,
+		)
+	);
+
+	if($existingRow){
+		Groups_User_Group::create( array( 'user_id' => $newUserId, 'group_id' => $groupId ) );
+	}
+}
+
+
+
+function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
+	$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CLIENT_MANAGEMENT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
+	$accountOwner = wp_get_current_user();
+	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
+
+	$slackMessageBody = [
+			'text'  => '<!channel> A client just added new team members to their account:  ' . '
+	*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
+	*Team Members:* ' . implode(', ', $additionalUsersAdded),
+			'username' => 'Marcus',
+		];
+
+
+	slackNotifications($slackMessageBody, $slackWebHookUrl);
+}
+
+
+
+function removeAdditionalUserFromDatabase($userId){
+	$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CLIENT_MANAGEMENT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
+	$userToBeDeleted = get_user_by( 'id', $userId);
+	$freshdeskUserId = get_user_meta($userToBeDeleted->id, 'contact_freshdesk_id', true);
+	$accountOwner = wp_get_current_user();
+	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
+	$requestBody = [
+		"custom_fields" => [
+			"registered_user" => false,
+			"paused" => false,
+			"cancelled" => true
+		]
+	];
+
+	if(in_array('administrator', $userToBeDeleted->roles)){
+		wc_add_notice("You can't remove this user!", 'error');
+	}else{
+		wc_add_notice("The user was successfully removed from your account!", 'success');
+		
+
+		$slackMessageBody = [
+			'text'  => '<!channel> A client just removed a team member from their account:  ' . '
+	*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
+	*Team Member:* ' . $userToBeDeleted->first_name . " ($userToBeDeleted->user_email)" ,
+			'username' => 'Marcus',
+		];
+
+		slackNotifications($slackMessageBody, $slackWebHookUrl);
+		putRequestToFreshdesk($freshdeskUserId, $requestBody);
+		wp_delete_user($userId);
+
+	}
+
+	wp_redirect(get_permalink(wc_get_page_id('myaccount')) . "edit-account");
+	exit;
+}
+
+add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromDatabase');
+
 
 
 
