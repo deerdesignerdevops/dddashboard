@@ -60,6 +60,38 @@ function putRequestToFreshdesk($freshdeskUserId, $requestBody){
 
 
 
+function getContactFromFreshdesk($teamMember){
+	$teamMemberEmail = urlencode($teamMember->user_email);
+	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/contacts/?email=$teamMemberEmail";
+	$apiKey = FRESHDESK_API_KEY;
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
+
+	$ch = curl_init($apiUrl);
+
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+	curl_setopt($ch, CURLOPT_USERPWD, "$apiKey:X");
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+
+	$response = curl_exec($ch);
+
+	if (curl_errno($ch)) {
+		$error_message = 'Error: ' . curl_error($ch);
+		echo $error_message;
+		error_log($error_message, 3, "$uploadsDir/freshdesk_api_error_log.txt");
+		$response = false;
+	} else {
+		file_put_contents("$uploadsDir/freshdesk_api_response_log_get_user_request.txt", $response . PHP_EOL, FILE_APPEND);
+		$response = json_decode($response, true);
+	}
+
+	curl_close($ch);
+
+	return $response;
+}
+
+
+
 function createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId){	
 	$userName = "$currentUser->first_name $currentUser->last_name";
 	$userEmail = $currentUser->user_email;
@@ -105,42 +137,51 @@ function createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId){
 
 
 function createTeamMemberInFreshDesk($accountOwner, $teamMember, $formData, $companyFreshdeskId){	
-	$userName = "$teamMember->first_name $teamMember->last_name";
-	$userEmail = $teamMember->user_email;
-	$userAddress = $teamMember->billing_city ? "$teamMember->billing_city, $teamMember->billing_country" : "";
-	$companyName = $teamMember->billing_company;
-	$companyWebsite = $formData['url'];
-	$userJobTitle = $formData['job_title'];
-	$userCurrentPlan = '';
+	$isContactAlreadyExistInFreshdesk = getContactFromFreshdesk($teamMember);
 
-	$userSubscriptions = wcs_get_users_subscriptions($accountOwner->id);
-
-	foreach($userSubscriptions as $subscription){
-		if($subscription->has_status(array('active'))){
-			foreach($subscription->get_items() as $subItem){
-				if(has_term('plan', 'product_cat', $subItem->get_product_id())){
-					$accountOwnerSubscriptionStatus = $subscription->get_status();
+	if($isContactAlreadyExistInFreshdesk){
+		update_user_meta( $teamMember->id, 'contact_freshdesk_id', $isContactAlreadyExistInFreshdesk[0]['id'] );
+		update_user_meta( $teamMember->id, 'company_freshdesk_id', $isContactAlreadyExistInFreshdesk[0]['company_id'] );
+		
+	}else{
+		$userName = "$teamMember->first_name $teamMember->last_name";
+		$userEmail = $teamMember->user_email;
+		$userAddress = $teamMember->billing_city ? "$teamMember->billing_city, $teamMember->billing_country" : "";
+		$companyName = $teamMember->billing_company;
+		$companyWebsite = $formData['url'];
+		$userJobTitle = $formData['job_title'];
+		$userCurrentPlan = '';
+	
+		$userSubscriptions = wcs_get_users_subscriptions($accountOwner->id);
+	
+		foreach($userSubscriptions as $subscription){
+			if($subscription->has_status(array('active'))){
+				foreach($subscription->get_items() as $subItem){
+					if(has_term('plan', 'product_cat', $subItem->get_product_id())){
+						$accountOwnerSubscriptionStatus = $subscription->get_status();
+					}
 				}
 			}
 		}
-	}
-
-	$requestBody = [
-		"active" => true,
-		"company_id" => $companyFreshdeskId,
-		"name" => $userName,
-		"email" => $userEmail,
-		"address" => $userAddress,
-		"description" => "Company: $companyName \n Website: $companyWebsite",
-		"job_title" => $userJobTitle,
-		"tags" => [$userCurrentPlan],
-		"custom_fields" => buildCustomFieldsToUpdateFreshdeskContact($accountOwnerSubscriptionStatus)
-	];
-
-	$contactFreshdesk = postRequestToFreshdesk('contacts', $requestBody);
-
-	if($contactFreshdesk['id']){
-		update_user_meta( $teamMember->id, 'contact_freshdesk_id', $contactFreshdesk['id'] );
+	
+		$requestBody = [
+			"active" => true,
+			"company_id" => $companyFreshdeskId,
+			"name" => $userName,
+			"email" => $userEmail,
+			"address" => $userAddress,
+			"description" => "Company: $companyName \n Website: $companyWebsite",
+			"job_title" => $userJobTitle,
+			"tags" => [$userCurrentPlan],
+			"custom_fields" => buildCustomFieldsToUpdateFreshdeskContact($accountOwnerSubscriptionStatus)
+		];
+	
+		$contactFreshdesk = postRequestToFreshdesk('contacts', $requestBody);
+	
+		if($contactFreshdesk['id']){
+			update_user_meta( $teamMember->id, 'contact_freshdesk_id', $contactFreshdesk['id'] );
+			update_user_meta( $teamMember->id, 'company_freshdesk_id', $contactFreshdesk['company_id'] );
+		}
 	}
 }
 
