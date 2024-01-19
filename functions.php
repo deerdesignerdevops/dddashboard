@@ -453,6 +453,7 @@ function checkIfUserIsActive($currentUser){
 		case 'active':
 			echo "<style>
 				.paused__user_banner{display: none !important}
+				.paused__user_btn{display: flex !important}
 			</style>";
 			break;
 		
@@ -489,7 +490,7 @@ function getCurrentUserRole(){
 
 	if(in_array('team_member', $currentUser->roles)){
 		echo "<style>
-			.btn__billing, .paused__user_banner{display:none !important;}
+			.paused__user_btn, .btn__billing, .paused__user_banner{display:none !important;}
 			.account_details__section{width: 50%; margin: auto;}
 			.account__details_col{width: 100% !important;}
 		</style>";
