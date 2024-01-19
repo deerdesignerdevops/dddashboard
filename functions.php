@@ -48,7 +48,6 @@ require_once('integrations/freshdesk.php');
 require_once('integrations/moosend.php');
 
 
-
 function logoutWhitoutConfirm($action, $result)
 {
     if ($action == "log-out" && !isset($_GET['_wpnonce'])) {
@@ -320,8 +319,8 @@ add_action('template_redirect', 'checkIfGroupCanBookCreativeCall');
 
 
 //***************CUSTOM CODES FOR WOOCOMMERCE
-function slackNotifications($slackMessageBody){
-	wp_remote_post( SLACK_WEBHOOK_URL, array(
+function slackNotifications($slackMessageBody, $slackWebHook = SLACK_WEBHOOK_URL){
+	wp_remote_post( $slackWebHook, array(
 		'body'        => wp_json_encode( $slackMessageBody ),
 		'headers' => array(
 			'Content-type: application/json'
@@ -1409,6 +1408,7 @@ function addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded){
 
 
 function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
+	$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CLIENT_MANAGEMENT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
 	$accountOwner = wp_get_current_user();
 	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
 
@@ -1420,12 +1420,13 @@ function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
 		];
 
 
-	slackNotifications($slackMessageBody);
+	slackNotifications($slackMessageBody, $slackWebHookUrl);
 }
 
 
 
 function removeAdditionalUserFromDatabase($userId){
+	$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CLIENT_MANAGEMENT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
 	$userToBeDeleted = get_user_by( 'id', $userId);
 	$freshdeskUserId = get_user_meta($userToBeDeleted->id, 'contact_freshdesk_id', true);
 	$accountOwner = wp_get_current_user();
@@ -1451,7 +1452,7 @@ function removeAdditionalUserFromDatabase($userId){
 			'username' => 'Marcus',
 		];
 
-		slackNotifications($slackMessageBody);
+		slackNotifications($slackMessageBody, $slackWebHookUrl);
 		putRequestToFreshdesk($freshdeskUserId, $requestBody);
 		wp_delete_user($userId);
 
