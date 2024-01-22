@@ -16,7 +16,6 @@ function curlToMoosend($userName, $userEmail, $status, $moosendList){
 
 	curl_close($ch);
 }
-add_action('curlToMoosendHook', 'curlToMoosend', 10, 3);
 
 
 
