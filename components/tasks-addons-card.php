@@ -1,7 +1,7 @@
 <?php 
 function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat, $planStatus){ 
     $subscriptionStatus = $subscription->get_status();
-
+    $lastOrderPaidDate = getOrderPaymentDate($subscription);
     ?>
 
     <?php if(sizeof($subscription->get_items()) <= 1){ ?>
@@ -48,7 +48,10 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat, $
                 </span>
                 
                 <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
-                <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+
+                <?php if($lastOrderPaidDate) { ?>
+                    <span class="dd__subscription_payment">Last payment: <?php echo $lastOrderPaidDate; ?></span>
+                <?php } ?>
                 
                 <?php if($subscriptionStatus === "active"){ ?>
                     <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
