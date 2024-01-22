@@ -713,24 +713,21 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
 	
 	}
 
-
 	if($cart){
 		foreach ( $cart as $cart_item_key => $values) {
 			$terms = get_the_terms( $values['data']->id, 'product_cat' );
 			$productPrice = $values['data']->get_price();
-			$activeTaskFinalPrice = str_contains($currentUserSubscriptionPlan, 'Standard' ) ? $standardPlanMonthlyPrice : ($productPrice - 50);
+			$activeTaskFinalPrice = str_contains($currentUserSubscriptionPlan, 'Standard' ) ? 399 : 649;
 
 			if($terms[0]->slug === 'active-task'){
 				$values['data']->set_price($activeTaskFinalPrice);
 
 			}
-			
-
 		}
 	}
 }
 
-//add_action('woocommerce_before_calculate_totals', 'changeActiveTaskPriceInCartBasedOnUserPlan');
+add_action('woocommerce_before_calculate_totals', 'changeActiveTaskPriceInCartBasedOnUserPlan');
 
 
 
