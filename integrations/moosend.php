@@ -1,8 +1,9 @@
 <?php
 
-function curlToMoosend($userName, $userEmail, $status){
+function curlToMoosend($userName, $userEmail, $status, $moosendList){
+	$moosendApiUrl = $moosendList === "news" ? MOOSEND_API_URL_NEWS : MOOSEND_API_URL;
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, MOOSEND_API_URL);
+	curl_setopt($ch, CURLOPT_URL, $moosendApiUrl);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 	curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -24,7 +25,7 @@ function subscribeUserToMoosendEmailList($entryId, $formData, $form){
 		$currentUser = wp_get_current_user();
 		$userName = "$currentUser->first_name $currentUser->last_name";
 		$userEmail = $currentUser->user_email;	
-		curlToMoosend($userName, $userEmail, 'active');	
+		curlToMoosend($userName, $userEmail, 'active', 'onboarding' );	
 	}
 }
 add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
@@ -37,7 +38,7 @@ function scheduleMoosendUpdateStatus($subscriptionId, $newStatus, $userName, $us
 	if($subscription->get_status() === $newStatus){		
 		foreach($subscription->get_items() as $subscritpionItem){
 			if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
-				curlToMoosend($userName, $userEmail, $status);
+				curlToMoosend($userName, $userEmail, $status, 'news');
 			}
 		}
 	}
@@ -77,7 +78,7 @@ function updateUserInMoosendBasedOnSubscriptionStatus($subscription, $newStatus,
 					if(time() < $billingPeriodEndingDate){
 						wp_schedule_single_event($billingPeriodEndingDate, 'scheduleMoosendUpdateStatusHook', array($subscription->id, $newStatus, $userName, $userEmail, $moosendUserNewStatus));
 					}else{
-						curlToMoosend($userName, $userEmail, $moosendUserNewStatus);
+						curlToMoosend($userName, $userEmail, $moosendUserNewStatus, 'news');
 					}
 				}
 			}
