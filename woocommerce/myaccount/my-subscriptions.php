@@ -38,15 +38,15 @@ foreach($subscriptions as $sub){
 	$subItems = $sub->get_items();
 
 	foreach($subItems as $subItem){
-		$terms = get_the_terms( $subItem['product_id'], 'product_cat' );
+		
 
-		if($terms[0]->slug === 'add-on'){ 
+		if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
 			$userCurrentAddons[] = $subItem['product_id'];
 		}
-		else if($terms[0]->slug === 'active-task'){ 
+		else if(has_term('active-task', 'product_cat', $subItem['product_id']) && ($status !== "cancelled" && $status !== "on-hold")){ 
 			$userCurrentActiveTasks[] = $subItem['product_id'];
 		}
-		else if($terms[0]->slug === 'plan'){ 
+		else if(has_term('plan', 'product_cat', $subItem['product_id'])){ 
 			$userCurrentPlans[] = $subItem['product_id'];
 		}
 	}
