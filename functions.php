@@ -789,7 +789,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 			$subscriptionItemsGroup = implode(" | ", array_unique($subscriptionItemsGroup));
 			
 			if($newStatus === "on-hold"){
-				$messageTitle = 'Subscription Paused :double_vertical_bar:';
+				$messageTitle = 'Pause Request :warning:';
 				$billingMsg = " requested to Pause. Their billing date is on: $billingPeriodEndingDate";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
@@ -797,7 +797,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 				}
 
 			}else if($newStatus === "pending-cancel"){
-				$messageTitle = 'Subscription Cancelled :alert:';
+				$messageTitle = 'Cancellation Request :warning:';
 				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
