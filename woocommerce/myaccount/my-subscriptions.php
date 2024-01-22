@@ -340,6 +340,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
 			let confirmBtn = document.querySelector(".confirm_btn a");
 			document.querySelector(".update_plan_form form").elements['form_subscription_request_type'].value = currentTypeOfRequest
+			document.querySelector(".update_plan_form form").elements['form_subscription_id'].value = currentSubscriptionId
 
 			document.querySelector(".update_plan_form form").elements["btn_keep"].addEventListener("click", function(e){
 				e.preventDefault()

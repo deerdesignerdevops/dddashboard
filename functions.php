@@ -730,7 +730,7 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
 	}
 }
 
-add_action('woocommerce_before_calculate_totals', 'changeActiveTaskPriceInCartBasedOnUserPlan');
+//add_action('woocommerce_before_calculate_totals', 'changeActiveTaskPriceInCartBasedOnUserPlan');
 
 
 
@@ -798,6 +798,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 			$subscriptionItemsGroup = [];
 			$billingMsg = '';
 			$billingPeriodEndingDate =  calculateBillingEndingDateWhenPausedOrCancelled($subscription);
+			$requestMotive = "";
 
 			foreach($subscriptionItems as $item){
 				$subscriptionItemsGroup[] = $item['name'];
@@ -806,16 +807,18 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 			$subscriptionItemsGroup = implode(" | ", array_unique($subscriptionItemsGroup));
 			
 			if($newStatus === "on-hold"){
+				$requestMotive = get_post_meta($subscription->id, 'pause_cancel_motive', true);
 				$messageTitle = 'Pause Request :warning:';
-				$billingMsg = " requested to Pause. Their billing date is on: $billingPeriodEndingDate";
+				$billingMsg = " requested to Pause. Their billing date is on: $billingPeriodEndingDate\n*Motive:* $requestMotive";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
 					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
 				}
 
 			}else if($newStatus === "pending-cancel"){
+				$requestMotive = get_post_meta($subscription->id, 'pause_cancel_motive', true);
 				$messageTitle = 'Cancellation Request :warning:';
-				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate";
+				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate\n*Motive:* $requestMotive";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
 					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
@@ -846,6 +849,18 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 	
 }
 add_action('woocommerce_subscription_status_updated', 'notificationToSlackWithSubscriptionUpdateStatus', 10, 3);
+
+
+function sendPauseCancelMotiveToSubscriptionPostMeta($entryId, $formData, $form){
+	if($form->id == 6){
+		$subscriptionId = $formData['form_subscription_id'];
+		$requestMotive = $formData['form_subscription_update_message'];
+
+		update_post_meta($subscriptionId, 'pause_cancel_motive', $requestMotive);
+	}
+
+}
+add_action('fluentform/submission_inserted', 'sendPauseCancelMotiveToSubscriptionPostMeta', 10, 3);
 
 
 
