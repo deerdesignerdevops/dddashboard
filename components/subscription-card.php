@@ -1,13 +1,17 @@
 <?php 
 function subscriptionCardComponent($subscription, $currentProductId){ 
     $siteUrl = site_url();
+    $renewalOrders = $subscription->get_related_orders('ids', 'renewal');
+    $mostRecentRenewalOrder = wc_get_order(array_key_first($renewalOrders));
+    $mostRecentRenewalOrderStatus = $mostRecentRenewalOrder->get_status();
+
     $activeTasksProductId = 1600;
     $standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
     $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
     $subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
     $subscriptionStatus = $subscription->get_status();    
-    $pausedPlanBillingPeriodEndingDate = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
+    $pausedPlanBillingPeriodEndingDate = $mostRecentRenewalOrderStatus === "completed" ? calculateBillingEndingDateWhenPausedOrCancelled($subscription) : false;
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? true : false;
 
     $reactivateUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?reactivate_plan=true";
@@ -72,7 +76,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
             <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
 
-            <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+            <span class="dd__subscription_payment">Last payment: <?php echo $mostRecentRenewalOrderStatus === "completed" ? esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ) : "Failed"; ?></span>
             
             <?php if($subscriptionStatus === "active"){ ?>
                 <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
