@@ -738,9 +738,16 @@ function sendPaymentFailedNotificationToSlack($orderId){
 	$orderData = $order->get_data();
 	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 	$customerEmail = $orderData['billing']['email'];
+	
+	foreach( $order->get_items() as $item_id => $item ){
+		$itemName = $item->get_name();
+		$orderItems[] = $itemName;
+	}
+
+	$productNames = implode(" | ", array_unique($orderItems));
 
 	$slackMessageBody = [
-		"text" => "<!channel> Payment failed :x:\n$customerName | $customerEmail\n:arrow_right: AMs, work on their requests but don\'t send them until payment is resolved.",
+		"text" => "<!channel> Payment failed :x:\n$customerName | $customerEmail\n:arrow_right: AMs, work on their requests but don't send them until payment is resolved.\n *Plan:* $productNames.",
 		"username" => "Marcus"
 	];
 
