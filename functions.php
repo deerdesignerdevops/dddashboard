@@ -1606,6 +1606,24 @@ function woocommerceNewCustomerDataSetRole( $customer_data ){
 add_filter( 'woocommerce_new_customer_data', 'woocommerceNewCustomerDataSetRole' );
 
 
+function getOrderPaymentDate($subscription){
+	$subscriptionRelatedOrders = $subscription->get_related_orders();
+	$lastOrderPaidDate = "";
+
+	if($subscriptionRelatedOrders){
+        $lastOrderId = array_key_first($subscriptionRelatedOrders);
+        $lastOrderStatus = wc_get_order($lastOrderId)->get_status();
+        $lastOrderPaidDate = wc_get_order($lastOrderId)->get_date_paid();
+
+		if($lastOrderPaidDate){
+			$lastOrderPaidDate = $lastOrderPaidDate->date('F d, Y');
+		}
+    }
+
+	return $lastOrderPaidDate;
+}
+
+
 
 
 

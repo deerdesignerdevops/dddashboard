@@ -1,6 +1,7 @@
 <?php 
 function subscriptionCardComponent($subscription, $currentProductId){ 
     $siteUrl = site_url();
+    $lastOrderPaidDate = getOrderPaymentDate($subscription);
     $activeTasksProductId = 1600;
     $standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
     $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
@@ -33,7 +34,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                         <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus);  ?>
                         <br> </strong>
                         <?php
-                        if($subscriptionStatus !== 'active' && !$showReactivateButton){ ?>
+                        if($subscriptionStatus !== 'active' && !$showReactivateButton && $lastOrderPaidDate){ ?>
                              Your Deer Designer team is still available until <?php echo $pausedPlanBillingPeriodEndingDate; ?></span>
                         <?php } ?> 
                 </div>
@@ -72,7 +73,9 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
             <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
 
-            <span class="dd__subscription_payment">Last payment: <?php echo esc_html( $subscription->get_date_to_display( 'last_order_date_created' ) ); ?></span>
+            <?php if($lastOrderPaidDate) { ?>
+                <span class="dd__subscription_payment">Last payment: <?php echo $lastOrderPaidDate; ?></span>
+            <?php } ?>
             
             <?php if($subscriptionStatus === "active"){ ?>
                 <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
