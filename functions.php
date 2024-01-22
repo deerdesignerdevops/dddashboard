@@ -78,7 +78,7 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	}
 
 
-	if($form->id == 3){
+	if($form->id === 3){
 		echo "<script>
 			document.addEventListener('DOMContentLoaded', function(){
 				document.querySelector('[data-name=\"plan\"]').value='$userPlan'
@@ -90,6 +90,23 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	}
 }
 add_action('fluentform/after_form_render', 'populateOnboardingFormHiddenFieldsWithUserMeta');
+
+
+
+function populateCSATFormHiddenFieldsWithUserMeta($form){
+	$currentUser = wp_get_current_user();
+	$companyName = get_user_meta($currentUser->id, 'billing_company', true);
+
+	if($form->id === 5){
+		echo "<script>
+			document.addEventListener('DOMContentLoaded', function(){
+				document.querySelector('[data-name=\"hidden_company_name\"]').value='$companyName'
+			})
+		</script>";
+	}
+}
+add_action('fluentform/after_form_render', 'populateCSATFormHiddenFieldsWithUserMeta');
+
 
 
 
@@ -1315,7 +1332,7 @@ function userCanAddMoreTeamMembers($numberOfTeamMembersFromForm){
 
 
 function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
-	if($form->id == 7){	
+	if($form->id === 7){	
 		$currentUser = wp_get_current_user();	
 		$companyFreshdeskId = get_user_meta( get_current_user_id(), 'company_freshdesk_id', true );
 		$companyWebsite = get_user_meta( get_current_user_id(), 'company_website', true );
