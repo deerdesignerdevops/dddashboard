@@ -162,7 +162,7 @@ if(isset($_GET['change-plan'])){
 
 				<div class="dd__subscription_container">
 					<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
-						<?php if($subscription->get_status() !== "cancelled"){ 
+						<?php if($subscription->get_status() !== "cancelled" && $subscription->get_status() !== "on-hold"){ 
 							foreach($subscription->get_items() as $subItem){					
 								if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
 									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on', $activePlanSubscriptions[0]->get_status());
