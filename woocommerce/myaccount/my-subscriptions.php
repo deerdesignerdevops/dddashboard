@@ -44,6 +44,7 @@ foreach($subscriptions as $sub){
 			$userCurrentAddons[] = $subItem['product_id'];
 		}
 		else if(has_term('active-task', 'product_cat', $subItem['product_id']) && ($status !== "cancelled" && $status !== "on-hold")){ 
+			echo $status;
 			$userCurrentActiveTasks[] = $subItem['product_id'];
 		}
 		else if(has_term('plan', 'product_cat', $subItem['product_id'])){ 
@@ -135,7 +136,7 @@ if(isset($_GET['change-plan'])){
 				<div class="woocommerce_account_subscriptions">
 					<div class="dd__subscription_container">
 						<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
-							<?php if($subscription->get_status() !== "cancelled"){ 
+							<?php if($subscription->get_status() !== "cancelled" && $subscription->get_status() !== "on-hold"){ 
 								foreach($subscription->get_items() as $subItem){
 									if(has_term('active-task', 'product_cat', $subItem['product_id'])){ 
 										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task', $activePlanSubscriptions[0]->get_status());

@@ -46,7 +46,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                 
                 if($currentCat === "Plan"){
                     $currentSubscriptionPlan = $item['name'];
-                    $activeTaskProductPrice = str_contains($currentSubscriptionPlan, 'Standard') ? $standardPlanMonthlyPrice : ($activeTaskProductPrice - 50);
+                    $activeTaskProductPrice = str_contains($currentSubscriptionPlan, 'Standard') ? $standardPlanMonthlyPrice : $activeTaskProductPrice;
                 }										
                 ?>
         
