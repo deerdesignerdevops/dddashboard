@@ -46,6 +46,7 @@ require_once('stripe/init.php');
 require_once('custom-email-notifications.php');
 require_once('integrations/freshdesk.php');
 require_once('integrations/moosend.php');
+require_once('integrations/clockify.php');
 
 
 function logoutWhitoutConfirm($action, $result)

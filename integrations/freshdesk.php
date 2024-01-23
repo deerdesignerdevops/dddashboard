@@ -301,9 +301,9 @@ function createCompanyInFreshdesk($entryId, $formData, $form){
 		
 		if($companyFreshdesk['id']){
 			update_user_meta( $currentUser->id, 'company_freshdesk_id', $companyFreshdesk['id'] );
+			createContactInFreshdesk($currentUser, $formData, $companyFreshdesk['id']);
 		}
 
-		createContactInFreshdesk($currentUser, $formData, $companyFreshdesk['id']);
 	}
 }
 
