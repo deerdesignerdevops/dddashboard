@@ -137,33 +137,39 @@ function createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId){
 
 
 function createTeamMemberInFreshDesk($accountOwner, $teamMember, $formData, $companyFreshdeskId){	
+	$userName = "$teamMember->first_name $teamMember->last_name";
+	$userEmail = $teamMember->user_email;
+	$userAddress = $teamMember->billing_city ? "$teamMember->billing_city, $teamMember->billing_country" : "";
+	$companyName = $teamMember->billing_company;
+	$companyWebsite = $formData['url'];
+	$userJobTitle = $formData['job_title'];
+	$userCurrentPlan = '';
+
+	$userSubscriptions = wcs_get_users_subscriptions($accountOwner->id);
+
+	foreach($userSubscriptions as $subscription){
+		if($subscription->has_status(array('active'))){
+			foreach($subscription->get_items() as $subItem){
+				if(has_term('plan', 'product_cat', $subItem->get_product_id())){
+					$accountOwnerSubscriptionStatus = $subscription->get_status();
+				}
+			}
+		}
+	}
+
 	$isContactAlreadyExistInFreshdesk = getContactFromFreshdesk($teamMember);
 
 	if($isContactAlreadyExistInFreshdesk){
 		update_user_meta( $teamMember->id, 'contact_freshdesk_id', $isContactAlreadyExistInFreshdesk[0]['id'] );
 		update_user_meta( $teamMember->id, 'company_freshdesk_id', $isContactAlreadyExistInFreshdesk[0]['company_id'] );
 		
-	}else{
-		$userName = "$teamMember->first_name $teamMember->last_name";
-		$userEmail = $teamMember->user_email;
-		$userAddress = $teamMember->billing_city ? "$teamMember->billing_city, $teamMember->billing_country" : "";
-		$companyName = $teamMember->billing_company;
-		$companyWebsite = $formData['url'];
-		$userJobTitle = $formData['job_title'];
-		$userCurrentPlan = '';
-	
-		$userSubscriptions = wcs_get_users_subscriptions($accountOwner->id);
-	
-		foreach($userSubscriptions as $subscription){
-			if($subscription->has_status(array('active'))){
-				foreach($subscription->get_items() as $subItem){
-					if(has_term('plan', 'product_cat', $subItem->get_product_id())){
-						$accountOwnerSubscriptionStatus = $subscription->get_status();
-					}
-				}
-			}
-		}
-	
+		$requestBody = [
+			"custom_fields" => buildCustomFieldsToUpdateFreshdeskContact($accountOwnerSubscriptionStatus)
+		];
+
+		putRequestToFreshdesk($isContactAlreadyExistInFreshdesk[0]['id'], $requestBody);
+		
+	}else{	
 		$requestBody = [
 			"active" => true,
 			"company_id" => $companyFreshdeskId,
@@ -298,9 +304,9 @@ function createCompanyInFreshdesk($entryId, $formData, $form){
 		
 		if($companyFreshdesk['id']){
 			update_user_meta( $currentUser->id, 'company_freshdesk_id', $companyFreshdesk['id'] );
+			createContactInFreshdesk($currentUser, $formData, $companyFreshdesk['id']);
 		}
 
-		createContactInFreshdesk($currentUser, $formData, $companyFreshdesk['id']);
 	}
 }
 

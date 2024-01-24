@@ -46,6 +46,7 @@ require_once('stripe/init.php');
 require_once('custom-email-notifications.php');
 require_once('integrations/freshdesk.php');
 require_once('integrations/moosend.php');
+require_once('integrations/clockify.php');
 
 
 function logoutWhitoutConfirm($action, $result)
@@ -693,6 +694,8 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
     return;
 
 	$standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
+	$activeTaskProductPrice = 649;
+
 	$cart = WC()->cart->get_cart();
 	$currentUserSubscriptionPlan = "";
 
@@ -716,8 +719,7 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
 	if($cart){
 		foreach ( $cart as $cart_item_key => $values) {
 			$terms = get_the_terms( $values['data']->id, 'product_cat' );
-			$productPrice = $values['data']->get_price();
-			$activeTaskFinalPrice = str_contains($currentUserSubscriptionPlan, 'Standard' ) ? 399 : 649;
+			$activeTaskFinalPrice = str_contains($currentUserSubscriptionPlan, 'Standard' ) ? $standardPlanMonthlyPrice : $activeTaskProductPrice;
 
 			if($terms[0]->slug === 'active-task'){
 				$values['data']->set_price($activeTaskFinalPrice);
