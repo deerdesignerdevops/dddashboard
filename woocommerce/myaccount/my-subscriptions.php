@@ -44,7 +44,6 @@ foreach($subscriptions as $sub){
 			$userCurrentAddons[] = $subItem['product_id'];
 		}
 		else if(has_term('active-task', 'product_cat', $subItem['product_id']) && ($status !== "cancelled" && $status !== "on-hold")){ 
-			echo $status;
 			$userCurrentActiveTasks[] = $subItem['product_id'];
 		}
 		else if(has_term('plan', 'product_cat', $subItem['product_id'])){ 
