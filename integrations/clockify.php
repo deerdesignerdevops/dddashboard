@@ -4,7 +4,7 @@ function createProjectInClockify($requestBody){
     $apiKey = CLOCKFY_API_KEY;
     $workspaceId = CLOCKFY_WORKSPACE_ID;
 	$apiUrl= "https://api.clockify.me/api/v1/workspaces/$workspaceId/projects";
-	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/clockify';
 
 	$ch = curl_init($apiUrl);
 
@@ -39,7 +39,7 @@ function createTaskInClockify($projectId, $requestBody){
     $apiKey = CLOCKFY_API_KEY;
     $workspaceId = CLOCKFY_WORKSPACE_ID;
 	$apiUrl= "https://api.clockify.me/api/v1/workspaces/$workspaceId/projects/$projectId/tasks";
-	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/clockify';
 
 	$ch = curl_init($apiUrl);
 

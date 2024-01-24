@@ -1,7 +1,7 @@
 <?php
 
 function curlToMoosend($userName, $userEmail, $status, $moosendList){
-	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/moosend';
 	$moosendApiUrl = $moosendList === "news" ? MOOSEND_API_URL_NEWS : MOOSEND_API_URL;
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $moosendApiUrl);

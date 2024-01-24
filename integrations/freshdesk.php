@@ -3,7 +3,7 @@
 function postRequestToFreshdesk($apiEndpoint, $requestBody){
 	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/$apiEndpoint";
 	$apiKey = FRESHDESK_API_KEY;
-	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/freshdesk';
 
 	$ch = curl_init($apiUrl);
 
@@ -35,7 +35,7 @@ function postRequestToFreshdesk($apiEndpoint, $requestBody){
 function putRequestToFreshdesk($freshdeskUserId, $requestBody){
 	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/contacts/$freshdeskUserId";
 	$apiKey = FRESHDESK_API_KEY;
-	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/freshdesk';
 
 	$ch = curl_init($apiUrl);
 
@@ -64,7 +64,7 @@ function getContactFromFreshdesk($teamMember){
 	$teamMemberEmail = urlencode($teamMember->user_email);
 	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/contacts/?email=$teamMemberEmail";
 	$apiKey = FRESHDESK_API_KEY;
-	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/freshdesk';
 
 	$ch = curl_init($apiUrl);
 
