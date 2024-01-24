@@ -4,7 +4,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $lastOrderPaidDate = getOrderPaymentDate($subscription);
     $activeTasksProductId = 1600;
     $standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
-    $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
+    $activeTaskProductPrice = 649;
     $subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
     $subscriptionStatus = $subscription->get_status();    
