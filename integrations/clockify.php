@@ -35,15 +35,11 @@ function createProjectInClockify($requestBody){
 
 
 
-function createTaskInClockify($projectId){
+function createTaskInClockify($projectId, $requestBody){
     $apiKey = CLOCKFY_API_KEY;
     $workspaceId = CLOCKFY_WORKSPACE_ID;
 	$apiUrl= "https://api.clockify.me/api/v1/workspaces/$workspaceId/projects/$projectId/tasks";
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs';
-
-    $requestBody = [
-        "name" => "task_1",
-    ];
 
 	$ch = curl_init($apiUrl);
 
@@ -85,7 +81,7 @@ function prepareDataToClockify($entryId, $formData, $form){
 
 		if($clockifyProject['id']){
 			update_user_meta( $currentUser->id, 'clockify_project_id', $clockifyProject['id'] );
-            createTaskInClockify($clockifyProject['id']);
+            createTaskInClockify($clockifyProject['id'], $requestBody);
 		}
 
     }
