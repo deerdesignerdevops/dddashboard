@@ -265,21 +265,18 @@ function updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($accountOwnerId,
 
 
 function scheduleFreshdeskUpdateStatus($subscription, $newStatus, $oldStatus){
-	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
-		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
-			$currentUserId = get_current_user_id();
-			$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
+	if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
+		$currentUserId = get_current_user_id();
+		$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
 
-			if(time() < $billingPeriodEndingDate){
-				wp_schedule_single_event($billingPeriodEndingDate, 'synchronizeFreshdeskContactWithSubscriptionHook', array($subscription->id, $newStatus, $currentUserId));
-			}else{
-				synchronizeFreshdeskContactWithSubscription($subscription->id, $newStatus, $currentUserId);
-			}
+		if(time() < $billingPeriodEndingDate){
+			wp_schedule_single_event($billingPeriodEndingDate, 'synchronizeFreshdeskContactWithSubscriptionHook', array($subscription->id, $newStatus, $currentUserId));
+		}else{
+			synchronizeFreshdeskContactWithSubscription($subscription->id, $newStatus, $currentUserId);
 		}
 	}
 }
 add_action('woocommerce_subscription_status_updated', 'scheduleFreshdeskUpdateStatus', 10, 3);
-
 
 
 
