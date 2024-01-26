@@ -199,7 +199,61 @@ function sendEmailToUserWhenPausedPlan($subscription){
 		}
 	}
 }
-add_action('woocommerce_subscription_status_on-hold', 'sendEmailToUserWhenPausedPlan', 10, 3);
+add_action('woocommerce_subscription_status_on-hold', 'sendEmailToUserWhenPausedPlan');
+
+
+
+function sendEmailToAdminWhenPausedPlan($subscription){
+	if(isset($_GET['change_subscription_to'])){
+		global $headers;
+		$headers[] = 'Cc: Deer Designer <help@deerdesigner.com>';
+		$userFullName = $subscription->data['billing']['first_name'];
+		$userEmail = $subscription->data['billing']['email'];
+		$companyName = $subscription->data['billing']['company'];
+		$adminEmail = get_option( 'admin_email' );
+
+		$billintPeriod = get_post_meta($subscription->id, '_billing_period', true);
+		$billingCycle = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
+		$subscriptionItems = "";
+
+		foreach($subscription->get_items() as $subItem){
+			$subscriptionItems = $subItem['name'];
+		}
+		
+		$subject = "Account Paused";
+
+		$message = "
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'><strong>Action: </strong>Pause <br>
+		<strong>Name: </strong>$userFullName<br>
+		<strong>Email: </strong>$userEmail<br>
+		<strong>Company:</strong> $companyName<br>
+		<strong>Plan: </strong>$subscriptionItems<br>
+		<strong>Period: </strong><span style='text-transform: cappitalize;'>$billintPeriod</span><br>
+		<strong>Billing date:</strong> $billingCycle
+		</p>
+		";	
+
+		if(strtotime($billingCycle) == time()){
+			scheduleEmailToAdminWhenPausedPlan($subscription->id, $adminEmail, $subject, emailTemplate($message), $headers);
+		}else{
+			wp_schedule_single_event(strtotime($billingCycle), 'scheduleEmailToAdminWhenPausedPlanHook', array($subscription->id, $adminEmail, $subject, emailTemplate($message), $headers));
+		}
+	}
+	
+}
+add_action('woocommerce_subscription_status_on-hold', 'sendEmailToAdminWhenPausedPlan');
+
+
+
+
+function scheduleEmailToAdminWhenPausedPlan($subscriptionId, $adminEmail, $subject, $message, $headers){
+	$subscription = wcs_get_subscription($subscriptionId);
+
+	if($subscription->get_status() === "on-hold"){
+		wp_mail($adminEmail, $subject, $message, $headers);
+	}
+}
+add_action('scheduleEmailToAdminWhenPausedPlanHook', 'scheduleEmailToAdminWhenPausedPlan', 10, 5);
 
 
 
@@ -365,8 +419,9 @@ function sendEmailToAdminWhenReactivateSubscription($subscription, $newStatus, $
 				if(has_term('plan', 'product_cat', $subItem['product_id'])){
 					global $headers;
 					$user = wp_get_current_user();
+					$userEmail = $user->user_email;
 					$userName = "$user->first_name $user->last_name";
-					$userEmail = get_option( 'admin_email' );
+					$adminEmail = get_option( 'admin_email' );
 					$productName = $subItem['name'];
 					$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
 
@@ -381,7 +436,7 @@ function sendEmailToAdminWhenReactivateSubscription($subscription, $newStatus, $
 					<p>Plan: $productName | $billingCycle</p>
 					";
 
-					wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+					wp_mail($adminEmail, $subject, emailTemplate($message), $headers);
 				}
 
 			}
