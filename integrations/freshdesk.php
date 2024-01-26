@@ -272,7 +272,7 @@ function updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($accountOwnerId,
 
 function scheduleFreshdeskUpdateStatus($subscription, $newStatus, $oldStatus){
 	if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
-		$currentUserId = get_current_user_id();
+		$currentUserId = $subscription->data['customer_id'];
 		$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
 
 		if(time() < $billingPeriodEndingDate){
@@ -283,6 +283,7 @@ function scheduleFreshdeskUpdateStatus($subscription, $newStatus, $oldStatus){
 	}
 }
 add_action('woocommerce_subscription_status_updated', 'scheduleFreshdeskUpdateStatus', 10, 3);
+
 
 
 
