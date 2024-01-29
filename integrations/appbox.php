@@ -102,6 +102,8 @@ function createCompanyFoldersInBox($entryId, $formData, $form){
             $parentFolderId = $parentFolderId['id'];
     
             if($parentFolderId){
+                update_user_meta($currentUser->id, "company_folder_box_id", $parentFolderId);
+                
                 foreach($companySubFolder as $companySubFolder){
                     postNewFolderInBox($accessToken, $companySubFolder, $parentFolderId);
                 }

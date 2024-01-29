@@ -196,6 +196,7 @@ function displayAdditionalUserDataOnAdminPanel( $user ) {
 	$isUserOnboarded = get_the_author_meta('is_user_onboarded',$user->ID,true );
 	$companyFreshdeskId = get_the_author_meta('company_freshdesk_id',$user->ID,true );
 	$contactFreshdeskId = get_the_author_meta('contact_freshdesk_id',$user->ID,true );
+	$boxFolderId = get_the_author_meta('company_folder_box_id',$user->ID,true );
 
 
 ?>
@@ -228,6 +229,14 @@ function displayAdditionalUserDataOnAdminPanel( $user ) {
                     </label></p>
                 </td>
             </tr>
+			<tr>
+            	<th>Box Folder ID:</th>
+                <td>
+                    <p><label>
+                        <input type="text" name="company_folder_box_id" value="<?php echo $boxFolderId; ?>">
+                    </label></p>
+                </td>
+            </tr>
         </tbody>
     </table>
 <?php } 
@@ -240,6 +249,8 @@ function updateAditionalUserDataOnAdminPanel($user_id){
 	update_user_meta( $user_id, 'is_user_onboarded', $_POST['is_user_onboarded'] );
 	update_user_meta( $user_id, 'company_freshdesk_id', $_POST['company_freshdesk_id'] );
 	update_user_meta( $user_id, 'contact_freshdesk_id', $_POST['contact_freshdesk_id'] );
+	update_user_meta( $user_id, 'company_folder_box_id', $_POST['company_folder_box_id'] );
+
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
 add_action( 'edit_user_profile_update', 'updateAditionalUserDataOnAdminPanel' );
