@@ -19,6 +19,7 @@ require_once get_stylesheet_directory() . '/components/invoices.php';
 
 $siteUrl = site_url();
 $elementorPopupID = 1570;
+$currentCompanyName = wp_get_current_user()->billing_company;
 
 //ARRAY OF SUBSCRIPTION NAMES
 $otherSubscriptionsGroup = [];
@@ -311,6 +312,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			const productPrice = e.currentTarget.dataset.productPrice
 			const currentPlan = e.currentTarget.dataset.plan
 			const currentUpdatePlanUrl = e.currentTarget.href
+			const currentCompanyName = "<?php echo $currentCompanyName; ?>";
 			const enablePauseFlow = <?php echo sizeof($subscriptions); ?>;
 			
 			let currentTypeOfRequest = ""
@@ -341,6 +343,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			let confirmBtn = document.querySelector(".confirm_btn a");
 			document.querySelector(".update_plan_form form").elements['form_subscription_request_type'].value = currentTypeOfRequest
 			document.querySelector(".update_plan_form form").elements['form_subscription_id'].value = currentSubscriptionId
+			document.querySelector(".update_plan_form form").elements['form_subscription_company_name'].value = currentCompanyName
 
 			document.querySelector(".update_plan_form form").elements["btn_keep"].addEventListener("click", function(e){
 				e.preventDefault()
