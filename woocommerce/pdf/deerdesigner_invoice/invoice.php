@@ -10,6 +10,16 @@
 	}
 ?>
 
+<?php 
+	$currentOrder = $this->order->get_data();
+	
+	$currentOrderUserId = $currentOrder['customer_id'];
+
+	$userVATNumber = get_user_meta($currentOrderUserId, 'user_vat_number', true);
+
+
+?>
+
 <?php do_action( 'wpo_wcpdf_before_document', $this->get_type(), $this->order ); ?>
 
 <table class="head container">
@@ -57,6 +67,11 @@
 			<?php if ( isset( $this->settings['display_phone'] ) ) : ?>
 				<div class="billing-phone"><?php $this->billing_phone(); ?></div>
 			<?php endif; ?>
+						<?php if ( $userVATNumber ) : ?>
+				<div class="payment-method">
+					<p>VAT nr: <?php echo $userVATNumber; ?></p>
+				</div>
+			<?php endif; ?>
 		</td>
 		<td class="address shipping-address">
 			<?php if ( $this->show_shipping_address() ) : ?>
@@ -98,6 +113,7 @@
 					<td><?php echo '****' . $cardObject->card->last4; ?></td>
 				</tr>
 				<?php endif; ?>
+
 				<?php do_action( 'wpo_wcpdf_after_order_data', $this->get_type(), $this->order ); ?>
 			</table>			
 		</td>

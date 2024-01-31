@@ -197,7 +197,7 @@ function displayAdditionalUserDataOnAdminPanel( $user ) {
 	$companyFreshdeskId = get_the_author_meta('company_freshdesk_id',$user->ID,true );
 	$contactFreshdeskId = get_the_author_meta('contact_freshdesk_id',$user->ID,true );
 	$boxFolderId = get_the_author_meta('company_folder_box_id',$user->ID,true );
-
+	$userVatNumber = get_the_author_meta('user_vat_number',$user->ID,true );
 
 ?>
 <h2>Additional Data</h2>
@@ -237,6 +237,14 @@ function displayAdditionalUserDataOnAdminPanel( $user ) {
                     </label></p>
                 </td>
             </tr>
+			<tr>
+            	<th>VAT:</th>
+                <td>
+                    <p><label>
+                        <input type="text" name="user_vat_number" value="<?php echo $userVatNumber; ?>">
+                    </label></p>
+                </td>
+            </tr>
         </tbody>
     </table>
 <?php } 
@@ -250,6 +258,8 @@ function updateAditionalUserDataOnAdminPanel($user_id){
 	update_user_meta( $user_id, 'company_freshdesk_id', $_POST['company_freshdesk_id'] );
 	update_user_meta( $user_id, 'contact_freshdesk_id', $_POST['contact_freshdesk_id'] );
 	update_user_meta( $user_id, 'company_folder_box_id', $_POST['company_folder_box_id'] );
+	update_user_meta( $user_id, 'user_vat_number', $_POST['user_vat_number'] );
+
 
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
