@@ -1655,12 +1655,20 @@ function sendNotificationToSlackAfterCSATFormSubmitted($entryId, $formData, $for
 		$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CSAT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
 		$companyName = $formData['hidden_company_name'];
 		$ticketNumber = $formData['hidden_ticket_number'];
+		
 		$ratingsNumberOne = $formData['csat_form_communication'];
 		$ratingsNumberTwo = $formData['csat_form_satisfaction'];
 		$ratingsNumberThree = $formData['csat_form_time'];
+
+		$ratings = [$ratingsNumberOne, $ratingsNumberTwo, $ratingsNumberThree];
+		$notificationIcon = ":pencil:";
+
+		if(in_array('Bad', $ratings)){
+			$notificationIcon = ":alert:";
+		}
 		
 		$slackMessageBody = [
-			"text" => "<!channel>\n *CSAT Feedback* :pencil:\n *Company:* $companyName\n *Ticket Number:* $ticketNumber\n *Ratings:*\n • How was the team's communication: $ratingsNumberOne\n • Are you happy with the designs you received: $ratingsNumberTwo\n • The turnaround time met your expectations: $ratingsNumberThree",
+			"text" => "<!channel>\n *CSAT Feedback* $notificationIcon\n *Company:* $companyName\n *Ticket Number:* $ticketNumber\n *Ratings:*\n • How was the team's communication: $ratingsNumberOne\n • Are you happy with the designs you received: $ratingsNumberTwo\n • The turnaround time met your expectations: $ratingsNumberThree",
 			"username" => "Marcus",
 		];
 
