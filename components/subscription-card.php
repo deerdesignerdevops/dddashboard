@@ -31,7 +31,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
         ?>">
         <div class="dd__subscription_details">                        
                 <div class="dd__subscription_header">
-                        <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus);  ?>
+                        <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus, $showReactivateButton);  ?>
                         <br> </strong>
                         <?php
                         if($subscriptionStatus !== 'active' && !$showReactivateButton && $lastOrderPaidDate){ ?>

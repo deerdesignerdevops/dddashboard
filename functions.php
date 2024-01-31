@@ -1137,20 +1137,20 @@ add_action( 'woocommerce_email', 'removeMobileMessagingFromWooEmails' );
 
 
 
-function formatSubscriptionStatusLabel($status){
+function formatSubscriptionStatusLabel($status, $isBillingDate = false){
 	switch ($status){
 		case 'on-hold':
-			echo 'paused';
+			echo $isBillingDate ? 'paused' : 'pending-pause';
 			break;
 		case 'pending-cancel':
-			echo 'cancelled';
+			echo $isBillingDate ? 'cancelled' : 'pending-cancel';
 			break;
 
 		default:
 			echo $status;
 	}
 }
-add_action('callNewSubscriptionsLabel', 'formatSubscriptionStatusLabel');
+add_action('callNewSubscriptionsLabel', 'formatSubscriptionStatusLabel', 10, 2);
 
 
 add_filter( 'wc_add_to_cart_message_html', '__return_false' );
