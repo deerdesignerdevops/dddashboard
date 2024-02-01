@@ -95,6 +95,6 @@ function updateUserInMoosendBasedOnSubscriptionStatus($subscription, $newStatus,
 		}
 	}
 }
-add_action('woocommerce_subscription_status_updated', 'updateUserInMoosendBasedOnSubscriptionStatus', 10, 3);
+add_action('woocommerce_subscription_status_updated', 'updateUserInMoosendBasedOnSubscriptionStatus', 30, 3);
 
 ?>

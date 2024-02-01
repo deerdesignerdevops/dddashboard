@@ -211,4 +211,4 @@ function moveCompanyFolderBasedOnSubscriptionStatus($subscription, $newStatus, $
 		}
 	}
 }
-add_action('woocommerce_subscription_status_updated', 'moveCompanyFolderBasedOnSubscriptionStatus', 10, 3);
+add_action('woocommerce_subscription_status_updated', 'moveCompanyFolderBasedOnSubscriptionStatus', 40, 3);

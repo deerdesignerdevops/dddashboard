@@ -286,7 +286,7 @@ function scheduleFreshdeskUpdateStatus($subscription, $newStatus, $oldStatus){
 		}
 	}
 }
-add_action('woocommerce_subscription_status_updated', 'scheduleFreshdeskUpdateStatus', 10, 3);
+add_action('woocommerce_subscription_status_updated', 'scheduleFreshdeskUpdateStatus', 20, 3);
 
 
 
