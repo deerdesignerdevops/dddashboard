@@ -1009,7 +1009,7 @@ add_action('fluentform/submission_inserted', 'prepareOrderDataToCreateTheUserGro
 
 function zeroCreativeCallsOnRenewalFailed($subscription){
 	global $wpdb;
-	$user = get_user_by( 'email', $subscription->data['billing']['email']);
+	$user = get_user_by( 'id', $subscription->data['customer_id']);
 	$groupsUser = new Groups_User( $user->id );
 
 	foreach($subscription->get_items() as $item){
