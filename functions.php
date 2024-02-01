@@ -970,13 +970,22 @@ add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddT
 
 
 
-function prepareOrderDataToCreateTheUserGroupOnDataBase($orderId){
-	if(!wcs_order_contains_renewal($orderId)){
-		$order = wc_get_order( $orderId );
-		$orderData = $order->get_data();
-		$orderItems = $order->get_items();
-		$groupName = strtolower(str_replace(' ', '_', $orderData['billing']['company']));
-		$companyName = $orderData['billing']['company'];
+function prepareOrderDataToCreateTheUserGroupOnDataBase($entryId, $formData, $form){
+	if($form->id === 3){
+		$currentUser = wp_get_current_user();
+
+		$mostRecentOrder = wc_get_orders(
+			[   
+			'customer_id' => $currentUser->id,
+			'limit' => 1
+			]
+		);
+		
+		$orderItems = $mostRecentOrder[0]->get_items();
+		$groupName = preg_replace('/[^\w\s]/', '', $currentUser->billing_company);
+		$groupName = strtolower(str_replace(' ', '_', $groupName));
+
+		$companyName = $currentUser->billing_company;
 		$creativeCalls = 0;
 		
 		foreach( $orderItems as $item_id => $item ){
@@ -990,11 +999,11 @@ function prepareOrderDataToCreateTheUserGroupOnDataBase($orderId){
 			}
 		}
 
-		createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls);
+		createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls);
 	}
 
 }
-add_action('woocommerce_payment_complete', 'prepareOrderDataToCreateTheUserGroupOnDataBase');
+add_action('fluentform/submission_inserted', 'prepareOrderDataToCreateTheUserGroupOnDataBase', 10, 3);
 
 
 
@@ -1032,7 +1041,7 @@ add_action('woocommerce_subscription_renewal_payment_failed', 'zeroCreativeCalls
 
 
 
-function createNewGroupAfterPurchase($groupName, $companyName, $creativeCalls) {
+function createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls) {
 	global $wpdb;
     $tableName = _groups_get_tablename( 'group' );
 
@@ -1529,7 +1538,7 @@ add_action('removeAdditionalUserFromDatabaseHook', 'removeAdditionalUserFromData
 
 
 
-function sendNotificationToSlackWhenOrderFailedToProcessing($orderId, $oldStatus, $newStatus, $order){
+function sendNotificationToSlackWhenOrderChangeFromFailedToProcessing($orderId, $oldStatus, $newStatus, $order){
 	if($newStatus === "completed"){
 		if(wcs_order_contains_renewal($orderId)){
 			$orderFailedBefore = false;
@@ -1584,7 +1593,7 @@ function sendNotificationToSlackWhenOrderFailedToProcessing($orderId, $oldStatus
 		}		
 	}
 }
-add_action('woocommerce_order_status_changed', 'sendNotificationToSlackWhenOrderFailedToProcessing', 10, 4);
+add_action('woocommerce_order_status_changed', 'sendNotificationToSlackWhenOrderChangeFromFailedToProcessing', 10, 4);
 
 
 
