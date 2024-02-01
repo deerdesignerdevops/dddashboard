@@ -75,6 +75,7 @@ function prepareDataToClockify($entryId, $formData, $form){
         $currentUser = wp_get_current_user();
         $requestBody = [
             "name" => "$currentUser->billing_company",
+			"isPublic" => true
         ];
 
         $clockifyProject = createProjectInClockify($requestBody);
