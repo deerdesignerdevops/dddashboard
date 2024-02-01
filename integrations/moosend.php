@@ -60,36 +60,38 @@ add_action('scheduleMoosendUpdateStatusHook', 'scheduleMoosendUpdateStatus', 10,
 
 
 function updateUserInMoosendBasedOnSubscriptionStatus($subscription, $newStatus, $oldStatus){
-	if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
-		foreach($subscription->get_items() as $subscritpionItem){
-			if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
-				$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
-				$userName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
-				$userEmail = $subscription->data['billing']['email'];
-				$moosendUserNewStatus = "";
+	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
+		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
+			foreach($subscription->get_items() as $subscritpionItem){
+				if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
+					$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
+					$userName = $subscription->data['billing']['first_name'] . " " . $subscription->data['billing']['last_name'];
+					$userEmail = $subscription->data['billing']['email'];
+					$moosendUserNewStatus = "";
 
-				switch($newStatus){
-					case "active":
-						$moosendUserNewStatus = "active";
-						break;
-					
-					case "on-hold":
-						$moosendUserNewStatus = "paused";
-						break;
-					
-					case "pending-cancel":
-						$moosendUserNewStatus = "cancelled";
-						break;
-					
-					default:
-						$moosendUserNewStatus = "paused";
-				}
+					switch($newStatus){
+						case "active":
+							$moosendUserNewStatus = "active";
+							break;
+						
+						case "on-hold":
+							$moosendUserNewStatus = "paused";
+							break;
+						
+						case "pending-cancel":
+							$moosendUserNewStatus = "cancelled";
+							break;
+						
+						default:
+							$moosendUserNewStatus = "paused";
+					}
 
-				
-				if(time() < $billingPeriodEndingDate){
-					wp_schedule_single_event($billingPeriodEndingDate, 'scheduleMoosendUpdateStatusHook', array($subscription->id, $newStatus, $userName, $userEmail, $moosendUserNewStatus));
-				}else{
-					curlToMoosend($userName, $userEmail, $moosendUserNewStatus, 'news');
+					
+					if(time() < $billingPeriodEndingDate){
+						wp_schedule_single_event($billingPeriodEndingDate, 'scheduleMoosendUpdateStatusHook', array($subscription->id, $newStatus, $userName, $userEmail, $moosendUserNewStatus));
+					}else{
+						curlToMoosend($userName, $userEmail, $moosendUserNewStatus, 'news');
+					}
 				}
 			}
 		}

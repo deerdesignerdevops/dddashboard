@@ -271,16 +271,18 @@ function updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($accountOwnerId,
 
 
 function scheduleFreshdeskUpdateStatus($subscription, $newStatus, $oldStatus){
-	if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
-		foreach($subscription->get_items() as $subscritpionItem){
-			if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
-				$currentUserId = $subscription->data['customer_id'];
-				$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
+	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
+		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
+			foreach($subscription->get_items() as $subscritpionItem){
+				if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
+					$currentUserId = $subscription->data['customer_id'];
+					$billingPeriodEndingDate =  strtotime(calculateBillingEndingDateWhenPausedOrCancelled($subscription));
 
-				if(time() < $billingPeriodEndingDate){
-					wp_schedule_single_event($billingPeriodEndingDate, 'synchronizeFreshdeskContactWithSubscriptionHook', array($subscription->id, $newStatus, $currentUserId));
-				}else{
-					synchronizeFreshdeskContactWithSubscription($subscription->id, $newStatus, $currentUserId);
+					if(time() < $billingPeriodEndingDate){
+						wp_schedule_single_event($billingPeriodEndingDate, 'synchronizeFreshdeskContactWithSubscriptionHook', array($subscription->id, $newStatus, $currentUserId));
+					}else{
+						synchronizeFreshdeskContactWithSubscription($subscription->id, $newStatus, $currentUserId);
+					}
 				}
 			}
 		}
