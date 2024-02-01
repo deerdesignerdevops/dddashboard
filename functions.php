@@ -68,6 +68,7 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	$userCity = $currentUser->billing_city;
 	$userCountry = $currentUser->billing_country;
 	$companyName = get_user_meta($currentUser->id, 'billing_company', true);
+	$userPlan = "";
 
 	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 
