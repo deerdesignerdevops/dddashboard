@@ -208,7 +208,7 @@ function sendEmailToAdminWhenPausedPlan($subscription){
 		global $headers;
 		$headers[] = 'Cc: Deer Designer <help@deerdesigner.com>';
 		$user = get_user_by('id', $subscription->data['customer_id']);
-		$userFullName = $user->first_name;
+		$userFullName = "$user->first_name $user->last_name";
 		$userEmail = $user->user_email;
 		$companyName = $user->billing_company;
 		$adminEmail = get_option( 'admin_email' );
