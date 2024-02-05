@@ -254,14 +254,15 @@ add_action( 'edit_user_profile', 'displayAdditionalUserDataOnAdminPanel' );
 
 
 
-function updateAditionalUserDataOnAdminPanel($user_id){
-	update_user_meta( $user_id, 'is_user_onboarded', $_POST['is_user_onboarded'] );
-	update_user_meta( $user_id, 'company_freshdesk_id', $_POST['company_freshdesk_id'] );
-	update_user_meta( $user_id, 'contact_freshdesk_id', $_POST['contact_freshdesk_id'] );
-	update_user_meta( $user_id, 'company_folder_box_id', $_POST['company_folder_box_id'] );
-	update_user_meta( $user_id, 'user_vat_number', $_POST['user_vat_number'] );
+function updateAditionalUserDataOnAdminPanel($userId){
+	update_user_meta( $userId, 'is_user_onboarded', $_POST['is_user_onboarded'] );
+	update_user_meta( $userId, 'company_freshdesk_id', $_POST['company_freshdesk_id'] );
+	update_user_meta( $userId, 'contact_freshdesk_id', $_POST['contact_freshdesk_id'] );
+	update_user_meta( $userId, 'company_folder_box_id', $_POST['company_folder_box_id'] );
+	update_user_meta( $userId, 'user_vat_number', $_POST['user_vat_number'] );
 
-
+	//UPDATE USER IN FRESHDESK
+	updateUserInFreshdeskByWordpressProfileUpdate($userId);
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
 add_action( 'edit_user_profile_update', 'updateAditionalUserDataOnAdminPanel' );

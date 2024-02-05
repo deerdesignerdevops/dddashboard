@@ -318,4 +318,26 @@ function createCompanyInFreshdesk($entryId, $formData, $form){
 add_action( 'fluentform/submission_inserted', 'createCompanyInFreshdesk', 10, 3);
 
 
+
+function updateUserInFreshdeskByWordpressProfileUpdate($userId){
+	$currentUserToUpdate = get_user_by('id', $userId);
+	$isContactAlreadyExistInFreshdesk = getContactFromFreshdesk($currentUserToUpdate);
+
+	if($isContactAlreadyExistInFreshdesk){;
+		$companyFreshdeskId = get_the_author_meta('company_freshdesk_id',$userId,true );
+		$contactFreshdeskId = get_the_author_meta('contact_freshdesk_id',$userId,true );
+		$userFirstName = $_POST['first_name'];
+		$userLastName = $_POST['last_name'];
+		$userEmail = $_POST['email'];
+	
+		$requestBody = [
+			"active" => true,
+			"name" => "$userFirstName $userLastName",
+			"email" => $userEmail,
+		];
+	
+		putRequestToFreshdesk($contactFreshdeskId, $requestBody);
+	}
+}
+
 ?>
