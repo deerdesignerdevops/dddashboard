@@ -1687,3 +1687,55 @@ function sendNotificationToSlackAfterCSATFormSubmitted($entryId, $formData, $for
 	}
 }
 add_action( 'fluentform/submission_inserted', 'sendNotificationToSlackAfterCSATFormSubmitted', 10, 3);
+
+
+
+
+function schedulePauseSubscriptionNotificationAfterPaymentFailed($orderId, $oldStatus, $newStatus, $order){
+	if(wcs_order_contains_renewal($orderId) && $newStatus === "failed"){
+		$orderFailedBefore = 0;
+		$orderNotes = wc_get_order_notes(array(
+			'order_id' => $orderId,
+			'type' => 'system_status_change',
+			'orderby' => 'date_created',
+			'order' => 'DESC',
+		));
+	
+		foreach ($orderNotes as $orderNote) {
+			if(str_contains($orderNote->content, 'Order status changed from Pending payment to Failed.')){
+				$orderFailedBefore = ++$orderFailedBefore;
+			}
+		}
+
+		if($orderFailedBefore === 3){
+			sendPauseNotificationAfterThreeFailedPaymentAtemptsOnRenewal(wcs_get_subscriptions_for_order($orderId, array('order_type' => 'any')));
+		}
+	}
+}
+add_action( 'woocommerce_order_status_changed', 'schedulePauseSubscriptionNotificationAfterPaymentFailed', 10, 4);
+
+
+
+function sendPauseNotificationAfterThreeFailedPaymentAtemptsOnRenewal($orderSubscriptions){
+	$subscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
+
+	if($subscription->get_status() === "on-hold"){
+		$user = get_user_by('id', $subscription->data['customer_id']);
+		$customerName = "$user->first_name $user->last_name";
+		$customerEmail = $user->user_email;
+		
+		foreach( $subscription->get_items() as $item_id => $item ){
+			$itemName = $item->get_name();
+			$orderItems[] = $itemName;
+		}
+
+		$productNames = implode(" | ", array_unique($orderItems));
+
+		$slackMessageBody = [
+			"text" => "<!channel> Paused Subscription :double_vertical_bar:\n$customerName | $customerEmail\n:arrow_right: Subscription paused due to payment failed.\n *Plan:* $productNames.",
+			"username" => "Marcus"
+		];
+
+		slackNotifications($slackMessageBody);
+	}
+}
