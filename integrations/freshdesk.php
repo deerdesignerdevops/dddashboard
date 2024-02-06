@@ -60,6 +60,34 @@ function putRequestToFreshdesk($freshdeskUserId, $requestBody){
 
 
 
+function updateCompanyNameInFreshdesk($companyFreshdeskId, $requestBody){
+	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/companies/$companyFreshdeskId";
+	$apiKey = FRESHDESK_API_KEY;
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/freshdesk';
+
+	$ch = curl_init($apiUrl);
+
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+	curl_setopt($ch, CURLOPT_USERPWD, "$apiKey:X");
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestBody));
+
+	$response = curl_exec($ch);
+
+	if (curl_errno($ch)) {
+		$error_message = 'Error: ' . curl_error($ch);
+		echo $error_message;
+		error_log($error_message, 3, "$uploadsDir/freshdesk_api_error_log.txt");
+	} else {
+		file_put_contents("$uploadsDir/freshdesk_api_response_log_put_request.txt", $response . PHP_EOL, FILE_APPEND);
+	}
+
+	curl_close($ch);
+}
+
+
+
 function getContactFromFreshdesk($teamMember){
 	$teamMemberEmail = urlencode($teamMember->user_email);
 	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/contacts/?email=$teamMemberEmail";
@@ -326,17 +354,25 @@ function updateUserInFreshdeskByWordpressProfileUpdate($userId){
 	if($isContactAlreadyExistInFreshdesk){;
 		$companyFreshdeskId = get_the_author_meta('company_freshdesk_id',$userId,true );
 		$contactFreshdeskId = get_the_author_meta('contact_freshdesk_id',$userId,true );
+		
 		$userFirstName = $_POST['first_name'];
 		$userLastName = $_POST['last_name'];
 		$userEmail = $_POST['email'];
+		$companyName = $_POST['billing_company'];
 	
-		$requestBody = [
+		$requestBodyForUser = [
 			"active" => true,
 			"name" => "$userFirstName $userLastName",
 			"email" => $userEmail,
 		];
+
+		$requestBodyForCompany = [
+			"name" => $companyName,
+		];
 	
-		putRequestToFreshdesk($contactFreshdeskId, $requestBody);
+		putRequestToFreshdesk($contactFreshdeskId, $requestBodyForUser);
+		updateCompanyNameInFreshdesk($companyFreshdeskId, $requestBodyForCompany);
+
 	}
 }
 
