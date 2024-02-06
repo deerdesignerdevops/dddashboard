@@ -214,3 +214,49 @@ function moveCompanyFolderBasedOnSubscriptionStatus($subscription, $newStatus, $
 	}
 }
 add_action('woocommerce_subscription_status_updated', 'moveCompanyFolderBasedOnSubscriptionStatus', 40, 3);
+
+
+
+function updateFolderNameInBoxByWpProfileUpdate($userId){
+	$folderId = get_user_meta($userId, "company_folder_box_id", true);
+	$companyName = $_POST['billing_company'];
+    
+	$accessToken = getAccessTokenFromBox();
+    $accessToken = $accessToken['access_token'];
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
+    $apiUrl = "https://api.box.com/2.0/folders/$folderId";
+    $boxUserId = BOX_USER_ID;
+    
+    $requestBody = [
+        "name" => $companyName,
+    ];
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $apiUrl);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		"Content-Type: application/json",
+		"Accept: application/json",
+        "as-user: $boxUserId",
+        "Authorization: Bearer $accessToken"
+	]);
+
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestBody));
+
+	$response = curl_exec($ch);
+
+	if (curl_errno($ch)) {
+		$error_message = 'Error: ' . curl_error($ch);
+		echo $error_message;
+		error_log($error_message, 3, "$uploadsDir/box_api_error_log.txt");
+		$response = false;
+	} else {
+		file_put_contents("$uploadsDir/box_api_response_log_update_request.txt", $response . PHP_EOL, FILE_APPEND);
+		$response = json_decode($response, true);
+	}
+
+	curl_close($ch);
+
+	return $response;
+}
