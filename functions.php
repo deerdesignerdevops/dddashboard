@@ -261,8 +261,9 @@ function updateAditionalUserDataOnAdminPanel($userId){
 	update_user_meta( $userId, 'company_folder_box_id', $_POST['company_folder_box_id'] );
 	update_user_meta( $userId, 'user_vat_number', $_POST['user_vat_number'] );
 
-	//UPDATE USER IN FRESHDESK
+	//UPDATE USER IN THIRD PARTY PLATFORMS
 	updateUserInFreshdeskByWordpressProfileUpdate($userId);
+	updateFolderNameInBoxByWpProfileUpdate($userId);
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
 add_action( 'edit_user_profile_update', 'updateAditionalUserDataOnAdminPanel' );
