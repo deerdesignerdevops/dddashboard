@@ -1,8 +1,11 @@
 <?php
 
-function curlToMoosend($userName, $userEmail, $status, $moosendList){
+function postToMoosend($userName, $userEmail, $status, $moosendList){
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/moosend';
-	$moosendApiUrl = $moosendList === "news" ? MOOSEND_API_URL_NEWS : MOOSEND_API_URL;
+	$moosendApiKey = MOOSEND_API_KEY;
+	$moosendListId = $moosendList === "news" ? MOOSEND_NEWS_LIST_ID : MOOSEND_ONBOARDING_LIST_ID;
+	$moosendApiUrl = "https://api.moosend.com/v3/subscribers/$moosendListId/subscribe.json?apikey=$moosendApiKey";
+	
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $moosendApiUrl);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -37,7 +40,7 @@ function subscribeUserToMoosendEmailList($entryId, $formData, $form){
 		$currentUser = wp_get_current_user();
 		$userName = "$currentUser->first_name $currentUser->last_name";
 		$userEmail = $currentUser->user_email;	
-		curlToMoosend($userName, $userEmail, 'active', 'onboarding' );	
+		postToMoosend($userName, $userEmail, 'active', 'onboarding' );	
 	}
 }
 add_action( 'fluentform/submission_inserted', 'subscribeUserToMoosendEmailList', 10, 3);
@@ -50,7 +53,7 @@ function scheduleMoosendUpdateStatus($subscriptionId, $newStatus, $userName, $us
 	if($subscription->get_status() === $newStatus){		
 		foreach($subscription->get_items() as $subscritpionItem){
 			if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
-				curlToMoosend($userName, $userEmail, $status, 'news');
+				postToMoosend($userName, $userEmail, $status, 'news');
 			}
 		}
 	}
@@ -89,12 +92,90 @@ function updateUserInMoosendBasedOnSubscriptionStatus($subscription, $newStatus,
 				if(time() < $billingPeriodEndingDate){
 					wp_schedule_single_event($billingPeriodEndingDate, 'scheduleMoosendUpdateStatusHook', array($subscription->id, $newStatus, $userName, $userEmail, $moosendUserNewStatus));
 				}else{
-					curlToMoosend($userName, $userEmail, $moosendUserNewStatus, 'news');
+					postToMoosend($userName, $userEmail, $moosendUserNewStatus, 'news');
 				}
 			}
 		}
 	}
 }
 add_action('woocommerce_subscription_status_updated', 'updateUserInMoosendBasedOnSubscriptionStatus', 30, 3);
+
+
+
+function getUserByEmailFromMoosend($userEmail){	
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/moosend';
+	$moosendApiKey = MOOSEND_API_KEY;
+	$moosendOnboardingListId = MOOSEND_ONBOARDING_LIST_ID;
+	$moosendApiUrlToGetUser = "https://api.moosend.com/v3/subscribers/$moosendOnboardingListId/view.json?apikey=$moosendApiKey&Email=$userEmail";
+	
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $moosendApiUrlToGetUser);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		'Content-Type: application/json',
+		'Accept: application/json',
+	]);
+
+	$response = curl_exec($ch);
+
+	if (curl_errno($ch)) {
+		$error_message = 'Error: ' . curl_error($ch);
+		echo $error_message;
+		error_log($error_message, 3, "$uploadsDir/moosend_api_error_log.txt");
+		$response = false;
+	} else {
+		file_put_contents("$uploadsDir/moosend_api_response_log_get_request.txt", $response . PHP_EOL, FILE_APPEND);
+		$response = json_decode($response, true);
+	}
+
+	curl_close($ch);
+
+	return $response;
+}
+
+
+
+function updateUserEmailInMoosend($userId){
+	$currentUserToUpdate = get_user_by('id', $userId);
+	$userFirstName = $_POST['first_name'];
+	$userLastName = $_POST['last_name'];
+	$userEmail = $_POST['email'];
+
+	$isUserExist = getUserByEmailFromMoosend(urlencode($currentUserToUpdate->user_email));
+
+	if($isUserExist['Context']['ID']){
+		$moosendUserId = $isUserExist['Context']['ID'];
+		$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/moosend';
+		$moosendApiKey = MOOSEND_API_KEY;
+		$moosendOnboardingListId = MOOSEND_ONBOARDING_LIST_ID;
+		$moosendApiUrlToGetUser = "https://api.moosend.com/v3/subscribers/$moosendOnboardingListId/update/$moosendUserId.json?apikey=$moosendApiKey";
+		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $moosendApiUrlToGetUser);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'Content-Type: application/json',
+			'Accept: application/json',
+		]);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, "{\n    \"Name\" : \"$userFirstName $userLastName\",\n    \"Email\" : \"$userEmail\",\n    \"HasExternalDoubleOptIn\": false}");
+	
+		$response = curl_exec($ch);
+	
+		if (curl_errno($ch)) {
+			$error_message = 'Error: ' . curl_error($ch);
+			echo $error_message;
+			error_log($error_message, 3, "$uploadsDir/moosend_api_error_log.txt");
+			$response = false;
+		} else {
+			file_put_contents("$uploadsDir/moosend_api_response_log_post_request.txt", $response . PHP_EOL, FILE_APPEND);
+			$response = json_decode($response, true);
+		}
+	
+		curl_close($ch);
+	}
+	
+}
 
 ?>
