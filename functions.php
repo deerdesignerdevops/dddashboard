@@ -1669,10 +1669,23 @@ function sendNotificationToSlackAfterCSATFormSubmitted($entryId, $formData, $for
 		$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CSAT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
 		$companyName = $formData['hidden_company_name'];
 		$ticketNumber = $formData['hidden_ticket_number'];
+
+		function changeSlackIconBasedOnFeedback($ratingType){
+			switch ($ratingType){
+				case "Perfect":
+					return ":large_green_circle:";
+				
+				case "Good":
+					return ":large_yellow_circle:";
+
+				default:
+					return ":red_circle:";
+			}
+		}
 		
-		$ratingsNumberOne = $formData['csat_form_communication'];
-		$ratingsNumberTwo = $formData['csat_form_satisfaction'];
-		$ratingsNumberThree = $formData['csat_form_time'];
+		$ratingsNumberOne = $formData['csat_form_communication'] . " " . changeSlackIconBasedOnFeedback($formData['csat_form_communication']);
+		$ratingsNumberTwo = $formData['csat_form_satisfaction'] . " " . changeSlackIconBasedOnFeedback($formData['csat_form_satisfaction']);
+		$ratingsNumberThree = $formData['csat_form_time'] . " " . changeSlackIconBasedOnFeedback($formData['csat_form_time']);
 		$feedback = $formData['description'];
 
 		$ratings = [$ratingsNumberOne, $ratingsNumberTwo, $ratingsNumberThree];
@@ -1683,7 +1696,7 @@ function sendNotificationToSlackAfterCSATFormSubmitted($entryId, $formData, $for
 		}
 		
 		$slackMessageBody = [
-			"text" => "<!channel>\n *CSAT Feedback* $notificationIcon\n *Company:* $companyName\n *Ticket Number:* $ticketNumber\n\n *Ratings:*\n • How was the team's communication: $ratingsNumberOne\n • Are you happy with the designs you received: $ratingsNumberTwo\n • The turnaround time met your expectations: $ratingsNumberThree\n\n*Feedback:* $feedback",
+			"text" => "<!channel>\n *CSAT Feedback* $notificationIcon\n *Company:* $companyName\n *Ticket Number:* $ticketNumber\n\n *Ratings:*\n • How was the team's communication: $ratingsNumberOne\n • Are you happy with the designs you received: $ratingsNumberTwo\n • The turnaround time met your expectations: $ratingsNumberThree\n\n*Feedback:*\n $feedback",
 			"username" => "Marcus",
 		];
 
