@@ -788,12 +788,20 @@ function sendPaymentFailedNotificationToSlack($orderId){
 
 	$productNames = implode(" | ", array_unique($orderItems));
 
-	$slackMessageBody = [
-		"text" => "<!channel> Payment failed :x:\n$customerName | $customerEmail\n:arrow_right: AMs, work on their requests but don't send them until payment is resolved.\n *Plan:* $productNames.",
-		"username" => "Marcus"
-	];
+	if(wcs_order_contains_renewal($orderId)){
+		$slackMessageBody = [
+			"text" => "<!channel> Payment failed :x:\n$customerName | $customerEmail\n:arrow_right: AMs, work on their requests but don't send them until payment is resolved.\n *Plan:* $productNames.",
+			"username" => "Marcus"
+		];
+	}else{
+		$slackMessageBody = [
+			"text" => "<!channel>\n*New client:* Payment failed :x:\n*Who:* $customerName | $customerEmail\n:arrow_right: CS, if they don't sign up in the next 15 minutes, get in touch and see if they need help.\n *Plan:* $productNames.",
+			"username" => "Marcus"
+		];
+	}
 
 	slackNotifications($slackMessageBody);
+
 }
 add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToSlack');
 
