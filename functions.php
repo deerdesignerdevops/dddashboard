@@ -1673,6 +1673,7 @@ function sendNotificationToSlackAfterCSATFormSubmitted($entryId, $formData, $for
 		$ratingsNumberOne = $formData['csat_form_communication'];
 		$ratingsNumberTwo = $formData['csat_form_satisfaction'];
 		$ratingsNumberThree = $formData['csat_form_time'];
+		$feedback = $formData['description'];
 
 		$ratings = [$ratingsNumberOne, $ratingsNumberTwo, $ratingsNumberThree];
 		$notificationIcon = ":pencil:";
@@ -1682,7 +1683,7 @@ function sendNotificationToSlackAfterCSATFormSubmitted($entryId, $formData, $for
 		}
 		
 		$slackMessageBody = [
-			"text" => "<!channel>\n *CSAT Feedback* $notificationIcon\n *Company:* $companyName\n *Ticket Number:* $ticketNumber\n *Ratings:*\n • How was the team's communication: $ratingsNumberOne\n • Are you happy with the designs you received: $ratingsNumberTwo\n • The turnaround time met your expectations: $ratingsNumberThree",
+			"text" => "<!channel>\n *CSAT Feedback* $notificationIcon\n *Company:* $companyName\n *Ticket Number:* $ticketNumber\n\n *Ratings:*\n • How was the team's communication: $ratingsNumberOne\n • Are you happy with the designs you received: $ratingsNumberTwo\n • The turnaround time met your expectations: $ratingsNumberThree\n\n*Feedback:* $feedback",
 			"username" => "Marcus",
 		];
 
