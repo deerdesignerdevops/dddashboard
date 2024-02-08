@@ -258,11 +258,11 @@ document.addEventListener("DOMContentLoaded", function(){
 			})
 
 			if(btn.classList.contains('active-tasks')){
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `For this ${productName}, starting today, we will charge <strong>$${productPrice}</strong> per month to the card on your account.`
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `For this ${productName}, starting today, we will charge <strong><?php echo get_woocommerce_currency_symbol();?>${productPrice}</strong> per month to the card on your account.`
 			}else if(btn.classList.contains('creative-call')){
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> $${productPrice} </strong> to the card on your account.`
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> <?php echo get_woocommerce_currency_symbol();?>${productPrice} </strong> to the card on your account.`
 			}else{
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `For the ${productName}, starting today, we will charge <strong>$${productPrice}</strong> per month to the card on your account.`
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `For the ${productName}, starting today, we will charge <strong><?php echo get_woocommerce_currency_symbol();?>${productPrice}</strong> per month to the card on your account.`
 			}
 		})
 	})
@@ -378,7 +378,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			else if(e.currentTarget.classList.contains("rebill")){
 				confirmBtn.href = currentUpdatePlanUrl;
 				popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> $${productPrice} </strong> to the card on your account.`
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> <?php echo get_woocommerce_currency_symbol();?> ${productPrice} </strong> to the card on your account.`
 				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
 				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
 
