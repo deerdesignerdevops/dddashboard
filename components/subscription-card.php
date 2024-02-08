@@ -4,7 +4,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $lastOrderPaidDate = getOrderPaymentDate($subscription);
     $activeTasksProductId = 1600;
     $standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
-    $activeTaskProductPrice = 649;
+    $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
     $currencySymbol = get_woocommerce_currency_symbol($subscription->get_currency());
     $subscriptionStatus = $subscription->get_status();    
@@ -86,7 +86,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
         <div>
             <?php if($subscriptionStatus === 'active'){ ?>
                 <div class="btn__wrapper">
-                    <a href='<?php echo "$siteUrl/?buy-now=$activeTasksProductId&with-cart=0"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks one__click_purchase" data-product-price="<?php echo $activeTaskProductPrice; ?>" data-product-name="<?php echo $activeTaskProductName; ?>">Add Active Task</a>
+                    <a href='<?php echo "$siteUrl/?buy-now=$activeTasksProductId&with-cart=0"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks one__click_purchase" data-product-price="<?php echo $currencySymbol . $activeTaskProductPrice; ?>" data-product-name="<?php echo $activeTaskProductName; ?>">Add Active Task</a>
                 </div>
             <?php } ?>
 
