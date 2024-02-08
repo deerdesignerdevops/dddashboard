@@ -5,8 +5,8 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $activeTasksProductId = 1600;
     $standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
     $activeTaskProductPrice = 649;
-    $subscriptionPlanPrice = wc_get_product( $currentProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
+    $currencySymbol = get_woocommerce_currency_symbol($subscription->get_currency());
     $subscriptionStatus = $subscription->get_status();    
     $pausedPlanBillingPeriodEndingDate = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? true : false;
@@ -96,7 +96,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
             <div class="dd__subscription_actions_form">
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
                 <?php if($showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
-                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price=<?php echo $subscriptionPlanPrice; ?>>Reactivate</a>
+                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price=<?php echo $currencySymbol . $subscription->get_total(); ?>>Reactivate</a>
                 <?php } ?>
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
 
