@@ -710,7 +710,6 @@ function preventUserHaveMultiplePlansAtTheSameTime() {
 //add_action('template_redirect', 'preventUserHaveMultiplePlansAtTheSameTime');
 
 
-
 function changeActiveTaskPriceInCartBasedOnUserPlan() {;
     if (is_admin() && !defined('DOING_AJAX')) {
         return;
@@ -720,7 +719,7 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
     return;
 
 	$standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
-	$activeTaskProductPrice = 649;
+	$activeTaskProductPrice = wc_get_product( 1600 )->get_price();
 
 	$cart = WC()->cart->get_cart();
 	$currentUserSubscriptionPlan = "";
