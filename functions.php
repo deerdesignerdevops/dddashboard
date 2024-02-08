@@ -1763,3 +1763,19 @@ function sendPauseNotificationAfterThreeFailedPaymentAtemptsOnRenewal($orderSubs
 		slackNotifications($slackMessageBody);
 	}
 }
+
+
+
+function populateContactFormHiddenFieldsWithUserMeta($form){
+	if($form->id == 8){
+		$currentUser = wp_get_current_user();
+		$companyName = $currentUser->billing_company;
+
+		echo "<script>
+			document.addEventListener('DOMContentLoaded', function(){
+				document.querySelector('[data-name=\"hidden_company\"]').value='$companyName'
+			})
+		</script>";
+	}
+}
+add_action('fluentform/after_form_render', 'populateContactFormHiddenFieldsWithUserMeta');
