@@ -850,6 +850,11 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 			}else if($newStatus === "pending-cancel"){
 				$requestMotive = get_post_meta($subscription->id, 'pause_cancel_motive', true);
 				$messageTitle = 'Cancellation Request :warning:';
+
+				if(str_contains($subscriptionItemsGroup, 'Active Task')){
+					$messageTitle = 'Downgrade Request :warning:';
+				}
+
 				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate\n*Motive:* $requestMotive";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
