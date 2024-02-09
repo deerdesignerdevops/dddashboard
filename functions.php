@@ -850,6 +850,11 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 			}else if($newStatus === "pending-cancel"){
 				$requestMotive = get_post_meta($subscription->id, 'pause_cancel_motive', true);
 				$messageTitle = 'Cancellation Request :warning:';
+
+				if(str_contains($subscriptionItemsGroup, 'Active Task')){
+					$messageTitle = 'Downgrade Request :warning:';
+				}
+
 				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate\n*Motive:* $requestMotive";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
@@ -1763,3 +1768,19 @@ function sendPauseNotificationAfterThreeFailedPaymentAtemptsOnRenewal($orderSubs
 		slackNotifications($slackMessageBody);
 	}
 }
+
+
+
+function populateContactFormHiddenFieldsWithUserMeta($form){
+	if($form->id == 8){
+		$currentUser = wp_get_current_user();
+		$companyName = $currentUser->billing_company;
+
+		echo "<script>
+			document.addEventListener('DOMContentLoaded', function(){
+				document.querySelector('[data-name=\"hidden_company\"]').value='$companyName'
+			})
+		</script>";
+	}
+}
+add_action('fluentform/after_form_render', 'populateContactFormHiddenFieldsWithUserMeta');
