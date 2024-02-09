@@ -979,6 +979,11 @@ add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
 
 
 function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
+	if(isset($_GET['sld'])){
+		$affiliateUrl = $_GET['sld'];
+		return wc_get_checkout_url() . "/?sld=$affiliateUrl";
+	}
+
     return wc_get_checkout_url();
 }
 add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 ); 
