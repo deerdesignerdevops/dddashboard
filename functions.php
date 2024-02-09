@@ -850,12 +850,12 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 			}else if($newStatus === "pending-cancel"){
 				$requestMotive = get_post_meta($subscription->id, 'pause_cancel_motive', true);
 				$messageTitle = 'Cancellation Request :warning:';
+				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate\n*Motive:* $requestMotive";
 
 				if(str_contains($subscriptionItemsGroup, 'Active Task')){
 					$messageTitle = 'Downgrade Request :warning:';
+					$billingMsg = " requested to Downgrade. Their billing date is on: $billingPeriodEndingDate\n*Motive:* $requestMotive";
 				}
-
-				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate\n*Motive:* $requestMotive";
 
 				if(time() < strtotime($billingPeriodEndingDate)){
 					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
