@@ -1792,7 +1792,7 @@ function populateContactFormHiddenFieldsWithUserMeta($form){
 add_action('fluentform/after_form_render', 'populateContactFormHiddenFieldsWithUserMeta');
 
 
-
+//AFFILIATE PROGRAM
 function applyAffiliateCouponWithAffiliateUrl(){
 	global $woocommerce;
 	$woocommerce->cart->apply_coupon("affiliatest");
