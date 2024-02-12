@@ -149,16 +149,27 @@ do_action( 'woocommerce_before_cart' ); ?>
 								</div>
 
 								<?php
-									if($couponDiscount){ ?>
+									if($couponDiscount){ 
+										$appliedCoupons = WC()->cart->get_applied_coupons();
+										$discountType = "";
+
+										foreach ($appliedCoupons as $couponCode) {
+											$coupon = new WC_Coupon($couponCode);
+											$discountType = $coupon->get_discount_type();
+											$discountType = defineDiscountTypeInCart($discountType);
+										}
+
+										?>
 										<div class="cart__product_subtotal">
 											<span>Dicount: </span>
-											<span>-<?php echo $couponDiscount; ?>% </span>
+											<span>-<?php echo $couponDiscount . $discountType; ?> </span>
 										</div>
 
 										<div class="cart__product_subtotal">
 											<span>Total: </span>
 												<?php
-													echo get_woocommerce_currency_symbol() . $_product->get_price() - ($_product->get_price() * ($couponDiscount / 100)) . defineSubscriptionPeriod($productPrice);
+													echo get_woocommerce_currency_symbol() . WC()->cart->total;
+													echo defineSubscriptionPeriod($productPrice);
 												?>
 										</div>
 									<?php }
