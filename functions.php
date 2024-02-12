@@ -1797,3 +1797,22 @@ function applyAffiliateCouponWithAffiliateUrl(){
 	global $woocommerce;
 	$woocommerce->cart->apply_coupon("affiliatest");
 }
+
+
+function redirectUserToAffiliatesPanel(){
+	$currentUser = wp_get_current_user();
+	if(sizeof($currentUser->roles) === 1 && in_array('affiliate', $currentUser->roles)){
+		echo "<style>
+			.paused__user_banner{display:none !important;}
+			.account_details__section{width: 50%; margin: auto;}
+			.account__details_col{width: 100% !important;}
+		</style>";
+
+		if(!is_page('affiliates')){
+			wp_redirect(site_url() . "/affiliates");
+				exit;
+			}
+		}
+	}
+
+add_action('template_redirect', 'redirectUserToAffiliatesPanel');
