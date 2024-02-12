@@ -156,13 +156,14 @@ do_action( 'woocommerce_before_cart' ); ?>
 										foreach ($appliedCoupons as $couponCode) {
 											$coupon = new WC_Coupon($couponCode);
 											$discountType = $coupon->get_discount_type();
-											$discountType = defineDiscountTypeInCart($discountType);
 										}
+
+										$discountTypeSymbol = $discountType === "percent" ? "%" : "";
 
 										?>
 										<div class="cart__product_subtotal">
 											<span>Dicount: </span>
-											<span>-<?php echo $couponDiscount . $discountType; ?> </span>
+											<span>-<?php echo $couponDiscount .  $discountTypeSymbol; ?> </span>
 										</div>
 
 										<div class="cart__product_subtotal">

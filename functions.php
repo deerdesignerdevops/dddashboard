@@ -1797,17 +1797,3 @@ function applyAffiliateCouponWithAffiliateUrl(){
 	global $woocommerce;
 	$woocommerce->cart->apply_coupon("affiliatest");
 }
-
-
-
-function defineDiscountTypeInCart($discountType){
-	
-	switch ($discountType){
-		case "percent":
-			return "%";
-
-		default:
-			return "";
-	}
-
-}
