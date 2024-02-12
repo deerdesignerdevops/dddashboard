@@ -981,6 +981,7 @@ add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
 function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
 	if(isset($_GET['sld'])){
 		$affiliateUrl = $_GET['sld'];
+		applyAffiliateCouponWithAffiliateUrl();
 		return wc_get_checkout_url() . "/?sld=$affiliateUrl";
 	}
 
@@ -1789,3 +1790,10 @@ function populateContactFormHiddenFieldsWithUserMeta($form){
 	}
 }
 add_action('fluentform/after_form_render', 'populateContactFormHiddenFieldsWithUserMeta');
+
+
+//AFFILIATE PROGRAM
+function applyAffiliateCouponWithAffiliateUrl(){
+	global $woocommerce;
+	$woocommerce->cart->apply_coupon("affiliatest");
+}
