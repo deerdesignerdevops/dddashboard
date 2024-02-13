@@ -70,7 +70,7 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	$companyName = get_user_meta($currentUser->id, 'billing_company', true);
 	$userPlan = "";
 
-	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+	$userSubscriptions = wcs_get_users_subscriptions($currentUser->id);
 
 	foreach($userSubscriptions as $sub){
 		foreach($sub->get_items() as $subItem){
@@ -438,6 +438,20 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 	}
 }
 add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
+
+
+
+function updateCreativeCallsNumberAfterPaymentComplete($orderId){
+	$order = wc_get_order( $orderId );
+	$currentUser = get_user_by('id', $order->data['customer_id']);
+	$groupName = preg_replace('/[^\w\s]/', '', $currentUser->billing_company);
+	$groupName = strtolower(str_replace(' ', '_', $groupName));
+	$companyName = $currentUser->billing_company;
+	$creativeCalls = updateCreativeCallsNumberBasedOnActiveSubscriptions($currentUser->id);		
+
+	createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls);
+}
+add_action( 'woocommerce_payment_complete', 'updateCreativeCallsNumberAfterPaymentComplete');
 
 
 
@@ -990,35 +1004,41 @@ add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddT
 
 
 
+function updateCreativeCallsNumberBasedOnActiveSubscriptions($userId){
+	$creativeCalls = 0;
+	$userSubscriptions = wcs_get_users_subscriptions($userId);
+
+	if($userSubscriptions){
+		foreach($userSubscriptions as $subscription){
+			if($subscription->get_status() === "active"){
+				$subscriptionItems = $subscription->get_items();
+
+				foreach( $subscriptionItems as $item_id => $item ){
+					if(str_contains(strtolower($item->get_name()), 'call')){
+						$creativeCalls = 1;
+					}
+					else if(str_contains(strtolower($item->get_name()), 'agency')){
+						$creativeCalls = 4;
+					}else{
+						$creativeCalls = 0;
+					}
+				}
+			}
+		}
+	}
+	
+	return $creativeCalls;
+}
+
+
+
 function prepareOrderDataToCreateTheUserGroupOnDataBase($entryId, $formData, $form){
 	if($form->id === 3){
 		$currentUser = wp_get_current_user();
 		$groupName = preg_replace('/[^\w\s]/', '', $currentUser->billing_company);
 		$groupName = strtolower(str_replace(' ', '_', $groupName));
 		$companyName = $currentUser->billing_company;
-		$creativeCalls = 0;
-
-		$mostRecentOrder = wc_get_orders(
-			[   
-			'customer_id' => $currentUser->id,
-			'limit' => 1
-			]
-		);
-		
-		if($mostRecentOrder){
-			$orderItems = $mostRecentOrder[0]->get_items();
-
-			foreach( $orderItems as $item_id => $item ){
-				if(str_contains(strtolower($item->get_name()), 'call')){
-					$creativeCalls = 1;
-				}
-				else if(str_contains(strtolower($item->get_name()), 'agency')){
-					$creativeCalls = 4;
-				}else{
-					$creativeCalls = 0;
-				}
-			}
-		}		
+		$creativeCalls = updateCreativeCallsNumberBasedOnActiveSubscriptions($currentUser->id);		
 
 		createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls);
 	}
