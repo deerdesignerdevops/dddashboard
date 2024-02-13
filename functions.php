@@ -994,29 +994,27 @@ add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddT
 function prepareOrderDataToCreateTheUserGroupOnDataBase($entryId, $formData, $form){
 	if($form->id === 3){
 		$currentUser = wp_get_current_user();
+		$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
 		$groupName = preg_replace('/[^\w\s]/', '', $currentUser->billing_company);
 		$groupName = strtolower(str_replace(' ', '_', $groupName));
 		$companyName = $currentUser->billing_company;
 		$creativeCalls = 0;
-
-		$mostRecentOrder = wc_get_orders(
-			[   
-			'customer_id' => $currentUser->id,
-			'limit' => 1
-			]
-		);
 		
-		if($mostRecentOrder){
-			$orderItems = $mostRecentOrder[0]->get_items();
-
-			foreach( $orderItems as $item_id => $item ){
-				if(str_contains(strtolower($item->get_name()), 'call')){
-					$creativeCalls = 1;
-				}
-				else if(str_contains(strtolower($item->get_name()), 'agency')){
-					$creativeCalls = 4;
-				}else{
-					$creativeCalls = 0;
+		if($userSubscriptions){
+			foreach($userSubscriptions as $subscription){
+				if($subscription->get_status() === "active"){
+					$subscriptionItems = $subscription->get_items();
+		
+					foreach( $subscriptionItems as $item_id => $item ){
+						if(str_contains(strtolower($item->get_name()), 'call')){
+							$creativeCalls = 1;
+						}
+						else if(str_contains(strtolower($item->get_name()), 'agency')){
+							$creativeCalls = 4;
+						}else{
+							$creativeCalls = 0;
+						}
+					}
 				}
 			}
 		}		
