@@ -178,4 +178,26 @@ function updateUserEmailInMoosend($userId){
 	
 }
 
+
+
+function updateUserInMoosendAfterNewPurchase($orderId){
+	if(!wcs_order_contains_renewal($orderId)){
+		$order = wc_get_order( $orderId );
+		$currentUser = get_user_by('id', $order->data['customer_id']);
+		$isUserOnboarded = get_user_meta($currentUser->id, 'is_user_onboarded', true);
+
+		if($isUserOnboarded){
+			foreach($order->get_items() as $orderItem){
+				if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
+					$userName = "$currentUser->first_name $currentUser->last_name";
+					$userEmail = $currentUser->user_email;	
+					postToMoosend($userName, $userEmail, 'active', 'news' );	
+					return;
+				};	
+			}
+		}
+	}
+}
+add_action( 'woocommerce_payment_complete', 'updateUserInMoosendAfterNewPurchase');
+
 ?>
