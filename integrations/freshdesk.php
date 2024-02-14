@@ -385,14 +385,13 @@ function updateUserInFreshdeskAfterNewPurchase($orderId){
 		$isUserOnboarded = get_user_meta($user->id, 'is_user_onboarded', true);
 
 		if($isUserOnboarded){
-			$freshdeskUserId = get_user_meta($user->id, 'contact_freshdesk_id', true);
 			$requestBody = [
 				"custom_fields" => 	buildCustomFieldsToUpdateFreshdeskContact("active")
 			];
 
 			foreach($order->get_items() as $orderItem){
 				if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
-					putRequestToFreshdesk($freshdeskUserId, $requestBody);
+					updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($user->id, $requestBody);
 					return;
 				};	
 			}
