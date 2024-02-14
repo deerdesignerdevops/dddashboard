@@ -260,3 +260,27 @@ function updateFolderNameInBoxByWpProfileUpdate($userId){
 
 	return $response;
 }
+
+
+
+function moveCompanyFolderInBoxAfterNewPurchase($orderId){
+	if(!wcs_order_contains_renewal($orderId)){
+		$order = wc_get_order( $orderId );
+		$currentUser = get_user_by('id', $order->data['customer_id']);
+		$isUserOnboarded = get_user_meta($currentUser->id, 'is_user_onboarded', true);
+
+		if($isUserOnboarded){
+			foreach($order->get_items() as $orderItem){
+				if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
+					$folderName = $currentUser->billing_company;
+					$folderId = get_user_meta($currentUser->id, "company_folder_box_id", true);
+					$newParentFolderId = BOX_CLIENT_FOLDER_ID;
+
+					updateFolderParentDirectory($folderName, $folderId, $newParentFolderId);
+					return;
+				};	
+			}
+		}
+	}
+}
+add_action( 'woocommerce_payment_complete', 'moveCompanyFolderInBoxAfterNewPurchase');
