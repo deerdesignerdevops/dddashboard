@@ -381,8 +381,8 @@ function updateUserInFreshdeskByWordpressProfileUpdate($userId){
 function updateUserInFreshdeskAfterNewPurchase($orderId){
 	if(!wcs_order_contains_renewal($orderId)){
 		$order = wc_get_order( $orderId );
-		$user = get_user_by('id', $order->data['customer_id']);
-		$isUserOnboarded = get_user_meta($user->id, 'is_user_onboarded', true);
+		$currentUser = get_user_by('id', $order->data['customer_id']);
+		$isUserOnboarded = get_user_meta($currentUser->id, 'is_user_onboarded', true);
 
 		if($isUserOnboarded){
 			$requestBody = [
@@ -391,7 +391,7 @@ function updateUserInFreshdeskAfterNewPurchase($orderId){
 
 			foreach($order->get_items() as $orderItem){
 				if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
-					updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($user->id, $requestBody);
+					updateFreshdeskCompanyMembersBasedOnSubscriptionStatus($currentUser->id, $requestBody);
 					return;
 				};	
 			}
