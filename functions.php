@@ -1836,3 +1836,9 @@ function redirectUserToAffiliatesPanel(){
 	}
 
 add_action('template_redirect', 'redirectUserToAffiliatesPanel');
+
+
+function addViralLoopsScriptToHead(){
+	echo '<script type="text/javascript" src="https://app.viral-loops.com/widgetsV2/core/loader.js" data-campaign-id="27tbxVppBbZaFqcvIyqXPagjMNk" id="viral-loops-loader"></script>';
+}
+add_action('wp_head', 'addViralLoopsScriptToHead');
