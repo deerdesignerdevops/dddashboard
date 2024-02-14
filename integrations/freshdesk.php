@@ -376,4 +376,30 @@ function updateUserInFreshdeskByWordpressProfileUpdate($userId){
 	}
 }
 
+
+
+function updateUserInFreshdeskAfterNewPurchase($orderId){
+	if(!wcs_order_contains_renewal($orderId)){
+		$order = wc_get_order( $orderId );
+		$user = get_user_by('id', $order->data['customer_id']);
+		$isUserOnboarded = get_user_meta($user->id, 'is_user_onboarded', true);
+
+		if($isUserOnboarded){
+			$freshdeskUserId = get_user_meta($user->id, 'contact_freshdesk_id', true);
+			$requestBody = [
+				"custom_fields" => 	buildCustomFieldsToUpdateFreshdeskContact("active")
+			];
+
+			foreach($order->get_items() as $orderItem){
+				if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
+					putRequestToFreshdesk($freshdeskUserId, $requestBody);
+					return;
+				};	
+			}
+		}
+	}
+}
+add_action( 'woocommerce_payment_complete', 'updateUserInFreshdeskAfterNewPurchase');
+
+
 ?>
