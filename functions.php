@@ -48,6 +48,7 @@ require_once('integrations/freshdesk.php');
 require_once('integrations/moosend.php');
 require_once('integrations/clockify.php');
 require_once('integrations/appbox.php');
+require_once('integrations/growsurf.php');
 
 
 function logoutWhitoutConfirm($action, $result)
@@ -995,7 +996,6 @@ add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
 function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
 	if(isset($_GET['sld'])){
 		$affiliateUrl = $_GET['sld'];
-		applyAffiliateCouponWithAffiliateUrl();
 		return wc_get_checkout_url() . "/?sld=$affiliateUrl";
 	}
 
@@ -1813,12 +1813,6 @@ add_action('fluentform/after_form_render', 'populateContactFormHiddenFieldsWithU
 
 
 //AFFILIATE PROGRAM
-function applyAffiliateCouponWithAffiliateUrl(){
-	global $woocommerce;
-	$woocommerce->cart->apply_coupon("affiliatest");
-}
-
-
 function redirectUserToAffiliatesPanel(){
 	$currentUser = wp_get_current_user();
 	if(sizeof($currentUser->roles) === 1 && in_array('affiliate', $currentUser->roles)){
@@ -1836,9 +1830,3 @@ function redirectUserToAffiliatesPanel(){
 	}
 
 add_action('template_redirect', 'redirectUserToAffiliatesPanel');
-
-
-function addViralLoopsScriptToHead(){
-	echo '<script type="text/javascript" src="https://app.viral-loops.com/widgetsV2/core/loader.js" data-campaign-id="27tbxVppBbZaFqcvIyqXPagjMNk" id="viral-loops-loader"></script>';
-}
-add_action('wp_head', 'addViralLoopsScriptToHead');
