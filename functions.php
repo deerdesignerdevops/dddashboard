@@ -997,6 +997,9 @@ function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
 	if(isset($_GET['sld'])){
 		$affiliateUrl = $_GET['sld'];
 		return wc_get_checkout_url() . "/?sld=$affiliateUrl";
+	}else if(isset($_GET['referral_id'])){
+		$referralId = $_GET['referral_id'];
+		return wc_get_checkout_url() . "/?referral_id=$referralId";
 	}
 
     return wc_get_checkout_url();
@@ -1830,3 +1833,47 @@ function redirectUserToAffiliatesPanel(){
 	}
 
 add_action('template_redirect', 'redirectUserToAffiliatesPanel');
+
+
+
+//REFERRAL PROGRAM
+function addReferralIdCheckoutField( $fields ) {
+    $fields['billing']['referral_id'] = array(
+        'type'        => 'text',
+        'class'       => array('referral_id form-row-wide'),
+        'label'       => __('Referral ID', 'woocommerce'),
+        'placeholder' => __('referral id', 'woocommerce'),
+    );
+
+    return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'addReferralIdCheckoutField' );
+
+
+
+function displayReferralIdOnEditOrderPage( $order ) {
+    echo '<p><strong>'.__('Referral ID').':</strong> ' . get_post_meta( $order->get_id(), '_referral_id', true ) . '</p>';
+}
+add_action( 'woocommerce_admin_order_data_after_billing_address', 'displayReferralIdOnEditOrderPage', 10, 1 );
+
+
+
+function saveReferralIdInDatebase( $order_id ) {
+    if ( ! empty( $_POST['referral_id'] ) ) {
+        update_post_meta( $order_id, '_referral_id', sanitize_text_field( $_POST['referral_id'] ) );
+    }
+}
+add_action( 'woocommerce_checkout_update_order_meta', 'saveReferralIdInDatebase' );
+
+
+
+function prefillReferralIdFieldFromUrlParams(){
+	$referralId = isset($_GET['referral_id']) ? $_GET['referral_id'] : "";
+
+	echo "<script>
+	document.addEventListener('DOMContentLoaded', function(){
+		document.querySelector('#referral_id').value = '$referralId';
+	})
+	</script>";
+}
+add_action('woocommerce_checkout_init', 'prefillReferralIdFieldFromUrlParams');

@@ -7,9 +7,10 @@ $growSurfBaseUrl = "https://api.growsurf.com/v2";
 
 
 function addGrowSurfScript(){
-	echo '<script type="text/javascript">
-  (function(g,r,s,f){g.grsfSettings={campaignId:"kar1y6",version:"2.0.0"};s=r.getElementsByTagName("head")[0];f=r.createElement("script");f.async=1;f.src="https://app.growsurf.com/growsurf.js"+"?v="+g.grsfSettings.version;f.setAttribute("grsf-campaign", g.grsfSettings.campaignId);!g.grsfInit?s.appendChild(f):"";})(window,document);
-</script>';
+    $campaignID = GROWSURF_CAMPAIGN_ID;
+	echo "<script type='text/javascript'>
+  (function(g,r,s,f){g.grsfSettings={campaignId:'$campaignID',version:'2.0.0'};s=r.getElementsByTagName('head')[0];f=r.createElement('script');f.async=1;f.src='https://app.growsurf.com/growsurf.js'+'?v='+g.grsfSettings.version;f.setAttribute('grsf-campaign', g.grsfSettings.campaignId);!g.grsfInit?s.appendChild(f):'';})(window,document);
+</script>";
 }
 add_action('wp_head', 'addGrowSurfScript');
 
@@ -17,7 +18,7 @@ add_action('wp_head', 'addGrowSurfScript');
 
 function postRequestToGrowSurf($requestBody){
     global $growSurfBaseUrl;
-    $apiUrl = "$growSurfBaseUrl/campaign/kar1y6/participant";
+    $apiUrl = "$growSurfBaseUrl/campaign/1fk2cp/participant";
     $accessToken = GROWSURF_API_KEY;
     $uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/growsurf';
    
@@ -54,7 +55,7 @@ function postRequestToGrowSurf($requestBody){
 
 function addNewParticipantToReferralProgram($orderId){
     if(!wcs_order_contains_renewal($orderId)){
-        $referralId = isset($_GET['referral_id']) ? $_GET['referral_id'] : "";
+        $referralId = get_post_meta($orderId, '_referral_id', true);
         $order = wc_get_order( $orderId );
         $currentUser = get_user_by('id', $order->data['customer_id']);
 
