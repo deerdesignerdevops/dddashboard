@@ -20,6 +20,7 @@ require_once get_stylesheet_directory() . '/components/invoices.php';
 $siteUrl = site_url();
 $elementorPopupID = 1570;
 $currentCompanyName = wp_get_current_user()->billing_company;
+$currentUserId = get_current_user_id();
 
 //ARRAY OF SUBSCRIPTION NAMES
 $otherSubscriptionsGroup = [];
@@ -242,10 +243,14 @@ document.addEventListener("DOMContentLoaded", function(){
 			const addProductToCartLink = e.currentTarget.href
 			const productPrice = e.currentTarget.dataset.productPrice
 			const productName = e.currentTarget.dataset.productName
+			const currentUserId = <?php echo $currentUserId; ?>;
+			const activeTaskAlertMsg = currentUserId === 970 ? `For the Active Task, we will charge you $0 today and ${productPrice} per month on the next billing cycles.` : `For this ${productName}, starting today, we will charge <strong>${productPrice}</strong> per month to the card on your account.`
+
 			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = "ARE YOU SURE YOU WANT TO <br><span> ADD THIS ITEM TO YOUR ACCOUNT?</span>";
 			document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
 			document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
+			
 
 			document.querySelector(".confirm_btn a").addEventListener('click', function(){
 				location.href = addProductToCartLink
@@ -257,8 +262,10 @@ document.addEventListener("DOMContentLoaded", function(){
 				closePopup()
 			})
 
+			
+
 			if(btn.classList.contains('active-tasks')){
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `For this ${productName}, starting today, we will charge <strong>${productPrice}</strong> per month to the card on your account.`
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = activeTaskAlertMsg
 			}else if(btn.classList.contains('creative-call')){
 				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> ${productPrice}</strong> to the card on your account.`
 			}else{
