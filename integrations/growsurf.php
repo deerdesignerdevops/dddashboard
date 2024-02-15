@@ -18,7 +18,8 @@ add_action('wp_head', 'addGrowSurfScript');
 
 function postRequestToGrowSurf($requestBody){
     global $growSurfBaseUrl;
-    $apiUrl = "$growSurfBaseUrl/campaign/1fk2cp/participant";
+    $campaignID = GROWSURF_CAMPAIGN_ID;
+    $apiUrl = "$growSurfBaseUrl/campaign/$campaignID/participant";
     $accessToken = GROWSURF_API_KEY;
     $uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/growsurf';
    
