@@ -1868,12 +1868,23 @@ add_action( 'woocommerce_checkout_update_order_meta', 'saveReferralIdInDatebase'
 
 
 function prefillReferralIdFieldFromUrlParams(){
-	$referralId = isset($_GET['referral_id']) ? $_GET['referral_id'] : "";
+	$referralId = "";
+	if(isset($_GET['referral_id'])){;
+		$referralId = $_GET['referral_id'];
+	
+		echo "<script>
+		document.addEventListener('DOMContentLoaded', function(){
+			document.querySelector('#referral_id').value = '$referralId';
+		})
+		</script>";
+	}else{
+		$referralId = htmlspecialchars($_COOKIE["dd_referral_id"]);
 
-	echo "<script>
-	document.addEventListener('DOMContentLoaded', function(){
-		document.querySelector('#referral_id').value = '$referralId';
-	})
-	</script>";
+		echo "<script>
+		document.addEventListener('DOMContentLoaded', function(){
+			document.querySelector('#referral_id').value = '$referralId';
+		})
+		</script>";
+	}
 }
 add_action('woocommerce_checkout_init', 'prefillReferralIdFieldFromUrlParams');
