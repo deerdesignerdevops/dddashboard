@@ -80,3 +80,14 @@ function addNewParticipantToReferralProgram($orderId){
     }
 }
 add_action('woocommerce_payment_complete', 'addNewParticipantToReferralProgram');
+
+
+
+function getUrlReferralParams(){
+    if(isset($_GET['referral_id'])){
+        $cookieName = "dd_referral_id";
+        $cookieValue = $_GET['referral_id'];
+        setcookie($cookieName, $cookieValue, time() + (86400 * 30), "/");
+    }
+}
+add_action('template_redirect', 'getUrlReferralParams');
