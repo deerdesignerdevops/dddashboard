@@ -1804,3 +1804,11 @@ function populateContactFormHiddenFieldsWithUserMeta($form){
 	}
 }
 add_action('fluentform/after_form_render', 'populateContactFormHiddenFieldsWithUserMeta');
+
+
+
+function deleteCancellationWarningAfterSixMonthsHookFromCronJobs($subscription){
+	$sixMonthsAheadFormatedDate = get_post_meta($subscription->id, 'six_months_after_last_pause', true);
+	wp_clear_scheduled_hook('cancellationWarningAfterSixMonthsHook', array($subscription->id, $sixMonthsAheadFormatedDate));
+}
+add_action('woocommerce_subscription_status_active', 'deleteCancellationWarningAfterSixMonthsHookFromCronJobs');
