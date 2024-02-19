@@ -212,10 +212,22 @@ function scheduleCancellationWarningEmailToSixMonthsForward($subscription){
 			update_post_meta($subscription->id, 'six_months_after_last_pause', $sixMonthsAheadFormatedDate);
 			
 			wp_schedule_single_event($oneWeekBeforeCancel, 'cancellationWarningAfterSixMonthsHook', array($subscription->id, $sixMonthsAheadFormatedDate));
+			wp_schedule_single_event($sixMonthsAhead, 'cancelSubscriptionAfterSixMonthsHook', array($subscription->id));
 		}
 	}
 }
 add_action('woocommerce_subscription_status_on-hold', 'scheduleCancellationWarningEmailToSixMonthsForward');
+
+
+
+function cancelSubscriptionAfterSixMonths($subscriptionId){
+	$subscription = wcs_get_subscription($subscriptionId);
+
+	if($subscription->get_status() === 'on-hold'){
+		$subscription->update_status( 'cancelled' );
+	};
+};
+add_action('cancelSubscriptionAfterSixMonthsHook', 'cancelSubscriptionAfterSixMonths');
 
 
 
