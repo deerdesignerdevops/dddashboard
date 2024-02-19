@@ -204,13 +204,16 @@ add_action('woocommerce_subscription_status_on-hold', 'sendEmailToUserWhenPaused
 
 
 function scheduleCancellationWarningEmailToSixMonthsForward($subscription){
-	$sixMonthsAhead = strtotime('+6 months');
-	$sixMonthsAheadFormatedDate = date("F d, Y", $sixMonthsAhead);
-	$oneWeekBeforeCancel = strtotime('+6 months -7 days');
-	update_post_meta($subscription->id, 'six_months_after_last_pause', $sixMonthsAheadFormatedDate);
-	
-	wp_schedule_single_event($oneWeekBeforeCancel, 'cancellationWarningAfterSixMonthsHook', array($subscription->id, $sixMonthsAheadFormatedDate));
-
+	foreach($subscription->get_items() as $subItem){
+		if(has_term('plan', 'product_cat', $subItem['product_id'])){
+			$sixMonthsAhead = strtotime('+6 months');
+			$sixMonthsAheadFormatedDate = date("F d, Y", $sixMonthsAhead);
+			$oneWeekBeforeCancel = strtotime('+6 months -7 days');
+			update_post_meta($subscription->id, 'six_months_after_last_pause', $sixMonthsAheadFormatedDate);
+			
+			wp_schedule_single_event($oneWeekBeforeCancel, 'cancellationWarningAfterSixMonthsHook', array($subscription->id, $sixMonthsAheadFormatedDate));
+		}
+	}
 }
 add_action('woocommerce_subscription_status_on-hold', 'scheduleCancellationWarningEmailToSixMonthsForward');
 
