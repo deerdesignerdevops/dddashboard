@@ -54,6 +54,44 @@ function postRequestToGrowSurf($requestBody){
 
 
 
+
+function getUserByIdFromGrowSurf($participantId){
+    global $growSurfBaseUrl;
+    $campaignID = GROWSURF_CAMPAIGN_ID;
+    $apiUrl = "$growSurfBaseUrl/campaign/$campaignID/participant/$participantId";
+    $accessToken = GROWSURF_API_KEY;
+    $uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/growsurf';
+   
+    $ch = curl_init($apiUrl);
+    
+    curl_setopt($ch, CURLOPT_URL, $apiUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "Content-Type: application/json",
+        "Accept: application/json",
+        "Authorization: Bearer $accessToken"
+    ]);
+
+    $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        $error_message = 'Error: ' . curl_error($ch);
+        echo $error_message;
+        error_log($error_message, 3, "$uploadsDir/growsurf_api_error_log.txt");
+        $response = false;
+    } else {
+        file_put_contents("$uploadsDir/growsurf_api_response_log_get_request.txt", $response . PHP_EOL, FILE_APPEND);
+        $response = json_decode($response, true);
+    }
+
+    curl_close($ch);
+
+    return $response;
+}
+
+
+
 function addNewParticipantToReferralProgram($orderId){
     if(!wcs_order_contains_renewal($orderId)){
         $referralId = get_post_meta($orderId, '_referral_id', true);
@@ -91,3 +129,59 @@ function getUrlReferralParams(){
     }
 }
 add_action('template_redirect', 'getUrlReferralParams');
+
+
+
+function getReferrerIdFromSubscriptionRenewal($orderId){
+    if(wcs_order_contains_renewal($orderId)){
+        $order = wc_get_order( $orderId );
+        
+        $orderSubscriptions = wcs_get_subscriptions_for_order($orderId, array('order_type' => 'any'));
+        $subscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
+        $renewalCount = $subscription->get_payment_count( 'completed', 'renewal' );
+
+        if($renewalCount <= 1){
+            //GET GROWSURF USER ID
+            $currentUserParticipantId = get_user_meta($order->data['customer_id'], 'grow_surf_participant_id', true );
+        
+            if($currentUserParticipantId){
+                //GET USER DATA FROM GROW SURF
+                $referralData = getUserByIdFromGrowSurf($currentUserParticipantId);
+            
+                if($referralData['referrer']['id']){
+                    $userReferrerId = $referralData['referrer']['id'];
+        
+                    //GET USER FROM DATABASE WITH REFERRER ID
+                    $referrer = get_users(array(
+                        'meta_key' => 'grow_surf_participant_id',
+                        'meta_value' => $userReferrerId
+                    ));
+        
+                    if($referrer){
+                        $referrerId = $referrer[0]->data->ID;
+                        applyDiscountToReferrerNextRenewal($referrerId);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+add_action('woocommerce_payment_complete', 'getReferrerIdFromSubscriptionRenewal');
+
+
+
+function applyDiscountToReferrerNextRenewal($referrerId){
+    $userSubscriptions = wcs_get_users_subscriptions($referrerId);
+    $couponCode = 'DEERREFERRER';
+	
+    foreach($userSubscriptions as $subscription){
+		foreach($subscription->get_items() as $subItem){
+			if(has_term('plan', 'product_cat', $subItem['product_id'])){
+                $subscription->apply_coupon( $couponCode );
+                $subscription->save();
+                return;		
+			}
+		}
+	}
+}
