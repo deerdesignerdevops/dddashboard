@@ -173,7 +173,7 @@ add_action('woocommerce_payment_complete', 'getReferrerIdFromSubscriptionRenewal
 
 function applyDiscountToReferrerNextRenewal($referrerId){
     $userSubscriptions = wcs_get_users_subscriptions($referrerId);
-    $couponCode = 'DEERREFERRER';
+    $couponCode = 'deerreferrer';
 	
     foreach($userSubscriptions as $subscription){
 		foreach($subscription->get_items() as $subItem){
@@ -185,3 +185,15 @@ function applyDiscountToReferrerNextRenewal($referrerId){
 		}
 	}
 }
+
+
+function removeDiscountFromSubscriptionAfterPayment($subscription, $lastOrder){
+    $couponCode = 'deerreferrer';
+    $coupons = $subscription->get_used_coupons();
+    
+    if(in_array($couponCode, $coupons)){
+        $subscription->remove_coupon( $couponCode );
+        $subscription->save();
+    }
+}
+add_action( 'woocommerce_subscription_renewal_payment_complete', 'removeDiscountFromSubscriptionAfterPayment', 10, 2 );
