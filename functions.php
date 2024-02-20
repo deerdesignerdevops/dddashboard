@@ -1815,6 +1815,47 @@ function populateContactFormHiddenFieldsWithUserMeta($form){
 add_action('fluentform/after_form_render', 'populateContactFormHiddenFieldsWithUserMeta');
 
 
+
+function deleteCancellationWarningAfterSixMonthsHookFromCronJobs($subscription){
+	$sixMonthsAheadFormatedDate = get_post_meta($subscription->id, 'six_months_after_last_pause', true);
+	wp_clear_scheduled_hook('cancellationWarningAfterSixMonthsHook', array($subscription->id, $sixMonthsAheadFormatedDate));
+	wp_clear_scheduled_hook('cancelSubscriptionAfterSixMonthsHook', array($subscription->id));
+}
+add_action('woocommerce_subscription_status_active', 'deleteCancellationWarningAfterSixMonthsHookFromCronJobs');
+
+
+
+// function changeBillingDateAfterPaymentResolved($subscription){
+// 	if(!isset($_GET['reactivate_plan'])){
+// 		//$subscription = wcs_get_subscription(1983);
+		
+// 		$subscriptionRelatedOrders = $subscription->get_related_orders();
+// 		$lastOrderPaidDate = "";
+
+// 		if($subscriptionRelatedOrders){
+// 			foreach($subscriptionRelatedOrders as $orderId){
+
+// 				$lastOrderPaidDate = wc_get_order($orderId)->get_date_paid();
+		
+// 				if($lastOrderPaidDate){
+// 					$lastOrderPaidCreatedDate = wc_get_order($orderId)->get_date_created();
+// 					$lastOrderPaidCreatedDate = $lastOrderPaidCreatedDate->date('F d, Y');
+// 					$newNextPayment = strtotime($lastOrderPaidCreatedDate . '+1 month');
+					
+// 					$subscription->update_dates(array(
+// 						'next_payment' => date('Y-m-d H:i:s', $newNextPayment)
+// 					));
+// 					return;
+// 				}
+// 			}
+// 		}
+// 	}
+// }
+// //add_action('template_redirect', 'changeBillingDateAfterPaymentResolved');
+// add_action( 'woocommerce_subscription_status_active', 'changeBillingDateAfterPaymentResolved');
+
+
+
 //AFFILIATE PROGRAM
 function redirectUserToAffiliatesPanel(){
 	$currentUser = wp_get_current_user();

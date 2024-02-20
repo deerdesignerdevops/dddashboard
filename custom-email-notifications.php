@@ -203,6 +203,69 @@ add_action('woocommerce_subscription_status_on-hold', 'sendEmailToUserWhenPaused
 
 
 
+function scheduleCancellationWarningEmailToSixMonthsForward($subscription){
+	foreach($subscription->get_items() as $subItem){
+		if(has_term('plan', 'product_cat', $subItem['product_id'])){
+			$sixMonthsAhead = strtotime('+6 months');
+			$sixMonthsAheadFormatedDate = date("F d, Y", $sixMonthsAhead);
+			$oneWeekBeforeCancel = strtotime('+6 months -7 days');
+			update_post_meta($subscription->id, 'six_months_after_last_pause', $sixMonthsAheadFormatedDate);
+			
+			wp_schedule_single_event($oneWeekBeforeCancel, 'cancellationWarningAfterSixMonthsHook', array($subscription->id, $sixMonthsAheadFormatedDate));
+			wp_schedule_single_event($sixMonthsAhead, 'cancelSubscriptionAfterSixMonthsHook', array($subscription->id));
+		}
+	}
+}
+add_action('woocommerce_subscription_status_on-hold', 'scheduleCancellationWarningEmailToSixMonthsForward');
+
+
+
+function cancelSubscriptionAfterSixMonths($subscriptionId){
+	$subscription = wcs_get_subscription($subscriptionId);
+
+	if($subscription->get_status() === 'on-hold'){
+		$subscription->update_status( 'cancelled' );
+	};
+};
+add_action('cancelSubscriptionAfterSixMonthsHook', 'cancelSubscriptionAfterSixMonths');
+
+
+
+function cancellationWarningAfterSixMonths($subscriptionId, $pauseSubscriptionDate){
+	global $headers;
+	$subscription = wcs_get_subscription($subscriptionId);
+
+	if($subscription->get_status() === "on-hold"){
+		$subject = "[Deer Designer] Account Cancelled";
+		$currentUser = get_user_by("id", $subscription->data['customer_id']);
+		$userName = $currentUser->first_name;
+		$userEmail = $currentUser->user_email;
+		
+	
+		$message = "
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
+	
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>We noticed that you haven't used your account in almost 6 months! Just like a hibernating bear, your account is getting a little sleepy.</p>
+	
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Due to inactivity, your account will automatically be cancelled on <strong>$pauseSubscriptionDate.</strong></p>
+	
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>When an account is cancelled, all associated data, design files, and ticket history are removed from our system. If you would like to avoid cancellation and keep your account open, please reply to this email by <strong>$pauseSubscriptionDate.</strong></p>
+	
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>We know things come up and your needs may have changed. If you no longer need an active account, you don't need to do anything. However, if you wish to keep using our service, please reply to this email within the next week, and we can explore reactivating your account.</p>
+	
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Please don't hesitate to reach out if you have any other questions.  We'd love to have you back!</p>
+	
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+			The Deer Designer Team.</p>
+		";
+	
+		wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+	}
+}
+add_action('cancellationWarningAfterSixMonthsHook', 'cancellationWarningAfterSixMonths', 10, 2);
+
+
+
 function sendEmailToAdminWhenPausedPlan($subscription){
 	if(isset($_GET['change_subscription_to'])){
 		global $headers;
