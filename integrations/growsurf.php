@@ -173,7 +173,7 @@ add_action('woocommerce_payment_complete', 'getReferrerIdFromSubscriptionRenewal
 
 function applyDiscountToReferrerNextRenewal($referrerId){
     $userSubscriptions = wcs_get_users_subscriptions($referrerId);
-    $couponCode = 'DEERREFERRER';
+    $couponCode = 'deerreferrer';
 	
     foreach($userSubscriptions as $subscription){
 		foreach($subscription->get_items() as $subItem){
