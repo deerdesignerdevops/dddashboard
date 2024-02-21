@@ -1473,7 +1473,6 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 			}	
 			
 			if(!empty($additionalUsersAdded)){
-				sendAdditionalusersNotificationToSlack($additionalUsersAdded);
 				sendEmailToProductionWhenNewTeamMemberIsAdded(get_current_user_id(), $additionalUsersAdded);
 				sendEmailToUserAboutAdditionalTeamMembers(get_current_user_id(), $additionalUsersAdded);
 				wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
@@ -1533,11 +1532,8 @@ function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
 
 
 function removeAdditionalUserFromDatabase($userId){
-	$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CLIENT_MANAGEMENT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
 	$userToBeDeleted = get_user_by( 'id', $userId);
 	$freshdeskUserId = get_user_meta($userToBeDeleted->id, 'contact_freshdesk_id', true);
-	$accountOwner = wp_get_current_user();
-	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
 	$requestBody = [
 		"custom_fields" => [
 			"registered_user" => false,
@@ -1550,19 +1546,8 @@ function removeAdditionalUserFromDatabase($userId){
 		wc_add_notice("You can't remove this user!", 'error');
 	}else{
 		wc_add_notice("The user was successfully removed from your account!", 'success');
-		
-
-		$slackMessageBody = [
-			'text'  => '<!channel> A client just removed a team member from their account:  ' . '
-	*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
-	*Team Member:* ' . $userToBeDeleted->first_name . " ($userToBeDeleted->user_email)" ,
-			'username' => 'Marcus',
-		];
-
-		slackNotifications($slackMessageBody, $slackWebHookUrl);
 		putRequestToFreshdesk($freshdeskUserId, $requestBody);
 		wp_delete_user($userId);
-
 	}
 
 	wp_redirect(get_permalink(wc_get_page_id('myaccount')) . "edit-account");
