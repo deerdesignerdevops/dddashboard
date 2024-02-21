@@ -997,9 +997,9 @@ function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
 	if(isset($_GET['sld'])){
 		$affiliateUrl = $_GET['sld'];
 		return wc_get_checkout_url() . "/?sld=$affiliateUrl";
-	}else if(isset($_GET['referral_id'])){
-		$referralId = $_GET['referral_id'];
-		return wc_get_checkout_url() . "/?referral_id=$referralId";
+	}else if(isset($_GET['grsf'])){
+		$referralId = $_GET['grsf'];
+		return wc_get_checkout_url() . "/?grsf=$referralId";
 	}
 
     return wc_get_checkout_url();
@@ -1908,17 +1908,18 @@ add_action( 'woocommerce_checkout_update_order_meta', 'saveReferralIdInDatebase'
 
 
 
+
 function prefillReferralIdFieldFromUrlParams(){
 	$referralId = "";
-	if(isset($_GET['referral_id'])){;
-		$referralId = $_GET['referral_id'];
+	if(isset($_GET['grsf'])){;
+		$referralId = $_GET['grsf'];
 	
 		echo "<script>
 		document.addEventListener('DOMContentLoaded', function(){
 			document.querySelector('#referral_id').value = '$referralId';
 		})
 		</script>";
-	}else{
+	}elseif($_COOKIE["dd_referral_id"]){
 		$referralId = htmlspecialchars($_COOKIE["dd_referral_id"]);
 
 		echo "<script>
