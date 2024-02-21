@@ -1919,7 +1919,7 @@ function prefillReferralIdFieldFromUrlParams(){
 			document.querySelector('#referral_id').value = '$referralId';
 		})
 		</script>";
-	}elseif($_COOKIE["dd_referral_id"]){
+	}elseif(isset($_COOKIE["dd_referral_id"])){
 		$referralId = htmlspecialchars($_COOKIE["dd_referral_id"]);
 
 		echo "<script>
