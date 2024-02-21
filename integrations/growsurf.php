@@ -121,14 +121,19 @@ add_action('woocommerce_payment_complete', 'addNewParticipantToReferralProgram')
 
 
 
-function getUrlReferralParams(){
-    if(isset($_GET['referral_id'])){
+function getUrlReferralParamsAndSaveCookie(){
+    if(isset($_GET['grsf'])){
         $cookieName = "dd_referral_id";
-        $cookieValue = $_GET['referral_id'];
+        $cookieValue = $_GET['grsf'];
+        setcookie($cookieName, $cookieValue, time() + (86400 * 30), "/");
+    }
+	else if(isset($_GET['sld'])){
+        $cookieName = "dd_affiliate_id";
+        $cookieValue = $_GET['sld'];
         setcookie($cookieName, $cookieValue, time() + (86400 * 30), "/");
     }
 }
-add_action('template_redirect', 'getUrlReferralParams');
+add_action('template_redirect', 'getUrlReferralParamsAndSaveCookie');
 
 
 
