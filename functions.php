@@ -1833,7 +1833,7 @@ add_action('woocommerce_subscription_status_active', 'deleteCancellationWarningA
 
 
 function manuallySendSlackNotificationAboutSubscriptionStatus($status, $customerName, $customerEmail, $subscriptionItems){
-	$subscriptionStatus = $status === "on-hold" ? "Subscription will be Paused Tomorrow:double_vertical_bar:" : "Subscription will be Cancelled Tomorrow:alert:";
+	$subscriptionStatus = $status === "on-hold" ? "Subscription will be Downgraded Tomorrow:double_vertical_bar:" : "Subscription will be Cancelled Tomorrow:alert:";
 	
 	$slackMessageBody = [
 		"text" => "<!channel> $subscriptionStatus \n*Client:* $customerName | $customerEmail\n*Plan:* $subscriptionItems",
