@@ -1829,3 +1829,18 @@ add_action('woocommerce_subscription_status_active', 'deleteCancellationWarningA
 // }
 // //add_action('template_redirect', 'changeBillingDateAfterPaymentResolved');
 // add_action( 'woocommerce_subscription_status_active', 'changeBillingDateAfterPaymentResolved');
+
+
+
+function manuallySendSlackNotificationAboutSubscriptionStatus($status, $customerName, $customerEmail, $subscriptionItems){
+	$subscriptionStatus = $status === "on-hold" ? "Subscription will be Paused Tomorrow:double_vertical_bar:" : "Subscription will be Cancelled Tomorrow:alert:";
+	
+	$slackMessageBody = [
+		"text" => "<!channel> $subscriptionStatus \n*Client:* $customerName | $customerEmail\n*Plan:* $subscriptionItems",
+		"username" => "Marcus"
+	];
+
+	slackNotifications($slackMessageBody);
+	
+}
+add_action('manuallySendSlackNotificationAboutSubscriptionStatusHook', 'manuallySendSlackNotificationAboutSubscriptionStatus', 10, 4);
