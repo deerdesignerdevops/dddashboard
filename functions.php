@@ -1930,28 +1930,3 @@ function prefillReferralIdFieldFromUrlParams(){
 	}
 }
 add_action('woocommerce_checkout_init', 'prefillReferralIdFieldFromUrlParams');
-
-
-
-function getReferralCustomLink(){
-	if(is_user_logged_in() && is_page(array('dash', 'dash-woo'))){
-		$currentUserId = get_current_user_id();
-		$referralUrl  = get_user_meta($currentUserId, 'grow_surf_participant_url', true);
-
-		echo "<script>
-		document.addEventListener('DOMContentLoaded', function(){
-
-			const referralLink = document.querySelector('#referral__link');
-			
-			referralLink?.addEventListener('click', function(){
-				console.log('referralUrl', '$referralUrl')
-				navigator.clipboard.writeText('$referralUrl');
-				alert('Your referral link was copied to clipboard!');
-			})
-
-		})		
-		</script>";
-	
-	}
-}
-add_action('template_redirect', 'getReferralCustomLink');
