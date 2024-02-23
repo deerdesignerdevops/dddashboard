@@ -265,6 +265,7 @@ function updateAditionalUserDataOnAdminPanel($userId){
 	//UPDATE USER IN THIRD PARTY PLATFORMS
 	updateUserInFreshdeskByWordpressProfileUpdate($userId);
 	updateFolderNameInBoxByWpProfileUpdate($userId);
+	updateProjectAndTaskNameInClockify($userId);
 	updateUserEmailInMoosend($userId);
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
@@ -1482,7 +1483,6 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 			}	
 			
 			if(!empty($additionalUsersAdded)){
-				sendAdditionalusersNotificationToSlack($additionalUsersAdded);
 				sendEmailToProductionWhenNewTeamMemberIsAdded(get_current_user_id(), $additionalUsersAdded);
 				sendEmailToUserAboutAdditionalTeamMembers(get_current_user_id(), $additionalUsersAdded);
 				wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
@@ -1542,11 +1542,8 @@ function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
 
 
 function removeAdditionalUserFromDatabase($userId){
-	$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CLIENT_MANAGEMENT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
 	$userToBeDeleted = get_user_by( 'id', $userId);
 	$freshdeskUserId = get_user_meta($userToBeDeleted->id, 'contact_freshdesk_id', true);
-	$accountOwner = wp_get_current_user();
-	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
 	$requestBody = [
 		"custom_fields" => [
 			"registered_user" => false,
@@ -1559,19 +1556,8 @@ function removeAdditionalUserFromDatabase($userId){
 		wc_add_notice("You can't remove this user!", 'error');
 	}else{
 		wc_add_notice("The user was successfully removed from your account!", 'success');
-		
-
-		$slackMessageBody = [
-			'text'  => '<!channel> A client just removed a team member from their account:  ' . '
-	*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
-	*Team Member:* ' . $userToBeDeleted->first_name . " ($userToBeDeleted->user_email)" ,
-			'username' => 'Marcus',
-		];
-
-		slackNotifications($slackMessageBody, $slackWebHookUrl);
 		putRequestToFreshdesk($freshdeskUserId, $requestBody);
 		wp_delete_user($userId);
-
 	}
 
 	wp_redirect(get_permalink(wc_get_page_id('myaccount')) . "edit-account");
@@ -1856,6 +1842,21 @@ add_action('woocommerce_subscription_status_active', 'deleteCancellationWarningA
 
 
 
+function manuallySendSlackNotificationAboutSubscriptionStatus($status, $customerName, $customerEmail, $subscriptionItems){
+	$subscriptionStatus = $status === "on-hold" ? "Subscription will be Downgraded Tomorrow:double_vertical_bar:" : "Subscription will be Cancelled Tomorrow:alert:";
+	
+	$slackMessageBody = [
+		"text" => "<!channel> $subscriptionStatus \n*Client:* $customerName | $customerEmail\n*Plan:* $subscriptionItems",
+		"username" => "Marcus"
+	];
+
+	slackNotifications($slackMessageBody);
+	
+}
+add_action('manuallySendSlackNotificationAboutSubscriptionStatusHook', 'manuallySendSlackNotificationAboutSubscriptionStatus', 10, 4);
+
+
+
 //AFFILIATE PROGRAM
 function redirectUserToAffiliatesPanel(){
 	$currentUser = wp_get_current_user();
@@ -1908,7 +1909,6 @@ add_action( 'woocommerce_checkout_update_order_meta', 'saveReferralIdInDatebase'
 
 
 
-
 function prefillReferralIdFieldFromUrlParams(){
 	$referralId = "";
 	if(isset($_GET['grsf'])){;
@@ -1930,3 +1930,28 @@ function prefillReferralIdFieldFromUrlParams(){
 	}
 }
 add_action('woocommerce_checkout_init', 'prefillReferralIdFieldFromUrlParams');
+
+
+
+function getReferralCustomLink(){
+	if(is_user_logged_in() && is_page(array('dash', 'dash-woo'))){
+		$currentUserId = get_current_user_id();
+		$referralUrl  = get_user_meta($currentUserId, 'grow_surf_participant_url', true);
+
+		echo "<script>
+		document.addEventListener('DOMContentLoaded', function(){
+
+			const referralLink = document.querySelector('#referral__link');
+			
+			referralLink?.addEventListener('click', function(){
+				console.log('referralUrl', '$referralUrl')
+				navigator.clipboard.writeText('$referralUrl');
+				alert('Your referral link was copied to clipboard!');
+			})
+
+		})		
+		</script>";
+	
+	}
+}
+add_action('template_redirect', 'getReferralCustomLink');
