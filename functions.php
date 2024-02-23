@@ -265,6 +265,7 @@ function updateAditionalUserDataOnAdminPanel($userId){
 	//UPDATE USER IN THIRD PARTY PLATFORMS
 	updateUserInFreshdeskByWordpressProfileUpdate($userId);
 	updateFolderNameInBoxByWpProfileUpdate($userId);
+	updateProjectAndTaskNameInClockify($userId);
 	updateUserEmailInMoosend($userId);
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
@@ -1841,6 +1842,21 @@ add_action('woocommerce_subscription_status_active', 'deleteCancellationWarningA
 
 
 
+function manuallySendSlackNotificationAboutSubscriptionStatus($status, $customerName, $customerEmail, $subscriptionItems){
+	$subscriptionStatus = $status === "on-hold" ? "Subscription will be Downgraded Tomorrow:double_vertical_bar:" : "Subscription will be Cancelled Tomorrow:alert:";
+	
+	$slackMessageBody = [
+		"text" => "<!channel> $subscriptionStatus \n*Client:* $customerName | $customerEmail\n*Plan:* $subscriptionItems",
+		"username" => "Marcus"
+	];
+
+	slackNotifications($slackMessageBody);
+	
+}
+add_action('manuallySendSlackNotificationAboutSubscriptionStatusHook', 'manuallySendSlackNotificationAboutSubscriptionStatus', 10, 4);
+
+
+
 //AFFILIATE PROGRAM
 function redirectUserToAffiliatesPanel(){
 	$currentUser = wp_get_current_user();
@@ -1893,7 +1909,6 @@ add_action( 'woocommerce_checkout_update_order_meta', 'saveReferralIdInDatebase'
 
 
 
-
 function prefillReferralIdFieldFromUrlParams(){
 	$referralId = "";
 	if(isset($_GET['grsf'])){;
@@ -1915,3 +1930,28 @@ function prefillReferralIdFieldFromUrlParams(){
 	}
 }
 add_action('woocommerce_checkout_init', 'prefillReferralIdFieldFromUrlParams');
+
+
+
+function getReferralCustomLink(){
+	if(is_user_logged_in() && is_page(array('dash', 'dash-woo'))){
+		$currentUserId = get_current_user_id();
+		$referralUrl  = get_user_meta($currentUserId, 'grow_surf_participant_url', true);
+
+		echo "<script>
+		document.addEventListener('DOMContentLoaded', function(){
+
+			const referralLink = document.querySelector('#referral__link');
+			
+			referralLink?.addEventListener('click', function(){
+				console.log('referralUrl', '$referralUrl')
+				navigator.clipboard.writeText('$referralUrl');
+				alert('Your referral link was copied to clipboard!');
+			})
+
+		})		
+		</script>";
+	
+	}
+}
+add_action('template_redirect', 'getReferralCustomLink');

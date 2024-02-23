@@ -109,8 +109,12 @@ function addNewParticipantToReferralProgram($orderId){
             if(has_term('plan', 'product_cat', $orderItem->get_product_id())){
 
                 $response = postRequestToGrowSurf($requestBody);
+                
                 if($response['id']){
-                    update_user_meta($currentUser->id, 'grow_surf_participant_id', $response['id']);
+                    $referralId = $response['id'];
+                    $growSurfParticipantUrl = "https://deerdesigner.com/?grsf=$referralId";
+                    update_user_meta($currentUser->id, 'grow_surf_participant_id', $referralId);
+                    update_user_meta($currentUser->id, 'grow_surf_participant_url', $growSurfParticipantUrl);
                 }
                 return;
             };	
