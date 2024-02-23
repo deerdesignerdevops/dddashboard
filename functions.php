@@ -264,6 +264,7 @@ function updateAditionalUserDataOnAdminPanel($userId){
 	//UPDATE USER IN THIRD PARTY PLATFORMS
 	updateUserInFreshdeskByWordpressProfileUpdate($userId);
 	updateFolderNameInBoxByWpProfileUpdate($userId);
+	updateProjectAndTaskNameInClockify($userId);
 	updateUserEmailInMoosend($userId);
 }
 add_action( 'personal_options_update', 'updateAditionalUserDataOnAdminPanel' );
