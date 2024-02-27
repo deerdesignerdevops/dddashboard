@@ -189,7 +189,6 @@ function dynamicReferralCoupon($referrerId, $referralCount){
     $coupon->set_amount( 100 );
     $coupon->set_discount_type('recurring_fee');
     $coupon->set_description( "[REFERRAL] Coupon for $companyName." );
-
     $coupon->save();
 
     return $coupon->get_code();
@@ -230,11 +229,12 @@ function removeDiscountFromSubscriptionAfterPayment($subscription, $lastOrder){
     $coupons = $subscription->get_used_coupons();
     
     foreach($coupons as $coupon){
-        $currentCouponObj = new WC_Coupon($coupon);
-        $subscription->remove_coupon( $coupon );
-        $subscription->save();
-        $currentCouponObj->delete(true);
+        if(str_contains($coupon, "referrer")){
+            $currentCouponObj = new WC_Coupon($coupon);
+            $subscription->remove_coupon( $coupon );
+            $subscription->save();
+            $currentCouponObj->delete(true);
+        }
     }
-
 }
 add_action( 'woocommerce_subscription_renewal_payment_complete', 'removeDiscountFromSubscriptionAfterPayment', 10, 2 );
