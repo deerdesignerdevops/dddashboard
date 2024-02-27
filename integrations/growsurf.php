@@ -101,8 +101,8 @@ function addNewParticipantToReferralProgram($orderId){
         $requestBody = [
             "email" => $currentUser->user_email,
             "referredBy" => $referralId,
-            "first_name" => $currentUser->first_name,
-            "last_name" => $currentUser->last_name,
+            "firstName" => $currentUser->first_name,
+            "lastName" => $currentUser->last_name,
         ];
 
         foreach($order->get_items() as $orderItem){
