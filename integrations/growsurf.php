@@ -101,8 +101,8 @@ function addNewParticipantToReferralProgram($orderId){
         $requestBody = [
             "email" => $currentUser->user_email,
             "referredBy" => $referralId,
-            "first_name" => $currentUser->first_name,
-            "last_name" => $currentUser->last_name,
+            "firstName" => $currentUser->first_name,
+            "lastName" => $currentUser->last_name,
         ];
 
         foreach($order->get_items() as $orderItem){
@@ -180,29 +180,61 @@ add_action('woocommerce_payment_complete', 'getReferrerIdFromSubscriptionRenewal
 
 
 
+function dynamicReferralCoupon($referrerId, $referralCount){
+    $coupon = new WC_Coupon();
+    $couponCode = "referrer_$referrerId" . "_$referralCount";
+    $companyName = get_user_meta($referrerId, 'billing_company', true);
+
+    $coupon->set_code($couponCode);
+    $coupon->set_amount( 100 );
+    $coupon->set_discount_type('recurring_fee');
+    $coupon->set_description( "[REFERRAL] Coupon for $companyName." );
+    $coupon->save();
+
+    return $coupon->get_code();
+}
+
+
+
 function applyDiscountToReferrerNextRenewal($referrerId){
     $userSubscriptions = wcs_get_users_subscriptions($referrerId);
-    $couponCode = 'deerreferrer';
+    $referralCount = 1;
 	
     foreach($userSubscriptions as $subscription){
 		foreach($subscription->get_items() as $subItem){
 			if(has_term('plan', 'product_cat', $subItem['product_id'])){
-                $subscription->apply_coupon( $couponCode );
-                $subscription->save();
-                return;		
+                $coupons = $subscription->get_used_coupons();
+
+                if($coupons){
+                    foreach($coupons as $coupon){
+                        $referralCount = $referralCount + 1;
+                    }
+                }
+
+                $couponCode = dynamicReferralCoupon($referrerId, $referralCount);
+
+                if($couponCode){
+                    $subscription->apply_coupon( $couponCode );
+                    $subscription->save();
+                    return;		
+                }               
 			}
 		}
 	}
 }
 
 
+
 function removeDiscountFromSubscriptionAfterPayment($subscription, $lastOrder){
-    $couponCode = 'deerreferrer';
     $coupons = $subscription->get_used_coupons();
     
-    if(in_array($couponCode, $coupons)){
-        $subscription->remove_coupon( $couponCode );
-        $subscription->save();
+    foreach($coupons as $coupon){
+        if(str_contains($coupon, "referrer")){
+            $currentCouponObj = new WC_Coupon($coupon);
+            $subscription->remove_coupon( $coupon );
+            $subscription->save();
+            $currentCouponObj->delete(true);
+        }
     }
 }
 add_action( 'woocommerce_subscription_renewal_payment_complete', 'removeDiscountFromSubscriptionAfterPayment', 10, 2 );

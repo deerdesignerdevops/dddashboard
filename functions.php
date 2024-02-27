@@ -546,20 +546,23 @@ function getCurrentTeamMemberAccountOwner($currentUser){
 
 
 function getCurrentUserRole(){
-	$currentUser = wp_get_current_user();
-
-	if(in_array('team_member', $currentUser->roles)){
-		echo "<style>
-			.paused__user_btn, .btn__billing, .paused__user_banner{display:none !important;}
-			.account_details__section{width: 50%; margin: auto;}
-			.account__details_col{width: 100% !important;}
-		</style>";
-		getCurrentTeamMemberAccountOwner($currentUser);
+	if(current_user_can('administrator')){
+		return;
 	}else{
-		checkIfUserIsActive($currentUser);
+		$currentUser = wp_get_current_user();
+
+		if(in_array('team_member', $currentUser->roles)){
+			echo "<style>
+				.paused__user_btn, .btn__billing, .paused__user_banner{display:none !important;}
+				.account_details__section{width: 50%; margin: auto;}
+				.account__details_col{width: 100% !important;}
+			</style>";
+			getCurrentTeamMemberAccountOwner($currentUser);
+		}else{
+			checkIfUserIsActive($currentUser);
+		}
 	}
 }
-
 add_action('template_redirect', 'getCurrentUserRole');
 
 
@@ -995,17 +998,26 @@ add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
 
 
 function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
-	if(isset($_GET['sld'])){
-		$affiliateUrl = $_GET['sld'];
-		return wc_get_checkout_url() . "/?sld=$affiliateUrl";
-	}else if(isset($_GET['grsf'])){
+	if(isset($_GET['grsf'])){
 		$referralId = $_GET['grsf'];
 		return wc_get_checkout_url() . "/?grsf=$referralId";
+
+	}else if(isset($_COOKIE['dd_referral_id'])){
+		$referralId = $_COOKIE['dd_referral_id'];
+		return wc_get_checkout_url() . "/?grsf=$referralId";
+
+	}else if(isset($_COOKIE['dd_affiliate_id'])){
+		$affiliateId = $_COOKIE['dd_affiliate_id'];
+		return wc_get_checkout_url() . "/?sld=$affiliateId";
+	}
+	else if(isset($_GET['sld'])){
+		$affiliateId = $_GET['sld'];
+		return wc_get_checkout_url() . "/?sld=$affiliateId";
 	}
 
     return wc_get_checkout_url();
 }
-add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 ); 
+add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 );
 
 
 
