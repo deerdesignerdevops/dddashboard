@@ -1942,3 +1942,18 @@ function prefillReferralIdFieldFromUrlParams(){
 	}
 }
 add_action('woocommerce_checkout_init', 'prefillReferralIdFieldFromUrlParams');
+
+
+
+function hideReferralButtonWhenUserHasNoUrl(){
+	if(is_user_logged_in() && is_page(array('dash', 'dash-woo'))){
+		$referralUrl = get_user_meta(get_current_user_id(), 'grow_surf_participant_url', true);
+	
+		if(!$referralUrl){
+			echo "<style>
+			#referral__popup_btn{display: none !important;}
+			</style>";
+		}
+	}
+}
+add_action('template_redirect', 'hideReferralButtonWhenUserHasNoUrl');
