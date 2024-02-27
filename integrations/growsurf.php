@@ -180,12 +180,16 @@ add_action('woocommerce_payment_complete', 'getReferrerIdFromSubscriptionRenewal
 
 
 
-function dynamicReferralCoupon($couponCode){
+function dynamicReferralCoupon($referrerId, $referralCount){
     $coupon = new WC_Coupon();
+    $couponCode = "referrer_$referrerId" . "_$referralCount";
+    $companyName = get_user_meta($referrerId, 'billing_company', true);
 
     $coupon->set_code($couponCode);
     $coupon->set_amount( 100 );
     $coupon->set_discount_type('recurring_fee');
+    $coupon->set_description( "[REFERRAL] Coupon for $companyName." );
+
     $coupon->save();
 
     return $coupon->get_code();
@@ -196,7 +200,6 @@ function dynamicReferralCoupon($couponCode){
 function applyDiscountToReferrerNextRenewal($referrerId){
     $userSubscriptions = wcs_get_users_subscriptions($referrerId);
     $referralCount = 1;
-    $couponCode = "referral_$referrerId" . "_$referralCount";
 	
     foreach($userSubscriptions as $subscription){
 		foreach($subscription->get_items() as $subItem){
@@ -209,8 +212,7 @@ function applyDiscountToReferrerNextRenewal($referrerId){
                     }
                 }
 
-                $couponCode = "referral_$referrerId" . "_$referralCount";
-                $couponCode = dynamicReferralCoupon($couponCode);
+                $couponCode = dynamicReferralCoupon($referrerId, $referralCount);
 
                 if($couponCode){
                     $subscription->apply_coupon( $couponCode );
@@ -223,13 +225,16 @@ function applyDiscountToReferrerNextRenewal($referrerId){
 }
 
 
+
 function removeDiscountFromSubscriptionAfterPayment($subscription, $lastOrder){
-    $couponCode = 'deerreferrer';
     $coupons = $subscription->get_used_coupons();
     
-    if(in_array($couponCode, $coupons)){
-        $subscription->remove_coupon( $couponCode );
+    foreach($coupons as $coupon){
+        $currentCouponObj = new WC_Coupon($coupon);
+        $subscription->remove_coupon( $coupon );
         $subscription->save();
+        $currentCouponObj->delete(true);
     }
+
 }
 add_action( 'woocommerce_subscription_renewal_payment_complete', 'removeDiscountFromSubscriptionAfterPayment', 10, 2 );
