@@ -998,17 +998,26 @@ add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
 
 
 function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
-	if(isset($_GET['sld'])){
-		$affiliateUrl = $_GET['sld'];
-		return wc_get_checkout_url() . "/?sld=$affiliateUrl";
-	}else if(isset($_GET['grsf'])){
+	if(isset($_GET['grsf'])){
 		$referralId = $_GET['grsf'];
 		return wc_get_checkout_url() . "/?grsf=$referralId";
+
+	}else if(isset($_COOKIE['dd_referral_id'])){
+		$referralId = $_COOKIE['dd_referral_id'];
+		return wc_get_checkout_url() . "/?grsf=$referralId";
+
+	}else if(isset($_COOKIE['dd_affiliate_id'])){
+		$affiliateId = $_COOKIE['dd_affiliate_id'];
+		return wc_get_checkout_url() . "/?sld=$affiliateId";
+	}
+	else if(isset($_GET['sld'])){
+		$affiliateId = $_GET['sld'];
+		return wc_get_checkout_url() . "/?sld=$affiliateId";
 	}
 
     return wc_get_checkout_url();
 }
-add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 ); 
+add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 );
 
 
 
