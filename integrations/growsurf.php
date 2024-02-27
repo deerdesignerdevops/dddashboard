@@ -180,16 +180,43 @@ add_action('woocommerce_payment_complete', 'getReferrerIdFromSubscriptionRenewal
 
 
 
+function dynamicReferralCoupon($couponCode){
+    $coupon = new WC_Coupon();
+
+    $coupon->set_code($couponCode);
+    $coupon->set_amount( 100 );
+    $coupon->set_discount_type('recurring_fee');
+    $coupon->save();
+
+    return $coupon->get_code();
+}
+
+
+
 function applyDiscountToReferrerNextRenewal($referrerId){
     $userSubscriptions = wcs_get_users_subscriptions($referrerId);
-    $couponCode = 'deerreferrer';
+    $referralCount = 1;
+    $couponCode = "referral_$referrerId" . "_$referralCount";
 	
     foreach($userSubscriptions as $subscription){
 		foreach($subscription->get_items() as $subItem){
 			if(has_term('plan', 'product_cat', $subItem['product_id'])){
-                $subscription->apply_coupon( $couponCode );
-                $subscription->save();
-                return;		
+                $coupons = $subscription->get_used_coupons();
+
+                if($coupons){
+                    foreach($coupons as $coupon){
+                        $referralCount = $referralCount + 1;
+                    }
+                }
+
+                $couponCode = "referral_$referrerId" . "_$referralCount";
+                $couponCode = dynamicReferralCoupon($couponCode);
+
+                if($couponCode){
+                    $subscription->apply_coupon( $couponCode );
+                    $subscription->save();
+                    return;		
+                }               
 			}
 		}
 	}
