@@ -546,20 +546,23 @@ function getCurrentTeamMemberAccountOwner($currentUser){
 
 
 function getCurrentUserRole(){
-	$currentUser = wp_get_current_user();
-
-	if(in_array('team_member', $currentUser->roles)){
-		echo "<style>
-			.paused__user_btn, .btn__billing, .paused__user_banner{display:none !important;}
-			.account_details__section{width: 50%; margin: auto;}
-			.account__details_col{width: 100% !important;}
-		</style>";
-		getCurrentTeamMemberAccountOwner($currentUser);
+	if(current_user_can('administrator')){
+		return;
 	}else{
-		checkIfUserIsActive($currentUser);
+		$currentUser = wp_get_current_user();
+
+		if(in_array('team_member', $currentUser->roles)){
+			echo "<style>
+				.paused__user_btn, .btn__billing, .paused__user_banner{display:none !important;}
+				.account_details__section{width: 50%; margin: auto;}
+				.account__details_col{width: 100% !important;}
+			</style>";
+			getCurrentTeamMemberAccountOwner($currentUser);
+		}else{
+			checkIfUserIsActive($currentUser);
+		}
 	}
 }
-
 add_action('template_redirect', 'getCurrentUserRole');
 
 
