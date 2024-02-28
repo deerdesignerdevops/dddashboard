@@ -443,16 +443,18 @@ add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSl
 
 
 function updateCreativeCallsNumberAfterPaymentComplete($orderId){
-	$order = wc_get_order( $orderId );
-	$currentUser = get_user_by('id', $order->data['customer_id']);
-	$groupName = preg_replace('/[^\w\s]/', '', $currentUser->billing_company);
-	$groupName = strtolower(str_replace(' ', '_', $groupName));
-	$companyName = $currentUser->billing_company;
-	$creativeCalls = updateCreativeCallsNumberBasedOnActiveSubscriptions($currentUser->id);		
-
-	createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls);
+	if(wcs_order_contains_renewal($orderId)){
+		$order = wc_get_order( $orderId );
+		$currentUser = get_user_by('id', $order->data['customer_id']);
+		$groupName = preg_replace('/[^\w\s]/', '', $currentUser->billing_company);
+		$groupName = strtolower(str_replace(' ', '_', $groupName));
+		$companyName = $currentUser->billing_company;
+		$creativeCalls = updateCreativeCallsNumberBasedOnActiveSubscriptions($currentUser->id);		
+	
+		createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls, $currentUser->id);
+	}
 }
-//add_action( 'woocommerce_payment_complete', 'updateCreativeCallsNumberAfterPaymentComplete');
+add_action( 'woocommerce_payment_complete', 'updateCreativeCallsNumberAfterPaymentComplete');
 
 
 
@@ -1039,7 +1041,7 @@ function prepareOrderDataToCreateTheUserGroupOnDataBase($entryId, $formData, $fo
 		$companyName = $currentUser->billing_company;
 		$creativeCalls = updateCreativeCallsNumberBasedOnActiveSubscriptions($currentUser->id);		
 
-		createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls);
+		createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls, $currentUser->id);
 	}
 
 }
@@ -1081,7 +1083,7 @@ add_action('woocommerce_subscription_renewal_payment_failed', 'zeroCreativeCalls
 
 
 
-function createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls) {
+function createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls, $userId) {
 	global $wpdb;
     $tableName = _groups_get_tablename( 'group' );
 
@@ -1111,7 +1113,7 @@ function createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls)
 		);
 
 		if ( $group = Groups_Group::read_by_name( $groupName ) ) {
-			Groups_User_Group::create( array( "user_id"=>get_current_user_id(), "group_id"=>$group->group_id ) );
+			Groups_User_Group::create( array( "user_id"=>$userId, "group_id"=>$group->group_id ) );
 		}
 
    }else{
@@ -1121,7 +1123,7 @@ function createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls)
 
 		if($insertedId){
 			if ( $group = Groups_Group::read_by_name( $groupName ) ) {
-				Groups_User_Group::create( array( "user_id"=>get_current_user_id(), "group_id"=>$group->group_id ) );
+				Groups_User_Group::create( array( "user_id"=>$userId, "group_id"=>$group->group_id ) );
 			}
 		}
    }
