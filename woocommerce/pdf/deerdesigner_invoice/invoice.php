@@ -100,7 +100,7 @@
 					</tr>
 				<?php endif; ?>
 				<tr class="order-number">
-					<th><?php _e( 'Order Number:', 'woocommerce-pdf-invoices-packing-slips' ); ?></th>
+					<th><?php _e( 'Invoice Number:', 'woocommerce-pdf-invoices-packing-slips' ); ?></th>
 					<td><?php $this->order_number(); ?></td>
 				</tr>
 				<tr class="order-date">

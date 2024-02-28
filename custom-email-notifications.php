@@ -109,10 +109,6 @@ function sendEmailToAdminAfterUserProfileUpdated($userId, $oldUserData, $userDat
 			$body = emailTemplate($message);
 
 			wp_mail($toEmail, $subject, $body, $headers);
-			
-			//UPDATE USER IN THIRD PARTY PLATFORMS
-			updateUserInFreshdeskByWordpressProfileUpdate($userId);
-			updateUserEmailInMoosend($userId);
 		}
 	}
 }
