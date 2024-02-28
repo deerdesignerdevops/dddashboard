@@ -452,7 +452,7 @@ function updateCreativeCallsNumberAfterPaymentComplete($orderId){
 
 	createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls);
 }
-add_action( 'woocommerce_payment_complete', 'updateCreativeCallsNumberAfterPaymentComplete');
+//add_action( 'woocommerce_payment_complete', 'updateCreativeCallsNumberAfterPaymentComplete');
 
 
 
