@@ -17,6 +17,16 @@
 
 	$userVATNumber = get_user_meta($currentOrderUserId, 'user_vat_number', true);
 
+	$lastOrder = wc_get_orders([   
+		'customer_id' => $currentOrderUserId,
+		'exclude' => array( $order->get_id()),
+		 'status' => array('wc-completed'),
+		'limit' => 1
+		]
+	);
+	$lastOrderDatePaid = $lastOrder[0]->get_date_paid();
+	$lastOrderDatePaid = $lastOrderDatePaid -> date('F d, Y');
+
 
 ?>
 
@@ -135,7 +145,8 @@
 			<tr class="<?php echo apply_filters( 'wpo_wcpdf_item_row_class', 'item-'.$item_id, esc_attr( $this->get_type() ), $this->order, $item_id ); ?>">
 				<td class="product">
 					<?php $description_label = __( 'Description', 'woocommerce-pdf-invoices-packing-slips' ); // registering alternate label translation ?>
-					<span class="item-name">Deer Designer - <?php echo $item['name']; ?> - Subscription</span>
+					<span class="item-name">Deer Designer - <?php echo $item['name']; ?> - Subscription</span><br>
+					<span><?php echo $lastOrderDatePaid; ?> - <?php echo $this->order_date(); ?></span>
 				</td>
 				<td class="quantity"></td>
 				<td class="price"><?php echo $item['order_price']; ?></td>
