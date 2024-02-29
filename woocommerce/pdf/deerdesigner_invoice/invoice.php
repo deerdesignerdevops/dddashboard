@@ -21,8 +21,7 @@
 	if($orderSubscriptions){
 		$subscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
 		if($subscription){
-
-			$newDate = new DateTime($subscription->get_date('next_payment'));
+			$newDate = new DateTime(strtotime($subscription->get_date('next_payment')));
 			$nextPayment = $newDate->format('F d, Y');
 		}
 	}
