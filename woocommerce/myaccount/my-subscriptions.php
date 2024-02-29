@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			const productPrice = e.currentTarget.dataset.productPrice
 			const productName = e.currentTarget.dataset.productName
 			const currentUserId = <?php echo $currentUserId; ?>;
-			const activeTaskAlertMsg = currentUserId === 970 ? `For the Active Task, we will charge you $0 today and ${productPrice} per month on the next billing cycles.` : `For this ${productName}, starting today, we will charge <strong>${productPrice}</strong> per month to the card on your account.`
+			const activeTaskAlertMsg = `For this ${productName}, starting today, we will charge <strong>${productPrice}</strong> per month to the card on your account.`
 
 			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = "ARE YOU SURE YOU WANT TO <br><span> ADD THIS ITEM TO YOUR ACCOUNT?</span>";
