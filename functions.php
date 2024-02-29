@@ -1850,3 +1850,44 @@ function manuallySendSlackNotificationAboutSubscriptionStatus($status, $customer
 	
 }
 add_action('manuallySendSlackNotificationAboutSubscriptionStatusHook', 'manuallySendSlackNotificationAboutSubscriptionStatus', 10, 4);
+
+
+
+function resetCreativeCallsForBusinessAnnualActiveUsers($usersAllowedToBookCalls){
+	$businessAnnualSubscriptions = wcs_get_subscriptions_for_product(1592);
+
+	if ($businessAnnualSubscriptions){
+		foreach($businessAnnualSubscriptions as $subscriptionId){
+			$subscription = wcs_get_subscription($subscriptionId);
+
+			if($subscription->get_status() === "active" && in_array($subscription->data['customer_id'], $usersAllowedToBookCalls )){
+				global $wpdb;
+				$tableName = _groups_get_tablename( 'group' );
+				$userGroups = new Groups_User( $subscription->data['customer_id'] );
+				
+				foreach($userGroups->groups as $group){
+					if($group->name !== "Registered"){
+						$groupName = $group->name;
+		
+						$existingRow = $wpdb->get_row(
+							$wpdb->prepare(
+								"SELECT * FROM $tableName WHERE name = %s",
+								$groupName,
+							)
+						);
+		
+						if($existingRow){
+							$wpdb->update($tableName, array(
+									'creative_calls' => 1,
+								), array(
+									'name' => $groupName
+								)
+							);
+						}				
+					}
+				}
+			}
+		}
+	}
+}
+add_action('resetCreativeCallsForBusinessAnnualActiveUsersHook', 'resetCreativeCallsForBusinessAnnualActiveUsers');
