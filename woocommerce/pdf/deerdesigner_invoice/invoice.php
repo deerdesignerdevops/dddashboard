@@ -20,8 +20,11 @@
 	$nextPayment = "";
 	if($orderSubscriptions){
 		$subscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
-		$newDate = new DateTime($subscription->get_date('next_payment'));
-		$nextPayment = $newDate->format('F d, Y');
+		if($subscription){
+
+			$newDate = new DateTime($subscription->get_date('next_payment'));
+			$nextPayment = $newDate->format('F d, Y');
+		}
 	}
 ?>
 
