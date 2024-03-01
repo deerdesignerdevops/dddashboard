@@ -82,16 +82,15 @@ function emailTemplate($content){
 	';
 }
 
-function sendEmailToAdminAfterUserProfileUpdated($userId, $oldUserData, $userData){
+function sendEmailToAdminAfterUserProfileUpdated($userId, $user){
 	if(!is_admin()){
 		global $wp, $headers;
 		$editProfileUrl = site_url() . "/edit-account";
 		
 		if(home_url( $wp->request ) === $editProfileUrl){
-			$user = get_userdata( $userId );
 			$userFirstName = $user->first_name;
 			$userLastName = $user->last_name;
-			$userEmail = $user->user_email;
+			$userEmail = $user->email;
 			$companyName = get_user_meta($userId, 'billing_company', true);
 
 			$subject = "User Profile Updated";
@@ -112,7 +111,7 @@ function sendEmailToAdminAfterUserProfileUpdated($userId, $oldUserData, $userDat
 		}
 	}
 }
-add_action( 'profile_update', 'sendEmailToAdminAfterUserProfileUpdated', 10, 3);
+add_action( 'woocommerce_update_customer', 'sendEmailToAdminAfterUserProfileUpdated', 11, 2);
 
 
 

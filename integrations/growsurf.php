@@ -196,6 +196,22 @@ function dynamicReferralCoupon($referrerId, $referralCount){
 
 
 
+function dynamicReferralCreditCoupon($referrerId, $amount){
+    $coupon = new WC_Coupon();
+    $couponCode = "referrer_subscription_credit_$referrerId";
+    $companyName = get_user_meta($referrerId, 'billing_company', true);
+
+    $coupon->set_code($couponCode);
+    $coupon->set_amount( $amount );
+    $coupon->set_discount_type('recurring_fee');
+    $coupon->set_description( "[REFERRAL] Credit Coupon for $companyName." );
+    $coupon->save();
+
+    return $coupon->get_code();
+}
+
+
+
 function applyDiscountToReferrerNextRenewal($referrerId){
     $userSubscriptions = wcs_get_users_subscriptions($referrerId);
     $referralCount = 1;
@@ -225,16 +241,31 @@ function applyDiscountToReferrerNextRenewal($referrerId){
 
 
 
-function removeDiscountFromSubscriptionAfterPayment($subscription, $lastOrder){
+function removeDiscountFromSubscriptionAfterPayment($subscription){
+    $subscription = wcs_get_subscription(2005);
     $coupons = $subscription->get_used_coupons();
+    $couponsAmount = 0;
     
     foreach($coupons as $coupon){
         if(str_contains($coupon, "referrer")){
             $currentCouponObj = new WC_Coupon($coupon);
+            $couponsAmount = $couponsAmount + $currentCouponObj->amount;
             $subscription->remove_coupon( $coupon );
             $subscription->save();
             $currentCouponObj->delete(true);
         }
+    }
+
+    $referrerSubscriptionCredit = $subscription->get_subtotal() - $couponsAmount;
+
+    if($referrerSubscriptionCredit < 0){
+        $creditCouponCode = dynamicReferralCreditCoupon($subscription->data['customer_id'], abs($referrerSubscriptionCredit));
+    
+        if($creditCouponCode){
+            $subscription->apply_coupon( $creditCouponCode );
+            $subscription->save();
+            return;		
+        }   
     }
 }
 add_action( 'woocommerce_subscription_renewal_payment_complete', 'removeDiscountFromSubscriptionAfterPayment', 10, 2 );

@@ -444,14 +444,16 @@ add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSl
 
 
 function updateCreativeCallsNumberAfterPaymentComplete($orderId){
-	$order = wc_get_order( $orderId );
-	$currentUser = get_user_by('id', $order->data['customer_id']);
-	$groupName = preg_replace('/[^\w\s]/', '', $currentUser->billing_company);
-	$groupName = strtolower(str_replace(' ', '_', $groupName));
-	$companyName = $currentUser->billing_company;
-	$creativeCalls = updateCreativeCallsNumberBasedOnActiveSubscriptions($currentUser->id);		
-
-	createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls);
+	if(wcs_order_contains_renewal($orderId)){
+		$order = wc_get_order( $orderId );
+		$currentUser = get_user_by('id', $order->data['customer_id']);
+		$groupName = preg_replace('/[^\w\s]/', '', $currentUser->billing_company);
+		$groupName = strtolower(str_replace(' ', '_', $groupName));
+		$companyName = $currentUser->billing_company;
+		$creativeCalls = updateCreativeCallsNumberBasedOnActiveSubscriptions($currentUser->id);		
+	
+		createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls, $currentUser->id);
+	}
 }
 add_action( 'woocommerce_payment_complete', 'updateCreativeCallsNumberAfterPaymentComplete');
 
@@ -738,7 +740,7 @@ function changeActiveTaskPriceInCartBasedOnUserPlan() {;
     return;
 
 	$standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
-	$activeTaskProductPrice = get_current_user_id() === 970 ? 0 : wc_get_product( 1600 )->get_price();
+	$activeTaskProductPrice = wc_get_product( 1600 )->get_price();
 
 	$cart = WC()->cart->get_cart();
 	$currentUserSubscriptionPlan = "";
@@ -1057,7 +1059,7 @@ function prepareOrderDataToCreateTheUserGroupOnDataBase($entryId, $formData, $fo
 		$companyName = $currentUser->billing_company;
 		$creativeCalls = updateCreativeCallsNumberBasedOnActiveSubscriptions($currentUser->id);		
 
-		createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls);
+		createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls, $currentUser->id);
 	}
 
 }
@@ -1099,7 +1101,7 @@ add_action('woocommerce_subscription_renewal_payment_failed', 'zeroCreativeCalls
 
 
 
-function createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls) {
+function createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls, $userId) {
 	global $wpdb;
     $tableName = _groups_get_tablename( 'group' );
 
@@ -1129,7 +1131,7 @@ function createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls)
 		);
 
 		if ( $group = Groups_Group::read_by_name( $groupName ) ) {
-			Groups_User_Group::create( array( "user_id"=>get_current_user_id(), "group_id"=>$group->group_id ) );
+			Groups_User_Group::create( array( "user_id"=>$userId, "group_id"=>$group->group_id ) );
 		}
 
    }else{
@@ -1139,7 +1141,7 @@ function createNewGroupAfterOnboarding($groupName, $companyName, $creativeCalls)
 
 		if($insertedId){
 			if ( $group = Groups_Group::read_by_name( $groupName ) ) {
-				Groups_User_Group::create( array( "user_id"=>get_current_user_id(), "group_id"=>$group->group_id ) );
+				Groups_User_Group::create( array( "user_id"=>$userId, "group_id"=>$group->group_id ) );
 			}
 		}
    }
@@ -1869,6 +1871,46 @@ add_action('manuallySendSlackNotificationAboutSubscriptionStatusHook', 'manually
 
 
 
+function resetCreativeCallsForBusinessAnnualActiveUsers($usersAllowedToBookCalls){
+	$businessAnnualSubscriptions = wcs_get_subscriptions_for_product(1592);
+
+	if ($businessAnnualSubscriptions){
+		foreach($businessAnnualSubscriptions as $subscriptionId){
+			$subscription = wcs_get_subscription($subscriptionId);
+
+			if($subscription->get_status() === "active" && in_array($subscription->data['customer_id'], $usersAllowedToBookCalls )){
+				global $wpdb;
+				$tableName = _groups_get_tablename( 'group' );
+				$userGroups = new Groups_User( $subscription->data['customer_id'] );
+				
+				foreach($userGroups->groups as $group){
+					if($group->name !== "Registered"){
+						$groupName = $group->name;
+		
+						$existingRow = $wpdb->get_row(
+							$wpdb->prepare(
+								"SELECT * FROM $tableName WHERE name = %s",
+								$groupName,
+							)
+						);
+		
+						if($existingRow){
+							$wpdb->update($tableName, array(
+									'creative_calls' => 1,
+								), array(
+									'name' => $groupName
+								)
+							);
+						}				
+					}
+				}
+			}
+		}
+	}
+}
+add_action('resetCreativeCallsForBusinessAnnualActiveUsersHook', 'resetCreativeCallsForBusinessAnnualActiveUsers');
+
+
 //AFFILIATE PROGRAM
 function redirectUserToAffiliatesPanel(){
 	$currentUser = wp_get_current_user();
@@ -1908,7 +1950,7 @@ add_filter( 'woocommerce_checkout_fields', 'addReferralIdCheckoutField' );
 function displayReferralIdOnEditOrderPage( $order ) {
     echo '<p><strong>'.__('Referral ID').':</strong> ' . get_post_meta( $order->get_id(), '_referral_id', true ) . '</p>';
 }
-add_action( 'woocommerce_admin_order_data_after_billing_address', 'displayReferralIdOnEditOrderPage', 10, 1 );
+add_action( 'woocommerce_admin_order_data_after_billing_address', 'displayReferralIdOnEditOrderPage' );
 
 
 
