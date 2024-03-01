@@ -378,6 +378,26 @@ function updateUserInFreshdeskByWordpressProfileUpdate($userId){
 
 
 
+function updateUserInFreshdeskByWoocommerceUpdateCustomer($userId, $user){
+	$contactFreshdeskId = get_user_meta($userId, 'contact_freshdesk_id', true );
+	$userFirstName = $user->first_name;
+	$userLastName = $user->last_name;
+	$userEmail = $user->email;
+
+	$requestBodyForUser = [
+		"active" => true,
+		"name" => "$userFirstName $userLastName",
+		"email" => $userEmail,
+	];
+
+	putRequestToFreshdesk($contactFreshdeskId, $requestBodyForUser);
+
+}
+add_action( 'woocommerce_update_customer', 'updateUserInFreshdeskByWoocommerceUpdateCustomer', 20, 2);
+
+
+
+
 function updateUserInFreshdeskAfterNewPurchase($orderId){
 	if(!wcs_order_contains_renewal($orderId)){
 		$order = wc_get_order( $orderId );

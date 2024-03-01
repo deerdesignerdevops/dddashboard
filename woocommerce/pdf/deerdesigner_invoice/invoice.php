@@ -12,12 +12,22 @@
 
 <?php 
 	$currentOrder = $this->order->get_data();
-	
 	$currentOrderUserId = $currentOrder['customer_id'];
-
 	$userVATNumber = get_user_meta($currentOrderUserId, 'user_vat_number', true);
+	$currentOrderPaidDate = $this->order->get_date_paid()->date('F d, Y');
 
+	$orderSubscriptions = wcs_get_subscriptions_for_order($this->order->id, array('order_type' => 'any'));
+	$nextPayment = "";
+	
+	if($orderSubscriptions){
+		$subscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
 
+		if($subscription){
+			$subscriptionPeriod = $subscription->get_billing_period();
+			$nextPayment = strtotime($currentOrderPaidDate . "+1 $subscriptionPeriod");
+			$nextPayment = date('F d, Y', $nextPayment);
+		}
+	}	
 ?>
 
 <?php do_action( 'wpo_wcpdf_before_document', $this->get_type(), $this->order ); ?>
@@ -100,7 +110,7 @@
 					</tr>
 				<?php endif; ?>
 				<tr class="order-number">
-					<th><?php _e( 'Order Number:', 'woocommerce-pdf-invoices-packing-slips' ); ?></th>
+					<th><?php _e( 'Invoice Number:', 'woocommerce-pdf-invoices-packing-slips' ); ?></th>
 					<td><?php $this->order_number(); ?></td>
 				</tr>
 				<tr class="order-date">
@@ -135,7 +145,11 @@
 			<tr class="<?php echo apply_filters( 'wpo_wcpdf_item_row_class', 'item-'.$item_id, esc_attr( $this->get_type() ), $this->order, $item_id ); ?>">
 				<td class="product">
 					<?php $description_label = __( 'Description', 'woocommerce-pdf-invoices-packing-slips' ); // registering alternate label translation ?>
-					<span class="item-name">Deer Designer - <?php echo $item['name']; ?> - Subscription</span>
+					<span class="item-name">Deer Designer - <?php echo $item['name']; ?> - Subscription</span><br>
+
+					<?php if($nextPayment){ ?>
+						<span><?php echo $this->order_date() . ' - ' . $nextPayment; ?></span>
+					<?php } ?>
 				</td>
 				<td class="quantity"></td>
 				<td class="price"><?php echo $item['order_price']; ?></td>
