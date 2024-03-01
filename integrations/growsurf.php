@@ -241,8 +241,7 @@ function applyDiscountToReferrerNextRenewal($referrerId){
 
 
 
-function removeDiscountFromSubscriptionAfterPayment($subscription){
-    $subscription = wcs_get_subscription(2005);
+function removeDiscountFromSubscriptionAfterPayment($subscription, $lastOrder){
     $coupons = $subscription->get_used_coupons();
     $couponsAmount = 0;
     
