@@ -127,7 +127,7 @@ if(isset($_GET['change-plan'])){
 				<?php } ?>
 			</div>
 
-			<div >
+			<div style="width: 30%;" >
 				<?php require_once get_stylesheet_directory() . '/components/payment-methods.php'; ?>
 			</div>
 		</div>
