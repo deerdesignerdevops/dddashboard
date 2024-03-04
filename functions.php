@@ -68,7 +68,7 @@ function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	$currentUser = wp_get_current_user();
 	$userCity = $currentUser->billing_city;
 	$userCountry = $currentUser->billing_country;
-	$companyName = get_user_meta($currentUser->id, 'billing_company', true);
+	$companyName = addslashes(get_user_meta($currentUser->id, 'billing_company', true));
 	$userPlan = "";
 
 	$userSubscriptions = wcs_get_users_subscriptions($currentUser->id);
@@ -394,7 +394,7 @@ function redirectUserAfterSubscriptionStatusUpdated(){
 		exit;
 	}
 	else if(is_user_logged_in() && is_wc_endpoint_url('payment-methods')){
-		wp_safe_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'edit-account');
+		wp_safe_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
 		exit;
 	}
 }
@@ -467,7 +467,7 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		$currentUser = wp_get_current_user();
 		$userName = $currentUser->first_name . " " . $currentUser->last_name;
 		$userEmail = $currentUser->user_email;
-		$companyName = $formData['company_name'];
+		$companyName = addslashes($formData['company_name']);
 		$userCity = $currentUser->billing_city;
 		$userCountry = $currentUser->billing_country;
 		update_user_meta( get_current_user_id(), 'is_user_onboarded', 1 );
@@ -1540,7 +1540,7 @@ function addTeamMembersToCurrentUsersGroup($newUserId, $additionalUsersAdded){
 function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
 	$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CLIENT_MANAGEMENT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
 	$accountOwner = wp_get_current_user();
-	$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
+	$companyName = addslashes(get_user_meta(get_current_user_id(), 'billing_company', true));
 
 	$slackMessageBody = [
 			'text'  => '<!channel> A client just added new team members to their account:  ' . '

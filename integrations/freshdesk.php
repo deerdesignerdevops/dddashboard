@@ -144,6 +144,7 @@ function createContactInFreshdesk($currentUser, $formData, $companyFreshdeskId){
 	$requestBody = [
 		"active" => true,
 		"company_id" => $companyFreshdeskId,
+		"view_all_tickets" => true,
 		"name" => $userName,
 		"email" => $userEmail,
 		"address" => $userAddress,
@@ -201,6 +202,7 @@ function createTeamMemberInFreshDesk($accountOwner, $teamMember, $formData, $com
 		$requestBody = [
 			"active" => true,
 			"company_id" => $companyFreshdeskId,
+			"view_all_tickets" => true,
 			"name" => $userName,
 			"email" => $userEmail,
 			"address" => $userAddress,
