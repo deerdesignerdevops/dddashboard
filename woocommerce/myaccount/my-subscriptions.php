@@ -97,32 +97,39 @@ if(isset($_GET['change-plan'])){
 <!--PLANS-->
 <?php if (!empty($subscriptions) && !empty($activePlanSubscriptions)) { ?>
 	<section class="dd__bililng_portal_section">
-		<div style="max-width: 1140px; margin: auto">
-			<h2 class="dd__billing_portal_section_title">Plans</h2>
-			
-			<?php if(!empty($userCurrentPlans)){ ?>
-				<div class="woocommerce_account_subscriptions">	
-					<div class="dd__subscription_container">
-						<?php if($activePlanSubscriptions[0]->get_status() !== "cancelled"){ 
-							foreach($activePlanSubscriptions[0]->get_items() as $subItem){
-								if(has_term('plan', 'product_cat', $subItem['product_id'])){ 
-									$currentProductId = $subItem['variation_id'] ? $subItem['variation_id'] : $subItem['product_id'];
-									do_action('subscriptionCardComponentHook', $activePlanSubscriptions[0], $currentProductId);
-								}
-							}								
-							} ?>
-					</div>
-			</div>
-			<?php }else{ ?>
-					<div class="dd__subscription_card"> 
-						<div class="dd__subscription_details">
-							<span class="dd__subscription_warning">You have no active subscriptions!</span>
+		<div style="max-width: 1140px; margin: auto; display: flex; justify-content: space-between; gap: 24px">
+
+			<div style="flex: 1;">			
+				<h2 class="dd__billing_portal_section_title">Plans</h2>
+				
+				<?php if(!empty($userCurrentPlans)){ ?>
+					<div class="woocommerce_account_subscriptions">	
+						<div class="dd__subscription_container">
+							<?php if($activePlanSubscriptions[0]->get_status() !== "cancelled"){ 
+								foreach($activePlanSubscriptions[0]->get_items() as $subItem){
+									if(has_term('plan', 'product_cat', $subItem['product_id'])){ 
+										$currentProductId = $subItem['variation_id'] ? $subItem['variation_id'] : $subItem['product_id'];
+										do_action('subscriptionCardComponentHook', $activePlanSubscriptions[0], $currentProductId);
+									}
+								}								
+								} ?>
 						</div>
+				</div>
+				<?php }else{ ?>
+						<div class="dd__subscription_card"> 
+							<div class="dd__subscription_details">
+								<span class="dd__subscription_warning">You have no active subscriptions!</span>
+							</div>
+	
+							<a href="https://deerdesigner.com/pricing" class="dd__primary_button">See Pricing</a>
+						</div>
+	
+				<?php } ?>
+			</div>
 
-						<a href="https://deerdesigner.com/pricing" class="dd__primary_button">See Pricing</a>
-					</div>
-
-			<?php } ?>
+			<div >
+				<?php require_once get_stylesheet_directory() . '/components/payment-methods.php'; ?>
+			</div>
 		</div>
 	</section>
 
@@ -205,8 +212,6 @@ else{ ?>
 		</div>
 	</section>
 <?php } ?>
-
-<?php require_once get_stylesheet_directory() . '/components/payment-methods.php'; ?>
 
 <?php 
 if($activePlanSubscriptions){
