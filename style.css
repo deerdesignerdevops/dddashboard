@@ -1113,7 +1113,7 @@ input.ff-read-only {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 0;
+  padding-bottom: 20px;
   margin: 5px 0;
   border-bottom: 1px solid #ccc;
 }
@@ -1122,10 +1122,12 @@ input.ff-read-only {
   color: var(--e-global-color-text);
   text-transform: uppercase;
   font-weight: 400;
+  font-size: 0.9rem;
 }
 
 .user__invoice_row a {
   text-decoration: underline !important;
+  font-size: 0.9rem;
 }
 
 .user__invoices_pagination {
@@ -1162,6 +1164,10 @@ input.ff-read-only {
 .btn_inactive {
   opacity: 0.5;
   pointer-events: none;
+}
+
+.payment__methods_iframe {
+  display: none;
 }
 
 /*PAGE - MY SUBSCRIPTIONS - FINISH*/
@@ -1262,6 +1268,10 @@ input.ff-read-only {
 .account_display_name,
 .account_email {
   display: none !important;
+}
+
+#referral_id_field {
+  display: none;
 }
 /*MEDIA QUERIES*/
 @media (max-width: 768px) {

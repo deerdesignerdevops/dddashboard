@@ -8,7 +8,8 @@
 
     do_action( 'woocommerce_before_account_payment_methods', $has_methods ); ?>
     
-    <h2 class="myaccount__page_title">Payment Methods</h2>
+    <h2 class="dd__billing_portal_section_title">Payment Methods</h2>
+
     <?php if ( $has_methods ) : ?>							
         <?php foreach ( $saved_methods as $type => $methods ) :  ?>
             <?php foreach ( $methods as $method ) : ?>

@@ -21,6 +21,11 @@ defined( 'ABSPATH' ) || exit; ?>
 .dash__menu, .welcome-h1, .dd-checklist, .dd-insights, .dd-cta {
 	display: none;
 }
+
+fieldset{
+	border: none;
+	padding: 0;
+}
 	
 </style>
 
