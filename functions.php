@@ -393,7 +393,7 @@ function redirectUserAfterSubscriptionStatusUpdated(){
 		exit;
 	}
 	else if(is_user_logged_in() && is_wc_endpoint_url('payment-methods')){
-		wp_safe_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'edit-account');
+		wp_safe_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ));
 		exit;
 	}
 }

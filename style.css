@@ -1234,6 +1234,7 @@ input.ff-read-only {
 
 .payment__methods .myaccount__page_title {
   color: var(--e-global-color-secondary);
+  margin-top: 40px;
 }
 
 .payment__methods .dd__primary_button {
