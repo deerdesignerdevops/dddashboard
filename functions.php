@@ -1483,7 +1483,6 @@ function createAdditionalUserBySubmitingForm($entryId, $formData, $form){
 			}	
 			
 			if(!empty($additionalUsersAdded)){
-				sendEmailToProductionWhenNewTeamMemberIsAdded(get_current_user_id(), $additionalUsersAdded);
 				sendEmailToUserAboutAdditionalTeamMembers(get_current_user_id(), $additionalUsersAdded);
 				wc_add_notice("The users " . implode(', ', $additionalUsersAdded) . "<br>were successfully added to your team!", 'success');
 			}
