@@ -1687,7 +1687,7 @@ function getOrderPaymentDate($subscription){
 function sendNotificationToSlackAfterCSATFormSubmitted($entryId, $formData, $form){
 	if($form->id == 5){
 		$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CSAT_WEBHOOK_URL : SLACK_WEBHOOK_URL;
-		$companyName = $formData['hidden_company_name'];
+		$companyName = addslashes($formData['hidden_company_name']);
 		$ticketNumber = $formData['hidden_ticket_number'];
 
 		function changeSlackIconBasedOnFeedback($ratingType){
