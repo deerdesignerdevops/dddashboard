@@ -433,13 +433,7 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 			"username" => "Marcus"
 		];
 
-
-		$notificationAlreadySent = get_post_meta($orderId, 'slack_notification_sent', true);
-
-		if(!$notificationAlreadySent){
-			slackNotifications($slackMessageBody);
-			update_post_meta($orderId, 'slack_notification_sent', 1);
-		}
+		slackNotifications($slackMessageBody);
 	}
 }
 add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');

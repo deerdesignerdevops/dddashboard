@@ -595,7 +595,7 @@ function sendWelcomeEmailAfterOnboardingForm($userName, $userEmail){
 		PS: If you'd like a quick onboarding call to get things started, please <a href='https://book.deer.tools/client-onboarding/' target='_blank' style='color: #54c1a2;'>book the best time that suits you here</a>.
 	";
 
-	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+	wp_mail($userEmail, $subject, $message, $headers);
 }
 
 
@@ -625,7 +625,7 @@ function sendWelcomeEmailAfterOnboardingFormOneWeekLater($userName, $userEmail){
 		Founder @ Deer Designer
 	";
 
-	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+	wp_mail($userEmail, $subject, $message, $headers);
 }
 
 
