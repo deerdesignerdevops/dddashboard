@@ -6,7 +6,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $standardPlanMonthlyPrice = wc_get_product( 1589 )->get_price();
     $activeTaskProductPrice = wc_get_product( $activeTasksProductId )->get_price();
     $activeTaskProductName = wc_get_product( $activeTasksProductId )->get_name();
-    $currencySymbol = get_woocommerce_currency_symbol($subscription->get_currency());
+    $currencySymbol = get_woocommerce_currency_symbol(apply_filters('wcml_price_currency', NULL ));
     $subscriptionStatus = $subscription->get_status();    
     $pausedPlanBillingPeriodEndingDate = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? true : false;
