@@ -96,6 +96,11 @@ fieldset {
 				<?php do_action( 'woocommerce_edit_account_form_start' ); ?>
 				<h2 class="myaccount__page_title">Your details</h2>
 
+				<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide" style="margin-bottom: 20px !important;">
+					<span>Email address:</span>
+					<strong><?php echo esc_attr( $user->user_email ); ?></strong>
+				</p>
+
 				<p class="woocommerce-form-row woocommerce-form-row--first form-row form-row-first">
 					<label for="account_first_name"><?php esc_html_e( 'First name', 'woocommerce' ); ?>&nbsp;<span class="required">*</span></label>
 					<input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="account_first_name" id="account_first_name" autocomplete="given-name" value="<?php echo esc_attr( $user->first_name ); ?>" />
@@ -111,11 +116,6 @@ fieldset {
 					<input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="account_display_name" id="account_display_name" value="<?php echo esc_attr( $user->display_name ); ?>" /> <span><em><?php esc_html_e( 'This will be how your name will be displayed in the account section and in reviews', 'woocommerce' ); ?></em></span>
 				</p>
 				<div class="clear"></div>
-
-				<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-					<label for="account_email"><?php esc_html_e( 'Email address', 'woocommerce' ); ?>&nbsp;<span class="required">*</span></label>
-					<input type="email" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo esc_attr( $user->user_email ); ?>" />
-				</p>
 
 				<fieldset>
 					<legend><?php esc_html_e( 'Password change', 'woocommerce' ); ?></legend>
