@@ -1,6 +1,9 @@
 <?php
+global $currentTime;
+$currentTime = date('Y-m-d');
 
 function postRequestToFreshdesk($apiEndpoint, $requestBody){
+	global $currentTime;
 	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/$apiEndpoint";
 	$apiKey = FRESHDESK_API_KEY;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/freshdesk';
@@ -21,7 +24,7 @@ function postRequestToFreshdesk($apiEndpoint, $requestBody){
 		error_log($error_message, 3, "$uploadsDir/freshdesk_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/freshdesk_api_response_log_post_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/freshdesk_api_response_log_post_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -33,6 +36,7 @@ function postRequestToFreshdesk($apiEndpoint, $requestBody){
 
 
 function putRequestToFreshdesk($freshdeskUserId, $requestBody){
+	global $currentTime;
 	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/contacts/$freshdeskUserId";
 	$apiKey = FRESHDESK_API_KEY;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/freshdesk';
@@ -52,7 +56,7 @@ function putRequestToFreshdesk($freshdeskUserId, $requestBody){
 		echo $error_message;
 		error_log($error_message, 3, "$uploadsDir/freshdesk_api_error_log.txt");
 	} else {
-		file_put_contents("$uploadsDir/freshdesk_api_response_log_put_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/freshdesk_api_response_log_put_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 	}
 
 	curl_close($ch);
@@ -61,6 +65,7 @@ function putRequestToFreshdesk($freshdeskUserId, $requestBody){
 
 
 function updateCompanyNameInFreshdesk($companyFreshdeskId, $requestBody){
+	global $currentTime;
 	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/companies/$companyFreshdeskId";
 	$apiKey = FRESHDESK_API_KEY;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/freshdesk';
@@ -80,7 +85,7 @@ function updateCompanyNameInFreshdesk($companyFreshdeskId, $requestBody){
 		echo $error_message;
 		error_log($error_message, 3, "$uploadsDir/freshdesk_api_error_log.txt");
 	} else {
-		file_put_contents("$uploadsDir/freshdesk_api_response_log_put_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/freshdesk_api_response_log_put_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 	}
 
 	curl_close($ch);
@@ -89,6 +94,7 @@ function updateCompanyNameInFreshdesk($companyFreshdeskId, $requestBody){
 
 
 function getContactFromFreshdesk($teamMember){
+	global $currentTime;
 	$teamMemberEmail = urlencode($teamMember->user_email);
 	$apiUrl= "https://deerdesigner.freshdesk.com/api/v2/contacts/?email=$teamMemberEmail";
 	$apiKey = FRESHDESK_API_KEY;
@@ -109,7 +115,7 @@ function getContactFromFreshdesk($teamMember){
 		error_log($error_message, 3, "$uploadsDir/freshdesk_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/freshdesk_api_response_log_get_user_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/freshdesk_api_response_log_get_user_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
