@@ -595,7 +595,7 @@ function sendWelcomeEmailAfterOnboardingForm($userName, $userEmail){
 		PS: If you'd like a quick onboarding call to get things started, please <a href='https://book.deer.tools/client-onboarding/' target='_blank' style='color: #54c1a2;'>book the best time that suits you here</a>.
 	";
 
-	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+	wp_mail($userEmail, $subject, $message, $headers);
 }
 
 
@@ -625,7 +625,7 @@ function sendWelcomeEmailAfterOnboardingFormOneWeekLater($userName, $userEmail){
 		Founder @ Deer Designer
 	";
 
-	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+	wp_mail($userEmail, $subject, $message, $headers);
 }
 
 
@@ -694,27 +694,5 @@ function sendEmailToUserAboutAdditionalTeamMembers($accountOwnerId, $additionalU
 	";
 
 	wp_mail($accountOwner->user_email, $subject, emailTemplate($message), $headers);
-}
-
-
-
-function sendEmailToProductionWhenNewTeamMemberIsAdded($accountOwnerId, $additionalUsersAdded){
-	global $headers;
-	$accountOwner = get_user_by( 'id', $accountOwnerId);
-	$companyName = get_user_meta($accountOwnerId, 'billing_company', true);
-	$productionEmail = 'production@deerdesigner.com';
-	$additionalUsers = implode(', ', $additionalUsersAdded);
-
-	$subject = "New team member added to $companyName";
-
-	$message = "
-		<strong>Action:</strong> New team member added <br>
-		<strong>Name:</strong> $accountOwner->first_name <br>
-		<strong>Company:</strong> $companyName <br>
-		<strong>New users:</strong> $additionalUsers 
-	";
-
-
-	wp_mail($productionEmail, $subject, emailTemplate($message), $headers);
 }
 ?>

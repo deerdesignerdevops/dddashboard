@@ -1,6 +1,9 @@
 <?php
+global $currentTime;
+$currentTime = date('Y-m-d');
 
 function postToMoosend($userName, $userEmail, $status, $moosendList){
+	global $currentTime;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/moosend';
 	$moosendApiKey = MOOSEND_API_KEY;
 	$moosendListId = $moosendList === "news" ? MOOSEND_NEWS_LIST_ID : MOOSEND_ONBOARDING_LIST_ID;
@@ -24,7 +27,7 @@ function postToMoosend($userName, $userEmail, $status, $moosendList){
 		error_log($error_message, 3, "$uploadsDir/moosend_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/moosend_api_response_log_post_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/moosend_api_response_log_post_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -103,6 +106,7 @@ add_action('woocommerce_subscription_status_updated', 'updateUserInMoosendBasedO
 
 
 function getUserByEmailFromMoosend($userEmail){	
+	global $currentTime;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/moosend';
 	$moosendApiKey = MOOSEND_API_KEY;
 	$moosendOnboardingListId = MOOSEND_ONBOARDING_LIST_ID;
@@ -125,7 +129,7 @@ function getUserByEmailFromMoosend($userEmail){
 		error_log($error_message, 3, "$uploadsDir/moosend_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/moosend_api_response_log_get_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/moosend_api_response_log_get_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -145,6 +149,7 @@ function updateUserEmailInMoosend($userId){
 	$isUserExist = getUserByEmailFromMoosend(urlencode($currentUserToUpdate->user_email));
 
 	if($isUserExist['Context']['ID']){
+		global $currentTime;
 		$moosendUserId = $isUserExist['Context']['ID'];
 		$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/moosend';
 		$moosendApiKey = MOOSEND_API_KEY;
@@ -169,7 +174,7 @@ function updateUserEmailInMoosend($userId){
 			error_log($error_message, 3, "$uploadsDir/moosend_api_error_log.txt");
 			$response = false;
 		} else {
-			file_put_contents("$uploadsDir/moosend_api_response_log_post_request.txt", $response . PHP_EOL, FILE_APPEND);
+			file_put_contents("$uploadsDir/moosend_api_response_log_post_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 			$response = json_decode($response, true);
 		}
 	

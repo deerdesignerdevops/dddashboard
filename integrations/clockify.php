@@ -1,6 +1,9 @@
 <?php
+global $currentTime;
+$currentTime = date('Y-m-d');
 
 function createProjectInClockify($requestBody){
+	global $currentTime;
     $apiKey = CLOCKFY_API_KEY;
     $workspaceId = CLOCKFY_WORKSPACE_ID;
 	$apiUrl= "https://api.clockify.me/api/v1/workspaces/$workspaceId/projects";
@@ -24,7 +27,7 @@ function createProjectInClockify($requestBody){
 		error_log($error_message, 3, "$uploadsDir/clockify_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/clockify_api_response_log_post_project_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/clockify_api_response_log_post_project_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -36,6 +39,7 @@ function createProjectInClockify($requestBody){
 
 
 function createTaskInClockify($projectId, $requestBody){
+	global $currentTime;
     $apiKey = CLOCKFY_API_KEY;
     $workspaceId = CLOCKFY_WORKSPACE_ID;
 	$apiUrl= "https://api.clockify.me/api/v1/workspaces/$workspaceId/projects/$projectId/tasks";
@@ -59,7 +63,7 @@ function createTaskInClockify($projectId, $requestBody){
 		error_log($error_message, 3, "$uploadsDir/clockify_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/clockify_api_response_log_post_task_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/clockify_api_response_log_post_task_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -71,6 +75,7 @@ function createTaskInClockify($projectId, $requestBody){
 
 
 function updateProjectInClockify($projectId, $requestBody){
+	global $currentTime;
     $apiKey = CLOCKFY_API_KEY;
     $workspaceId = CLOCKFY_WORKSPACE_ID;
 	$apiUrl= "https://api.clockify.me/api/v1/workspaces/$workspaceId/projects/$projectId";
@@ -94,7 +99,7 @@ function updateProjectInClockify($projectId, $requestBody){
 		error_log($error_message, 3, "$uploadsDir/clockify_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/clockify_api_response_log_put_project_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/clockify_api_response_log_put_project_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -106,6 +111,7 @@ function updateProjectInClockify($projectId, $requestBody){
 
 
 function updateTaskInClockify($projectId, $taskId, $requestBody){
+	global $currentTime;
     $apiKey = CLOCKFY_API_KEY;
     $workspaceId = CLOCKFY_WORKSPACE_ID;
 	$apiUrl= "https://api.clockify.me/api/v1/workspaces/$workspaceId/projects/$projectId/tasks/$taskId";
@@ -129,7 +135,7 @@ function updateTaskInClockify($projectId, $taskId, $requestBody){
 		error_log($error_message, 3, "$uploadsDir/clockify_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/clockify_api_response_log_put_task_project_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/clockify_api_response_log_put_task_project_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -141,6 +147,7 @@ function updateTaskInClockify($projectId, $taskId, $requestBody){
 
 
 function getProjectByName($projectName){
+	global $currentTime;
     $apiKey = CLOCKFY_API_KEY;
     $workspaceId = CLOCKFY_WORKSPACE_ID;
 	$apiUrl= "https://api.clockify.me/api/v1/workspaces/$workspaceId/projects?name=$projectName";
@@ -163,7 +170,7 @@ function getProjectByName($projectName){
 		error_log($error_message, 3, "$uploadsDir/clockify_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/clockify_api_response_log_get_project_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/clockify_api_response_log_get_project_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -175,6 +182,7 @@ function getProjectByName($projectName){
 
 
 function getTaskByProjectId($projectId){
+	global $currentTime;
     $apiKey = CLOCKFY_API_KEY;
     $workspaceId = CLOCKFY_WORKSPACE_ID;
 	$apiUrl= "https://api.clockify.me/api/v1/workspaces/$workspaceId/projects/$projectId/tasks";
@@ -197,7 +205,7 @@ function getTaskByProjectId($projectId){
 		error_log($error_message, 3, "$uploadsDir/clockify_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/clockify_api_response_log_get_task_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/clockify_api_response_log_get_task_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 

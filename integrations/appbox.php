@@ -1,6 +1,9 @@
 <?php
+global $currentTime;
+$currentTime = date('Y-m-d');
 
 function getAccessTokenFromBox(){
+	global $currentTime;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
     $apiUrl = 'https://api.box.com/oauth2/token';
     
@@ -30,7 +33,7 @@ function getAccessTokenFromBox(){
 		error_log($error_message, 3, "$uploadsDir/box_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/box_api_response_log_token_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/box_api_response_log_token_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -42,6 +45,7 @@ function getAccessTokenFromBox(){
 
 
 function postNewFolderInBox($accessToken, $folderName, $parentFolderId = BOX_CLIENT_FOLDER_ID){
+	global $currentTime;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
     $apiUrl = 'https://api.box.com/2.0/folders';
     $boxUserId = BOX_USER_ID;
@@ -74,7 +78,7 @@ function postNewFolderInBox($accessToken, $folderName, $parentFolderId = BOX_CLI
 		error_log($error_message, 3, "$uploadsDir/box_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/box_api_response_log_post_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/box_api_response_log_post_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -116,6 +120,7 @@ add_action( 'fluentform/submission_inserted', 'createCompanyFoldersInBox', 10, 3
 
 
 function updateFolderParentDirectory($folderName, $folderId, $newParentFolderId){
+	global $currentTime;
     $accessToken = getAccessTokenFromBox();
     $accessToken = $accessToken['access_token'];
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
@@ -150,7 +155,7 @@ function updateFolderParentDirectory($folderName, $folderId, $newParentFolderId)
 		error_log($error_message, 3, "$uploadsDir/box_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/box_api_response_log_update_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/box_api_response_log_update_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
@@ -218,6 +223,7 @@ add_action('woocommerce_subscription_status_updated', 'moveCompanyFolderBasedOnS
 
 
 function updateFolderNameInBoxByWpProfileUpdate($userId){
+	global $currentTime;
 	$folderId = get_user_meta($userId, "company_folder_box_id", true);
 	$companyName = $_POST['billing_company'];
     
@@ -252,7 +258,7 @@ function updateFolderNameInBoxByWpProfileUpdate($userId){
 		error_log($error_message, 3, "$uploadsDir/box_api_error_log.txt");
 		$response = false;
 	} else {
-		file_put_contents("$uploadsDir/box_api_response_log_update_request.txt", $response . PHP_EOL, FILE_APPEND);
+		file_put_contents("$uploadsDir/box_api_response_log_update_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
 		$response = json_decode($response, true);
 	}
 
