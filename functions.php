@@ -98,7 +98,7 @@ add_action('fluentform/after_form_render', 'populateOnboardingFormHiddenFieldsWi
 
 function populateCSATFormHiddenFieldsWithUserMeta($form){
 	$currentUser = wp_get_current_user();
-	$companyName = get_user_meta($currentUser->id, 'billing_company', true);
+	$companyName = addslashes(get_user_meta($currentUser->id, 'billing_company', true));
 
 	if($form->id == 5){
 		echo "<script>
