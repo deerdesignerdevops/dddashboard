@@ -1895,7 +1895,7 @@ function preventTeamMembersPurchases(){
 		$currentUser = wp_get_current_user();
 
 		if(in_array('team_member', $currentUser->roles) && WC()->cart->get_cart_contents_count() > 0){
-			wc_add_notice("You are logged as a team member for the company: <strong>$currentUser->billing_company</strong>. Please, <a href='/wp-login.php/?action=logout'>logout</a> to make a new purchase with a new account.", 'error');
+			wc_add_notice("You are logged as a team member for the company: <strong>$currentUser->billing_company</strong>. Please, <a href='/wp-login.php/?action=logout'>logout</a> to subscribe with a new account.", 'error');
 			WC()->cart->empty_cart();
 			wp_redirect(site_url() );
 			exit;			
