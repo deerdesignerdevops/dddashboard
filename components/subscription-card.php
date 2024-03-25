@@ -86,7 +86,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
         <div>
             <?php if($subscriptionStatus === 'active'){ ?>
                 <div class="btn__wrapper">
-                    <a href='<?php echo "$siteUrl/?buy-now=$activeTasksProductId&with-cart=0"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks one__click_purchase" data-product-price="<?php echo $currencySymbol . $activeTaskProductPrice; ?>" data-product-name="<?php echo $activeTaskProductName; ?>">Add Active Task</a>
+                    <a href='<?php echo "$siteUrl/?add-to-cart=$activeTasksProductId"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks one__click_purchase" data-product-price="<?php echo $currencySymbol . $activeTaskProductPrice; ?>" data-product-name="<?php echo $activeTaskProductName; ?>">Add Active Task</a>
                 </div>
             <?php } ?>
 
