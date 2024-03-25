@@ -99,7 +99,7 @@ add_action('fluentform/after_form_render', 'populateOnboardingFormHiddenFieldsWi
 
 function populateCSATFormHiddenFieldsWithUserMeta($form){
 	$currentUser = wp_get_current_user();
-	$companyName = get_user_meta($currentUser->id, 'billing_company', true);
+	$companyName = addslashes(get_user_meta($currentUser->id, 'billing_company', true));
 
 	if($form->id == 5){
 		echo "<script>
@@ -1996,3 +1996,19 @@ function hideReferralButtonWhenUserHasNoUrl(){
 	}
 }
 add_action('template_redirect', 'hideReferralButtonWhenUserHasNoUrl');
+
+
+function preventTeamMembersPurchases(){
+	if(is_user_logged_in()){
+		$currentUser = wp_get_current_user();
+
+		if(in_array('team_member', $currentUser->roles) && WC()->cart->get_cart_contents_count() > 0){
+			wc_add_notice("You are logged as a team member for the company: <strong>$currentUser->billing_company</strong>. Please, <a href='/wp-login.php/?action=logout'>logout</a> to subscribe with a new account.", 'error');
+			WC()->cart->empty_cart();
+			wp_redirect(site_url() );
+			exit;			
+		}
+	}
+}
+
+add_action('woocommerce_cart_loaded_from_session', 'preventTeamMembersPurchases');
