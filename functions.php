@@ -1888,3 +1888,19 @@ function resetCreativeCallsForBusinessAnnualActiveUsers($usersAllowedToBookCalls
 	}
 }
 add_action('resetCreativeCallsForBusinessAnnualActiveUsersHook', 'resetCreativeCallsForBusinessAnnualActiveUsers');
+
+
+function preventTeamMembersPurchases(){
+	if(is_user_logged_in()){
+		$currentUser = wp_get_current_user();
+
+		if(in_array('team_member', $currentUser->roles) && WC()->cart->get_cart_contents_count() > 0){
+			wc_add_notice("You are logged as a team member for the company: <strong>$currentUser->billing_company</strong>. Please, <a href='/wp-login.php/?action=logout'>logout</a> to make a new purchase with a new account.", 'error');
+			WC()->cart->empty_cart();
+			wp_redirect(site_url() );
+			exit;			
+		}
+	}
+}
+
+add_action('woocommerce_cart_loaded_from_session', 'preventTeamMembersPurchases');
