@@ -1244,7 +1244,7 @@ add_filter( 'wcs_view_subscription_actions', 'disableSubscriptionActions', 10, 2
 
 
 function cancelActiveTasksByPausePlan($subscription, $newStatus, $oldStatus){
-	$userSubscriptions = wcs_get_users_subscriptions(get_current_user_id());
+	$userSubscriptions = wcs_get_users_subscriptions($subscription->data['customer_id']);
 
 	foreach($subscription->get_items() as $item){
 		if(has_term( 'plan', 'product_cat', $item->get_product_id())){
