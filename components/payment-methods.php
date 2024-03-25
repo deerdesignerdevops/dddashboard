@@ -13,7 +13,7 @@
     <?php if ( $has_methods ) : ?>							
         <?php foreach ( $saved_methods as $type => $methods ) :  ?>
             <?php foreach ( $methods as $method ) : ?>
-                <div class="user__invoice_row">
+                <div class="user__invoice">
                         <?php foreach ( wc_get_account_payment_methods_columns() as $column_id => $column_name ) : ?>
                                 <?php
                                     if ( has_action( 'woocommerce_account_payment_methods_column_' . $column_id ) ) {
