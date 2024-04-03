@@ -1,7 +1,8 @@
 <?php
 
 //REFERRAL PROGRAM WITH GROWSURF
-global $growSurfBaseUrl;
+global $growSurfBaseUrl, $currentTime;
+$currentTime = date('Y-m-d');
 $growSurfBaseUrl = "https://api.growsurf.com/v2";
 
 
@@ -17,7 +18,7 @@ add_action('wp_head', 'addGrowSurfScript');
 
 
 function postRequestToGrowSurf($requestBody){
-    global $growSurfBaseUrl;
+    global $growSurfBaseUrl, $currentTime;
     $campaignID = GROWSURF_CAMPAIGN_ID;
     $apiUrl = "$growSurfBaseUrl/campaign/$campaignID/participant";
     $accessToken = GROWSURF_API_KEY;
@@ -43,7 +44,7 @@ function postRequestToGrowSurf($requestBody){
         error_log($error_message, 3, "$uploadsDir/growsurf_api_error_log.txt");
         $response = false;
     } else {
-        file_put_contents("$uploadsDir/growsurf_api_response_log_post_request.txt", $response . PHP_EOL, FILE_APPEND);
+        file_put_contents("$uploadsDir/growsurf_api_response_log_post_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
         $response = json_decode($response, true);
     }
 
@@ -56,7 +57,7 @@ function postRequestToGrowSurf($requestBody){
 
 
 function getUserByIdFromGrowSurf($participantId){
-    global $growSurfBaseUrl;
+    global $growSurfBaseUrl, $currentTime;
     $campaignID = GROWSURF_CAMPAIGN_ID;
     $apiUrl = "$growSurfBaseUrl/campaign/$campaignID/participant/$participantId";
     $accessToken = GROWSURF_API_KEY;
@@ -81,7 +82,7 @@ function getUserByIdFromGrowSurf($participantId){
         error_log($error_message, 3, "$uploadsDir/growsurf_api_error_log.txt");
         $response = false;
     } else {
-        file_put_contents("$uploadsDir/growsurf_api_response_log_get_request.txt", $response . PHP_EOL, FILE_APPEND);
+        file_put_contents("$uploadsDir/growsurf_api_response_log_get_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
         $response = json_decode($response, true);
     }
 
