@@ -2012,3 +2012,47 @@ function preventTeamMembersPurchases(){
 }
 
 add_action('woocommerce_cart_loaded_from_session', 'preventTeamMembersPurchases');
+
+
+
+function createFolderInBoxAfterFDTicketCreation(){
+	$reqBody  = json_decode(file_get_contents('php://input'));
+	$headers = array(
+		'Content-Type: text/html; charset=UTF-8',
+		'Reply-To: Deer Designer <help@deerdesigner.com>',
+	);
+		
+	wp_mail("devops@deerdesigner.com", "Pabbly integration", json_encode($reqBody), $headers);
+	return $reqBody;
+	// $subscriberBoxId = "";
+
+	// if($reqBody->contactFreshdeskId){
+	// 	$contactFreshdeskId = $reqBody->contactFreshdeskId;
+	// 	$getUsersByFreshdeskId = get_users(array(
+	// 		'meta_key' => 'contact_freshdesk_id',
+	// 		'meta_value' => $contactFreshdeskId
+	// 	));
+
+	// 	if(!empty($getUsersByFreshdeskId)){
+	// 		if(in_array('team_member', $getUsersByFreshdeskId[0]->roles)){
+	// 			return "is team member";
+	// 		}else{
+	// 			$subscriberBoxId = get_user_meta($getUsersByFreshdeskId[0]->id, 'company_folder_box_id', true);
+	// 			return $subscriberBoxId;
+	// 		}
+
+	// 	}else{
+	// 		return new WP_Error( 'not_found', "User not found in Wordpress.", array( 'status' => 404 ) );
+	// 	}
+		
+	// }else{
+	// 	return new WP_Error( 'forbidden', "Invalid request body.", array( 'status' => 401 ) );
+	// }
+}
+
+add_action( 'rest_api_init', function () {
+  register_rest_route( 'ddapi/v2', '/fd-to-box', array(
+    'methods' => 'POST',
+    'callback' => 'createFolderInBoxAfterFDTicketCreation',
+  ) );
+} );
