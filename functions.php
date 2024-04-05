@@ -1914,32 +1914,44 @@ function createFolderInBoxAfterFDTicketCreation(){
 		'Reply-To: Deer Designer <help@deerdesigner.com>',
 	);
 		
-	wp_mail("devops@deerdesigner.com", "Pabbly integration", json_encode($reqBody), $headers);
-	return $reqBody;
-	// $subscriberBoxId = "";
+	//wp_mail("devops@deerdesigner.com", "Pabbly integration", json_encode($reqBody), $headers);
+	$subscriberBoxId = "";
 
-	// if($reqBody->contactFreshdeskId){
-	// 	$contactFreshdeskId = $reqBody->contactFreshdeskId;
-	// 	$getUsersByFreshdeskId = get_users(array(
-	// 		'meta_key' => 'contact_freshdesk_id',
-	// 		'meta_value' => $contactFreshdeskId
-	// 	));
+	if($reqBody->contact_email){
+		$folderName = "#$reqBody->ticket_id - $reqBody->ticket_subject";
+		$contactFreshdeskEmail = $reqBody->contact_email;
+		$currentUser = get_user_by('email', $contactFreshdeskEmail);
 
-	// 	if(!empty($getUsersByFreshdeskId)){
-	// 		if(in_array('team_member', $getUsersByFreshdeskId[0]->roles)){
-	// 			return "is team member";
-	// 		}else{
-	// 			$subscriberBoxId = get_user_meta($getUsersByFreshdeskId[0]->id, 'company_folder_box_id', true);
-	// 			return $subscriberBoxId;
-	// 		}
+		if(!empty($currentUser)){
+			if(in_array('team_member', $currentUser->roles)){
+				$groupsUser = new Groups_User( $currentUser->id );
 
-	// 	}else{
-	// 		return new WP_Error( 'not_found', "User not found in Wordpress.", array( 'status' => 404 ) );
-	// 	}
+				foreach($groupsUser->groups as $group){
+					if($group->name !== "Registered"){
+						$groupId = $group->group_id;
+						$group = new Groups_Group( $groupId );
+
+						foreach($group->users as $groupUser){
+							if(in_array("subscriber", $groupUser->roles)){
+								$subscriberBoxId = get_user_meta($groupUser->id, 'company_folder_box_id', true);
+								return "team member: $subscriberBoxId";
+							}
+						}
+					}
+				}
+
+			}else{
+				$subscriberBoxId = get_user_meta($currentUser->id, 'company_folder_box_id', true);
+				return "account owner: $subscriberBoxId";
+			}
+
+		}else{
+			return new WP_Error( 'not_found', "User not found in Wordpress.", array( 'status' => 404 ) );
+		}
 		
-	// }else{
-	// 	return new WP_Error( 'forbidden', "Invalid request body.", array( 'status' => 401 ) );
-	// }
+	}else{
+		return new WP_Error( 'forbidden', "Invalid request body.", array( 'status' => 401 ) );
+	}
 }
 
 add_action( 'rest_api_init', function () {
