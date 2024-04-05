@@ -1914,7 +1914,7 @@ function createFolderInBoxAfterFDTicketCreation(){
 		'Reply-To: Deer Designer <help@deerdesigner.com>',
 	);
 		
-	//wp_mail("devops@deerdesigner.com", "Pabbly integration", json_encode($reqBody), $headers);
+	wp_mail("devops@deerdesigner.com", "Pabbly integration", json_encode($reqBody), $headers);
 	$subscriberBoxId = "";
 
 	if($reqBody->contact_email){
