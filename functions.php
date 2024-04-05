@@ -1904,3 +1904,61 @@ function preventTeamMembersPurchases(){
 }
 
 add_action('woocommerce_cart_loaded_from_session', 'preventTeamMembersPurchases');
+
+
+
+function createFolderInBoxAfterFDTicketCreation(){
+	$reqBody  = json_decode(file_get_contents('php://input'));
+	$headers = array(
+		'Content-Type: text/html; charset=UTF-8',
+		'Reply-To: Deer Designer <help@deerdesigner.com>',
+	);
+		
+	wp_mail("devops@deerdesigner.com", "Pabbly integration", json_encode($reqBody), $headers);
+	$subscriberBoxId = "";
+
+	if($reqBody->contact_email){
+		$folderName = "#$reqBody->ticket_id - $reqBody->ticket_subject";
+		$contactFreshdeskEmail = $reqBody->contact_email;
+		$currentUser = get_user_by('email', $contactFreshdeskEmail);
+
+		if(!empty($currentUser)){
+			if(in_array('team_member', $currentUser->roles)){
+				$groupsUser = new Groups_User( $currentUser->id );
+
+				foreach($groupsUser->groups as $group){
+					if($group->name !== "Registered"){
+						$groupId = $group->group_id;
+						$group = new Groups_Group( $groupId );
+
+						foreach($group->users as $groupUser){
+							if(in_array("subscriber", $groupUser->roles)){
+								$subscriberBoxId = get_user_meta($groupUser->id, 'company_folder_box_id', true);
+								$getFolderItems = createTicketFolderFromPabblyApiRequest($subscriberBoxId, $folderName);
+								return $getFolderItems;
+							}
+						}
+					}
+				}
+
+			}else{
+				$subscriberBoxId = get_user_meta($currentUser->id, 'company_folder_box_id', true);
+				$getFolderItems = createTicketFolderFromPabblyApiRequest($subscriberBoxId, $folderName);
+				return $getFolderItems;
+			}
+
+		}else{
+			return new WP_Error( 'not_found', "User not found in Wordpress.", array( 'status' => 404 ) );
+		}
+		
+	}else{
+		return new WP_Error( 'forbidden', "Invalid request body.", array( 'status' => 401 ) );
+	}
+}
+
+add_action( 'rest_api_init', function () {
+  register_rest_route( 'ddapi/v2', '/fd-to-box', array(
+    'methods' => 'POST',
+    'callback' => 'createFolderInBoxAfterFDTicketCreation',
+  ) );
+} );
