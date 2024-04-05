@@ -1934,7 +1934,8 @@ function createFolderInBoxAfterFDTicketCreation(){
 						foreach($group->users as $groupUser){
 							if(in_array("subscriber", $groupUser->roles)){
 								$subscriberBoxId = get_user_meta($groupUser->id, 'company_folder_box_id', true);
-								return "team member: $subscriberBoxId";
+								$getFolderItems = createTicketFolderFromPabblyApiRequest($subscriberBoxId, $folderName);
+								return $getFolderItems;
 							}
 						}
 					}
@@ -1942,7 +1943,8 @@ function createFolderInBoxAfterFDTicketCreation(){
 
 			}else{
 				$subscriberBoxId = get_user_meta($currentUser->id, 'company_folder_box_id', true);
-				return "account owner: $subscriberBoxId";
+				$getFolderItems = createTicketFolderFromPabblyApiRequest($subscriberBoxId, $folderName);
+				return $getFolderItems;
 			}
 
 		}else{
