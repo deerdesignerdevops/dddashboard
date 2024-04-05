@@ -340,6 +340,7 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 	$folderItems = getFolderItems($folderId);
 	$accessToken = $folderItems['accessToken'];
 	$folderItems = $folderItems['response'];
+	$apiResponse = "";
 
 	if($folderItems){
 		foreach($folderItems['entries'] as $folderItem){
@@ -352,10 +353,12 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 			$newTicketFolderCreated = postNewFolderInBox($accessToken, $newTicketFolderName, $requestsFolderId);
 			
 			if($newTicketFolderCreated){
-				return "Folder with name: $newTicketFolderName was created successfully!";
+				$apiResponse = "Folder with name: $newTicketFolderName was created successfully!";
 			}else{
 				return new WP_Error( 'error', "Folder was not created.", array( 'status' => 400 ) );
 			}
 		}  
 	}
+
+	return $apiResponse;
 }
