@@ -290,3 +290,75 @@ function moveCompanyFolderInBoxAfterNewPurchase($orderId){
 	}
 }
 add_action( 'woocommerce_payment_complete', 'moveCompanyFolderInBoxAfterNewPurchase');
+
+
+function getFolderItems($folderId){
+	global $currentTime;
+    
+	$accessToken = getAccessTokenFromBox();
+    $accessToken = $accessToken['access_token'];
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
+    $apiUrl = "https://api.box.com/2.0/folders/$folderId/items";
+    $boxUserId = BOX_USER_ID;
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $apiUrl);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		"Content-Type: application/json",
+		"Accept: application/json",
+        "as-user: $boxUserId",
+        "Authorization: Bearer $accessToken"
+	]);
+
+
+	$response = curl_exec($ch);
+
+	if (curl_errno($ch)) {
+		$error_message = 'Error: ' . curl_error($ch);
+		echo $error_message;
+		error_log($error_message, 3, "$uploadsDir/box_api_error_log.txt");
+		$response = false;
+	} else {
+		file_put_contents("$uploadsDir/box_api_response_log_get_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
+		$response = json_decode($response, true);
+	}
+
+	curl_close($ch);
+
+	$responseWithToken = [
+		"accessToken" => $accessToken,
+		"response" => $response
+	];
+
+	return $responseWithToken;
+}
+
+function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName){	
+	$requestsFolderId = "";
+	$folderItems = getFolderItems($folderId);
+	$accessToken = $folderItems['accessToken'];
+	$folderItems = $folderItems['response'];
+	$apiResponse = "";
+
+	if($folderItems){
+		foreach($folderItems['entries'] as $folderItem){
+			if($folderItem['name'] === "Requests"){
+				$requestsFolderId = $folderItem['id'];
+			}
+		}
+
+		if($accessToken && $requestsFolderId){
+			$newTicketFolderCreated = postNewFolderInBox($accessToken, $newTicketFolderName, $requestsFolderId);
+			
+			if($newTicketFolderCreated){
+				$apiResponse = "Folder with name: $newTicketFolderName was created successfully!";
+			}else{
+				return new WP_Error( 'error', "Folder was not created.", array( 'status' => 400 ) );
+			}
+		}  
+	}
+
+	return $apiResponse;
+}
