@@ -399,7 +399,11 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 			$newTicketFolderCreated = postNewFolderInBox($accessToken, $newTicketFolderName, $requestsFolderId);
 			
 			if($newTicketFolderCreated['id']){
-				$apiResponse = createBoxFolderSharingLink($newTicketFolderCreated['id'], $accessToken);
+				$folderSharingLink = createBoxFolderSharingLink($newTicketFolderCreated['id'], $accessToken);
+
+				$apiResponse = [
+					"folder_url" => $folderSharingLink,
+				];
 			}else{
 				return new WP_Error( 'error', "Folder was not created.", array( 'status' => 400 ) );
 			}
