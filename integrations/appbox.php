@@ -335,6 +335,52 @@ function getFolderItems($folderId){
 	return $responseWithToken;
 }
 
+
+function createBoxFolderSharingLink($folderId, $accessToken){
+	global $currentTime;
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
+    $apiUrl = "https://api.box.com/2.0/folders/$folderId";
+    $boxUserId = BOX_USER_ID;
+    
+    $requestBody = [
+        "shared_link"=> [
+			"access" => "open",
+			"permissions"=> [
+				"can_download"=> true
+			]
+		]
+    ];
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $apiUrl);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		"Content-Type: application/json",
+		"Accept: application/json",
+        "as-user: $boxUserId",
+        "Authorization: Bearer $accessToken"
+	]);
+
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestBody));
+
+	$response = curl_exec($ch);
+
+	if (curl_errno($ch)) {
+		$error_message = 'Error: ' . curl_error($ch);
+		echo $error_message;
+		error_log($error_message, 3, "$uploadsDir/box_api_error_log.txt");
+		$response = false;
+	} else {
+		file_put_contents("$uploadsDir/box_api_response_log_update_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
+		$response = json_decode($response, true);
+	}
+
+	curl_close($ch);
+
+	return $response['shared_link']['url'];
+}
+
 function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName){	
 	$requestsFolderId = "";
 	$folderItems = getFolderItems($folderId);
@@ -352,12 +398,14 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 		if($accessToken && $requestsFolderId){
 			$newTicketFolderCreated = postNewFolderInBox($accessToken, $newTicketFolderName, $requestsFolderId);
 			
-			if($newTicketFolderCreated){
-				$apiResponse = "Folder with name: $newTicketFolderName was created successfully!";
+			if($newTicketFolderCreated['id']){
+				$apiResponse = createBoxFolderSharingLink($newTicketFolderCreated['id'], $accessToken);
 			}else{
 				return new WP_Error( 'error', "Folder was not created.", array( 'status' => 400 ) );
 			}
-		}  
+		}else{
+			return new WP_Error( 'forbidden', "Credentials not valid.", array( 'status' => 401 ) );
+		}
 	}
 
 	return $apiResponse;

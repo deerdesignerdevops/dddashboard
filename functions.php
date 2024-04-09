@@ -866,6 +866,8 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
 				}
 
+				cancelActiveTasksByPausePlan($subscription, $newStatus);
+
 			}else if($newStatus === "pending-cancel"){
 				$requestMotive = get_post_meta($subscription->id, 'pause_cancel_motive', true);
 				$messageTitle = 'Cancellation Request :warning:';
@@ -879,7 +881,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 				if(time() < strtotime($billingPeriodEndingDate)){
 					wp_schedule_single_event(strtotime($billingPeriodEndingDate), 'scheduleSlackNotificationForSubscriptionStatusUpdateHook', array($newStatus, $customerName, $customerEmail, $subscriptionItemsGroup, $subscription->id));
 				}
-
+				cancelActiveTasksByPausePlan($subscription, $newStatus);
 
 			}else if($oldStatus === "pending-cancel" && $newStatus === "active"){
 				$messageTitle = 'Subscription Reactivated :white_check_mark:';
@@ -1243,7 +1245,7 @@ add_filter( 'wcs_view_subscription_actions', 'disableSubscriptionActions', 10, 2
 
 
 
-function cancelActiveTasksByPausePlan($subscription, $newStatus, $oldStatus){
+function cancelActiveTasksByPausePlan($subscription, $newStatus){
 	$userSubscriptions = wcs_get_users_subscriptions($subscription->data['customer_id']);
 
 	foreach($subscription->get_items() as $item){
@@ -1258,10 +1260,8 @@ function cancelActiveTasksByPausePlan($subscription, $newStatus, $oldStatus){
 				}
 			}
 		}
-	}
-	
+	}	
 }
-add_action('woocommerce_subscription_status_updated', 'cancelActiveTasksByPausePlan', 10, 3);
 
 
 
@@ -1792,6 +1792,7 @@ function sendPauseNotificationAfterThreeFailedPaymentAtemptsOnRenewal($orderSubs
 		];
 
 		slackNotifications($slackMessageBody);
+		cancelActiveTasksByPausePlan($subscription, $subscription->get_status());
 	}
 }
 
