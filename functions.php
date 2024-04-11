@@ -48,6 +48,7 @@ require_once('integrations/freshdesk.php');
 require_once('integrations/moosend.php');
 require_once('integrations/clockify.php');
 require_once('integrations/appbox.php');
+require_once('integrations/growsurf.php');
 
 
 function logoutWhitoutConfirm($action, $result)
@@ -999,9 +1000,26 @@ add_filter( 'wcs_subscription_statuses', 'renameSubscriptionStatus');
 
 
 function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
+	if(isset($_GET['grsf'])){
+		$referralId = $_GET['grsf'];
+		return wc_get_checkout_url() . "/?grsf=$referralId";
+
+	}else if(isset($_COOKIE['dd_referral_id'])){
+		$referralId = $_COOKIE['dd_referral_id'];
+		return wc_get_checkout_url() . "/?grsf=$referralId";
+
+	}else if(isset($_COOKIE['dd_affiliate_id'])){
+		$affiliateId = $_COOKIE['dd_affiliate_id'];
+		return wc_get_checkout_url() . "/?sld=$affiliateId";
+	}
+	else if(isset($_GET['sld'])){
+		$affiliateId = $_GET['sld'];
+		return wc_get_checkout_url() . "/?sld=$affiliateId";
+	}
+
     return wc_get_checkout_url();
 }
-add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 ); 
+add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 );
 
 
 
@@ -1805,37 +1823,6 @@ add_action('woocommerce_subscription_status_active', 'deleteCancellationWarningA
 
 
 
-// function changeBillingDateAfterPaymentResolved($subscription){
-// 	if(!isset($_GET['reactivate_plan'])){
-// 		//$subscription = wcs_get_subscription(1983);
-		
-// 		$subscriptionRelatedOrders = $subscription->get_related_orders();
-// 		$lastOrderPaidDate = "";
-
-// 		if($subscriptionRelatedOrders){
-// 			foreach($subscriptionRelatedOrders as $orderId){
-
-// 				$lastOrderPaidDate = wc_get_order($orderId)->get_date_paid();
-		
-// 				if($lastOrderPaidDate){
-// 					$lastOrderPaidCreatedDate = wc_get_order($orderId)->get_date_created();
-// 					$lastOrderPaidCreatedDate = $lastOrderPaidCreatedDate->date('F d, Y');
-// 					$newNextPayment = strtotime($lastOrderPaidCreatedDate . '+1 month');
-					
-// 					$subscription->update_dates(array(
-// 						'next_payment' => date('Y-m-d H:i:s', $newNextPayment)
-// 					));
-// 					return;
-// 				}
-// 			}
-// 		}
-// 	}
-// }
-// //add_action('template_redirect', 'changeBillingDateAfterPaymentResolved');
-// add_action( 'woocommerce_subscription_status_active', 'changeBillingDateAfterPaymentResolved');
-
-
-
 function manuallySendSlackNotificationAboutSubscriptionStatus($status, $customerName, $customerEmail, $subscriptionItems){
 	$subscriptionStatus = $status === "on-hold" ? "Subscription will be Downgraded Tomorrow:double_vertical_bar:" : "Subscription will be Cancelled Tomorrow:alert:";
 	
@@ -1889,6 +1876,97 @@ function resetCreativeCallsForBusinessAnnualActiveUsers($usersAllowedToBookCalls
 	}
 }
 add_action('resetCreativeCallsForBusinessAnnualActiveUsersHook', 'resetCreativeCallsForBusinessAnnualActiveUsers');
+
+
+//AFFILIATE PROGRAM
+function redirectUserToAffiliatesPanel(){
+	if(is_user_logged_in()){
+		$currentUser = wp_get_current_user();
+		if(sizeof($currentUser->roles) === 1 && in_array('affiliate', $currentUser->roles)){
+			echo "<style>
+				.paused__user_banner{display:none !important;}
+				.account_details__section{width: 50%; margin: auto;}
+				.account__details_col{width: 100% !important;}
+			</style>";
+	
+			if(!is_page('affiliates')){
+				wp_redirect(site_url() . "/affiliates");
+					exit;
+				}
+			}
+		}
+	}
+add_action('template_redirect', 'redirectUserToAffiliatesPanel');
+
+
+
+//REFERRAL PROGRAM
+function addReferralIdCheckoutField( $fields ) {
+    $fields['billing']['referral_id'] = array(
+        'type'        => 'text',
+        'class'       => array('referral_id form-row-wide'),
+        'label'       => __('Referral ID', 'woocommerce'),
+        'placeholder' => __('referral id', 'woocommerce'),
+    );
+
+    return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'addReferralIdCheckoutField' );
+
+
+
+function displayReferralIdOnEditOrderPage( $order ) {
+    echo '<p><strong>'.__('Referral ID').':</strong> ' . get_post_meta( $order->get_id(), '_referral_id', true ) . '</p>';
+}
+add_action( 'woocommerce_admin_order_data_after_billing_address', 'displayReferralIdOnEditOrderPage' );
+
+
+
+function saveReferralIdInDatebase( $order_id ) {
+    if ( ! empty( $_POST['referral_id'] ) ) {
+        update_post_meta( $order_id, '_referral_id', sanitize_text_field( $_POST['referral_id'] ) );
+    }
+}
+add_action( 'woocommerce_checkout_update_order_meta', 'saveReferralIdInDatebase' );
+
+
+
+function prefillReferralIdFieldFromUrlParams(){
+	$referralId = "";
+	if(isset($_GET['grsf'])){;
+		$referralId = $_GET['grsf'];
+	
+		echo "<script>
+		document.addEventListener('DOMContentLoaded', function(){
+			document.querySelector('#referral_id').value = '$referralId';
+		})
+		</script>";
+	}elseif(isset($_COOKIE["dd_referral_id"])){
+		$referralId = htmlspecialchars($_COOKIE["dd_referral_id"]);
+
+		echo "<script>
+		document.addEventListener('DOMContentLoaded', function(){
+			document.querySelector('#referral_id').value = '$referralId';
+		})
+		</script>";
+	}
+}
+add_action('woocommerce_checkout_init', 'prefillReferralIdFieldFromUrlParams');
+
+
+
+function hideReferralButtonWhenUserHasNoUrl(){
+	if(is_user_logged_in() && is_page(array('dash', 'dash-woo'))){
+		$referralUrl = get_user_meta(get_current_user_id(), 'grow_surf_participant_url', true);
+	
+		if(!$referralUrl){
+			echo "<style>
+			#referral__popup_btn{display: none !important;}
+			</style>";
+		}
+	}
+}
+add_action('template_redirect', 'hideReferralButtonWhenUserHasNoUrl');
 
 
 function preventTeamMembersPurchases(){
