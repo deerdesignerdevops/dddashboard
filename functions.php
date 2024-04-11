@@ -1823,37 +1823,6 @@ add_action('woocommerce_subscription_status_active', 'deleteCancellationWarningA
 
 
 
-// function changeBillingDateAfterPaymentResolved($subscription){
-// 	if(!isset($_GET['reactivate_plan'])){
-// 		//$subscription = wcs_get_subscription(1983);
-		
-// 		$subscriptionRelatedOrders = $subscription->get_related_orders();
-// 		$lastOrderPaidDate = "";
-
-// 		if($subscriptionRelatedOrders){
-// 			foreach($subscriptionRelatedOrders as $orderId){
-
-// 				$lastOrderPaidDate = wc_get_order($orderId)->get_date_paid();
-		
-// 				if($lastOrderPaidDate){
-// 					$lastOrderPaidCreatedDate = wc_get_order($orderId)->get_date_created();
-// 					$lastOrderPaidCreatedDate = $lastOrderPaidCreatedDate->date('F d, Y');
-// 					$newNextPayment = strtotime($lastOrderPaidCreatedDate . '+1 month');
-					
-// 					$subscription->update_dates(array(
-// 						'next_payment' => date('Y-m-d H:i:s', $newNextPayment)
-// 					));
-// 					return;
-// 				}
-// 			}
-// 		}
-// 	}
-// }
-// //add_action('template_redirect', 'changeBillingDateAfterPaymentResolved');
-// add_action( 'woocommerce_subscription_status_active', 'changeBillingDateAfterPaymentResolved');
-
-
-
 function manuallySendSlackNotificationAboutSubscriptionStatus($status, $customerName, $customerEmail, $subscriptionItems){
 	$subscriptionStatus = $status === "on-hold" ? "Subscription will be Downgraded Tomorrow:double_vertical_bar:" : "Subscription will be Cancelled Tomorrow:alert:";
 	
