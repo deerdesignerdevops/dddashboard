@@ -2018,12 +2018,6 @@ add_action('woocommerce_cart_loaded_from_session', 'preventTeamMembersPurchases'
 
 function createFolderInBoxAfterFDTicketCreation(){
 	$reqBody  = json_decode(file_get_contents('php://input'));
-	$headers = array(
-		'Content-Type: text/html; charset=UTF-8',
-		'Reply-To: Deer Designer <help@deerdesigner.com>',
-	);
-		
-	wp_mail("devops@deerdesigner.com", "Pabbly integration", json_encode($reqBody), $headers);
 	$subscriberBoxId = "";
 
 	if($reqBody->contact_email){
