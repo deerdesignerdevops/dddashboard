@@ -1992,7 +1992,7 @@ function createFolderInBoxAfterFDTicketCreation(){
 	$subscriberBoxId = "";
 
 	if($reqBody->contact_email){
-		$ticketSubject = preg_replace('/[^a-zA-Z0-9_-]/', '', $reqBody->ticket_subject);
+		$ticketSubject = preg_replace('/[^a-zA-Z0-9_\s]/', '', $reqBody->ticket_subject);
 		$folderName = "#$reqBody->ticket_id - $ticketSubject";
 		$contactFreshdeskEmail = $reqBody->contact_email;
 		$currentUser = get_user_by('email', $contactFreshdeskEmail);
