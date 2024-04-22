@@ -388,29 +388,33 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 	$folderItems = $folderItems['response'];
 	$apiResponse = "";
 
-	if($folderItems){
-		foreach($folderItems['entries'] as $folderItem){
-			if($folderItem['name'] === "Requests"){
-				$requestsFolderId = $folderItem['id'];
+	if($accessToken){
+		if($folderItems){
+			foreach($folderItems['entries'] as $folderItem){
+				if($folderItem['name'] === "Requests" || $folderItem['name'] === "Request"){
+					$requestsFolderId = $folderItem['id'];
+				}
 			}
-		}
-
-		if($accessToken && $requestsFolderId){
-			$newTicketFolderCreated = postNewFolderInBox($accessToken, $newTicketFolderName, $requestsFolderId);
-			
-			if($newTicketFolderCreated['id']){
-				$folderSharingLink = createBoxFolderSharingLink($newTicketFolderCreated['id'], $accessToken);
-
-				$apiResponse = [
-					"folder_url" => $folderSharingLink,
-				];
+	
+			if($requestsFolderId){
+				$newTicketFolderCreated = postNewFolderInBox($accessToken, $newTicketFolderName, $requestsFolderId);
+				
+				if($newTicketFolderCreated['id']){
+					$folderSharingLink = createBoxFolderSharingLink($newTicketFolderCreated['id'], $accessToken);
+	
+					$apiResponse = [
+						"folder_url" => $folderSharingLink,
+					];
+				}else{
+					$apiResponse = "[Error] Folder was not created. Check api logs.";
+				}
 			}else{
-				return new WP_Error( 'error', "Folder was not created.", array( 'status' => 400 ) );
-			}
-		}else{
-			return new WP_Error( 'forbidden', "Credentials not valid.", array( 'status' => 401 ) );
+				$apiResponse = "[Error] Request(s) folder not found. Check api logs.";
+			}	
 		}
+	}else{
+		return new WP_Error( 'forbidden', "Credentials not valid.", array( 'status' => 401 ) );
 	}
 
-	return $apiResponse;
+	return rest_ensure_response($apiResponse);
 }

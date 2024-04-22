@@ -1987,13 +1987,16 @@ add_action('woocommerce_cart_loaded_from_session', 'preventTeamMembersPurchases'
 
 
 function createFolderInBoxAfterFDTicketCreation(){
+	global $headers;
 	$reqBody  = json_decode(file_get_contents('php://input'));
 	$subscriberBoxId = "";
 
 	if($reqBody->contact_email){
-		$folderName = "#$reqBody->ticket_id - $reqBody->ticket_subject";
+		$ticketSubject = preg_replace('/[^a-zA-Z0-9_\s]/', '', $reqBody->ticket_subject);
+		$folderName = "#$reqBody->ticket_id - $ticketSubject";
 		$contactFreshdeskEmail = $reqBody->contact_email;
 		$currentUser = get_user_by('email', $contactFreshdeskEmail);
+		wp_mail("devops@deerdesigner.com", "Pabbly Integration", json_encode($reqBody), $headers);
 
 		if(!empty($currentUser)){
 			if(in_array('team_member', $currentUser->roles)){
