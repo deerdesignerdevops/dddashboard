@@ -221,7 +221,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 						</div>
 					<?php } ?>
 
-<!-- 					<button type="submit" class="button<?php echo esc_attr( wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '' ); ?>" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'woocommerce' ); ?>"><?php esc_html_e( 'Update cart', 'woocommerce' ); ?></button> -->
+ 					<button type="submit" style="display:none;" class="button<?php echo esc_attr( wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '' ); ?>" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'woocommerce' ); ?>"><?php esc_html_e( 'Update cart', 'woocommerce' ); ?></button>
 
 					<?php do_action( 'woocommerce_cart_actions' ); ?>
 
@@ -299,17 +299,35 @@ $allProductAddons = wc_get_products([
 
 <?php $carouselSlidesToShow = sizeof($allProductAddons) > 1 ? 2 : 1; ?>
 
+
 <script>
-	new Glider(document.querySelector('.glider'), {
-	slidesToShow: <?php echo $carouselSlidesToShow; ?>,
-	slidesToScroll: 1,
-	draggable: true,
-	dots: '.glider__dots',
-	arrows: {
-		prev: '.glider-prev',
-		next: '.glider-next'
-	}
+jQuery(document).ready(function($) {
+    $('select#billing_country').change(function(){
+		setTimeout(() => {
+			jQuery(jQuery('body').find('[name="update_cart"]')).prop('disabled',false);
+			jQuery(jQuery('body').find('[name="update_cart"]')).trigger('click');
+		}, 1000)
 	});
+});
 </script>
+
+
+<script>
+	if(document.querySelector('.glider')){
+		new Glider(document.querySelector('.glider'), {
+		slidesToShow: <?php echo $carouselSlidesToShow; ?>,
+		slidesToScroll: 1,
+		draggable: true,
+		dots: '.glider__dots',
+		arrows: {
+			prev: '.glider-prev',
+			next: '.glider-next'
+		}
+		});
+	}
+</script>
+
+
+
 
 <?php do_action( 'woocommerce_after_cart' ); ?>
