@@ -147,6 +147,32 @@ do_action( 'woocommerce_before_cart' ); ?>
 											echo do_action('defineSubscriptionPeriodHook', $productPrice);										
 										?>
 								</div>
+								
+								<?php if ( wc_tax_enabled() && ! WC()->cart->display_prices_including_tax() ) : ?>
+									<?php if(WC()->cart->get_taxes_total() !== '0.00'): ?>
+										<?php if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) : ?>
+											<?php foreach ( WC()->cart->get_tax_totals() as $code => $tax ) : ?>
+												<div class="cart__product_subtotal">
+													<span><?php echo esc_html( $tax->label ); ?></span>
+													<span><?php echo wp_kses_post( $tax->formatted_amount ); ?></span>
+												</div>
+											<?php endforeach; ?>
+										<?php else : ?>
+											<div class="cart__product_subtotal">
+												<span><?php echo esc_html( WC()->countries->tax_or_vat() ); ?></span>
+												<span><?php wc_cart_totals_taxes_total_html(); ?></span>
+											</div>
+										<?php endif; ?>
+									<?php endif; ?>
+
+									<div class="cart__product_subtotal">
+										<span>Total</span>
+										<span>
+											<?php echo WC()->cart->get_total(); ?>
+										</span>
+									</div>
+
+								<?php endif; ?>
 
 								<?php
 									if($couponDiscount){ 

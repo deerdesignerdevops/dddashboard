@@ -13,9 +13,7 @@
 <?php 
 	$currentOrder = $this->order->get_data();
 	$currentOrderUserId = $currentOrder['customer_id'];
-	$userVATNumber = get_user_meta($currentOrderUserId, 'user_vat_number', true);
 	$currentOrderPaidDate = $this->order->get_date_paid()->date('F d, Y');
-
 	$orderSubscriptions = wcs_get_subscriptions_for_order($this->order->id, array('order_type' => 'any'));
 	$nextPayment = "";
 	
@@ -77,23 +75,8 @@
 			<?php if ( isset( $this->settings['display_phone'] ) ) : ?>
 				<div class="billing-phone"><?php $this->billing_phone(); ?></div>
 			<?php endif; ?>
-						<?php if ( $userVATNumber ) : ?>
-				<div class="payment-method">
-					<p>VAT nr: <?php echo $userVATNumber; ?></p>
-				</div>
-			<?php endif; ?>
 		</td>
-		<td class="address shipping-address">
-			<?php if ( $this->show_shipping_address() ) : ?>
-				<h3><?php _e( 'Ship To:', 'woocommerce-pdf-invoices-packing-slips' ); ?></h3>
-				<?php do_action( 'wpo_wcpdf_before_shipping_address', $this->get_type(), $this->order ); ?>
-				<?php $this->shipping_address(); ?>
-				<?php do_action( 'wpo_wcpdf_after_shipping_address', $this->get_type(), $this->order ); ?>
-				<?php if ( isset( $this->settings['display_phone'] ) ) : ?>
-					<div class="shipping-phone"><?php $this->shipping_phone(); ?></div>
-				<?php endif; ?>
-			<?php endif; ?>
-		</td>
+		
 		<td class="order-data">
 			<table>
 				<?php do_action( 'wpo_wcpdf_before_order_data', $this->get_type(), $this->order ); ?>
