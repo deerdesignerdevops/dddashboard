@@ -413,7 +413,7 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 			}	
 		}
 	}else{
-		return new WP_Error( 'forbidden', "Credentials not valid.", array( 'status' => 401 ) );
+		$apiResponse = "[Error] Credentials not valid. Check api logs.";
 	}
 
 	return rest_ensure_response($apiResponse);

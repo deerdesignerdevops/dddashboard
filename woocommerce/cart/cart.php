@@ -147,6 +147,32 @@ do_action( 'woocommerce_before_cart' ); ?>
 											echo do_action('defineSubscriptionPeriodHook', $productPrice);										
 										?>
 								</div>
+								
+								<?php if ( wc_tax_enabled() && ! WC()->cart->display_prices_including_tax() ) : ?>
+									<?php if(WC()->cart->get_taxes_total() !== '0.00'): ?>
+										<?php if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) : ?>
+											<?php foreach ( WC()->cart->get_tax_totals() as $code => $tax ) : ?>
+												<div class="cart__product_subtotal">
+													<span><?php echo esc_html( $tax->label ); ?></span>
+													<span><?php echo wp_kses_post( $tax->formatted_amount ); ?></span>
+												</div>
+											<?php endforeach; ?>
+										<?php else : ?>
+											<div class="cart__product_subtotal">
+												<span><?php echo esc_html( WC()->countries->tax_or_vat() ); ?></span>
+												<span><?php wc_cart_totals_taxes_total_html(); ?></span>
+											</div>
+										<?php endif; ?>
+									<?php endif; ?>
+
+									<div class="cart__product_subtotal">
+										<span>Total</span>
+										<span>
+											<?php echo WC()->cart->get_total(); ?>
+										</span>
+									</div>
+
+								<?php endif; ?>
 
 								<?php
 									if($couponDiscount){ 
@@ -195,7 +221,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 						</div>
 					<?php } ?>
 
-<!-- 					<button type="submit" class="button<?php echo esc_attr( wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '' ); ?>" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'woocommerce' ); ?>"><?php esc_html_e( 'Update cart', 'woocommerce' ); ?></button> -->
+ 					<button type="submit" style="display:none;" class="button<?php echo esc_attr( wc_wp_theme_get_element_class_name( 'button' ) ? ' ' . wc_wp_theme_get_element_class_name( 'button' ) : '' ); ?>" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'woocommerce' ); ?>"><?php esc_html_e( 'Update cart', 'woocommerce' ); ?></button>
 
 					<?php do_action( 'woocommerce_cart_actions' ); ?>
 
@@ -273,17 +299,35 @@ $allProductAddons = wc_get_products([
 
 <?php $carouselSlidesToShow = sizeof($allProductAddons) > 1 ? 2 : 1; ?>
 
+
 <script>
-	new Glider(document.querySelector('.glider'), {
-	slidesToShow: <?php echo $carouselSlidesToShow; ?>,
-	slidesToScroll: 1,
-	draggable: true,
-	dots: '.glider__dots',
-	arrows: {
-		prev: '.glider-prev',
-		next: '.glider-next'
-	}
+jQuery(document).ready(function($) {
+    $('select#billing_country').change(function(){
+		setTimeout(() => {
+			jQuery(jQuery('body').find('[name="update_cart"]')).prop('disabled',false);
+			jQuery(jQuery('body').find('[name="update_cart"]')).trigger('click');
+		}, 1000)
 	});
+});
 </script>
+
+
+<script>
+	if(document.querySelector('.glider')){
+		new Glider(document.querySelector('.glider'), {
+		slidesToShow: <?php echo $carouselSlidesToShow; ?>,
+		slidesToScroll: 1,
+		draggable: true,
+		dots: '.glider__dots',
+		arrows: {
+			prev: '.glider-prev',
+			next: '.glider-next'
+		}
+		});
+	}
+</script>
+
+
+
 
 <?php do_action( 'woocommerce_after_cart' ); ?>
