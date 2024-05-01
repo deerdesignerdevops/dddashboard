@@ -637,7 +637,7 @@ function sendWelcomeEmailToAdditionalTeamMembers($userName, $userEmail, $account
 	global $headers;
 	$accountOwner = get_user_by( 'id', $accountOwnerId);
 	$dashboardUrl = get_permalink( wc_get_page_id( 'myaccount' ) );
-	$accountDetailsUrl = $url = get_permalink( wc_get_page_id( 'myaccount' ) ) . "edit-account";
+	$accountDetailsUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "edit-account";
 
 	$subject = "You have just been added to a Deer Designer group!";
 
