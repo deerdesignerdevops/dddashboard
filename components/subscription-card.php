@@ -10,6 +10,22 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $subscriptionStatus = $subscription->get_status();    
     $pausedPlanBillingPeriodEndingDate = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? true : false;
+    $subscriptionPauseDate = "";
+
+    $subscriptionRelatedNotes = wc_get_order_notes(array(
+        'order_id' => $subscription->id,
+        'type' => 'system_status_change',
+        'orderby' => 'date_created',
+        'order' => 'DESC',
+    ));
+
+    foreach($subscriptionRelatedNotes as $subscriptionRelatedNote){
+        if(str_contains($subscriptionRelatedNote->content, 'Status changed from Active to Paused.')){
+            $subscriptionPauseDate = $subscriptionRelatedNote->date_created->format('F j, Y');
+            break;
+        }
+    };
+
 
     $reactivateUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "subscriptions/?reactivate_plan=true";
     $reactivateUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $reactivateUrl );
@@ -79,6 +95,10 @@ function subscriptionCardComponent($subscription, $currentProductId){
             
             <?php if($subscriptionStatus === "active"){ ?>
                 <span class="dd__subscription_payment">Next payment: <?php echo esc_html( $subscription->get_date_to_display( 'next_payment' ) ); ?></span>	
+            <?php } ?>
+
+            <?php if($subscriptionStatus === "on-hold" && $subscriptionPauseDate){ ?>
+                <span class="dd__subscription_payment">Pause date: <?php echo $subscriptionPauseDate; ?></span>
             <?php } ?>
         </div>
 
