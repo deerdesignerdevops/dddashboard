@@ -402,6 +402,23 @@ add_action('template_redirect', 'redirectUserAfterSubscriptionStatusUpdated');
 
 
 
+function checkIfPurchaseIsFromOldUser($userId){
+	$newUserThreshold = 6 * 30 * 24 * 60 * 60; // 6 months in seconds;
+	$oldUser = false;
+	$userInfo = get_userdata($userId);
+
+	$userCreatedDate = strtotime($userInfo->user_registered);
+	$currentTime = time();
+
+	if(($currentTime-$userCreatedDate) > $newUserThreshold){
+		$oldUser = true;
+	};
+
+	return $oldUser;
+}
+
+
+
 function sendPaymentCompleteNotificationToSlack($orderId){
 	if(!wcs_order_contains_renewal($orderId)){
 		$order = wc_get_order( $orderId );
@@ -427,10 +444,19 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 
 		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 		$customerEmail = $orderData['billing']['email'];
+		$customerCompany = $orderData['billing']['company'];
 		$orderItemsGroup = implode(" | ", $orderItemsGroup);
 
+		$oldClient = checkIfPurchaseIsFromOldUser($orderData['customer_id']);
+
+		if($oldClient && $productType === "Plan"){
+			$slackMessage = "Subscription Reactivated :white_check_mark:\n*Client:* $customerName | $customerEmail ($customerCompany)\n*$productType:* $orderItemsGroup";
+		}else{
+			$slackMessage = "We have a new subscription, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg";
+		}
+
 		$slackMessageBody = [
-			"text" => "We have a new subscription, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg",
+			"text" => $slackMessage,
 			"username" => "Marcus"
 		];
 
