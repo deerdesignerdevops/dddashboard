@@ -43,6 +43,58 @@ function getAccessTokenFromBox(){
 }
 
 
+function uploadFileToBoxFolder($accessToken, $filePath, $parentFolderId){
+	global $currentTime;
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
+    $uploadBaseDir = wp_upload_dir();
+    $apiUrl = 'https://upload.box.com/api/2.0/files/content';
+    $boxUserId = BOX_USER_ID;
+
+	//PREPARE THE FILE TO SEND BY API WITH CURLFILE
+	$fileName = basename($filePath);
+	$fileType = mime_content_type($uploadBaseDir['basedir'] . "/fluentform/$fileName");
+	$fileObject = new CURLFile($filePath, $fileType, $fileName);
+    
+	$requestBody = [
+		"attributes" => json_encode([
+			"name" => $fileName,
+			"parent" => [
+				"id" => $parentFolderId
+			]
+		]),
+		"file" => $fileObject
+    ];
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $apiUrl);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		"Content-Type: multipart/form-data",
+		"Accept: application/json",
+        "as-user: $boxUserId",
+        "Authorization: Bearer $accessToken"
+	]);
+
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $requestBody);
+
+	$response = curl_exec($ch);
+
+	if (curl_errno($ch)) {
+		$error_message = 'Error: ' . curl_error($ch);
+		file_put_contents("$uploadsDir/box_api_error_log$currentTime.txt", $error_message . PHP_EOL, FILE_APPEND);
+		$response = false;
+	} else {
+		file_put_contents("$uploadsDir/box_api_response_log_upload_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);
+		$response = json_decode($response, true);
+	}
+
+	curl_close($ch);
+
+	return $response;
+}
+
+
 
 function postNewFolderInBox($accessToken, $folderName, $parentFolderId = BOX_CLIENT_FOLDER_ID){
 	global $currentTime;
@@ -90,8 +142,8 @@ function postNewFolderInBox($accessToken, $folderName, $parentFolderId = BOX_CLI
 
 
 function createCompanyFoldersInBox($entryId, $formData, $form){
-    if($form->id === 3){;
-        $currentUser = wp_get_current_user();
+    if($form->id === 3){
+		$currentUser = wp_get_current_user();
         $parentFolderName = $currentUser->billing_company;
         
         $companySubFolder = [
@@ -109,7 +161,20 @@ function createCompanyFoldersInBox($entryId, $formData, $form){
                 update_user_meta($currentUser->id, "company_folder_box_id", $parentFolderId);
                 
                 foreach($companySubFolder as $companySubFolder){
-                    postNewFolderInBox($accessToken, $companySubFolder, $parentFolderId);
+                    $newFolderResponse = postNewFolderInBox($accessToken, $companySubFolder, $parentFolderId);
+					if($companySubFolder === "Brand Assets" && $newFolderResponse['id']){
+						
+						if(!empty($formData['logo_upload_1'])){
+							foreach($formData['logo_upload_1'] as $logoUploadUrl){
+								uploadFileToBoxFolder($accessToken, $logoUploadUrl, $newFolderResponse['id']);
+							}
+						}
+						if(!empty($formData['logo_upload_2'])){
+							foreach($formData['logo_upload_2'] as $logo2UploadUrl){
+								uploadFileToBoxFolder($accessToken, $logo2UploadUrl, $newFolderResponse['id']);
+							}
+						}
+					}
                 }
             }
         }
