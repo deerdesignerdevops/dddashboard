@@ -170,7 +170,6 @@ function createCompanyFoldersInBox($entryId, $formData, $form){
 							}
 						}
 						if(!empty($formData['logo_upload_2'])){
-							print_r($formData['logo_upload_2']);
 							foreach($formData['logo_upload_2'] as $logo2UploadUrl){
 								uploadFileToBoxFolder($accessToken, $logo2UploadUrl, $newFolderResponse['id']);
 							}
