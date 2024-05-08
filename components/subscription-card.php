@@ -11,6 +11,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $pausedPlanBillingPeriodEndingDate = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? true : false;
     $subscriptionPauseDate = "";
+    $formatedSubscriptionPrice = str_replace('.00', '', $subscription->get_formatted_order_total());
 
     $subscriptionRelatedNotes = wc_get_order_notes(array(
         'order_id' => $subscription->id,
@@ -84,7 +85,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
                                 
             <?php } ?>
             <span class="dd__subscription_price">
-                <?php echo  str_replace('.00', '', $subscription->get_formatted_order_total()); ?>    
+                <?php echo  $formatedSubscriptionPrice; ?>    
             </span>
 
             <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
@@ -116,7 +117,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
             <div class="dd__subscription_actions_form">
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
                 <?php if($showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
-                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price=<?php echo $currencySymbol . $subscription->get_total(); ?>>Reactivate</a>
+                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price='<?php echo get_woocommerce_currency_symbol($subscription->get_currency()) . str_replace('.00', '', $subscription->get_total()); ?>'>Reactivate</a>
                 <?php } ?>
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
 
