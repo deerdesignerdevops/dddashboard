@@ -17,10 +17,10 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat, $
             <div class="dd__subscription_details"> 
                 <div class="dd__subscription_header">
                     <?php if($productCat === "active-task" && $subscriptionStatus === "pending-cancel"){ ?>
-                        <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus); ?> <br> </strong> Active task available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
+                        <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>">Status: <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus); ?> <br> </strong> Active task available until <?php echo esc_html( $subscription->get_date_to_display( 'end' ) ); ?></span>
 
                     <?php }else{ ?>
-                           <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>"><?php echo "Subscription ID: $subscription->id"; ?> | <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus); ?></strong></span>
+                           <span class="dd__subscription_id <?php echo esc_attr( $subscriptionStatus ); ?>">Status: <strong><?php echo  do_action('callNewSubscriptionsLabel', $subscriptionStatus); ?></strong></span>
                     <?php } ?>
                 </div>
 
