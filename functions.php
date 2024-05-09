@@ -37,9 +37,7 @@ function hello_elementor_child_scripts_styles() {
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 
 
-
 add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
-
 
 
 require_once('stripe/init.php');
@@ -494,6 +492,7 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 		slackNotifications($slackMessageBody);
 		wp_schedule_single_event(time() + $fiveMin, 'sendWelcomeEmailAfterOnboardingFormHook', array($userName, $userEmail));
 		wp_schedule_single_event(time() + $weekInSeconds, 'sendWelcomeEmailAfterOnboardingFormOneWeekLaterHook', array($userName, $userEmail));
+		sendOnboardingDataToSlack($currentUser, $formData);
 
 	}
 }
@@ -2052,3 +2051,63 @@ add_action( 'rest_api_init', function () {
     'callback' => 'createFolderInBoxAfterFDTicketCreation',
   ) );
 } );
+
+
+function sendOnboardingDataToSlack($currentUser, $formData){
+	$slackWebHookUrl = site_url() === 'https://dash.deerdesigner.com' ? SLACK_CLIENT_ONBOARDING_WEBHOOK_URL : SLACK_WEBHOOK_URL;
+	$userName = $currentUser->first_name . " " . $currentUser->last_name;
+	$userEmail = $currentUser->user_email;
+	$companyName = addslashes($formData['company_name']);
+	$userCity = $currentUser->billing_city;
+	$userCountry = $currentUser->billing_country;
+	$userPlan = $formData['plan'];
+	$userJobTitle = $formData['job_title'];
+	$userWebsite = $formData['url'];
+	$numberOfEmployees = $formData['number_of_employees'];
+	$companyDescription = $formData['company_description'];
+	$companyOtherDescription = $formData['other_description'];
+	$sourceReferral = $formData['source_referred'];
+	$sourceWhich = $formData['source_which'];
+	$referralName = $formData['referral_name'];
+	$emailConsent = $formData['email_consent'];
+	$idealClient = $formData['ideal_client'];
+	$frequentRequestsGroup = $formData['frequent_requests'];
+	$requestsToWhom = $formData['requests_to_whom'];
+	$frequentRequests = implode(" , ", $frequentRequestsGroup);
+
+	$slackMessageBodyData = "<!channel>\nOnboarding Details for: $userName ($companyName) from $userCity, $userCountry
+	\n--------------------------------------
+	\n*City:* $userCity
+	\n*Country:* $userCountry
+	\n*Plan:* $userPlan
+	\n*Work Email:* $userEmail
+	\n*Client Name:* $userName
+	\n*Company Name:* $companyName
+	\n*Job Title:* $userJobTitle
+	\n*Website:* $userWebsite
+	\n*Number of employees:* $numberOfEmployees
+	\n*Which best describes you/your company?* $companyDescription\n"
+
+	. ($companyOtherDescription ? "*How do you describe yourself/your company?* $companyOtherDescription" : "") .
+
+	"\n*Where did you hear about Deer Designer?* $sourceReferral\n"
+
+	. ($sourceWhich ? "\n*Do you remember which one?* $sourceWhich" : "")
+	. ($referralName ? "\n*Who referred you?* $referralName" : "") .
+	
+	"
+	\n*Would you like to receive our freebies and updates?* $emailConsent
+	\n*Who is your ideal customer/client?* $idealClient
+	\n*What are your most common design requests?* $frequentRequests
+	\n*Will you request designs for yourself or your clients?* $requestsToWhom
+	";
+
+
+	$slackMessageBody = [
+		"text" => $slackMessageBodyData,
+		"username" => "Marcus",
+	];
+
+	slackNotifications($slackMessageBody, $slackWebHookUrl);
+
+}
