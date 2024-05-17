@@ -1355,11 +1355,10 @@ function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	$renewalOrder->set_payment_method($paymentMethod);
 	$renewalOrder->calculate_totals();
 	
-	//do_action('woocommerce_order_action_wcs_retry_renewal_payment', $renewalOrder);
-	if($renewalOrder){
-		wp_redirect($renewalOrder->get_checkout_payment_url());
-		exit;
-	}
+	do_action('woocommerce_order_action_wcs_retry_renewal_payment', $renewalOrder);
+
+	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
+	exit;
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
 
