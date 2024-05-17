@@ -397,14 +397,14 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 
 					$billingCycle = esc_html( $subscription->get_date_to_display( 'end' ) );
 					
-					$subject = "Your additional active task has been canceled";
+					$subject = "Your additional designer has been canceled";
 
 					$messageA = "
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional active task has been canceled and it'll still be available until it's billing period ends on $billingCycle.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional designer has been canceled and it'll still be available until it's billing period ends on $billingCycle.</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you think this is a mistake, please email us at <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before this active task is cancelled.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you think this is a mistake, please email us at <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before this designer is cancelled.</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 					The Deer Designer Team.</p>
@@ -492,7 +492,7 @@ function sendEmailToAdminWhenReactivateSubscription($subscription, $newStatus, $
 					$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
 					$billingCycle = $currentDate->format('F j, Y');
 					
-					$subject = str_contains(strtolower($productName), 'task') ? "Active Task reactivated" : "Account reactivated";
+					$subject = str_contains(strtolower($productName), 'designer') ? "Designer reactivated" : "Account reactivated";
 
 					$message = "
 					<p class='user__details'><strong>Account reactivated by: </strong>$userName | $userEmail | $companyName</p>

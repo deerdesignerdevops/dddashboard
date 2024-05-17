@@ -67,8 +67,8 @@ foreach( $orderItems as $item_id => $item ){
 	if(str_contains(strtolower($itemName), 'director')){
 		$textBasedOnProduct = "You've added the Creative Director add-on to your account. From now on, you'll be able to book as many calls with our Creative Director as you want! Feel free to do so right from the Dashboard.";
 
-	}else if(str_contains(strtolower($itemName), 'task')){
-		$textBasedOnProduct = "You've added an additional active task to your account. This means you'll get either more time with your designer or an another designer to work on your requests every day. Feel free to let your account manager know which tasks your team should prioritize.";
+	}else if(str_contains(strtolower($itemName), 'designer')){
+		$textBasedOnProduct = "You've added an additional designer to your account. This means you'll get either more time with your designer or an another designer to work on your requests every day. Feel free to let your account manager know which tasks your team should prioritize.";
 
 	}else if(str_contains(strtolower($itemName), 'assets')){
 		$textBasedOnProduct = "You've added the Premium Stock Assets add-on to your account. We've sent a notification to your design team, and they'll be using it on your requests starting today. You can read more the terms and conditions <a href='https://help.deerdesigner.com/article/show/170385-use-of-premium-stock-assets'>here</a>.";

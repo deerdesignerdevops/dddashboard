@@ -134,11 +134,11 @@ if(isset($_GET['change-plan'])){
 	</section>
 
 	
-	<!--ACTIVE TASKS-->
+	<!--ADDITIONAL DESIGNERS-->
 	<section class="dd__bililng_portal_section">
 		<div style="max-width: 1140px; margin: auto">
 
-			<h2 class="dd__billing_portal_section_title">Additional Active Tasks</h2>
+			<h2 class="dd__billing_portal_section_title">Additional Designers</h2>
 
 			<?php if(!empty($userCurrentActiveTasks)){ ?>
 				<div class="woocommerce_account_subscriptions">
@@ -155,7 +155,7 @@ if(isset($_GET['change-plan'])){
 					</div>
 				</div>
 			<?php }else{ ?>
-				<h3 class="dd__billing_portal_no_subscriptions_found">You have no addtional active tasks at the moment!</h3>
+				<h3 class="dd__billing_portal_no_subscriptions_found">You have no addtional designers at the moment!</h3>
 			<?php }?>
 		</div>
 	</section>
@@ -299,7 +299,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		if(currentPlan === "active-task"){
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = "WHY ARE YOU DOWNGRADING? <br><span>DID WE DO ANYTHING WRONG?</span>";
 			document.querySelector(".update_plan_form form .ff-btn-submit").innerText = "Confirm Downgrade"
-			document.querySelector(".update_plan_form form").elements['btn_keep'].innerText = "Keep Active Task"
+			document.querySelector(".update_plan_form form").elements['btn_keep'].innerText = "Keep Designer"
 		}
 
 	}
@@ -311,7 +311,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
 		document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentLink
 		document.querySelector(".popup_buttons").style.display = "none"
-		document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple active tasks, they will be automatically canceled."
+		document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple designers, they will be automatically canceled."
 		document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
 		document.querySelector(".form_subscription_update_message_field label").innerText = "Why are you pausing? Did we do anything wrong?"
 		document.querySelector(".form_subscription_update_message_field label").style.display = "block"
@@ -333,7 +333,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			let currentTypeOfRequest = ""
 
 			if(e.currentTarget.dataset.productCat === 'active-task'){
-				currentTypeOfRequest = 'Downgrade Active Task';
+				currentTypeOfRequest = 'Downgrade Designer';
 			}else{
 				if(e.currentTarget.dataset.requestType === 'Pause'){
 					currentTypeOfRequest = 'Pause Request'
@@ -377,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			if(e.currentTarget.classList.contains("suspend")){
 				confirmBtn.href = currentUpdatePlanUrl;
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple active tasks, they will be automatically canceled."
+				document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple designer, they will be automatically canceled."
 				document.querySelector(".form_subscription_update_message_field label").style.display = "none"
 
 				confirmBtn.addEventListener("click", function(e){
@@ -425,7 +425,7 @@ document.addEventListener("DOMContentLoaded", function(){
 				})
 			}
 			else if(e.currentTarget.classList.contains("active-task")){
-				popupMsgNewText = "ARE YOU SURE YOU WANT <br><span>TO REMOVE THIS ACTIVE TASK?</span>";
+				popupMsgNewText = "ARE YOU SURE YOU WANT <br><span>TO REMOVE THIS DESIGNER?</span>";
 				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, remove it"
 				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No, keep it"
 				document.querySelector(".form_subscription_update_message_field label").style.display = 'none'		

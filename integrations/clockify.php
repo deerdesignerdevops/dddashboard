@@ -132,7 +132,7 @@ function updateTaskInClockify($projectId, $taskId, $requestBody){
 	if (curl_errno($ch)) {
 		$error_message = 'Error: ' . curl_error($ch);
 		echo $error_message;
-		error_log($error_message, 3, "$uploadsDir/clockify_api_error_log.txt");
+		error_log($error_message, 3, "$uploadsDir/clockify_api_error_log_$currentTime.txt");
 		$response = false;
 	} else {
 		file_put_contents("$uploadsDir/clockify_api_response_log_put_task_project_request_$currentTime.txt", $response . PHP_EOL, FILE_APPEND);

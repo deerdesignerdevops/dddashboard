@@ -438,7 +438,7 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 		$oldClient = checkIfPurchaseIsFromOldUser($orderData['customer_id']);
 
 		if($oldClient && $productType === "Plan"){
-			$slackMessage = "Subscription Reactivated :white_check_mark:\n*Client:* $customerName | $customerEmail ($customerCompany)\n*$productType:* $orderItemsGroup";
+			$slackMessage = "<!channel> Subscription Reactivated :white_check_mark:\n*Client:* $customerName | $customerEmail ($customerCompany)\n*$productType:* $orderItemsGroup";
 		}else{
 			$slackMessage = "We have a new subscription, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg";
 		}
@@ -854,7 +854,7 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStatus, $oldStatus){
-	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
+	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan']) || !is_admin()){
 		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			$currentUser = wp_get_current_user();
 			$subscriptionItems = $subscription->get_items();
@@ -888,7 +888,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 				$messageTitle = 'Cancellation Request :warning:';
 				$billingMsg = " requested to Cancel. Their billing date is on: $billingPeriodEndingDate\n*Motive:* $requestMotive";
 
-				if(str_contains($subscriptionItemsGroup, 'Active Task')){
+				if(str_contains($subscriptionItemsGroup, 'Designer')){
 					$messageTitle = 'Downgrade Request :warning:';
 					$billingMsg = " requested to Downgrade. Their billing date is on: $billingPeriodEndingDate\n*Motive:* $requestMotive";
 				}
@@ -904,7 +904,6 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 
 			}else{
 				$messageTitle = 'Subscription Reactivated :white_check_mark:';
-
 			}
 
 			$slackMessageBody = [
@@ -962,7 +961,7 @@ function wooNoticesMessageBasedOnProduct($subscription, $newStatus, $oldStatus){
 
 			foreach($subscription->get_items() as $item){
 				if(has_term('active-task','product_cat', $item['product_id'])){
-					$message = 'This active task has been succesfully cancelled and will still be available until the end of your current billing period.';
+					$message = 'This designer has been succesfully cancelled and will still be available until the end of your current billing period.';
 				}else if(has_term('add-on','product_cat', $item['product_id'])){
 					$message = 'This add on has been succesfully cancelled and will still be available until the end of your current billing period.';
 				}else{
@@ -1356,10 +1355,11 @@ function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	$renewalOrder->set_payment_method($paymentMethod);
 	$renewalOrder->calculate_totals();
 	
-	do_action('woocommerce_order_action_wcs_retry_renewal_payment', $renewalOrder);
-
-	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
-	exit;
+	//do_action('woocommerce_order_action_wcs_retry_renewal_payment', $renewalOrder);
+	if($renewalOrder){
+		wp_redirect($renewalOrder->get_checkout_payment_url());
+		exit;
+	}
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
 
