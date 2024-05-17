@@ -72,7 +72,8 @@ $allProductAddons = wc_get_products([
 
 
 $sortedSubscriptions = array_merge($activePlanSubscriptions, $otherSubscriptions);
-
+$additionalDesignerIndex = 1;
+$addonIndex = 0;
 
 if(isset($_GET['change-plan'])){
 	wc_add_notice('switch', 'success');
@@ -149,7 +150,6 @@ if(isset($_GET['change-plan'])){
 						?>
 						<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
 							<?php if($subscription->get_status() === "pending-cancel" || $subscription->get_status() === "active"){ 
-								$additionalDesignerIndex = 1;
 								foreach($subscription->get_items() as $subItem){
 									if(has_term('active-task', 'product_cat', $subItem['product_id'])){ 
 										$additionalDesignerIndex++;
@@ -175,7 +175,6 @@ if(isset($_GET['change-plan'])){
 				<div class="dd__subscription_container">
 					<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
 						<?php if($subscription->get_status() !== "cancelled" && $subscription->get_status() !== "on-hold"){ 
-							$addonIndex = 0;
 							foreach($subscription->get_items() as $subItem){					
 								if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
 									$addonIndex++;
