@@ -72,7 +72,8 @@ $allProductAddons = wc_get_products([
 
 
 $sortedSubscriptions = array_merge($activePlanSubscriptions, $otherSubscriptions);
-
+$additionalDesignerIndex = 1;
+$addonIndex = 0;
 
 if(isset($_GET['change-plan'])){
 	wc_add_notice('switch', 'success');
@@ -134,29 +135,32 @@ if(isset($_GET['change-plan'])){
 	</section>
 
 	
-	<!--ACTIVE TASKS-->
+	<!--ADDITIONAL DESIGNERS-->
 	<section class="dd__bililng_portal_section">
 		<div style="max-width: 1140px; margin: auto">
 
-			<h2 class="dd__billing_portal_section_title">Additional Active Tasks</h2>
+			<h2 class="dd__billing_portal_section_title">Designers</h2>
 
-			<?php if(!empty($userCurrentActiveTasks)){ ?>
 				<div class="woocommerce_account_subscriptions">
 					<div class="dd__subscription_container">
+						<?php
+						if($activePlanSubscriptions[0]->get_status() === 'active'){
+							do_action('tasksAddonsCardComponentHook', $activePlanSubscriptions[0], false, 'plan', $activePlanSubscriptions[0]->get_status(), 1);
+						}
+						?>
 						<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
 							<?php if($subscription->get_status() === "pending-cancel" || $subscription->get_status() === "active"){ 
 								foreach($subscription->get_items() as $subItem){
 									if(has_term('active-task', 'product_cat', $subItem['product_id'])){ 
-										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task', $activePlanSubscriptions[0]->get_status());
+										$additionalDesignerIndex++;
+										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task', $activePlanSubscriptions[0]->get_status(), $additionalDesignerIndex);
 									}
 								}								
 								} ?>
 						<?php endforeach; ?>
 					</div>
 				</div>
-			<?php }else{ ?>
-				<h3 class="dd__billing_portal_no_subscriptions_found">You have no addtional active tasks at the moment!</h3>
-			<?php }?>
+	
 		</div>
 	</section>
 
@@ -173,7 +177,8 @@ if(isset($_GET['change-plan'])){
 						<?php if($subscription->get_status() !== "cancelled" && $subscription->get_status() !== "on-hold"){ 
 							foreach($subscription->get_items() as $subItem){					
 								if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
-									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on', $activePlanSubscriptions[0]->get_status());
+									$addonIndex++;
+									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on', $activePlanSubscriptions[0]->get_status(), $addonIndex);
 								}
 							}								
 							} ?>
@@ -299,7 +304,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		if(currentPlan === "active-task"){
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = "WHY ARE YOU DOWNGRADING? <br><span>DID WE DO ANYTHING WRONG?</span>";
 			document.querySelector(".update_plan_form form .ff-btn-submit").innerText = "Confirm Downgrade"
-			document.querySelector(".update_plan_form form").elements['btn_keep'].innerText = "Keep Active Task"
+			document.querySelector(".update_plan_form form").elements['btn_keep'].innerText = "Keep Designer"
 		}
 
 	}
@@ -311,7 +316,7 @@ document.addEventListener("DOMContentLoaded", function(){
 		document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
 		document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentLink
 		document.querySelector(".popup_buttons").style.display = "none"
-		document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple active tasks, they will be automatically canceled."
+		document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple designers, they will be automatically canceled."
 		document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
 		document.querySelector(".form_subscription_update_message_field label").innerText = "Why are you pausing? Did we do anything wrong?"
 		document.querySelector(".form_subscription_update_message_field label").style.display = "block"
@@ -333,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			let currentTypeOfRequest = ""
 
 			if(e.currentTarget.dataset.productCat === 'active-task'){
-				currentTypeOfRequest = 'Downgrade Active Task';
+				currentTypeOfRequest = 'Downgrade Designer';
 			}else{
 				if(e.currentTarget.dataset.requestType === 'Pause'){
 					currentTypeOfRequest = 'Pause Request'
@@ -377,7 +382,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			if(e.currentTarget.classList.contains("suspend")){
 				confirmBtn.href = currentUpdatePlanUrl;
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple active tasks, they will be automatically canceled."
+				document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple designer, they will be automatically canceled."
 				document.querySelector(".form_subscription_update_message_field label").style.display = "none"
 
 				confirmBtn.addEventListener("click", function(e){
@@ -425,7 +430,7 @@ document.addEventListener("DOMContentLoaded", function(){
 				})
 			}
 			else if(e.currentTarget.classList.contains("active-task")){
-				popupMsgNewText = "ARE YOU SURE YOU WANT <br><span>TO REMOVE THIS ACTIVE TASK?</span>";
+				popupMsgNewText = "ARE YOU SURE YOU WANT <br><span>TO REMOVE THIS DESIGNER?</span>";
 				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, remove it"
 				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No, keep it"
 				document.querySelector(".form_subscription_update_message_field label").style.display = 'none'		

@@ -1,6 +1,7 @@
 <?php 
 function addonsCarouselComponent($allProductAddons){ 
     $siteUrl = site_url();
+    $currencySymbol = get_woocommerce_currency_symbol(apply_filters('wcml_price_currency', NULL ));
     ?>
     <div class="carousel__container">
         <div class="addons__carousel_form glider">								
@@ -11,12 +12,12 @@ function addonsCarouselComponent($allProductAddons){
                                 <?php echo get_the_post_thumbnail( $addon->id ); ?>
                                 
                                 <div class="btn__wrapper">
-                                    <a href='<?php echo "$siteUrl/?buy-now=$addon->id&with-cart=0"; ?>' data-product-name="<?php echo $addon->name;?>" data-product-price="<?php echo $addon->price; ?>"  class="addons__button one__click_purchase <?php echo strtolower(str_replace(' ', '-', $addon->name)); ?> "><?php echo $addon->name; ?></a>
+                                    <a href='<?php echo "$siteUrl/?buy-now=$addon->id&with-cart=0"; ?>' data-product-name="<?php echo $addon->name;?>" data-product-price="<?php echo $currencySymbol . $addon->price; ?>"  class="addons__button one__click_purchase <?php echo strtolower(str_replace(' ', '-', $addon->name)); ?> "><?php echo $addon->name; ?></a>
                                 </div>
                             </div>
                             <div class="addon__card_info">
                                 <span class="addon__title"><?php echo $addon->name; ?></span><br>
-                                <span class="addon__price"><?php echo get_woocommerce_currency_symbol() . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
+                                <span class="addon__price"><?php echo $currencySymbol  . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
                                 <div class="addon__description">
                                     <?php echo $addon->description; ?>
                                 </div>
