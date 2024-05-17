@@ -12,7 +12,7 @@ function addonsCarouselComponent($allProductAddons){
                                 <?php echo get_the_post_thumbnail( $addon->id ); ?>
                                 
                                 <div class="btn__wrapper">
-                                    <a href='<?php echo "$siteUrl/?buy-now=$addon->id&with-cart=0"; ?>' data-product-name="<?php echo $addon->name;?>" data-product-price="<?php echo $addon->price; ?>"  class="addons__button one__click_purchase <?php echo strtolower(str_replace(' ', '-', $addon->name)); ?> "><?php echo $addon->name; ?></a>
+                                    <a href='<?php echo "$siteUrl/?buy-now=$addon->id&with-cart=0"; ?>' data-product-name="<?php echo $addon->name;?>" data-product-price="<?php echo $currencySymbol . $addon->price; ?>"  class="addons__button one__click_purchase <?php echo strtolower(str_replace(' ', '-', $addon->name)); ?> "><?php echo $addon->name; ?></a>
                                 </div>
                             </div>
                             <div class="addon__card_info">
