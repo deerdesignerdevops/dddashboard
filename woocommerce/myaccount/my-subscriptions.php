@@ -138,25 +138,29 @@ if(isset($_GET['change-plan'])){
 	<section class="dd__bililng_portal_section">
 		<div style="max-width: 1140px; margin: auto">
 
-			<h2 class="dd__billing_portal_section_title">Additional Designers</h2>
+			<h2 class="dd__billing_portal_section_title">Designers</h2>
 
-			<?php if(!empty($userCurrentActiveTasks)){ ?>
 				<div class="woocommerce_account_subscriptions">
 					<div class="dd__subscription_container">
+						<?php
+						if($activePlanSubscriptions[0]->get_status() === 'active'){
+							do_action('tasksAddonsCardComponentHook', $activePlanSubscriptions[0], false, 'plan', $activePlanSubscriptions[0]->get_status(), 1);
+						}
+						?>
 						<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
 							<?php if($subscription->get_status() === "pending-cancel" || $subscription->get_status() === "active"){ 
+								$additionalDesignerIndex = 1;
 								foreach($subscription->get_items() as $subItem){
 									if(has_term('active-task', 'product_cat', $subItem['product_id'])){ 
-										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task', $activePlanSubscriptions[0]->get_status());
+										$additionalDesignerIndex++;
+										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task', $activePlanSubscriptions[0]->get_status(), $additionalDesignerIndex);
 									}
 								}								
 								} ?>
 						<?php endforeach; ?>
 					</div>
 				</div>
-			<?php }else{ ?>
-				<h3 class="dd__billing_portal_no_subscriptions_found">You have no additional designers at the moment!</h3>
-			<?php }?>
+	
 		</div>
 	</section>
 
@@ -171,9 +175,11 @@ if(isset($_GET['change-plan'])){
 				<div class="dd__subscription_container">
 					<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
 						<?php if($subscription->get_status() !== "cancelled" && $subscription->get_status() !== "on-hold"){ 
+							$addonIndex = 0;
 							foreach($subscription->get_items() as $subItem){					
 								if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
-									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on', $activePlanSubscriptions[0]->get_status());
+									$addonIndex++;
+									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on', $activePlanSubscriptions[0]->get_status(), $addonIndex);
 								}
 							}								
 							} ?>

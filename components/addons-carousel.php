@@ -1,6 +1,7 @@
 <?php 
 function addonsCarouselComponent($allProductAddons){ 
     $siteUrl = site_url();
+    $currencySymbol = get_woocommerce_currency_symbol(apply_filters('wcml_price_currency', NULL ));
     ?>
     <div class="carousel__container">
         <div class="addons__carousel_form glider">								
@@ -16,7 +17,7 @@ function addonsCarouselComponent($allProductAddons){
                             </div>
                             <div class="addon__card_info">
                                 <span class="addon__title"><?php echo $addon->name; ?></span><br>
-                                <span class="addon__price"><?php echo get_woocommerce_currency_symbol() . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
+                                <span class="addon__price"><?php echo $currencySymbol  . "$addon->price / "; do_action('callAddonsPeriod', $addon->name); ?></span>
                                 <div class="addon__description">
                                     <?php echo $addon->description; ?>
                                 </div>
