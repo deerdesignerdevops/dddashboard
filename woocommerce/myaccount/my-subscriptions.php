@@ -155,7 +155,7 @@ if(isset($_GET['change-plan'])){
 					</div>
 				</div>
 			<?php }else{ ?>
-				<h3 class="dd__billing_portal_no_subscriptions_found">You have no addtional designers at the moment!</h3>
+				<h3 class="dd__billing_portal_no_subscriptions_found">You have no additional designers at the moment!</h3>
 			<?php }?>
 		</div>
 	</section>
