@@ -40,7 +40,7 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat, $
                         <?php } ?>
                         <?php 
 
-                        if($productCat === "plan"){
+                        if($productCat !== "add-on"){
                             echo "Designer $itemIndex";
                         }else{
                             echo $item['name'] . " $itemIndex";
