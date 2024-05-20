@@ -865,9 +865,14 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 			$billingMsg = '';
 			$billingPeriodEndingDate =  calculateBillingEndingDateWhenPausedOrCancelled($subscription);
 			$requestMotive = "";
-
+			
 			foreach($subscriptionItems as $item){
-				$subscriptionItemsGroup[] = $item['name'];
+				if(str_contains($item['name'], 'Designer')){
+					$additionalDesignerIndex = get_post_meta($subscription->id, 'additional_designer_index', true);
+					$subscriptionItemsGroup[] = $item['name'] . " ($additionalDesignerIndex)";
+				}else{
+					$subscriptionItemsGroup[] = $item['name'];
+				}
 			}
 
 			$subscriptionItemsGroup = implode(" | ", array_unique($subscriptionItemsGroup));
@@ -927,8 +932,10 @@ function sendPauseCancelMotiveToSubscriptionPostMeta($entryId, $formData, $form)
 	if($form->id == 6){
 		$subscriptionId = $formData['form_subscription_id'];
 		$requestMotive = $formData['form_subscription_update_message'];
+		$additionalDesignerCurrentIndex = $formData['form_subscription_additional_designer_index'];
 
 		update_post_meta($subscriptionId, 'pause_cancel_motive', $requestMotive);
+		update_post_meta($subscriptionId, 'additional_designer_index', $additionalDesignerCurrentIndex);
 	}
 
 }

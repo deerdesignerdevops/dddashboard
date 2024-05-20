@@ -331,6 +331,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			const currentSubscriptionStatus = e.currentTarget.dataset.subscriptionStatus
 			const productPrice = e.currentTarget.dataset.productPrice
 			const currentPlan = e.currentTarget.dataset.plan
+			const currentAdditionalDesignerIndex = e.currentTarget.dataset.designerIndex
 			const currentUpdatePlanUrl = e.currentTarget.href
 			const currentCompanyName = "<?php echo $currentCompanyName; ?>";
 			const enablePauseFlow = <?php echo sizeof($subscriptions); ?>;
@@ -364,6 +365,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			document.querySelector(".update_plan_form form").elements['form_subscription_request_type'].value = currentTypeOfRequest
 			document.querySelector(".update_plan_form form").elements['form_subscription_id'].value = currentSubscriptionId
 			document.querySelector(".update_plan_form form").elements['form_subscription_company_name'].value = currentCompanyName
+			document.querySelector(".update_plan_form form").elements['form_subscription_additional_designer_index'].value = currentAdditionalDesignerIndex
 
 			document.querySelector(".update_plan_form form").elements["btn_keep"].addEventListener("click", function(e){
 				e.preventDefault()
