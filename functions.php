@@ -405,7 +405,20 @@ function checkIfPurchaseIsFromOldUser($userId){
 	return $oldUser;
 }
 
+function countAdditionalDesignerByUser($userId){
+	$userSubscriptions = wcs_get_users_subscriptions($userId);
+	$additionalDesignerCurrentIndex = 0;
+	
+	foreach($userSubscriptions as $userSubscription){
+		foreach($userSubscription->get_items() as $item){
+			if(str_contains($item->get_name(), 'Designer')){
+				$additionalDesignerCurrentIndex++;
+			}
+		}
+	}
 
+	return $additionalDesignerCurrentIndex;
+};
 
 function sendPaymentCompleteNotificationToSlack($orderId){
 	if(!wcs_order_contains_renewal($orderId)){
@@ -415,18 +428,21 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 		$orderItemsGroup = [];
 		$productType = "";
 		$notificationFinalMsg = "";
-
+		$additionalDesignerCurrentIndex = countAdditionalDesignerByUser($orderData['customer_id']);
+		
 		foreach( $orderItems as $item_id => $item ){
 			$itemName = $item->get_name();
-			$orderItemsGroup[] = $itemName;
 
 			if(has_term('active-task', 'product_cat', $item->get_product_id())){
 				$productType = 'Product';
+				$orderItemsGroup[] = $itemName . " ($additionalDesignerCurrentIndex)";
 			}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
 				$productType = 'Add on';
+				$orderItemsGroup[] = $itemName;
 			}else{
 				$productType = 'Plan';
 				$notificationFinalMsg = 'Let\'s wait for the onboarding rocket :muscle::skin-tone-2:';
+				$orderItemsGroup[] = $itemName;
 			}
 		}
 
@@ -808,15 +824,42 @@ add_action( 'woocommerce_review_order_after_cart_contents', 'customCheckoutCoupo
 
 
 
+function getIndexOfAdditionalDesigners($userId, $additionalDesignerId){
+	$userSubscriptions = wcs_get_users_subscriptions($userId);
+	$keys = array_keys(array_reverse($userSubscriptions, true));
+	$additionalDesignerCurrentIndex = 0;
+
+	foreach($userSubscriptions as $key => $subscription){
+		foreach($subscription->get_items() as $item){
+			if(str_contains($item->get_name(), 'Designer')){
+				$additionalDesignerCurrentIndex = array_search($key, $keys);
+				if($key === $additionalDesignerId){
+					echo "<br><br>$additionalDesignerCurrentIndex";
+					return $additionalDesignerCurrentIndex;
+				}
+			}
+		};
+	}
+};
+
+
+
 function sendPaymentFailedNotificationToSlack($orderId){
 	$order = wc_get_order( $orderId );
 	$orderData = $order->get_data();
 	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 	$customerEmail = $orderData['billing']['email'];
+	$orderSubscriptions = wcs_get_subscriptions_for_order($orderId, array('order_type' => 'any'));
+	$currentOrderSubscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
+	$additionalDesignerCurrentIndex = getIndexOfAdditionalDesigners($orderData['customer_id'], $currentOrderSubscription->id);
 	
 	foreach( $order->get_items() as $item_id => $item ){
 		$itemName = $item->get_name();
-		$orderItems[] = $itemName;
+		if(str_contains($itemName, 'Designer')){
+			$orderItems[] = $itemName . " ($additionalDesignerCurrentIndex)";
+		}else{
+			$orderItems[] = $itemName;
+		}
 	}
 
 	$productNames = implode(" | ", array_unique($orderItems));
@@ -856,7 +899,7 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStatus, $oldStatus){
 	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
-			$currentUser = wp_get_current_user();
+			$currentUser = get_user_by('id', $subscription->data['customer_id']);
 			$subscriptionItems = $subscription->get_items();
 			$customerName = $currentUser->first_name . " " . $currentUser->last_name;
 			$customerEmail = $currentUser->user_email;
@@ -1626,10 +1669,18 @@ function sendNotificationToSlackWhenOrderChangeFromFailedToProcessing($orderId, 
 				$orderItemsGroup = [];
 				$productType = "";
 				$notificationFinalMsg = 'Keep the work going.';
+
+				$orderSubscriptions = wcs_get_subscriptions_for_order($orderId, array('order_type' => 'any'));
+				$currentOrderSubscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
+				$additionalDesignerCurrentIndex = getIndexOfAdditionalDesigners($orderData['customer_id'], $currentOrderSubscription->id);
 	
 				foreach( $orderItems as $item_id => $item ){
 					$itemName = $item->get_name();
-					$orderItemsGroup[] = $itemName;
+					if(str_contains($itemName, 'Designer')){
+						$orderItemsGroup[] = $itemName . " ($additionalDesignerCurrentIndex)";
+					}else{
+						$orderItemsGroup[] = $itemName;
+					}
 	
 					if(has_term('active-task', 'product_cat', $item->get_product_id())){
 						$productType = 'Product';
@@ -1639,6 +1690,7 @@ function sendNotificationToSlackWhenOrderChangeFromFailedToProcessing($orderId, 
 						$productType = 'Plan';
 					}
 				}
+				
 	
 				$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 				$customerEmail = $orderData['billing']['email'];

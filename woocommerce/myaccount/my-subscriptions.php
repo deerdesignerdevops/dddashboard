@@ -35,13 +35,11 @@ $userCurrentActiveTasks = [];
 $activePlanSubscriptions = [];
 
 //CREATE NEW SUBSCRIPTIONS ARRAY TO SHOW THE ACTIVES FIRST IN THE LIST;
-foreach($subscriptions as $sub){
+foreach(array_reverse($subscriptions) as $sub){
 	$status = $sub->get_status();
 	$subItems = $sub->get_items();
 
 	foreach($subItems as $subItem){
-		
-
 		if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
 			$userCurrentAddons[] = $subItem['product_id'];
 		}
@@ -365,7 +363,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			document.querySelector(".update_plan_form form").elements['form_subscription_request_type'].value = currentTypeOfRequest
 			document.querySelector(".update_plan_form form").elements['form_subscription_id'].value = currentSubscriptionId
 			document.querySelector(".update_plan_form form").elements['form_subscription_company_name'].value = currentCompanyName
-			document.querySelector(".update_plan_form form").elements['form_subscription_additional_designer_index'].value = currentAdditionalDesignerIndex
+			document.querySelector(".update_plan_form form").elements['form_subscription_additional_designer_index'].value = currentAdditionalDesignerIndex -1
 
 			document.querySelector(".update_plan_form form").elements["btn_keep"].addEventListener("click", function(e){
 				e.preventDefault()
