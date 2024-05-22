@@ -84,7 +84,7 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat, $
             <?php if (!empty($actions) && $cancelBtnLabel) { ?>
                 <div class="dd__subscription_actions_form">
                     <?php foreach ( $actions as $key => $action ) : ?>															
-                        <a href="<?php echo esc_url( $action['url'] ); ?>" data-product-cat=<?php echo $productCat; ?> data-request-type=<?php echo $action['name']; ?> data-subscription-id="<?php echo $subscription->id; ?>" data-plan="<?php echo $terms[0]->slug; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscriptionStatus; ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>"><?php echo esc_html( $action['name'] ); ?> 
+                        <a href="<?php echo esc_url( $action['url'] ); ?>" data-product-cat=<?php echo $productCat; ?> data-request-type=<?php echo $action['name']; ?> data-subscription-id="<?php echo $subscription->id; ?>" data-plan="<?php echo $terms[0]->slug; ?>" data-button-type=<?php echo esc_html( $action['name'] ) . '_' . $subscription->id; ?> data-subscription-status="<?php echo $subscriptionStatus; ?>" class="dd__subscription_cancel_btn <?php echo str_replace(' ', '-', strtolower($item['name']));  ?> <?php echo sanitize_html_class( $key ) ?>" data-designer-index=<?php echo $itemIndex; ?>><?php echo esc_html( $action['name'] ); ?> 
                     <?php echo $action['name'] === 'Downgrade' ? '<i class="fa-solid fa-caret-down"></i>' : ''; ?>
                     </a>
                     <?php endforeach; ?> 
