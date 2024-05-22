@@ -834,7 +834,6 @@ function getIndexOfAdditionalDesigners($userId, $additionalDesignerId){
 			if(str_contains($item->get_name(), 'Designer')){
 				$additionalDesignerCurrentIndex = array_search($key, $keys);
 				if($key === $additionalDesignerId){
-					echo "<br><br>$additionalDesignerCurrentIndex";
 					return $additionalDesignerCurrentIndex;
 				}
 			}
