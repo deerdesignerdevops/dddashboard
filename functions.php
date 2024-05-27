@@ -47,6 +47,8 @@ require_once('integrations/moosend.php');
 require_once('integrations/clockify.php');
 require_once('integrations/appbox.php');
 require_once('integrations/growsurf.php');
+require_once('integrations/trello.php');
+
 
 
 function logoutWhitoutConfirm($action, $result)
@@ -96,10 +98,9 @@ add_action('fluentform/after_form_render', 'populateOnboardingFormHiddenFieldsWi
 
 
 function populateCSATFormHiddenFieldsWithUserMeta($form){
-	$currentUser = wp_get_current_user();
-	$companyName = addslashes(get_user_meta($currentUser->id, 'billing_company', true));
-
 	if($form->id == 5){
+		$currentUser = wp_get_current_user();
+		$companyName = addslashes(get_user_meta($currentUser->id, 'billing_company', true));
 		echo "<script>
 			document.addEventListener('DOMContentLoaded', function(){
 				document.querySelector('[data-name=\"hidden_company_name\"]').value='$companyName'
