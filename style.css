@@ -721,13 +721,33 @@ input.ff-read-only {
   display: flex;
   justify-content: space-between;
   align-items: stretch;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .dd__subscription_container
   .dd__subscription_addons_task_card:first-child
   .dd__subscription_price {
   display: none !important;
+}
+
+.dd__subscription_addons_task_card_btn_new_wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dd__subscription_addons_task_card_btn_new {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.dd__subscription_addons_task_card_btn_new i {
+  font-size: 2rem;
 }
 
 .dd__bililng_portal_section {
@@ -778,7 +798,10 @@ input.ff-read-only {
   flex-wrap: wrap;
   flex-direction: column;
   border: 1px solid #ccc;
-  flex: 1;
+}
+
+.dd__subscription_addons_task_card.active-tasks {
+  justify-content: center;
 }
 
 .dd__subscriptions_sumary {
