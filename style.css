@@ -722,7 +722,7 @@ input.ff-read-only {
   justify-content: space-between;
   align-items: stretch;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 24px;
 }
 
 .dd__subscription_container
@@ -798,10 +798,18 @@ input.ff-read-only {
   flex-wrap: wrap;
   flex-direction: column;
   border: 1px solid #ccc;
+  flex: auto;
 }
 
 .dd__subscription_addons_task_card.active-tasks {
   justify-content: center;
+  background-color: var(--e-global-color-primary);
+  color: white;
+  border: none;
+}
+
+.dd__subscription_addons_task_card.active-tasks:hover {
+  opacity: 0.5;
 }
 
 .dd__subscriptions_sumary {

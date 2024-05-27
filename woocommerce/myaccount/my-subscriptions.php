@@ -237,10 +237,8 @@ if($activePlanSubscriptions){
 	}
 
 	.dd__subscription_addons_task_card{
-		width: <?php echo (empty($userCurrentActiveTasks) ? "auto" : "33%"); ?>;
-		flex: <?php echo (empty($userCurrentActiveTasks) ? "1" : ""); ?>;
+		width: <?php echo (empty($userCurrentActiveTasks) ? "auto" : "30%"); ?>;
 	}
-
 </style>
 
 <script>
