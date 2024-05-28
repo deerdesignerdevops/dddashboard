@@ -105,14 +105,11 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
 
         <div>
-            <?php if($subscriptionStatus === 'active'){ ?>
+            <!-- <?php if($subscriptionStatus === 'active'){ ?>
                 <div class="btn__wrapper">
                     <a href='<?php echo "$siteUrl/?add-to-cart=$activeTasksProductId"; ?>' data-plan="<?php echo $currentSubscriptionPlan; ?>" class="dd__primary_button active-tasks one__click_purchase" data-product-price="<?php echo $currencySymbol . $activeTaskProductPrice; ?>" data-product-name="<?php echo $activeTaskProductName; ?>">Add New Designer</a>
                 </div>
-            <?php } ?>
-
-
-
+            <?php } ?> -->
 
             <div class="dd__subscription_actions_form">
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->

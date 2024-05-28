@@ -15,10 +15,13 @@ require_once get_stylesheet_directory() . '/components/subscription-card.php';
 require_once get_stylesheet_directory() . '/components/tasks-addons-card.php';
 require_once get_stylesheet_directory() . '/components/addons-carousel.php';
 require_once get_stylesheet_directory() . '/components/invoices.php';
+require_once get_stylesheet_directory() . '/components/add-new-designer-card.php';
+
 
 
 $siteUrl = site_url();
 $elementorPopupID = 1570;
+$activeTasksProductId = 1600;
 $currentCompanyName = wp_get_current_user()->billing_company;
 $currentUserId = get_current_user_id();
 
@@ -156,6 +159,8 @@ if(isset($_GET['change-plan'])){
 								}								
 								} ?>
 						<?php endforeach; ?>
+
+						<?php do_action('addNewDesignerCardHook', $activePlanSubscriptions[0]); ?>
 					</div>
 				</div>
 	
@@ -231,6 +236,9 @@ if($activePlanSubscriptions){
 		display: none !important;
 	}
 
+	.dd__subscription_addons_task_card{
+		width: <?php echo (empty($userCurrentActiveTasks) ? "auto" : "30%"); ?>;
+	}
 </style>
 
 <script>
