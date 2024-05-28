@@ -137,35 +137,33 @@ if(isset($_GET['change-plan'])){
 
 	
 	<!--ADDITIONAL DESIGNERS-->
-	<section class="dd__bililng_portal_section">
-		<div style="max-width: 1140px; margin: auto">
-
-			<h2 class="dd__billing_portal_section_title">Designers</h2>
-
-				<div class="woocommerce_account_subscriptions">
-					<div class="dd__subscription_container">
-						<?php
-						if($activePlanSubscriptions[0]->get_status() === 'active'){
-							do_action('tasksAddonsCardComponentHook', $activePlanSubscriptions[0], false, 'plan', $activePlanSubscriptions[0]->get_status(), 1);
-						}
-						?>
-						<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
-							<?php if($subscription->get_status() === "pending-cancel" || $subscription->get_status() === "active"){ 
-								foreach($subscription->get_items() as $subItem){
-									if(has_term('active-task', 'product_cat', $subItem['product_id'])){ 
-										$additionalDesignerIndex++;
-										do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task', $activePlanSubscriptions[0]->get_status(), $additionalDesignerIndex);
-									}
-								}								
-								} ?>
-						<?php endforeach; ?>
-
-						<?php do_action('addNewDesignerCardHook', $activePlanSubscriptions[0]); ?>
-					</div>
-				</div>
+	<?php if($activePlanSubscriptions[0]->get_status() === 'active'){ ?>
+		<section class="dd__bililng_portal_section">
+			<div style="max-width: 1140px; margin: auto">
 	
-		</div>
-	</section>
+				<h2 class="dd__billing_portal_section_title">Designers</h2>
+	
+					<div class="woocommerce_account_subscriptions">
+						<div class="dd__subscription_container">
+							<?php
+								do_action('tasksAddonsCardComponentHook', $activePlanSubscriptions[0], false, 'plan', $activePlanSubscriptions[0]->get_status(), 1);
+							?>
+							<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
+								<?php if($subscription->get_status() === "pending-cancel" || $subscription->get_status() === "active"){ 
+									foreach($subscription->get_items() as $subItem){
+										if(has_term('active-task', 'product_cat', $subItem['product_id'])){ 
+											$additionalDesignerIndex++;
+											do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task', $activePlanSubscriptions[0]->get_status(), $additionalDesignerIndex);
+										}
+									}								
+								} ?>
+							<?php endforeach; ?>
+							<?php do_action('addNewDesignerCardHook', $activePlanSubscriptions[0]); ?>
+						</div>
+					</div>
+			</div>
+		</section>
+	<?php } ?>
 
 
 	<?php if(!empty($userCurrentAddons) && current_user_can('administrator')){ ?>
