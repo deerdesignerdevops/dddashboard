@@ -12,6 +12,15 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $showReactivateButton = time() > strtotime($pausedPlanBillingPeriodEndingDate) ? true : false;
     $subscriptionPauseDate = "";
     $formatedSubscriptionPrice = str_replace('.00', '', $subscription->get_formatted_order_total());
+    $showVat = "";
+
+    $currentUser = get_user_by('id', $subscription->data['customer_id']);
+
+    if($currentUser->billing_country === 'GB'){
+        $showVat = " (Plan + VAT)";
+    }else{
+        $showVat = "";
+    }
 
     $subscriptionRelatedNotes = wc_get_order_notes(array(
         'order_id' => $subscription->id,
@@ -114,7 +123,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
             <div class="dd__subscription_actions_form">
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / START-->
                 <?php if($showReactivateButton && $subscriptionStatus === 'on-hold'){ ?>    
-                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price='<?php echo get_woocommerce_currency_symbol($subscription->get_currency()) . str_replace('.00', '', $subscription->get_total()); ?>'>Reactivate</a>
+                    <a href="<?php echo $reactivateUrlWithNonce; ?>" data-plan="<?php echo $currentSubscriptionPlan; ?>" data-subscription-id="<?php echo $subscription->id; ?>" class="dd__primary_button reactivate rebill" data-product-price='<?php echo get_woocommerce_currency_symbol($subscription->get_currency()) . str_replace('.00', '', $subscription->get_total()) . $showVat; ?>'>Reactivate</a>
                 <?php } ?>
                 <!--REACTIVATE BUTTON WITH ONE CLICK PURCHASE THAT APPEARS ONLY WHEN A PAUSED SUBSCRIPION HAS PASSED IT'S BILLING PERIOD / END-->
 
