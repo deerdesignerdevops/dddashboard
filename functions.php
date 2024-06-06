@@ -380,7 +380,7 @@ function checkIfPurchaseIsFromOldUser($userId){
 
 function countAdditionalDesignerByUser($userId){
 	$userSubscriptions = wcs_get_users_subscriptions($userId);
-	$additionalDesignerCurrentIndex = 0;
+	$additionalDesignerCurrentIndex = 1;
 	
 	foreach($userSubscriptions as $userSubscription){
 		foreach($userSubscription->get_items() as $item){

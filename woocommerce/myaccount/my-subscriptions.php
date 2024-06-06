@@ -369,7 +369,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			document.querySelector(".update_plan_form form").elements['form_subscription_request_type'].value = currentTypeOfRequest
 			document.querySelector(".update_plan_form form").elements['form_subscription_id'].value = currentSubscriptionId
 			document.querySelector(".update_plan_form form").elements['form_subscription_company_name'].value = currentCompanyName
-			document.querySelector(".update_plan_form form").elements['form_subscription_additional_designer_index'].value = currentAdditionalDesignerIndex -1
+			document.querySelector(".update_plan_form form").elements['form_subscription_additional_designer_index'].value = currentAdditionalDesignerIndex
 
 			document.querySelector(".update_plan_form form").elements["btn_keep"].addEventListener("click", function(e){
 				e.preventDefault()
