@@ -82,8 +82,8 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
 
                     <?php if(sizeof($stripeInvoices) == 5){ ?>
                         <div class="user__invoices_pagination">
-                            <?php $prevUrl = $siteUrl . "/subscriptions/?ending_before=$endingBefore&stripe_invoices_page=" . $stripeInvoicesPageNumber - 1; ?>
-                            <?php $nextUrl = $siteUrl . "/subscriptions/?starting_after=$startingAfter&stripe_invoices_page=" . $stripeInvoicesPageNumber + 1; ?>
+                            <?php $prevUrl =  "$siteUrl/subscriptions/?ending_before=$endingBefore&stripe_invoices_page=" . ($stripeInvoicesPageNumber - 1); ?>
+                            <?php $nextUrl = "$siteUrl/subscriptions/?starting_after=$startingAfter&stripe_invoices_page=" . ($stripeInvoicesPageNumber + 1); ?>
                             
                             <a href="<?php echo $prevUrl; ?>" class="user__invoices_pagination_btn <?php echo $stripeInvoicesPageNumber > 1 ? 'btn_active' : 'btn_inactive'; ?>">Prev</a>
                         
@@ -109,8 +109,8 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
 
                     <?php if($currentUserOrders->max_num_pages > 1){ ?>
                         <div class="user__invoices_pagination">
-                            <?php $prevUrl = $siteUrl . "/subscriptions/?invoices_page=" . $invoicesPageNumber - 1; ?>
-                            <?php $nextUrl = $siteUrl . "/subscriptions/?invoices_page=" . $invoicesPageNumber + 1; ?>
+                            <?php $prevUrl = "$siteUrl/subscriptions/?invoices_page=" . ($invoicesPageNumber - 1); ?>
+                            <?php $nextUrl = "$siteUrl/subscriptions/?invoices_page=" . ($invoicesPageNumber + 1); ?>
                             
                             <a href="<?php echo $prevUrl; ?>" class="user__invoices_pagination_btn <?php echo $invoicesPageNumber > 1 ? 'btn_active' : 'btn_inactive'; ?>">Prev</a>
                         
