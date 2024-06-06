@@ -490,13 +490,12 @@ function sendEmailToAdminWhenReactivateSubscription($subscription, $newStatus, $
 
 					$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
 					$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-					$billingCycle = $currentDate->format('F j, Y');
 					
 					$subject = str_contains(strtolower($productName), 'designer') ? "Designer reactivated" : "Account reactivated";
 
 					$message = "
 					<p class='user__details'><strong>Account reactivated by: </strong>$userName | $userEmail | $companyName</p>
-					<p>Plan: $productName | $billingCycle</p>
+					<p>Plan: $productName</p>
 					";
 
 					wp_mail($adminEmail, $subject, emailTemplate($message), $headers);
