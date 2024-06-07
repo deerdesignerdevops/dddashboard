@@ -143,37 +143,6 @@ function currentUserInvoicesComponent($currentUserStripeCustomerId){
     </section>
 
 
-    <style>
-        .user__invoices_col{
-            display: none;
-        }
-
-        .user__invoices_btn_wrapper{
-            display: flex;
-            gap: 32px;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-
-        .user__invoices_btn{
-            background-color: transparent !important;
-            border: none !important;
-            border-bottom: 2px solid transparent !important;
-            border-radius: 0 !important;
-            color: #aaa !important;
-            padding: 10px 0 !important;            
-        }
-
-        .user__invoices_btn:focus, .user__invoices_btn_autofocus{
-            color: var(--e-global-color-text) !important;
-            border-bottom: 2px solid var(--e-global-color-f5169dc) !important;
-            outline: unset !important;
-        }
-
-        
-    </style>
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function(){
             const previousInvoicesBtn = document.querySelector('#previous__invoices_btn');
