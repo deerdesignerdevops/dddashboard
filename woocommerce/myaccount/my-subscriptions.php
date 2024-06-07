@@ -220,10 +220,8 @@ else{ ?>
 <?php } ?>
 
 <?php 
-if($activePlanSubscriptions){
 	$stripeCustomerId = $activePlanSubscriptions[0] ? get_post_meta($activePlanSubscriptions[0]->id, '_stripe_customer_id', true) : 0;
 	do_action('currentUserInvoicesComponentHook', $stripeCustomerId);
-}
 ?>
 
 
