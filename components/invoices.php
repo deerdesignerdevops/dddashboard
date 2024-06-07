@@ -1,7 +1,7 @@
 <?php
 function currentUserInvoicesComponent($currentUserStripeCustomerId){
     $stripe = new \Stripe\StripeClient(STRIPE_API);
-    $invoicesLimit = 5;
+    $invoicesLimit = 12;
     $siteUrl = site_url();
     
     if($currentUserStripeCustomerId){
