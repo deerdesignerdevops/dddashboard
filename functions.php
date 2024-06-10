@@ -1373,14 +1373,11 @@ add_filter('woocommerce_email_subject_customer_completed_order', 'changeComplete
 
 function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
 	$renewalOrder = wcs_create_renewal_order($subscription);
-	$paymentMethod = 'stripe';
-	$renewalOrder->set_payment_method($paymentMethod);
-	$renewalOrder->calculate_totals();
-	
-	do_action('woocommerce_order_action_wcs_retry_renewal_payment', $renewalOrder);
-
-	wp_redirect(get_permalink( wc_get_page_id( 'myaccount' ) ) . 'subscriptions');
-	exit;
+	if($renewalOrder){
+		$paymentUrl = $renewalOrder->get_checkout_payment_url();
+		wp_redirect($paymentUrl);
+		exit;
+	}
 }
 add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
 
