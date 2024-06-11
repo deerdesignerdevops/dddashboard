@@ -1371,26 +1371,21 @@ add_filter('woocommerce_email_subject_customer_completed_order', 'changeComplete
 
 
 
-function chargeUserWhenReactivateSubscriptionAfterBillingDate($subscription){
-	$renewalOrder = wcs_create_renewal_order($subscription);
-	if($renewalOrder){
-		$paymentUrl = $renewalOrder->get_checkout_payment_url();
-		wp_redirect($paymentUrl);
-		exit;
-	}
+function redirectToCheckoutWhenReactivateSubscriptionAfterBillingDate($subscription){
+	$relatedOrders = $subscription->get_related_orders();
+
+	if($relatedOrders){
+		$mostRecentOrder = wc_get_order( array_key_first($relatedOrders) );
+		$orderStatus = $mostRecentOrder->get_status();
+		$orderKey = $mostRecentOrder->get_order_key();
+		$paymentUrl = wc_get_checkout_url() . "order-pay/$mostRecentOrder->id/?pay_for_order=true&key=$orderKey&subscription_renewal=true";
+		if($orderStatus === 'pending' || $orderStatus === 'failed'){
+			wp_redirect($paymentUrl);
+			exit;
+		}
+	}	
 }
-add_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', 'chargeUserWhenReactivateSubscriptionAfterBillingDate');
-
-
-
-function showPaymentFailedNoticeToUserWhenReactivateSubscription($orderId){
-	$accountDetailsUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . 'edit-account';
-	if(isset($_GET['reactivate_plan'])){
-		wc_add_notice("The plan was not reactivated because the payment has failed! Update your <a href='" . $accountDetailsUrl . "'>payment details</a> and try again.", 'error');
-	}
-
-}
-add_action( 'woocommerce_order_status_failed', 'showPaymentFailedNoticeToUserWhenReactivateSubscription');
+add_action('redirectToCheckoutWhenReactivateSubscriptionAfterBillingDateHook', 'redirectToCheckoutWhenReactivateSubscriptionAfterBillingDate');
 
 
 

@@ -42,7 +42,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
     if(isset($_GET['reactivate_plan']) && isset($_GET['_wpnonce'])){
         if(wp_verify_nonce($_GET['_wpnonce'], 'action')){
-            do_action('chargeUserWhenReactivateSubscriptionAfterBillingDateHook', $subscription);
+            do_action('redirectToCheckoutWhenReactivateSubscriptionAfterBillingDateHook', $subscription);
         }
     }
     
