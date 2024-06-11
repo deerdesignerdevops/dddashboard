@@ -6,17 +6,6 @@ $currentTime = date('Y-m-d');
 $growSurfBaseUrl = "https://api.growsurf.com/v2";
 
 
-
-function addGrowSurfScript(){
-    $campaignID = GROWSURF_CAMPAIGN_ID;
-	echo "<script type='text/javascript'>
-  (function(g,r,s,f){g.grsfSettings={campaignId:'$campaignID',version:'2.0.0'};s=r.getElementsByTagName('head')[0];f=r.createElement('script');f.async=1;f.src='https://app.growsurf.com/growsurf.js'+'?v='+g.grsfSettings.version;f.setAttribute('grsf-campaign', g.grsfSettings.campaignId);!g.grsfInit?s.appendChild(f):'';})(window,document);
-</script>";
-}
-add_action('wp_head', 'addGrowSurfScript');
-
-
-
 function postRequestToGrowSurf($requestBody){
     global $growSurfBaseUrl, $currentTime;
     $campaignID = GROWSURF_CAMPAIGN_ID;
