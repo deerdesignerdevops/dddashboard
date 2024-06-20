@@ -2135,9 +2135,11 @@ function sendOnboardingDataToSlack($currentUser, $formData){
 }
 
 function getCsatDataFromFd(){
-	$reqBody  = json_decode(file_get_contents('php://input'));
-	return $reqBody;
-
+	$currentTime = date('Y-m-d');
+	$reqBody  = file_get_contents('php://input');
+	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/freshdesk';
+	file_put_contents("$uploadsDir/freshdesk_api_response_log_csat_request_$currentTime.txt", $reqBody . PHP_EOL, FILE_APPEND);
+	return json_decode($reqBody);
 }
 
 add_action( 'rest_api_init', function () {
