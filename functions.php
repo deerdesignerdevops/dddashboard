@@ -2133,3 +2133,16 @@ function sendOnboardingDataToSlack($currentUser, $formData){
 	slackNotifications($slackMessageBody, $slackWebHookUrl);
 
 }
+
+function getCsatDataFromFd(){
+	$reqBody  = json_decode(file_get_contents('php://input'));
+	return $reqBody;
+
+}
+
+add_action( 'rest_api_init', function () {
+  register_rest_route( 'ddapi/v2', '/fd-csat-to-wp', array(
+    'methods' => 'POST',
+    'callback' => 'getCsatDataFromFd',
+  ) );
+} );
