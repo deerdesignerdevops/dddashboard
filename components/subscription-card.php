@@ -13,6 +13,8 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $subscriptionPauseDate = "";
     $formatedSubscriptionPrice = str_replace('.00', '', $subscription->get_formatted_order_total());
     $showVat = "";
+    $subscriptionSubtotal = $subscription->get_subtotal();
+    $subscriptionPriceAndVat = " ($currencySymbol" . "$subscriptionSubtotal + VAT)";
 
     function removeSpacesInPriceString($stringToBeChanged){
         if(str_contains($stringToBeChanged, " / month")){
@@ -27,7 +29,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
     $currentUser = get_user_by('id', $subscription->data['customer_id']);
 
     if($currentUser->billing_country === 'GB'){
-        $showVat = " (Plan + VAT)";
+        $showVat = $subscriptionPriceAndVat;
     }else{
         $showVat = "";
     }
@@ -109,7 +111,7 @@ function subscriptionCardComponent($subscription, $currentProductId){
 
             <?php if($showVat){ ?>
                 <span class="dd__subscription_price_vat">
-                    (<?php echo $currencySymbol . $subscription->get_subtotal() . " + VAT";?>)
+                    <?php echo $subscriptionPriceAndVat;?>
                 </span>
             <?php } ?>
 
