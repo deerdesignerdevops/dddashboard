@@ -731,6 +731,11 @@ input.ff-read-only {
   display: none !important;
 }
 
+.dd__subscription_price_vat {
+  font-size: 0.8rem;
+  margin-bottom: 20px;
+}
+
 .dd__subscription_addons_task_card_btn_new_wrapper {
   display: flex;
   align-items: center;
