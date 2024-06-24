@@ -394,49 +394,52 @@ function countAdditionalDesignerByUser($userId){
 };
 
 function sendPaymentCompleteNotificationToSlack($orderId){
-	$order = wc_get_order( $orderId );
-	$orderData = $order->get_data();
-	$orderItems = $order->get_items();
-	$orderItemsGroup = [];
-	$productType = "";
-	$notificationFinalMsg = "";
-	$additionalDesignerCurrentIndex = countAdditionalDesignerByUser($orderData['customer_id']);
+	if(!wcs_order_contains_renewal($orderId)){
+		$order = wc_get_order( $orderId );
+		$orderData = $order->get_data();
+		$orderItems = $order->get_items();
+		$orderItemsGroup = [];
+		$productType = "";
+		$notificationFinalMsg = "";
+		$additionalDesignerCurrentIndex = countAdditionalDesignerByUser($orderData['customer_id']);
+		
+		foreach( $orderItems as $item_id => $item ){
+			$itemName = $item->get_name();
 	
-	foreach( $orderItems as $item_id => $item ){
-		$itemName = $item->get_name();
-
-		if(has_term('active-task', 'product_cat', $item->get_product_id())){
-			$productType = 'Product';
-			$orderItemsGroup[] = $itemName . " ($additionalDesignerCurrentIndex)";
-		}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
-			$productType = 'Add on';
-			$orderItemsGroup[] = $itemName;
-		}else{
-			$productType = 'Plan';
-			$notificationFinalMsg = 'Let\'s wait for the onboarding rocket :muscle::skin-tone-2:';
-			$orderItemsGroup[] = $itemName;
+			if(has_term('active-task', 'product_cat', $item->get_product_id())){
+				$productType = 'Product';
+				$orderItemsGroup[] = $itemName . " ($additionalDesignerCurrentIndex)";
+			}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
+				$productType = 'Add on';
+				$orderItemsGroup[] = $itemName;
+			}else{
+				$productType = 'Plan';
+				$notificationFinalMsg = 'Let\'s wait for the onboarding rocket :muscle::skin-tone-2:';
+				$orderItemsGroup[] = $itemName;
+			}
 		}
+	
+		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+		$customerEmail = $orderData['billing']['email'];
+		$customerCompany = $orderData['billing']['company'];
+		$orderItemsGroup = implode(" | ", $orderItemsGroup);
+	
+		$oldClient = checkIfPurchaseIsFromOldUser($orderData['customer_id']);
+	
+		if($oldClient && $productType === "Plan"){
+			$slackMessage = "<!channel> Subscription Reactivated :white_check_mark:\n*Client:* $customerName | $customerEmail ($customerCompany)\n*$productType:* $orderItemsGroup";
+		}else{
+			$slackMessage = "We have a new subscription, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg";
+		}
+	
+		$slackMessageBody = [
+			"text" => $slackMessage,
+			"username" => "Marcus"
+		];
+	
+		slackNotifications($slackMessageBody);	
 	}
 
-	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
-	$customerEmail = $orderData['billing']['email'];
-	$customerCompany = $orderData['billing']['company'];
-	$orderItemsGroup = implode(" | ", $orderItemsGroup);
-
-	$oldClient = checkIfPurchaseIsFromOldUser($orderData['customer_id']);
-
-	if($oldClient && $productType === "Plan"){
-		$slackMessage = "<!channel> Subscription Reactivated :white_check_mark:\n*Client:* $customerName | $customerEmail ($customerCompany)\n*$productType:* $orderItemsGroup";
-	}else{
-		$slackMessage = "We have a new subscription, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg";
-	}
-
-	$slackMessageBody = [
-		"text" => $slackMessage,
-		"username" => "Marcus"
-	];
-
-	slackNotifications($slackMessageBody);	
 }
 add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
 
@@ -879,10 +882,23 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 			$billingPeriodEndingDate =  calculateBillingEndingDateWhenPausedOrCancelled($subscription);
 			$requestMotive = "";
 
-			//GET SUBSCRIPTION LAST ORDER STATUS
+			//CHECK IF MOST RECENT ORDER HAS FAILED BEFORE --- START
 			$relatedOrders = $subscription->get_related_orders();
-			$mostRecentOrder = wc_get_order( array_key_first($relatedOrders) );
-			$orderStatus = $mostRecentOrder->get_status();
+			$orderFailedBefore = false;
+			$orderNotes = wc_get_order_notes(array(
+				'order_id' => array_key_first($relatedOrders),
+				'type' => 'system_status_change',
+				'orderby' => 'date_created',
+				'order' => 'DESC',
+			));
+
+			foreach ($orderNotes as $orderNote) {
+				if(str_contains($orderNote->content, 'Failed')){
+					$orderFailedBefore = true;
+					break;
+				}
+			}
+			//CHECK IF MOST RECENT ORDER HAS FAILED BEFORE --- END
 
 			
 			foreach($subscriptionItems as $item){
@@ -935,7 +951,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 				"username" => "Marcus"
 			];
 
-			if($orderStatus === 'completed'){
+			if(!$orderFailedBefore){
 				slackNotifications($slackMessageBody);
 			}
 
