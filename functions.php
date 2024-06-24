@@ -405,7 +405,7 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 		
 		foreach( $orderItems as $item_id => $item ){
 			$itemName = $item->get_name();
-
+	
 			if(has_term('active-task', 'product_cat', $item->get_product_id())){
 				$productType = 'Product';
 				$orderItemsGroup[] = $itemName . " ($additionalDesignerCurrentIndex)";
@@ -418,27 +418,28 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 				$orderItemsGroup[] = $itemName;
 			}
 		}
-
+	
 		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
 		$customerEmail = $orderData['billing']['email'];
 		$customerCompany = $orderData['billing']['company'];
 		$orderItemsGroup = implode(" | ", $orderItemsGroup);
-
+	
 		$oldClient = checkIfPurchaseIsFromOldUser($orderData['customer_id']);
-
+	
 		if($oldClient && $productType === "Plan"){
 			$slackMessage = "<!channel> Subscription Reactivated :white_check_mark:\n*Client:* $customerName | $customerEmail ($customerCompany)\n*$productType:* $orderItemsGroup";
 		}else{
 			$slackMessage = "We have a new subscription, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg";
 		}
-
+	
 		$slackMessageBody = [
 			"text" => $slackMessage,
 			"username" => "Marcus"
 		];
-
-		slackNotifications($slackMessageBody);
+	
+		slackNotifications($slackMessageBody);	
 	}
+
 }
 add_action( 'woocommerce_payment_complete', 'sendPaymentCompleteNotificationToSlack');
 
@@ -869,7 +870,7 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStatus, $oldStatus){
-	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
+	if(!is_admin()){
 		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			$currentUser = get_user_by('id', $subscription->data['customer_id']);
 			$subscriptionItems = $subscription->get_items();
@@ -880,6 +881,25 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 			$billingMsg = '';
 			$billingPeriodEndingDate =  calculateBillingEndingDateWhenPausedOrCancelled($subscription);
 			$requestMotive = "";
+
+			//CHECK IF MOST RECENT ORDER HAS FAILED BEFORE --- START
+			$relatedOrders = $subscription->get_related_orders();
+			$orderFailedBefore = false;
+			$orderNotes = wc_get_order_notes(array(
+				'order_id' => array_key_first($relatedOrders),
+				'type' => 'system_status_change',
+				'orderby' => 'date_created',
+				'order' => 'DESC',
+			));
+
+			foreach ($orderNotes as $orderNote) {
+				if(str_contains($orderNote->content, 'Failed')){
+					$orderFailedBefore = true;
+					break;
+				}
+			}
+			//CHECK IF MOST RECENT ORDER HAS FAILED BEFORE --- END
+
 			
 			foreach($subscriptionItems as $item){
 				if(str_contains($item['name'], 'Designer')){
@@ -931,7 +951,9 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 				"username" => "Marcus"
 			];
 
-			slackNotifications($slackMessageBody);
+			if(!$orderFailedBefore){
+				slackNotifications($slackMessageBody);
+			}
 
 			if($newStatus === 'active'){
 				wc_add_notice("Your $subscriptionItemsGroup has been reactivated.", 'success');
@@ -1378,10 +1400,18 @@ function redirectToCheckoutWhenReactivateSubscriptionAfterBillingDate($subscript
 		$mostRecentOrder = wc_get_order( array_key_first($relatedOrders) );
 		$orderStatus = $mostRecentOrder->get_status();
 		$orderKey = $mostRecentOrder->get_order_key();
-		$paymentUrl = wc_get_checkout_url() . "order-pay/$mostRecentOrder->id/?pay_for_order=true&key=$orderKey&subscription_renewal=true";
+		
 		if($orderStatus === 'pending' || $orderStatus === 'failed'){
+			$paymentUrl = wc_get_checkout_url() . "order-pay/$mostRecentOrder->id/?pay_for_order=true&key=$orderKey&subscription_renewal=true";
 			wp_redirect($paymentUrl);
 			exit;
+		}else{
+			$renewalOrder = wcs_create_renewal_order($subscription);
+			if($renewalOrder){
+				$paymentUrl = $renewalOrder->get_checkout_payment_url();
+				wp_redirect($paymentUrl);
+				exit;
+			}
 		}
 	}	
 }
