@@ -870,7 +870,7 @@ add_filter('woocommerce_product_variation_get_name', 'showBracketsAroundVariatio
 
 
 function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStatus, $oldStatus){
-	if(!is_admin()){
+	if(isset($_GET['change_subscription_to']) || isset($_GET['reactivate_plan'])){
 		if($oldStatus !== 'pending' && $newStatus !== 'cancelled'){
 			$currentUser = get_user_by('id', $subscription->data['customer_id']);
 			$subscriptionItems = $subscription->get_items();
