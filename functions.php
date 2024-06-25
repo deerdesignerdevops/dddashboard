@@ -394,35 +394,36 @@ function countAdditionalDesignerByUser($userId){
 };
 
 function sendPaymentCompleteNotificationToSlack($orderId){
-	if(!wcs_order_contains_renewal($orderId)){
-		$order = wc_get_order( $orderId );
-		$orderData = $order->get_data();
-		$orderItems = $order->get_items();
-		$orderItemsGroup = [];
-		$productType = "";
-		$notificationFinalMsg = "";
-		$additionalDesignerCurrentIndex = countAdditionalDesignerByUser($orderData['customer_id']);
-		
-		foreach( $orderItems as $item_id => $item ){
-			$itemName = $item->get_name();
+	$order = wc_get_order( $orderId );
+	$orderData = $order->get_data();
+	$orderItems = $order->get_items();
+	$orderItemsGroup = [];
+	$productType = "";
+	$notificationFinalMsg = "";
+	$additionalDesignerCurrentIndex = countAdditionalDesignerByUser($orderData['customer_id']);
 	
-			if(has_term('active-task', 'product_cat', $item->get_product_id())){
-				$productType = 'Product';
-				$orderItemsGroup[] = $itemName . " ($additionalDesignerCurrentIndex)";
-			}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
-				$productType = 'Add on';
-				$orderItemsGroup[] = $itemName;
-			}else{
-				$productType = 'Plan';
-				$notificationFinalMsg = 'Let\'s wait for the onboarding rocket :muscle::skin-tone-2:';
-				$orderItemsGroup[] = $itemName;
-			}
+	foreach( $orderItems as $item_id => $item ){
+		$itemName = $item->get_name();
+
+		if(has_term('active-task', 'product_cat', $item->get_product_id())){
+			$productType = 'Product';
+			$orderItemsGroup[] = $itemName . " ($additionalDesignerCurrentIndex)";
+		}else if(has_term('add-on', 'product_cat', $item->get_product_id())){
+			$productType = 'Add on';
+			$orderItemsGroup[] = $itemName;
+		}else{
+			$productType = 'Plan';
+			$notificationFinalMsg = 'Let\'s wait for the onboarding rocket :muscle::skin-tone-2:';
+			$orderItemsGroup[] = $itemName;
 		}
-	
-		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
-		$customerEmail = $orderData['billing']['email'];
-		$customerCompany = $orderData['billing']['company'];
-		$orderItemsGroup = implode(" | ", $orderItemsGroup);
+	}
+
+	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+	$customerEmail = $orderData['billing']['email'];
+	$customerCompany = $orderData['billing']['company'];
+	$orderItemsGroup = implode(" | ", $orderItemsGroup);
+
+	if(!wcs_order_contains_renewal($orderId)){
 	
 		$oldClient = checkIfPurchaseIsFromOldUser($orderData['customer_id']);
 	
@@ -438,6 +439,17 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 		];
 	
 		slackNotifications($slackMessageBody);	
+	}else{
+		$subscriptionReactivation = get_post_meta($orderId, "subscription_reactivation", true);
+		if($subscriptionReactivation){
+			$slackMessage = "<!channel> Subscription Reactivated :white_check_mark:\n*Client:* $customerName | $customerEmail ($customerCompany)\n*$productType:* $orderItemsGroup";
+
+			$slackMessageBody = [
+				"text" => $slackMessage,
+				"username" => "Marcus"
+			];
+			slackNotifications($slackMessageBody);	
+		}
 	}
 
 }
@@ -1408,6 +1420,7 @@ function redirectToCheckoutWhenReactivateSubscriptionAfterBillingDate($subscript
 		}else{
 			$renewalOrder = wcs_create_renewal_order($subscription);
 			if($renewalOrder){
+				update_post_meta($renewalOrder->get_id(), "subscription_reactivation", 1);
 				$paymentUrl = $renewalOrder->get_checkout_payment_url();
 				wp_redirect($paymentUrl);
 				exit;
