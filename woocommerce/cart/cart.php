@@ -185,11 +185,12 @@ do_action( 'woocommerce_before_cart' ); ?>
 										}
 
 										$discountTypeSymbol = $discountType === "percent" ? "%" : "";
-
+										$monetarySymbol = '';
+										if($discountTypeSymbol === '') $monetarySymbol = get_woocommerce_currency_symbol();
 										?>
 										<div class="cart__product_subtotal">
-											<span>Dicount: </span>
-											<span>-<?php echo $couponDiscount .  $discountTypeSymbol; ?> </span>
+											<span>Discount: </span>
+											<span><?php echo '-' . $monetarySymbol . $couponDiscount .  $discountTypeSymbol; ?> </span>
 										</div>
 
 										<div class="cart__product_subtotal">
