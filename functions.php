@@ -2181,11 +2181,13 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 	if(!wcs_order_contains_renewal($orderId)){
 		$order = wc_get_order( $orderId );
 		$orderData = $order->get_data();
-		$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+		$customerName = $orderData['billing']['first_name'];
 		$customerEmail = $orderData['billing']['email'];
 		$orderSubscriptions = wcs_get_subscriptions_for_order($orderId, array('order_type' => 'any'));
 		$currentOrderSubscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
 		$currentOrderSubscription->update_status('cancelled');
+
+		sendEmailToUserWhenPaymentFails($customerName, $customerEmail);
 	}
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
