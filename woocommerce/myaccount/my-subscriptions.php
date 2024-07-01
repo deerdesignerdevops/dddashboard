@@ -21,6 +21,7 @@ require_once get_stylesheet_directory() . '/components/add-new-designer-card.php
 
 $siteUrl = site_url();
 $elementorPopupID = 1570;
+$changePlanPopUpId = 2125;
 $activeTasksProductId = 1600;
 $currentCompanyName = wp_get_current_user()->billing_company;
 $currentUserId = get_current_user_id();
@@ -383,7 +384,8 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 			if(e.currentTarget.innerText === 'Change Plan' && currentTypeOfRequest === 'Change Plan Request'){
-				console.log('change plan enter')
+				elementorProFrontend.modules.popup.showPopup( {id:<?php echo $changePlanPopUpId; ?>}, event);
+
 			}else{
 				if(e.currentTarget.classList.contains("suspend")){
 				confirmBtn.href = currentUpdatePlanUrl;
