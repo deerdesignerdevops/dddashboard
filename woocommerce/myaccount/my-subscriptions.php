@@ -349,8 +349,6 @@ document.addEventListener("DOMContentLoaded", function(){
 					currentTypeOfRequest = 'Cancellation Request'
 				}else{
 					currentTypeOfRequest = 'Change Plan Request'
-					console.log(e.currentTarget.innerText)
-					console.log('change plan request')
 				}
 			}
 			
@@ -384,8 +382,10 @@ document.addEventListener("DOMContentLoaded", function(){
 			})
 
 
-
-			if(e.currentTarget.classList.contains("suspend")){
+			if(e.currentTarget.innerText === 'Change Plan' && currentTypeOfRequest === 'Change Plan Request'){
+				console.log('change plan enter')
+			}else{
+				if(e.currentTarget.classList.contains("suspend")){
 				confirmBtn.href = currentUpdatePlanUrl;
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
 				document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple designer, they will be automatically canceled."
@@ -401,109 +401,110 @@ document.addEventListener("DOMContentLoaded", function(){
 					closePopup()
 				})
 			}
-			else if(e.currentTarget.classList.contains("rebill")){
-				confirmBtn.href = currentUpdatePlanUrl;
-				popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> ${productPrice} </strong> to the card on your account.`
-				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
-				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
+				else if(e.currentTarget.classList.contains("rebill")){
+					confirmBtn.href = currentUpdatePlanUrl;
+					popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
+					document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> ${productPrice} </strong> to the card on your account.`
+					document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
+					document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
 
-				confirmBtn.addEventListener("click", function(e){
-					closePopup()
-					loadingSpinner.style.display = "flex"
-				})
-				
-				document.querySelector(".cancel_btn").addEventListener("click", function(e){
-					e.preventDefault()
-					closePopup()
-				})
-			}
-			else if(e.currentTarget.classList.contains("reactivate")){
-				confirmBtn.href = currentUpdatePlanUrl;
-				popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
-				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
-				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
-
-				confirmBtn.addEventListener("click", function(e){
-					closePopup()
-					loadingSpinner.style.display = "flex"
-				})
-				
-				document.querySelector(".cancel_btn").addEventListener("click", function(e){
-					e.preventDefault()
-					closePopup()
-				})
-			}
-			else if(e.currentTarget.classList.contains("active-task")){
-				popupMsgNewText = "ARE YOU SURE YOU WANT <br><span>TO REMOVE THIS DESIGNER?</span>";
-				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, remove it"
-				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No, keep it"
-				document.querySelector(".form_subscription_update_message_field label").style.display = 'none'		
-				document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
-				
-				confirmBtn.addEventListener("click", function(e){
-					e.preventDefault()
-					cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
-				})
-
-				document.querySelector(".cancel_btn").addEventListener("click", function(e){
-					e.preventDefault()
-					closePopup()
-				})
-			}
-			else if(e.currentTarget.classList.contains("cancel")){
-				popupMsgNewText = "Why are you cancelling? <br><span>Did we do anything wrong?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = "<span>By cancelling your account you will lose access to all the data, design files, and ticket history. If you pause your account, we will store everything for you until you decide to reactivate it.</span>"
-				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, cancel it"
-				document.querySelector(".form_subscription_update_message_field label").style.display = 'none'
-				
-				if(currentPlan === 'add-on' || currentPlan === 'active-task'){
-					document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
-				}
-	
-				if(currentPlan === 'add-on'){
 					confirmBtn.addEventListener("click", function(e){
 						closePopup()
 						loadingSpinner.style.display = "flex"
-						location.href = currentUpdatePlanUrl
+					})
+					
+					document.querySelector(".cancel_btn").addEventListener("click", function(e){
+						e.preventDefault()
+						closePopup()
 					})
 				}
-				
-				confirmBtn.addEventListener("click", function(e){
-					e.preventDefault()
-					cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
-				})
+				else if(e.currentTarget.classList.contains("reactivate")){
+					confirmBtn.href = currentUpdatePlanUrl;
+					popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
+					document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
+					document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
+					document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
 
-				if(enablePauseFlow && currentSubscriptionStatus !== 'on-hold' && currentPlan !== 'active-task' && currentPlan !== 'add-on'){
-					document.querySelector(".cancel_btn .elementor-button-text").innerText = "Pause it instead"
-					document.querySelector(".cancel_btn").addEventListener("click", function(e){
-						e.preventDefault()
-						document.querySelector(".cancel_btn .elementor-button-text").innerText = "Cancel"
-						pauseFlow(currentPlan, currentSubscriptionId)
+					confirmBtn.addEventListener("click", function(e){
+						closePopup()
+						loadingSpinner.style.display = "flex"
 					})
-				}else{
+					
 					document.querySelector(".cancel_btn").addEventListener("click", function(e){
 						e.preventDefault()
-						closePopup();
+						closePopup()
 					})
 				}
+				else if(e.currentTarget.classList.contains("active-task")){
+					popupMsgNewText = "ARE YOU SURE YOU WANT <br><span>TO REMOVE THIS DESIGNER?</span>";
+					document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, remove it"
+					document.querySelector(".cancel_btn .elementor-button-text").innerText = "No, keep it"
+					document.querySelector(".form_subscription_update_message_field label").style.display = 'none'		
+					document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
+					
+					confirmBtn.addEventListener("click", function(e){
+						e.preventDefault()
+						cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
+					})
+
+					document.querySelector(".cancel_btn").addEventListener("click", function(e){
+						e.preventDefault()
+						closePopup()
+					})
+				}
+				else if(e.currentTarget.classList.contains("cancel")){
+					popupMsgNewText = "Why are you cancelling? <br><span>Did we do anything wrong?</span>";
+					document.querySelector(".form_subscription_update_disclaimer").innerHTML = "<span>By cancelling your account you will lose access to all the data, design files, and ticket history. If you pause your account, we will store everything for you until you decide to reactivate it.</span>"
+					document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, cancel it"
+					document.querySelector(".form_subscription_update_message_field label").style.display = 'none'
+					
+					if(currentPlan === 'add-on' || currentPlan === 'active-task'){
+						document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
+					}
+		
+					if(currentPlan === 'add-on'){
+						confirmBtn.addEventListener("click", function(e){
+							closePopup()
+							loadingSpinner.style.display = "flex"
+							location.href = currentUpdatePlanUrl
+						})
+					}
+					
+					confirmBtn.addEventListener("click", function(e){
+						e.preventDefault()
+						cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
+					})
+
+					if(enablePauseFlow && currentSubscriptionStatus !== 'on-hold' && currentPlan !== 'active-task' && currentPlan !== 'add-on'){
+						document.querySelector(".cancel_btn .elementor-button-text").innerText = "Pause it instead"
+						document.querySelector(".cancel_btn").addEventListener("click", function(e){
+							e.preventDefault()
+							document.querySelector(".cancel_btn .elementor-button-text").innerText = "Cancel"
+							pauseFlow(currentPlan, currentSubscriptionId)
+						})
+					}else{
+						document.querySelector(".cancel_btn").addEventListener("click", function(e){
+							e.preventDefault()
+							closePopup();
+						})
+					}
+				}
+				else{
+					confirmBtn.href = currentUpdatePlanUrl;
+					popupMsgNewText = "Which plan would you<br> <span>like to switch to?</span>";
+					document.querySelector(".popup_buttons").style.display = "none"
+					document.querySelector(".update_plan_form").classList.add("show_form")
+					document.querySelector(".form_subscription_update_message_field label").style.display = "none"
+					document.querySelector(".update_plan_form form button").innerText = "Request Change"
+					document.querySelector(".update_plan_form form textarea").placeholder = `Choose between ${changePlanOptionsText()}`
+					document.querySelector(".update_plan_form form").elements["btn_keep"].innerText = "Keep my plan"
+					document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
+					document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentUpdatePlanUrl
+					document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
+					document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
+				}
 			}
-			else{
-				confirmBtn.href = currentUpdatePlanUrl;
-				popupMsgNewText = "Which plan would you<br> <span>like to switch to?</span>";
-				document.querySelector(".popup_buttons").style.display = "none"
-				document.querySelector(".update_plan_form").classList.add("show_form")
-				document.querySelector(".form_subscription_update_message_field label").style.display = "none"
-				document.querySelector(".update_plan_form form button").innerText = "Request Change"
-				document.querySelector(".update_plan_form form textarea").placeholder = `Choose between ${changePlanOptionsText()}`
-				document.querySelector(".update_plan_form form").elements["btn_keep"].innerText = "Keep my plan"
-				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
-				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentUpdatePlanUrl
-				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
-				document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
-			}
- 
+
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = popupMsgNewText
 				
 		})
