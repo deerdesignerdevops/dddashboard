@@ -383,21 +383,21 @@ document.addEventListener("DOMContentLoaded", function(){
 			})
 
 			if(e.currentTarget.classList.contains("suspend")){
-			confirmBtn.href = currentUpdatePlanUrl;
-			popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
-			document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple designer, they will be automatically canceled."
-			document.querySelector(".form_subscription_update_message_field label").style.display = "none"
+				confirmBtn.href = currentUpdatePlanUrl;
+				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
+				document.querySelector(".form_subscription_update_disclaimer").innerText = "If you pause your plan with multiple designer, they will be automatically canceled."
+				document.querySelector(".form_subscription_update_message_field label").style.display = "none"
 
-			confirmBtn.addEventListener("click", function(e){
-				e.preventDefault()
-				pauseFlow(currentPlan, currentSubscriptionId)
-			})
-			
-			document.querySelector(".cancel_btn").addEventListener("click", function(e){
-				e.preventDefault()
-				closePopup()
-			})
-		}
+				confirmBtn.addEventListener("click", function(e){
+					e.preventDefault()
+					pauseFlow(currentPlan, currentSubscriptionId)
+				})
+				
+				document.querySelector(".cancel_btn").addEventListener("click", function(e){
+					e.preventDefault()
+					closePopup()
+				})
+			}
 			else if(e.currentTarget.classList.contains("rebill")){
 				confirmBtn.href = currentUpdatePlanUrl;
 				popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
@@ -500,7 +500,8 @@ document.addEventListener("DOMContentLoaded", function(){
 				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
 				document.querySelector('.update_plan_form form').elements['form_subscription_update_message'].style.display = 'none'
 				document.querySelector('.update_plan_form form').elements['select_plans'].style.display = 'block'
-				document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
+				document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
+
 			}
 
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = popupMsgNewText
