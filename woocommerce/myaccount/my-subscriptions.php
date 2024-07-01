@@ -349,6 +349,7 @@ document.addEventListener("DOMContentLoaded", function(){
 					currentTypeOfRequest = 'Cancellation Request'
 				}else{
 					currentTypeOfRequest = 'Change Plan Request'
+					console.log('change plan request')
 				}
 			}
 			
