@@ -435,7 +435,7 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 	
 		$slackMessageBody = [
 			"text" => $slackMessage,
-			"username" => "Marcus"
+			"username" => "Thiago"
 		];
 	
 		slackNotifications($slackMessageBody);	
@@ -446,7 +446,7 @@ function sendPaymentCompleteNotificationToSlack($orderId){
 
 			$slackMessageBody = [
 				"text" => $slackMessage,
-				"username" => "Marcus"
+				"username" => "Thiago"
 			];
 			slackNotifications($slackMessageBody);	
 		}
@@ -488,7 +488,7 @@ function sendUserOnboardedNotificationFromWooToSlack($entryId, $formData, $form)
 
 		$slackMessageBody = [
 			"text" => "<!channel> :rocket:Onboarded: $userName ($companyName) from $userCity, $userCountry",
-			"username" => "Marcus",
+			"username" => "Thiago",
 		];
 
 		slackNotifications($slackMessageBody);
@@ -852,12 +852,12 @@ function sendPaymentFailedNotificationToSlack($orderId){
 	if(wcs_order_contains_renewal($orderId)){
 		$slackMessageBody = [
 			"text" => "<!channel> Payment failed :x:\n$customerName | $customerEmail\n:arrow_right: AMs, work on their requests but don't send them until payment is resolved.\n *Plan:* $productNames.",
-			"username" => "Marcus"
+			"username" => "Thiago"
 		];
 	}else{
 		$slackMessageBody = [
 			"text" => "<!channel>\n*New client:* Payment failed :x:\n*Who:* $customerName | $customerEmail\n:arrow_right: CS, if they don't sign up in the next 15 minutes, get in touch and see if they need help.\n *Plan:* $productNames.",
-			"username" => "Marcus"
+			"username" => "Thiago"
 		];
 	}
 
@@ -960,7 +960,7 @@ function notificationToSlackWithSubscriptionUpdateStatus($subscription, $newStat
 
 			$slackMessageBody = [
 				"text" => "<!channel> $messageTitle\n*Client:* $customerName | $customerEmail ($customerCompany)$billingMsg\n*Plan:* $subscriptionItemsGroup",
-				"username" => "Marcus"
+				"username" => "Thiago"
 			];
 
 			if(!$orderFailedBefore){
@@ -1000,7 +1000,7 @@ function scheduleSlackNotificationForSubscriptionStatusUpdate($status, $customer
 		
 		$slackMessageBody = [
 			"text" => "<!channel> $subscriptionStatus \n*Client:* $customerName | $customerEmail\n*Plan:* $orderItemsGroup",
-			"username" => "Marcus"
+			"username" => "Thiago"
 		];
 	
 		slackNotifications($slackMessageBody);
@@ -1614,7 +1614,7 @@ function sendAdditionalusersNotificationToSlack($additionalUsersAdded){
 			'text'  => '<!channel> A client just added new team members to their account:  ' . '
 	*Owner:* ' . $accountOwner->first_name . ' | ' . $accountOwner->user_email . " ($companyName)" . '
 	*Team Members:* ' . implode(', ', $additionalUsersAdded),
-			'username' => 'Marcus',
+			'username' => 'Thiago',
 		];
 
 
@@ -1707,7 +1707,7 @@ function sendNotificationToSlackWhenOrderChangeFromFailedToProcessing($orderId, 
 					"text" => 
 					"Payment was resolved, <!channel> :smiling_face_with_3_hearts:\n*Client:* $customerName | $customerEmail\n*$productType:* $orderItemsGroup\n$notificationFinalMsg",
 	
-					"username" => "Marcus"
+					"username" => "Thiago"
 				];
 	
 				slackNotifications($slackMessageBody);
@@ -1815,7 +1815,7 @@ function sendNotificationToSlackAfterCSATFormSubmitted($entryId, $formData, $for
 		
 		$slackMessageBody = [
 			"text" => "<!channel>\n *CSAT Feedback* $notificationIcon\n *Company:* $companyName\n *Ticket Number:* $ticketNumber\n\n *Ratings:*\n • How was the team's communication: $ratingsNumberOne\n • Are you happy with the designs you received: $ratingsNumberTwo\n • The turnaround time met your expectations: $ratingsNumberThree\n\n*Feedback:*\n $feedback",
-			"username" => "Marcus",
+			"username" => "Thiago",
 		];
 
 		slackNotifications($slackMessageBody, $slackWebHookUrl);
@@ -1868,7 +1868,7 @@ function sendPauseNotificationAfterThreeFailedPaymentAtemptsOnRenewal($orderSubs
 
 		$slackMessageBody = [
 			"text" => "<!channel> Paused Subscription :double_vertical_bar:\n$customerName | $customerEmail\n:arrow_right: Subscription paused due to payment failed.\n *Plan:* $productNames.",
-			"username" => "Marcus"
+			"username" => "Thiago"
 		];
 
 		slackNotifications($slackMessageBody);
@@ -1908,7 +1908,7 @@ function manuallySendSlackNotificationAboutSubscriptionStatus($status, $customer
 	
 	$slackMessageBody = [
 		"text" => "<!channel> $subscriptionStatus \n*Client:* $customerName | $customerEmail\n*Plan:* $subscriptionItems",
-		"username" => "Marcus"
+		"username" => "Thiago"
 	];
 
 	slackNotifications($slackMessageBody);
@@ -2170,7 +2170,7 @@ function sendOnboardingDataToSlack($currentUser, $formData){
 
 	$slackMessageBody = [
 		"text" => $slackMessageBodyData,
-		"username" => "Marcus",
+		"username" => "Thiago",
 	];
 
 	slackNotifications($slackMessageBody, $slackWebHookUrl);
