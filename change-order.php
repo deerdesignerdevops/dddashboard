@@ -1,7 +1,4 @@
-<?php 
-echo '<pre>';
-print $_POST;
-echo '</pre>';
-?>
-<script>alert('teste')</script>
-<?php 
+<script>
+    console.log('testing')
+    console.log("<?php print $_POST; ?>")
+</script>
