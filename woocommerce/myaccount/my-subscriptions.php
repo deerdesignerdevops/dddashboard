@@ -497,7 +497,8 @@ document.addEventListener("DOMContentLoaded", function(){
 				document.querySelector(".update_plan_form form").elements["btn_keep"].innerText = "Keep my plan"
 				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
 				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentUpdatePlanUrl
-				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
+				//document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
+				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/change-order.php`
 				document.querySelector('.update_plan_form form').elements['form_subscription_update_message'].style.display = 'none'
 				document.querySelector('.update_plan_form form').elements['form_subscription_update_message'].value= '.'
 				document.querySelector('.update_plan_form form').elements['select_plans'].style.display = 'block'
