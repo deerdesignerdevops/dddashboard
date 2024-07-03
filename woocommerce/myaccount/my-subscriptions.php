@@ -21,7 +21,6 @@ require_once get_stylesheet_directory() . '/components/add-new-designer-card.php
 
 $siteUrl = site_url();
 $elementorPopupID = 1570;
-$changePlanPopUpId = 2125;
 $activeTasksProductId = 1600;
 $currentCompanyName = wp_get_current_user()->billing_company;
 $currentUserId = get_current_user_id();
@@ -498,9 +497,6 @@ document.addEventListener("DOMContentLoaded", function(){
 				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
 				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentUpdatePlanUrl
 				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
-				document.querySelector('.update_plan_form form').elements['form_subscription_update_message'].style.display = 'none'
-				document.querySelector('.update_plan_form form').elements['form_subscription_update_message'].value= '.'
-				document.querySelector('.update_plan_form form').elements['select_plans'].style.display = 'block'
 				document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
 
 			}
