@@ -381,8 +381,6 @@ document.addEventListener("DOMContentLoaded", function(){
 				}
 			})
 
-
-
 			if(e.currentTarget.classList.contains("suspend")){
 				confirmBtn.href = currentUpdatePlanUrl;
 				popupMsgNewText = "ARE YOU SURE YOU WANT TO <br><span>PAUSE YOUR SUBSCRIPTION?</span>";
@@ -499,9 +497,10 @@ document.addEventListener("DOMContentLoaded", function(){
 				document.querySelector(".update_plan_form form").elements['form_subscription_plan'].value = currentPlan
 				document.querySelector(".update_plan_form form").elements['form_subscription_update_url'].value = currentUpdatePlanUrl
 				document.querySelector(".update_plan_form form").elements['subscription_url'].value = `<?php echo $siteUrl; ?>/wp-admin/post.php?post=${currentSubscriptionId}&action=edit`
-				document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
+				document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
+
 			}
- 
+
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = popupMsgNewText
 				
 		})
