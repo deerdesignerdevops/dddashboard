@@ -140,7 +140,7 @@ foreach( $orderItems as $item_id => $item ){
 
 				if($couponDiscount){ ?>
 					<tr>
-						<th class="td" colspan="5">Dicount</th>
+						<th class="td" colspan="5">Discount</th>
 						<td class="td" colspan="5" style="text-align: right;"><?php echo "-".get_woocommerce_currency_symbol()."$couponDiscount"?></td>
 					</tr>
 			<?php }
