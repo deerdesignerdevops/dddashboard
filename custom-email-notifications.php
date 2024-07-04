@@ -547,7 +547,7 @@ function scheduleEmailToBeSentOnDayBeforeBillingDateEnds($subscriptionId, $userE
 					'text'  => '<!channel> Subscription Cancelled :alert:' . '
 			*Client:* ' . $customerName . " ($customerCompany)'s " . 'account cancels tomorrow.
 			Only work on their designs until today.',
-					'username' => 'Marcus',
+					'username' => 'Devops',
 				];
 
 
