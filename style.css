@@ -1,4 +1,4 @@
-/* 
+/*
 Theme Name: Hello Elementor Child
 Theme URI: https://github.com/elementor/hello-theme-child/
 Description: Hello Elementor Child is a child theme of Hello Elementor, created by Elementor team
@@ -13,6 +13,8 @@ Tags: flexible-header, custom-colors, custom-menu, custom-logo, editor-style, fe
 */
 
 /* Add your custom styles here */
+
+/* commit test = R2 Digital */
 
 @font-face {
   font-family: "Graphik";
@@ -1409,4 +1411,16 @@ input.ff-read-only {
   .dd__subscription_details {
     width: 100%;
   }
+}
+.payment_box.payment_method_stripe fieldset:last-child,
+.payment_box.payment_method_stripe fieldset:last-child p {
+  display: block !important;
+  border: 0 !important;
+}
+
+label[for="wc-stripe-new-payment-method"] {
+  display: inline;
+  margin-top: -20px;
+  position: relative;
+  top: -18px;
 }

@@ -547,7 +547,7 @@ function scheduleEmailToBeSentOnDayBeforeBillingDateEnds($subscriptionId, $userE
 					'text'  => '<!channel> Subscription Cancelled :alert:' . '
 			*Client:* ' . $customerName . " ($customerCompany)'s " . 'account cancels tomorrow.
 			Only work on their designs until today.',
-					'username' => 'Marcus',
+					'username' => 'Devops',
 				];
 
 
@@ -693,5 +693,25 @@ function sendEmailToUserAboutAdditionalTeamMembers($accountOwnerId, $additionalU
 	";
 
 	wp_mail($accountOwner->user_email, $subject, emailTemplate($message), $headers);
+}
+
+
+function sendEmailToUserWhenPaymentFails($userFirstName, $userEmail){
+	global $headers;
+
+	$subject = "Your payment has failed!";
+
+	$message = "
+		Hi $userFirstName,<br><br>
+		Your subscription payment didn't go through. <br><br>
+		Try to use another card or contact us for help: <a href='mailto:help@deerdesigner.com'>help@deerdesigner.com</a>
+		<br><br>
+		Please, visit our <a href='https://deerdesigner.com/pricing/'>pricing page</a> page and try. 
+		<br><br>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+		The Deer Designer Team.</p>
+	";
+
+	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
 }
 ?>
