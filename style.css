@@ -1424,3 +1424,9 @@ label[for="wc-stripe-new-payment-method"] {
   position: relative;
   top: -18px;
 }
+
+label[for="wc-stripe-payment-token-new"],
+label[for^="wc-stripe-payment-token-"] {
+  position: relative;
+  top: -8px;
+}
