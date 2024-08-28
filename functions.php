@@ -829,7 +829,7 @@ function getIndexOfAdditionalDesigners($userId, $additionalDesignerId){
 
 
 
-function sendPaymentFailedNotificationToSlack($orderId){
+/*function sendPaymentFailedNotificationToSlack($orderId){
 	$order = wc_get_order( $orderId );
 	$orderData = $order->get_data();
 	$customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
@@ -854,7 +854,9 @@ function sendPaymentFailedNotificationToSlack($orderId){
 			"text" => "<!channel> Payment failed :x:\n$customerName | $customerEmail\n:arrow_right: AMs, work on their requests but don't send them until payment is resolved.\n *Plan:* $productNames.",
 			"username" => "Devops"
 		];
-	}else{
+	}
+	
+	else{
 		$slackMessageBody = [
 			"text" => "<!channel>\n*New client:* Payment failed :x:\n*Who:* $customerName | $customerEmail\n:arrow_right: CS, if they don't sign up in the next 15 minutes, get in touch and see if they need help.\n *Plan:* $productNames.",
 			"username" => "Devops"
@@ -863,7 +865,43 @@ function sendPaymentFailedNotificationToSlack($orderId){
 
 	slackNotifications($slackMessageBody);
 
+}*/
+function sendPaymentFailedNotificationToSlack($orderId) {
+    $order = wc_get_order($orderId);
+    $orderData = $order->get_data();
+    $customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
+    $customerEmail = $orderData['billing']['email'];
+    $orderSubscriptions = wcs_get_subscriptions_for_order($orderId, array('order_type' => 'any'));
+
+    if (!empty($orderSubscriptions)) {
+        $currentOrderSubscription = reset($orderSubscriptions);
+        $subscriptionStatus = $currentOrderSubscription->get_status();
+
+
+        if ($subscriptionStatus === 'on-hold') {
+			$slackMessageBody = [
+				"text" => "<!channel> Reactivation failed due to payment issue :x:\n$customerName | $customerEmail\n:arrow_right: CS, get in touch if not solved in a few hours.\n *Plan:* $productNames.",
+				"username" => "Devops"
+			];
+        } else {
+            if (wcs_order_contains_renewal($orderId)) {
+                $slackMessageBody = [
+                    "text" => "<!channel> Payment failed :x:\n$customerName | $customerEmail\n:arrow_right: AMs, work on their requests but don't send them until payment is resolved.\n *Plan:* $productNames.",
+                    "username" => "Devops"
+                ];
+            } else {
+                $slackMessageBody = [
+                    "text" => "<!channel>\n*New client:* Payment failed :x:\n*Who:* $customerName | $customerEmail\n:arrow_right: CS, if they don't sign up in the next 15 minutes, get in touch and see if they need help.\n *Plan:* $productNames.",
+                    "username" => "Devops"
+                ];
+            }
+        }
+
+        slackNotifications($slackMessageBody);
+    }
 }
+
+
 add_action( 'woocommerce_order_status_failed', 'sendPaymentFailedNotificationToSlack');
 
 

@@ -56,6 +56,15 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat, $
                 
                 <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
 
+                <span class="dd__subscription_payment">
+    Period:
+    <?php if($itemIndex=== 1) { ?>
+        Annual
+    <?php } else { ?>
+        Monthly
+    <?php } ?>
+</span>
+
                 <?php if($lastOrderPaidDate) { ?>
                     <span class="dd__subscription_payment">Last payment: <?php echo $lastOrderPaidDate; ?></span>
                 <?php } ?>
