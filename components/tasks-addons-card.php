@@ -70,7 +70,14 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat, $
     
     ?>
 </span>
-
+<?php 
+foreach ( $subscription->get_items() as $subsItemId => $item ){	
+    $product_id = $item->get_product_id(); // Obtém o ID do produto
+    
+    // Exibe o ID do produto
+    echo '<p>Product ID: ' . $product_id . '</p>';
+}
+?>
 
 
                 
