@@ -730,7 +730,7 @@ input.ff-read-only {
 .dd__subscription_container
   .dd__subscription_addons_task_card:first-child
   .dd__subscription_price {
-  display: none !important;
+  visibility: hidden !important;
 }
 
 .dd__subscription_price_vat {
