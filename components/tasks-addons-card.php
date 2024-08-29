@@ -71,13 +71,7 @@ function tasksAddonsCardComponent($subscription, $cancelBtnLabel, $productCat, $
     ?>
 </span>
 
-<?php 
-                    foreach ( $subscription->get_items() as $subsItemId => $item ){	
-                        $terms = get_the_terms( $item['product_id'], 'product_cat' );
-                        
-                  
-                        echo '' . $item['product_id'] . '</p>';
-                    ?>
+
 
                 
                 <span class="dd__subscription_payment">Start date: <?php echo esc_html( $subscription->get_date_to_display( 'start_date' ) ); ?></span>	
