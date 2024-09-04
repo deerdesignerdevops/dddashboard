@@ -494,6 +494,9 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 	if($accessToken){
 		if($folderItems){
 			foreach($folderItems['entries'] as $folderItem){
+				
+				error_log("Checking folder: " . $folderItem['name']);
+				
 				if($folderItem['name'] === "Requests" || $folderItem['name'] === "Request"){
 					$requestsFolderId = $folderItem['id'];
 				}
