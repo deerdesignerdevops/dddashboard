@@ -446,6 +446,44 @@ function createBoxFolderSharingLink($folderId, $accessToken){
 	return $response['shared_link']['url'];
 }
 
+/*function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName){	
+	$requestsFolderId = "";
+	$folderItems = getFolderItems($folderId);
+	$accessToken = $folderItems['accessToken'];
+	$folderItems = $folderItems['response'];
+	$apiResponse = "";
+
+	if($accessToken){
+		if($folderItems){
+			foreach($folderItems['entries'] as $folderItem){
+				if($folderItem['name'] === "Requests" || $folderItem['name'] === "Request"){
+					$requestsFolderId = $folderItem['id'];
+				}
+			}
+	
+			if($requestsFolderId){
+				$newTicketFolderCreated = postNewFolderInBox($accessToken, $newTicketFolderName, $requestsFolderId);
+				
+				if($newTicketFolderCreated['id']){
+					$folderSharingLink = createBoxFolderSharingLink($newTicketFolderCreated['id'], $accessToken);
+	
+					$apiResponse = [
+						"folder_url" => $folderSharingLink,
+					];
+				}else{
+					$apiResponse = "[Error] Folder was not created. Check api logs.";
+				}
+			}else{
+				$apiResponse = "[Error] Request(s) folder not found. Check api logs.";
+			}	
+		}
+	}else{
+		$apiResponse = "[Error] Credentials not valid. Check api logs.";
+	}
+
+	return rest_ensure_response($apiResponse);
+}*/
+
 function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName){	
 	$requestsFolderId = "";
 	$folderItems = getFolderItems($folderId);
@@ -474,6 +512,7 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 					$apiResponse = "[Error] Folder was not created. Check api logs.";
 				}
 			}else{
+				error_log("Request(s) folder not found. Details: " . print_r($folderItems, true) . " | Folder ID: " . $folderId . " | New Ticket Folder Name: " . $newTicketFolderName);
 				$apiResponse = "[Error] Request(s) folder not found. Check api logs.";
 			}	
 		}
