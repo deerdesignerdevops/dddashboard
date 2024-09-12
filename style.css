@@ -395,14 +395,14 @@ input.ff-read-only {
 }
 
 .cart__product_description {
-  order: 1;
+  /*order: 1;*/
   font-size: 1rem;
   margin: 10px 0;
   color: #aaa;
   font-weight: 300;
 }
 
-.cart__product_details div:nth-child(3) {
+/*.cart__product_details div:nth-child(3) {
   order: 2;
 }
 
@@ -420,7 +420,7 @@ input.ff-read-only {
 
 .cart__product_details div:nth-child(7) {
   order: 5;
-}
+}*/
 
 .cart__header,
 .cart__product_details_header {
