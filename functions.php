@@ -872,10 +872,26 @@ function sendPaymentFailedNotificationToSlack($orderId) {
     $customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
     $customerEmail = $orderData['billing']['email'];
     $orderSubscriptions = wcs_get_subscriptions_for_order($orderId, array('order_type' => 'any'));
+    $currentOrderSubscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
+	$additionalDesignerCurrentIndex = getIndexOfAdditionalDesigners($orderData['customer_id'], $currentOrderSubscription->id) + 1;
+	
 
     if (!empty($orderSubscriptions)) {
         $currentOrderSubscription = reset($orderSubscriptions);
         $subscriptionStatus = $currentOrderSubscription->get_status();
+
+
+		foreach( $order->get_items() as $item_id => $item ){
+			$itemName = $item->get_name();
+			if(str_contains($itemName, 'Designer')){
+				$orderItems[] = $itemName . " ($additionalDesignerCurrentIndex)";
+			}else{
+				$orderItems[] = $itemName;
+			}
+		}
+
+
+		$productNames = implode(" | ", array_unique($orderItems));
 
 
         if ($subscriptionStatus === 'on-hold') {
