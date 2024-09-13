@@ -2246,3 +2246,18 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
 
+add_filter('woocommerce_cart_totals_coupon_html', 'customize_discount_label', 10, 2);
+function customize_discount_label($discount_html, $coupon) {
+    $discount_type = $coupon->get_discount_type(); // Obter o tipo de desconto (percentual ou fixo)
+
+    if ($discount_type === 'percent') {
+        $discount_amount = $coupon->get_amount(); // Obtém o valor do desconto percentual
+        // Substituir o texto padrão de desconto por algo como "-10%"
+        $discount_html = '<span>Discount (' . $discount_amount . '%)</span>';
+    } else {
+        // Para desconto fixo, deixa o formato padrão, como "-£10.00"
+        $discount_html = '<span>Discount</span> ' . wc_price(WC()->cart->get_discount_total());
+    }
+
+    return $discount_html;
+}
