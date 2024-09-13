@@ -2246,18 +2246,22 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
 
-add_filter('woocommerce_cart_totals_coupon_html', 'customize_discount_label', 10, 2);
-function customize_discount_label($discount_html, $coupon) {
-    $discount_type = $coupon->get_discount_type(); // Obter o tipo de desconto (percentual ou fixo)
+function modify_cart_discount_text( $cart_item, $cart_item_key ) {
+    // Verifique se o desconto é um desconto percentual
+    if ( isset( $cart_item['discount'] ) && $cart_item['discount'] > 0 ) {
+        $discount = $cart_item['discount'];
+        $discount_type = WC()->cart->get_cart_item_data( $cart_item );
 
-    if ($discount_type === 'percent') {
-        $discount_amount = $coupon->get_amount(); // Obtém o valor do desconto percentual
-        // Substituir o texto padrão de desconto por algo como "-10%"
-        $discount_html = '<span>Discount (' . $discount_amount . '%)</span>';
-    } else {
-        // Para desconto fixo, deixa o formato padrão, como "-£10.00"
-        $discount_html = '<span>Discount</span> ' . wc_price(WC()->cart->get_discount_total());
+        // Verifique se o desconto é percentual
+        if ( strpos( $discount_type, 'percent' ) !== false ) {
+            // Converta o valor do desconto para porcentagem
+            $discount_percentage = ( $discount * 100 ) . '%';
+            $cart_item['discount_text'] = '-' . $discount_percentage;
+        } else {
+            $cart_item['discount_text'] = '-' . wc_price( $discount );
+        }
     }
-
-    return $discount_html;
+    return $cart_item;
 }
+
+add_filter( 'woocommerce_cart_item_subtotal', 'modify_cart_discount_text', 10, 2 );
