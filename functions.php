@@ -2246,22 +2246,3 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
 
-function modify_cart_discount_text( $cart_item, $cart_item_key ) {
-    // Verifique se o desconto é um desconto percentual
-    if ( isset( $cart_item['discount'] ) && $cart_item['discount'] > 0 ) {
-        $discount = $cart_item['discount'];
-        $discount_type = WC()->cart->get_cart_item_data( $cart_item );
-
-        // Verifique se o desconto é percentual
-        if ( strpos( $discount_type, 'percent' ) !== false ) {
-            // Converta o valor do desconto para porcentagem
-            $discount_percentage = ( $discount * 100 ) . '%';
-            $cart_item['discount_text'] = '-' . $discount_percentage;
-        } else {
-            $cart_item['discount_text'] = '-' . wc_price( $discount );
-        }
-    }
-    return $cart_item;
-}
-
-add_filter( 'woocommerce_cart_item_subtotal', 'modify_cart_discount_text', 10, 2 );
