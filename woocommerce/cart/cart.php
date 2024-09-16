@@ -154,33 +154,41 @@ $cart_subtotal = WC()->cart->get_subtotal();
 
 // Inicializando variáveis
 $couponDiscount = 0;
-$discountType = "";
 $descontoPorcentagem = false;
 $descontoValorFixo = false;
+$percentual_aplicado = 0;
 
+// Verificar se existem cupons aplicados
 if( count( WC()->cart->get_applied_coupons() ) > 0 ) {
     $couponsApplied = WC()->cart->get_applied_coupons();
-    foreach($couponsApplied as $coupon) {
-        $currentCoupon = new WC_Coupon($coupon);
-        $couponDiscount = $currentCoupon->get_amount();
-        $discountType = $currentCoupon->get_discount_type();
-        if ($discountType === 'percent') {
-            $descontoPorcentagem = true;
-        } else {
-            $descontoValorFixo = true;
+    
+    foreach($couponsApplied as $couponCode) {
+        $currentCoupon = new WC_Coupon($couponCode);
+        
+        // Obtém o valor total de desconto do cupom aplicado
+        $couponDiscount = WC()->cart->get_coupon_discount_amount( $couponCode );
+
+        // Determinando se o desconto é percentual ou fixo via cálculo
+        if ($cart_subtotal > 0) {
+            $percentual_aplicado = ($couponDiscount / $cart_subtotal) * 100;
+            
+            if ($percentual_aplicado > 0 && $percentual_aplicado <= 100) {
+                $descontoPorcentagem = true; // Desconto é percentual
+            } else {
+                $descontoValorFixo = true; // Desconto é valor fixo
+            }
         }
     }
 }
-
 ?>
 
-								<?php if ($couponDiscount) { ?>
+<?php if ($couponDiscount) { ?>
     <div class="cart__product_subtotal">
         <span>Discount</span>
         <span>
             <?php 
             if ($descontoPorcentagem) {
-                echo $couponDiscount . '%';
+                echo round($percentual_aplicado, 2) . '%';
             } elseif ($descontoValorFixo) {
                 echo '-' . wc_price($couponDiscount);
             }
@@ -188,6 +196,7 @@ if( count( WC()->cart->get_applied_coupons() ) > 0 ) {
         </span>
     </div>
 <?php } ?>
+
 
 <div class="cart__product_subtotal">
 										<span>Subtotal</span>
