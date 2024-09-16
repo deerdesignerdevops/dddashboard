@@ -141,7 +141,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 								</div>
 
 								<div class="cart__product_subtotal">
-									<span>Subtotal</span>
+									<span>Price</span>
 										<?php
 											echo get_woocommerce_currency_symbol() . $_product->get_price();	
 											echo do_action('defineSubscriptionPeriodHook', $productPrice);										
@@ -189,7 +189,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 										if($discountTypeSymbol === '') $monetarySymbol = get_woocommerce_currency_symbol();
 										?>
 										<div class="cart__product_subtotal">
-											<span>Discount: </span>
+											<span>Discount </span>
 											<span><?php echo '-' . $monetarySymbol . $couponDiscount .  $discountTypeSymbol; ?> </span>
 										</div>
 
