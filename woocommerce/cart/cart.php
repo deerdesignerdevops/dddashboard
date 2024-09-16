@@ -200,37 +200,14 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 								<?php endif; ?>
 
-								<?php
-								/*
-									if($couponDiscount){ 
-										$appliedCoupons = WC()->cart->get_applied_coupons();
-										$discountType = "";
-
-										foreach ($appliedCoupons as $couponCode) {
-											$coupon = new WC_Coupon($couponCode);
-											$discountType = $coupon->get_discount_type();
-										}
-
-										$discountTypeSymbol = $discountType === "percent" ? "%" : "";
-										$monetarySymbol = '';
-										if($discountTypeSymbol === '') $monetarySymbol = get_woocommerce_currency_symbol();
-										?>
-										<div class="cart__product_subtotal">
-											<span>Discount </span>
-											<span><?php echo '-' . $monetarySymbol . $couponDiscount .  $discountTypeSymbol; ?> </span>
-										</div>
 
 										<div class="cart__product_subtotal">
-											<span>Total: </span>
+											<span>Total</span>
 												<?php
 													echo get_woocommerce_currency_symbol() . WC()->cart->total;
 													echo defineSubscriptionPeriod($productPrice);
 												?>
 										</div>
-										
-									<?php }
-								*/?>
-
 								
 							</div>
 						</div>						
