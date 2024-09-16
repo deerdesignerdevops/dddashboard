@@ -148,6 +148,32 @@ do_action( 'woocommerce_before_cart' ); ?>
 										?>
 								</div>
 
+								<?php
+// Obtendo o subtotal do carrinho sem descontos
+$cart_subtotal = WC()->cart->get_subtotal();
+
+// Inicializando variáveis
+$couponDiscount = 0;
+$discountType = "";
+$descontoPorcentagem = false;
+$descontoValorFixo = false;
+
+if( count( WC()->cart->get_applied_coupons() ) > 0 ) {
+    $couponsApplied = WC()->cart->get_applied_coupons();
+    foreach($couponsApplied as $coupon) {
+        $currentCoupon = new WC_Coupon($coupon);
+        $couponDiscount = $currentCoupon->get_amount();
+        $discountType = $currentCoupon->get_discount_type();
+        if ($discountType === 'percent') {
+            $descontoPorcentagem = true;
+        } else {
+            $descontoValorFixo = true;
+        }
+    }
+}
+
+?>
+
 								<?php if ($couponDiscount) { ?>
     <div class="cart__product_subtotal">
         <span>Discount</span>
