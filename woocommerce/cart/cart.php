@@ -148,37 +148,20 @@ do_action( 'woocommerce_before_cart' ); ?>
 										?>
 								</div>
 
-								<?php
-							if($couponDiscount){ 
-								$appliedCoupons = WC()->cart->get_applied_coupons();
-								$discountType = "";
-								$discountValue = 0;
-							
-								foreach ($appliedCoupons as $couponCode) {
-									$coupon = new WC_Coupon($couponCode);
-									$discountType = $coupon->get_discount_type();
-							
-								
-									if($discountType === "percent") {
-										$discountPercentage = $coupon->get_amount(); 
-										$discountValue = ($_product->get_price() * $discountPercentage) / 100; 
-										$discountTypeSymbol = "%"; 
-									} else {
-									
-										$discountValue = $coupon->get_amount();
-										$discountTypeSymbol = ''; 
-									}
-								}
-							
-							
-								$monetarySymbol = $discountTypeSymbol === '' ? get_woocommerce_currency_symbol() : '';
-								?>
-								<div class="cart__product_subtotal">
-									<span>Discount </span>
-									<span><?php echo '-' . $monetarySymbol . number_format($discountValue, 2) . $discountTypeSymbol; ?> </span>
-								</div>
-							<?php }
-								?>
+								<?php if ($couponDiscount) { ?>
+    <div class="cart__product_subtotal">
+        <span>Discount</span>
+        <span>
+            <?php 
+            if ($descontoPorcentagem) {
+                echo $couponDiscount . '%';
+            } elseif ($descontoValorFixo) {
+                echo '-' . wc_price($couponDiscount);
+            }
+            ?>
+        </span>
+    </div>
+<?php } ?>
 
 <div class="cart__product_subtotal">
 										<span>Subtotal</span>
