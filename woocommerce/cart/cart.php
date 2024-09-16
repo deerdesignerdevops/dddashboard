@@ -148,7 +148,36 @@ do_action( 'woocommerce_before_cart' ); ?>
 										?>
 								</div>
 
-								
+								<?php
+									if($couponDiscount){ 
+										$appliedCoupons = WC()->cart->get_applied_coupons();
+										$discountType = "";
+
+										foreach ($appliedCoupons as $couponCode) {
+											$coupon = new WC_Coupon($couponCode);
+											$discountType = $coupon->get_discount_type();
+										}
+
+										$discountTypeSymbol = $discountType === "percent" ? "%" : "";
+										$monetarySymbol = '';
+										if($discountTypeSymbol === '') $monetarySymbol = get_woocommerce_currency_symbol();
+										?>
+										<div class="cart__product_subtotal">
+											<span>Discount </span>
+											<span><?php echo '-' . $monetarySymbol . $couponDiscount .  $discountTypeSymbol; ?> </span>
+										</div>
+
+									
+										
+									<?php }
+								?>
+
+<div class="cart__product_subtotal">
+										<span>Subtotal</span>
+										<span>
+											<?php echo WC()->cart->get_total(); ?>
+										</span>
+									</div>
 								
 								<?php if ( wc_tax_enabled() && ! WC()->cart->display_prices_including_tax() ) : ?>
 									<?php if(WC()->cart->get_taxes_total() !== '0.00'): ?>
@@ -167,16 +196,12 @@ do_action( 'woocommerce_before_cart' ); ?>
 										<?php endif; ?>
 									<?php endif; ?>
 
-									<div class="cart__product_subtotal">
-										<span>Total</span>
-										<span>
-											<?php echo WC()->cart->get_total(); ?>
-										</span>
-									</div>
+								
 
 								<?php endif; ?>
 
 								<?php
+								/*
 									if($couponDiscount){ 
 										$appliedCoupons = WC()->cart->get_applied_coupons();
 										$discountType = "";
@@ -204,7 +229,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 										</div>
 										
 									<?php }
-								?>
+								*/?>
 
 								
 							</div>
