@@ -355,7 +355,7 @@ input.ff-read-only {
 }
 
 .woocommerce-checkout .checkout_coupon.woocommerce-form-coupon {
-  display: block !important;
+  display: none !important;
 }
 
 .woocommerce-form-coupon-toggle {
