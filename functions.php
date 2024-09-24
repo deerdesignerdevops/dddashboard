@@ -19,6 +19,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
+
+ function custom_login_css() {
+    echo '<style type="text/css">
+        .wp-login-lost-password {
+            text-decoration: underline !important;
+        }
+    </style>';
+}
+add_action('login_head', 'custom_login_css');
+
+
+
 function hello_elementor_child_scripts_styles() {
 
 	// Dynamically get version number of the parent stylesheet (lets browsers re-cache your stylesheet when you update your theme)
