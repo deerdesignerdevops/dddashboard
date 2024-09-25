@@ -222,9 +222,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 					update_user_meta($user_id, '_automatewoo_new_price', 'active');
 					
                     error_log('Assinatura atualizada com novo valor: ' . $new_value);
-                } else{
-					update_user_meta($user_id, '_automatewoo_new_price', '');
-				}
+                } 
             }
         }
     }
