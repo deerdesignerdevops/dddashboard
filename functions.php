@@ -109,6 +109,30 @@ function addCustomFieldForSubscriptions() {
 }
 add_action('init', 'addCustomFieldForSubscriptions');
 
+function showSubscriptionMessageIfUserIsNotNewPrice() {
+    if (is_user_logged_in()) {
+        $user_id = get_current_user_id();
+
+        $meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
+
+        $subscriptions = wcs_get_users_subscriptions($user_id);
+
+        foreach ($subscriptions as $subscription) {
+            $status = $subscription->get_status();
+            $valor_da_assinatura = $subscription->get_total(); 
+
+            if (($status == 'on-hold' || $status == 'cancelled') && $meta_value === 'active') {
+                return '<p>We will charge <strong>R$ ' . $valor_da_assinatura . '</strong> to the card on your account.</p>';
+            }
+        }
+    }
+
+    return '';
+}
+
+add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
+
+
 /*function resetCustomFieldForSubscriptions() {
     $users = get_users();
     foreach ($users as $user) {
