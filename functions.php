@@ -166,6 +166,14 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
   
     error_log('Verificando assinatura com status: ' . $status);
 
+	$meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
+
+	if($status === 'on-hold' || $status === 'cancelled' && $meta_value === 'active'){
+      update_user_meta($user_id, '_automatewoo_new_price', '');	
+	  error_log("Meta atualizada para vazio para o usuário ID: $user_id");
+	 return
+	}
+
     if ($status === 'on-hold' || $status === 'cancelled') {
         $user_id = $subscription->get_user_id(); 
         $items = $subscription->get_items();
@@ -218,10 +226,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 				$current_total = (float) $current_total;
                 $new_value = (float) $new_value;
 
-                if ($current_total === $new_value) {
-                    update_user_meta($user_id, '_automatewoo_new_price', '');	
-                    error_log("Meta atualizada para vazio para o usuário ID: $user_id");
-                }
+             
 
                 // Se os valores forem diferentes, atualiza a assinatura
                 if ($current_total !== $new_value) {
@@ -232,8 +237,11 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                     $subscription->calculate_totals();
                     $subscription->save(); 
 
-                    update_user_meta($user_id, '_automatewoo_new_price', 'active');
+					
+					update_user_meta($user_id, '_automatewoo_new_price', 'active');
                     error_log('Assinatura atualizada com novo valor: ' . $new_value);
+					
+                    
                 } 
             }
         }
@@ -244,7 +252,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
 
-/*function reset_automatewoo_new_price_for_all_users() {
+function reset_automatewoo_new_price_for_all_users() {
     $users = get_users();
     foreach ($users as $user) {
         $user_id = $user->ID;
@@ -256,7 +264,7 @@ add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedO
     error_log("Todos os campos personalizados '_automatewoo_new_price' foram redefinidos para todos os usuários.");
 }
 
-reset_automatewoo_new_price_for_all_users();*/
+reset_automatewoo_new_price_for_all_users();
 
 
 
