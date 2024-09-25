@@ -75,38 +75,15 @@ function logoutWhitoutConfirm($action, $result)
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
-/*function registerAutomationExecutedForUser($subscription_id) {
 
-    $subscription = wcs_get_subscription($subscription_id);
-
-    if ($subscription) {
-        $user_id = $subscription->get_user_id();
-
-        if ($user_id) {
-         
-            update_user_meta($user_id, '_automatewoo_new_price', 'true');
-
-            error_log("Usuário ID: " . $user_id . " teve a automação aplicada. ID da assinatura: " . $subscription_id);
-
-            $meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
-            error_log("Valor do meta '_automatewoo_new_price' para o usuário ID: " . $user_id . " é: " . $meta_value);
-        } else {
-            error_log("Usuário não encontrado para a assinatura ID: " . $subscription_id);
-        }
-    } else {
-        error_log("Assinatura não encontrada para o ID: " . $subscription_id);
-    }
-}*/
-
-
-function addCustomFieldForSubscriptions() {
+/*function addCustomFieldForSubscriptions() {
     $users = get_users();
     foreach ($users as $user) {
         if (!get_user_meta($user->ID, '_automatewoo_new_price', true)) {
             update_user_meta($user->ID, '_automatewoo_new_price', '');
         }
     }
-}
+}*/
 add_action('init', 'addCustomFieldForSubscriptions');
 
 function showSubscriptionMessageIfUserIsNotNewPrice() {
