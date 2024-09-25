@@ -78,23 +78,56 @@ add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 function showSubscriptionMessageIfUserIsNotNewPrice() {
     if (is_user_logged_in()) {
         $user_id = get_current_user_id();
-
-        $meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
-
         $subscriptions = wcs_get_users_subscriptions($user_id);
 
         foreach ($subscriptions as $subscription) {
             $status = $subscription->get_status();
-            $valor_da_assinatura = $subscription->get_total(); 
+            $items = $subscription->get_items();
+            $current_total = 0;
 
-            if (($status == 'on-hold' || $status == 'cancelled') && $meta_value === 'active') {
-                return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $valor_da_assinatura . '</strong> to the card on your account.</p>';
+            foreach ($items as $item) {
+                $product_id = $item->get_product_id();
+                $variation_id = $item->get_variation_id();
+                if ($variation_id) {
+                    $product_id = $variation_id;
+                }
+
+                switch ($product_id) {
+                    case 1594:
+                        $new_value = 11868;
+                        break;
+                    case 1595:
+                        $new_value = 989;
+                        break;
+                    case 1591:
+                        $new_value = 789;
+                        break;
+                    case 1592:
+                        $new_value = 9468;
+                        break;
+                    case 1589:
+                        $new_value = 459;
+                        break;
+                    case 1596:
+                        $new_value = 5508;
+                        break;
+                    default:
+                        $new_value = null;
+                }
+
+                if ($new_value !== null) {
+                    $current_total += $new_value;
+                }
+            }
+            if (($status === 'on-hold' || $status === 'cancelled') && $current_total !== $subscription->get_total()) {
+                return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $current_total . '</strong> to the card on your account.</p>';
             }
         }
     }
 
     return '';
 }
+
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
@@ -219,22 +252,11 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                     $subscription->calculate_totals();
                     $subscription->save(); 
 
-                    $current_meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
+                    //$current_meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
                     
-                   /* if (empty($current_meta_value)) {
-                      
-                        error_log('Meta atualizada para active.');
-                    } else {
-                        update_user_meta($user_id, '_automatewoo_new_price', '');
-                        error_log('Meta redefinida para vazio, pois já tinha um valor.');
-                    }*/
-
-					update_user_meta($user_id, '_automatewoo_new_price', 'active');
-                    
+					
                     error_log('Assinatura atualizada com novo valor: ' . $new_value);
-                } else{
-					update_user_meta($user_id, '_automatewoo_new_price', '');
-				}
+                } 
             }
         }
     }
