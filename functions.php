@@ -168,12 +168,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
 	$meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
 
-	if($status === 'on-hold' || $status === 'cancelled' && $meta_value === 'active'){
-      update_user_meta($user_id, '_automatewoo_new_price', '');	
-	  error_log("Meta atualizada para vazio para o usuário ID: $user_id");
-	 return
-	}
-
+	
     if ($status === 'on-hold' || $status === 'cancelled') {
         $user_id = $subscription->get_user_id(); 
         $items = $subscription->get_items();
