@@ -75,7 +75,7 @@ function logoutWhitoutConfirm($action, $result)
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
-function registerAutomationExecutedForUser($subscription_id) {
+/*function registerAutomationExecutedForUser($subscription_id) {
 
     $subscription = wcs_get_subscription($subscription_id);
 
@@ -96,7 +96,18 @@ function registerAutomationExecutedForUser($subscription_id) {
     } else {
         error_log("Assinatura não encontrada para o ID: " . $subscription_id);
     }
+}*/
+
+
+function addCustomFieldForSubscriptions() {
+    $users = get_users();
+    foreach ($users as $user) {
+        if (!get_user_meta($user->ID, '_automatewoo_new_price', true)) {
+            update_user_meta($user->ID, '_automatewoo_new_price', 'default_value');
+        }
+    }
 }
+add_action('init', 'addCustomFieldForSubscriptions');
 
 
 
