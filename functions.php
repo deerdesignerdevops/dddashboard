@@ -75,7 +75,6 @@ function logoutWhitoutConfirm($action, $result)
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
-
 function showSubscriptionMessageIfUserIsNotNewPrice() {
     if (is_user_logged_in()) {
         $user_id = get_current_user_id();
@@ -89,7 +88,7 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
             $valor_da_assinatura = $subscription->get_total(); 
 
             if (($status == 'on-hold' || $status == 'cancelled') && $meta_value === 'active') {
-                return '<p>We will charge <strong>R$ ' . $valor_da_assinatura . '</strong> to the card on your account.</p>';
+                return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $valor_da_assinatura . '</strong> to the card on your account.</p>';
             }
         }
     }
