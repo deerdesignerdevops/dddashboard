@@ -208,8 +208,14 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
             if ($new_value !== null) {
                 error_log('Novo valor para a assinatura: ' . $new_value);
+
+				$meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
                 
                 $current_total = $item->get_total();
+
+				if($current_total === $new_value && $meta_value === 'active' ){
+					update_user_meta($user_id, '_automatewoo_new_price', '');	
+				}
 
                 if ($current_total !== $new_value) {
                     $item->set_subtotal($new_value);
