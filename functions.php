@@ -214,7 +214,10 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                 // Adicionando log para depuração
                 error_log("Total atual: $current_total, Novo valor: $new_value, Meta atual: $meta_value, Usuário: $user_id");
 
-                // Verifica se o total atual é igual ao novo valor e se o meta é 'active'
+               
+				$current_total = (float) $current_total;
+                $new_value = (float) $new_value;
+
                 if ($current_total === $new_value) {
                     update_user_meta($user_id, '_automatewoo_new_price', '');	
                     error_log("Meta atualizada para vazio para o usuário ID: $user_id");
