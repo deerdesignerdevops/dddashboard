@@ -208,15 +208,19 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
             if ($new_value !== null) {
                 error_log('Novo valor para a assinatura: ' . $new_value);
-
-				$meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
-                
+                $meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
                 $current_total = $item->get_total();
 
-				if($current_total === $new_value && $meta_value === 'active' ){
-					update_user_meta($user_id, '_automatewoo_new_price', '');	
-				}
+                // Adicionando log para depuração
+                error_log("Total atual: $current_total, Novo valor: $new_value, Meta atual: $meta_value");
 
+                // Verifica se o total atual é igual ao novo valor e se o meta é 'active'
+                if ($current_total === $new_value && $meta_value === 'active') {
+                    update_user_meta($user_id, '_automatewoo_new_price', '');	
+                    error_log("Meta atualizada para vazio para o usuário ID: $user_id");
+                }
+
+                // Se os valores forem diferentes, atualiza a assinatura
                 if ($current_total !== $new_value) {
                     $item->set_subtotal($new_value);
                     $item->set_total($new_value);
@@ -225,8 +229,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                     $subscription->calculate_totals();
                     $subscription->save(); 
 
-					update_user_meta($user_id, '_automatewoo_new_price', 'active');
-					
+                    update_user_meta($user_id, '_automatewoo_new_price', 'active');
                     error_log('Assinatura atualizada com novo valor: ' . $new_value);
                 } 
             }
