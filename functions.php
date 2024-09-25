@@ -200,22 +200,13 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
             update_post_meta($subscription->get_id(), '_custom_subscription_price', $new_value);
 
-            if ($status === 'on-hold' || $status === 'cancelled') {
-                $subscription->set_total($new_value);
-                $subscription->save();
-                update_user_meta($user_id, '_automatewoo_new_price', 'active');
-                error_log('Assinatura pausada/cancelada atualizada com novo valor: ' . $new_value);
-            }
+            $subscription->set_total($new_value);
+            $subscription->save();
+            update_user_meta($user_id, '_automatewoo_new_price', 'active');
+            error_log('Assinatura atualizada com novo valor: ' . $new_value);
 
-
-            if ($status === 'active') {
-                $current_price = $subscription->get_total();
-                if ($current_price != $new_value) {
-                    $subscription->set_total($new_value);
-                    $subscription->save();
-                    error_log('Assinatura ativa atualizada com novo valor: ' . $new_value);
-                }
-            }
+            $item->set_total($new_value);
+            $item->save();
         }
     }
 }
@@ -248,11 +239,26 @@ function handle_subscription_status_change($subscription) {
     checkSubscriptionsPausedOrCancelled($subscription);
 }
 
+add_filter('woocommerce_subscription_get_total', 'apply_custom_subscription_price', 10, 2);
+
+function apply_custom_subscription_price($total, $subscription) {
+    $custom_price = get_post_meta($subscription->get_id(), '_custom_subscription_price', true);
+    if (!empty($custom_price)) {
+        return $custom_price;
+    }
+    return $total;
+}
+
 add_action('woocommerce_subscription_status_updated', 'updateSubscriptionOnReactivation', 10, 3);
 
 function updateSubscriptionOnReactivation($subscription, $new_status, $old_status) {
     if ($new_status === 'active' && ($old_status === 'on-hold' || $old_status === 'cancelled')) {
-        checkSubscriptionsPausedOrCancelled($subscription);
+        $custom_price = get_post_meta($subscription->get_id(), '_custom_subscription_price', true);
+        if (!empty($custom_price)) {
+            $subscription->set_total($custom_price);
+            $subscription->save();
+            error_log('Assinatura reativada com preço personalizado: ' . $custom_price);
+        }
     }
 }
 
