@@ -76,8 +76,6 @@ add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
 
-
-
 function showSubscriptionMessageIfUserIsNotNewPrice() {
     if (is_user_logged_in()) {
         $user_id = get_current_user_id();
@@ -222,12 +220,18 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                     $subscription->calculate_totals();
                     $subscription->save(); 
 
-                    update_user_meta($user_id, '_automatewoo_new_price', 'active');
+                    $current_meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
+                    
+                    if (empty($current_meta_value)) {
+                        update_user_meta($user_id, '_automatewoo_new_price', 'active');
+                        error_log('Meta atualizada para active.');
+                    } else {
+                        update_user_meta($user_id, '_automatewoo_new_price', '');
+                        error_log('Meta redefinida para vazio, pois já tinha um valor.');
+                    }
                     
                     error_log('Assinatura atualizada com novo valor: ' . $new_value);
-                } else {
-                    update_user_meta($user_id, '_automatewoo_new_price', '');
-                }
+                } 
             }
         }
     }
@@ -237,6 +241,19 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
 
+function reset_automatewoo_new_price_for_all_users() {
+    $users = get_users();
+    foreach ($users as $user) {
+        $user_id = $user->ID;
+        
+        update_user_meta($user_id, '_automatewoo_new_price', '');
+        error_log("O campo personalizado '_automatewoo_new_price' do usuário ID {$user_id} foi redefinido para vazio.");
+    }
+
+    error_log("Todos os campos personalizados '_automatewoo_new_price' foram redefinidos para todos os usuários.");
+}
+
+reset_automatewoo_new_price_for_all_users();
 
 function showCustomFieldProfileUser($user) {
     $custom_value = get_user_meta($user->ID, '_automatewoo_new_price', true);
