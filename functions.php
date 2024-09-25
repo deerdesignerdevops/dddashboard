@@ -166,7 +166,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
   
     error_log('Verificando assinatura com status: ' . $status);
 
-    if ($status === 'on-hold' || $status === 'active' || $status === 'cancelled') {
+    if ($status === 'on-hold' || $status === 'cancelled') {
         $user_id = $subscription->get_user_id(); 
         $items = $subscription->get_items();
 
@@ -205,10 +205,6 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                     $new_value = null; 
                     error_log('Produto não corresponde a nenhum caso, produto ID: ' . $product_id);
             }
-			if ($current_total === $new_value) {
-				update_user_meta($user_id, '_automatewoo_new_price', '');	
-				error_log("Meta atualizada para vazio para o usuário ID: $user_id");
-			}
 
             if ($new_value !== null) {
                 error_log('Novo valor para a assinatura: ' . $new_value);
@@ -222,7 +218,10 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 				$current_total = (float) $current_total;
                 $new_value = (float) $new_value;
 
-               
+                if ($current_total === $new_value) {
+                    update_user_meta($user_id, '_automatewoo_new_price', '');	
+                    error_log("Meta atualizada para vazio para o usuário ID: $user_id");
+                }
 
                 // Se os valores forem diferentes, atualiza a assinatura
                 if ($current_total !== $new_value) {
