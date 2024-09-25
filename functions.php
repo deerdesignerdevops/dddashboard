@@ -181,11 +181,10 @@ add_action('init', 'addCustomFieldForSubscriptions');
 function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
     error_log('Verificando assinatura com status: ' . $status);
-    
     $user_id = $subscription->get_user_id();
     $items = $subscription->get_items();
     error_log('Usuário ID: ' . $user_id . ' - Quantidade de itens: ' . count($items));
-    
+
     foreach ($items as $item) {
         $product_id = $item->get_product_id();
         $variation_id = $item->get_variation_id();
@@ -193,21 +192,22 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
             $product_id = $variation_id;
         }
         error_log('Produto ou Variação ID: ' . $product_id);
-        
+
         $new_value = get_new_price($product_id);
-        
+
         if ($new_value !== null) {
             error_log('Novo valor para a assinatura: ' . $new_value);
-            
+
             update_post_meta($subscription->get_id(), '_custom_subscription_price', $new_value);
-            
+
             if ($status === 'on-hold' || $status === 'cancelled') {
                 $subscription->set_total($new_value);
                 $subscription->save();
                 update_user_meta($user_id, '_automatewoo_new_price', 'active');
-                error_log('Assinatura atualizada com novo valor: ' . $new_value);
+                error_log('Assinatura pausada/cancelada atualizada com novo valor: ' . $new_value);
             }
-            
+
+
             if ($status === 'active') {
                 $current_price = $subscription->get_total();
                 if ($current_price != $new_value) {
@@ -238,6 +238,14 @@ function get_new_price($product_id) {
             error_log('Produto não corresponde a nenhum caso, produto ID: ' . $product_id);
             return null;
     }
+}
+
+add_action('woocommerce_subscription_status_on-hold', 'handle_subscription_status_change', 10, 1);
+add_action('woocommerce_subscription_status_cancelled', 'handle_subscription_status_change', 10, 1);
+add_action('woocommerce_subscription_status_active', 'handle_subscription_status_change', 10, 1);
+
+function handle_subscription_status_change($subscription) {
+    checkSubscriptionsPausedOrCancelled($subscription);
 }
 
 add_action('woocommerce_subscription_status_updated', 'updateSubscriptionOnReactivation', 10, 3);
