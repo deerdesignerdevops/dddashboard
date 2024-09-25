@@ -146,11 +146,18 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
         error_log('Usuário ID: ' . $user_id . ' - Quantidade de itens: ' . count($items));
 
         foreach ($items as $item) {
-            $product_id = $item->get_product_id();
+            $product_id = $item->get_product_id(); // Obtém o ID do produto pai
+            $variation_id = $item->get_variation_id(); // Obtém o ID da variação, se houver
 
-            // Log para verificar o ID do produto
-            error_log('Produto ID: ' . $product_id);
+            // Verifica se há variação associada
+            if ($variation_id) {
+                $product_id = $variation_id; // Se houver variação, o ID da variação é o que deve ser usado
+            }
 
+            // Log para verificar o ID do produto ou variação
+            error_log('Produto ou Variação ID: ' . $product_id);
+
+            // Compara o ID do produto/variação com os IDs esperados
             switch ($product_id) {
                 case 1594:
                     $new_value = 11868;
@@ -171,8 +178,8 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                     $new_value = 5508;
                     break;
                 default:
-                    $new_value = null;
-                    // Log para quando o produto não for encontrado
+                    $new_value = null; 
+                    // Log para quando o produto ou variação não for encontrado
                     error_log('Produto não corresponde a nenhum caso, produto ID: ' . $product_id);
             }
 
@@ -191,6 +198,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
         }
     }
 }
+
 
 
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
