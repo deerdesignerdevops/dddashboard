@@ -109,14 +109,14 @@ function addCustomFieldForSubscriptions() {
 }
 add_action('init', 'addCustomFieldForSubscriptions');
 
-function resetCustomFieldForSubscriptions() {
+/*function resetCustomFieldForSubscriptions() {
     $users = get_users();
     foreach ($users as $user) {
         delete_user_meta($user->ID, '_automatewoo_new_price');
         update_user_meta($user->ID, '_automatewoo_new_price', '');
     }
 }
-add_action('init', 'resetCustomFieldForSubscriptions');
+add_action('init', 'resetCustomFieldForSubscriptions');*/
 
 
 function showCustomFieldProfileUser($user) {
