@@ -221,16 +221,20 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
                     $current_meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
                     
-                    if (empty($current_meta_value)) {
-                        update_user_meta($user_id, '_automatewoo_new_price', 'active');
+                   /* if (empty($current_meta_value)) {
+                      
                         error_log('Meta atualizada para active.');
                     } else {
                         update_user_meta($user_id, '_automatewoo_new_price', '');
                         error_log('Meta redefinida para vazio, pois já tinha um valor.');
-                    }
+                    }*/
+
+					update_user_meta($user_id, '_automatewoo_new_price', 'active');
                     
                     error_log('Assinatura atualizada com novo valor: ' . $new_value);
-                } 
+                } else{
+					update_user_meta($user_id, '_automatewoo_new_price', '');
+				}
             }
         }
     }
