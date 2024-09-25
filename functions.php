@@ -252,7 +252,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
 
-function reset_automatewoo_new_price_for_all_users() {
+/*function reset_automatewoo_new_price_for_all_users() {
     $users = get_users();
     foreach ($users as $user) {
         $user_id = $user->ID;
@@ -264,8 +264,7 @@ function reset_automatewoo_new_price_for_all_users() {
     error_log("Todos os campos personalizados '_automatewoo_new_price' foram redefinidos para todos os usuários.");
 }
 
-reset_automatewoo_new_price_for_all_users();
-
+reset_automatewoo_new_price_for_all_users();*/
 
 
 function showCustomFieldProfileUser($user) {
