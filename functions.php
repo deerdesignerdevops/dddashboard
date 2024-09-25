@@ -161,30 +161,9 @@ add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice')
     }
 }*/
 
-function create_user_values_table() {
-    global $wpdb;
-
-    $table_name = $wpdb->prefix . 'user_values'; 
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table_name (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        user_id bigint(20) NOT NULL,
-        value float NOT NULL,
-        PRIMARY KEY  (id),
-        UNIQUE KEY user_id (user_id)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-
-add_action('after_setup_theme', 'create_user_values_table');
-
 function checkSubscriptionsPausedOrCancelled($subscription) {
-    global $wpdb;
-
     $status = $subscription->get_status();
+  
     error_log('Verificando assinatura com status: ' . $status);
 
     if ($status === 'on-hold' || $status === 'active' || $status === 'cancelled') {
@@ -229,22 +208,16 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
             if ($new_value !== null) {
                 error_log('Novo valor para a assinatura: ' . $new_value);
+                $meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
                 $current_total = $item->get_total();
 
-                // Verifica se o total atual é igual ao novo valor
-                $existing_value = $wpdb->get_var($wpdb->prepare(
-                    "SELECT value FROM {$wpdb->prefix}user_values WHERE user_id = %d",
-                    $user_id
-                ));
+                // Adicionando log para depuração
+                error_log("Total atual: $current_total, Novo valor: $new_value, Meta atual: $meta_value, Usuário: $user_id");
 
-                // Se o total atual for igual ao novo valor e o valor existente for definido, atualiza a tabela
-                if ($current_total === $new_value && $existing_value === 'active') {
-                    $wpdb->update(
-                        "{$wpdb->prefix}user_values",
-                        ['value' => null],
-                        ['user_id' => $user_id]
-                    );	
-                    error_log("Valor atualizado para nulo para o usuário ID: $user_id");
+                // Verifica se o total atual é igual ao novo valor e se o meta é 'active'
+                if ($current_total === $new_value) {
+                    update_user_meta($user_id, '_automatewoo_new_price', '');	
+                    error_log("Meta atualizada para vazio para o usuário ID: $user_id");
                 }
 
                 // Se os valores forem diferentes, atualiza a assinatura
@@ -256,14 +229,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                     $subscription->calculate_totals();
                     $subscription->save(); 
 
-                    // Insere ou atualiza o valor na tabela
-                    $wpdb->replace(
-                        "{$wpdb->prefix}user_values",
-                        [
-                            'user_id' => $user_id,
-                            'value' => 'active'
-                        ]
-                    );
+                    update_user_meta($user_id, '_automatewoo_new_price', 'active');
                     error_log('Assinatura atualizada com novo valor: ' . $new_value);
                 } 
             }
@@ -271,8 +237,8 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
     }
 }
 
-add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
+add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
 
 /*function reset_automatewoo_new_price_for_all_users() {
