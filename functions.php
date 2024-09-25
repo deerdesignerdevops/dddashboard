@@ -101,7 +101,7 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
-function checkSubscriptionsPausedOrCancelled($subscription) {
+/*function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
   
     error_log('Verificando assinatura com status: ' . $status);
@@ -162,133 +162,80 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
             }
         }
     }
+}*/
+
+function checkSubscriptionsPausedOrCancelled($subscription) {
+    $status = $subscription->get_status();
+  
+    error_log('Verificando assinatura com status: ' . $status);
+
+    if ($status === 'on-hold' || $status === 'active' || $status === 'cancelled') {
+        $user_id = $subscription->get_user_id(); 
+        $items = $subscription->get_items();
+
+        error_log('Usuário ID: ' . $user_id . ' - Quantidade de itens: ' . count($items));
+
+        foreach ($items as $item) {
+            $product_id = $item->get_product_id(); 
+            $variation_id = $item->get_variation_id(); 
+
+            if ($variation_id) {
+                $product_id = $variation_id; 
+            }
+
+            error_log('Produto ou Variação ID: ' . $product_id);
+
+            switch ($product_id) {
+                case 1594:
+                    $new_value = 11868;
+                    break;
+                case 1595:
+                    $new_value = 989;
+                    break;
+                case 1591:
+                    $new_value = 789;
+                    break;
+                case 1592:
+                    $new_value = 9468;
+                    break;
+                case 1589:
+                    $new_value = 459;
+                    break;
+                case 1596:
+                    $new_value = 5508;
+                    break;
+                default:
+                    $new_value = null; 
+                    error_log('Produto não corresponde a nenhum caso, produto ID: ' . $product_id);
+            }
+
+            if ($new_value !== null) {
+                error_log('Novo valor para a assinatura: ' . $new_value);
+                
+                $current_total = $item->get_total();
+
+                if ($current_total !== $new_value) {
+                    $item->set_subtotal($new_value);
+                    $item->set_total($new_value);
+                    $item->save();
+
+                    $subscription->calculate_totals();
+                    $subscription->save(); 
+
+                    update_user_meta($user_id, '_automatewoo_new_price', 'active');
+                    
+                    error_log('Assinatura atualizada com novo valor: ' . $new_value);
+                } else {
+                    update_user_meta($user_id, '_automatewoo_new_price', '');
+                }
+            }
+        }
+    }
 }
+
 
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
-
-/*function addCustomFieldForSubscriptions() {
-    $users = get_users();
-    foreach ($users as $user) {
-        if (!get_user_meta($user->ID, '_automatewoo_new_price', true)) {
-            update_user_meta($user->ID, '_automatewoo_new_price', '');
-        }
-    }
-}
-add_action('init', 'addCustomFieldForSubscriptions');*/
-
-/*function checkSubscriptionsPausedOrCancelled($subscription) {
-    $status = $subscription->get_status();
-    error_log('Verificando assinatura com status: ' . $status);
-    $user_id = $subscription->get_user_id();
-    $items = $subscription->get_items();
-    error_log('Usuário ID: ' . $user_id . ' - Quantidade de itens: ' . count($items));
-
-    foreach ($items as $item) {
-        $product_id = $item->get_product_id();
-        $variation_id = $item->get_variation_id();
-        if ($variation_id) {
-            $product_id = $variation_id;
-        }
-        error_log('Produto ou Variação ID: ' . $product_id);
-
-        $new_value = get_new_price($product_id);
-
-        if ($new_value !== null) {
-            error_log('Novo valor para a assinatura: ' . $new_value);
-
-            update_post_meta($subscription->get_id(), '_custom_subscription_price', $new_value);
-
-            $subscription->set_total($new_value);
-            $subscription->save();
-            update_user_meta($user_id, '_automatewoo_new_price', 'active');
-            error_log('Assinatura atualizada com novo valor: ' . $new_value);
-
-            $item->set_total($new_value);
-            $item->save();
-        }
-    }
-}
-
-function get_new_price($product_id) {
-    switch ($product_id) {
-        case 1594:
-            return 11868;
-        case 1595:
-            return 989;
-        case 1591:
-            return 789;
-        case 1592:
-            return 9468;
-        case 1589:
-            return 459;
-        case 1596:
-            return 5508;
-        default:
-            error_log('Produto não corresponde a nenhum caso, produto ID: ' . $product_id);
-            return null;
-    }
-}
-
-add_action('woocommerce_subscription_status_on-hold', 'handle_subscription_status_change', 10, 1);
-add_action('woocommerce_subscription_status_cancelled', 'handle_subscription_status_change', 10, 1);
-add_action('woocommerce_subscription_status_active', 'handle_subscription_status_change', 10, 1);
-
-function handle_subscription_status_change($subscription) {
-    checkSubscriptionsPausedOrCancelled($subscription);
-}
-
-add_filter('woocommerce_subscription_get_total', 'apply_custom_subscription_price', 10, 2);
-
-function apply_custom_subscription_price($total, $subscription) {
-    $custom_price = get_post_meta($subscription->get_id(), '_custom_subscription_price', true);
-    if (!empty($custom_price)) {
-        return $custom_price;
-    }
-    return $total;
-}
-
-add_action('woocommerce_subscription_status_updated', 'updateSubscriptionOnReactivation', 10, 3);
-
-function updateSubscriptionOnReactivation($subscription, $new_status, $old_status) {
-    if ($new_status === 'active' && ($old_status === 'on-hold' || $old_status === 'cancelled')) {
-        $custom_price = get_post_meta($subscription->get_id(), '_custom_subscription_price', true);
-        if (!empty($custom_price)) {
-            $subscription->set_total($custom_price);
-            $subscription->save();
-            error_log('Assinatura reativada com preço personalizado: ' . $custom_price);
-        }
-    }
-}*/
-
-
-/*function applyCustomPriceOnSubscriptionReactivation($subscription) {
-    $status = $subscription->get_status();
-
-    if ($status === 'active') {
-        $custom_price = get_post_meta($subscription->get_id(), '_custom_subscription_price', true);
-
-        if ($custom_price) {
-            $subscription->set_total($custom_price);
-            $subscription->save(); 
-
-            error_log('Valor personalizado restaurado para a assinatura ID: ' . $subscription->get_id() . ' - Novo valor: ' . $custom_price);
-        }
-    }
-}*/
-
-//add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
-//add_action('woocommerce_subscription_status_updated', 'applyCustomPriceOnSubscriptionReactivation', 10, 1);
-
-
-/*function resetCustomFieldForSubscriptions() {
-    $users = get_users();
-    foreach ($users as $user) {
-        delete_user_meta($user->ID, '_automatewoo_new_price');
-        update_user_meta($user->ID, '_automatewoo_new_price', '');
-    }
-}
-add_action('init', 'resetCustomFieldForSubscriptions');*/
 
 
 function showCustomFieldProfileUser($user) {
