@@ -75,6 +75,19 @@ function logoutWhitoutConfirm($action, $result)
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
+function registerAutomationExecutedForUser($subscription_id) {
+
+    $subscription = wcs_get_subscription($subscription_id);
+
+    if ($subscription) {
+        $user_id = $subscription->get_user_id();
+
+        if ($user_id) {
+            update_user_meta($user_id, '_automatewoo_new_price', 'true');
+        }
+    }
+}
+
 
 function populateOnboardingFormHiddenFieldsWithUserMeta($form){
 	$currentUser = wp_get_current_user();
