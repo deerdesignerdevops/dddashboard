@@ -132,6 +132,52 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
+function checkSubscriptionsPausedOrCancelled($subscription) {
+    $status = $subscription->get_status();
+
+    if ($status === 'on-hold' || $status === 'cancelled') {
+        $user_id = $subscription->get_user_id(); 
+        $items = $subscription->get_items();
+
+        foreach ($items as $item) {
+            $product_id = $item->get_product_id(); 
+
+            switch ($product_id) {
+                case 1594:
+                    $new_value = 11868;
+                    break;
+                case 1595:
+                    $new_value = 989;
+                    break;
+                case 1591:
+                    $new_value = 789;
+                    break;
+                case 1592:
+                    $new_value = 9468;
+                    break;
+                case 1589:
+                    $new_value = 459;
+                    break;
+                case 1596:
+                    $new_value = 5508;
+                    break;
+                default:
+                    $new_value = null; 
+            }
+
+            if ($new_value !== null) {
+                update_user_meta($user_id, '_automatewoo_new_price', 'active');
+
+                $subscription->set_total($new_value);
+                $subscription->save(); 
+            }
+        }
+    }
+}
+
+add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
+
+
 
 /*function resetCustomFieldForSubscriptions() {
     $users = get_users();
