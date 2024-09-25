@@ -212,7 +212,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                 $current_total = $item->get_total();
 
                 // Adicionando log para depuração
-                error_log("Total atual: $current_total, Novo valor: $new_value, Meta atual: $meta_value");
+                error_log("Total atual: $current_total, Novo valor: $new_value, Meta atual: $meta_value, Usuário: $user_id");
 
                 // Verifica se o total atual é igual ao novo valor e se o meta é 'active'
                 if ($current_total === $new_value && $meta_value === 'active') {
@@ -241,7 +241,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
 
-/*function reset_automatewoo_new_price_for_all_users() {
+function reset_automatewoo_new_price_for_all_users() {
     $users = get_users();
     foreach ($users as $user) {
         $user_id = $user->ID;
@@ -253,7 +253,7 @@ add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedO
     error_log("Todos os campos personalizados '_automatewoo_new_price' foram redefinidos para todos os usuários.");
 }
 
-reset_automatewoo_new_price_for_all_users();*/
+reset_automatewoo_new_price_for_all_users();
 
 function showCustomFieldProfileUser($user) {
     $custom_value = get_user_meta($user->ID, '_automatewoo_new_price', true);
