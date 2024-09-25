@@ -78,7 +78,7 @@ add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
 
-/*function showSubscriptionMessageIfUserIsNotNewPrice() {
+function showSubscriptionMessageIfUserIsNotNewPrice() {
     if (is_user_logged_in()) {
         $user_id = get_current_user_id();
 
@@ -103,30 +103,26 @@ add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice')
 
 function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
-
-    // Log para verificar se a função está sendo chamada
+  
     error_log('Verificando assinatura com status: ' . $status);
 
-    if ($status === 'on-hold' || $status === 'cancelled') {
+    if ($status === 'on-hold'  || $status === 'active' || $status === 'cancelled') {
         $user_id = $subscription->get_user_id(); 
         $items = $subscription->get_items();
 
-        // Log para verificar se a assinatura possui produtos
         error_log('Usuário ID: ' . $user_id . ' - Quantidade de itens: ' . count($items));
 
         foreach ($items as $item) {
-            $product_id = $item->get_product_id(); // Obtém o ID do produto pai
-            $variation_id = $item->get_variation_id(); // Obtém o ID da variação, se houver
+            $product_id = $item->get_product_id(); 
+            $variation_id = $item->get_variation_id(); 
 
-            // Verifica se há variação associada
+
             if ($variation_id) {
-                $product_id = $variation_id; // Se houver variação, o ID da variação é o que deve ser usado
+                $product_id = $variation_id; 
             }
 
-            // Log para verificar o ID do produto ou variação
             error_log('Produto ou Variação ID: ' . $product_id);
 
-            // Compara o ID do produto/variação com os IDs esperados
             switch ($product_id) {
                 case 1594:
                     $new_value = 11868;
@@ -148,25 +144,23 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
                     break;
                 default:
                     $new_value = null; 
-                    // Log para quando o produto ou variação não for encontrado
                     error_log('Produto não corresponde a nenhum caso, produto ID: ' . $product_id);
             }
 
             if ($new_value !== null) {
-                // Log para verificar o valor novo
                 error_log('Novo valor para a assinatura: ' . $new_value);
 
-                // Atualiza o meta do usuário e o valor da assinatura
                 update_user_meta($user_id, '_automatewoo_new_price', 'active');
                 $subscription->set_total($new_value);
                 $subscription->save(); 
 
-                // Log para indicar que a assinatura foi atualizada
                 error_log('Assinatura atualizada com novo valor: ' . $new_value);
             }
         }
     }
-}*/
+}
+
+add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
 function addCustomFieldForSubscriptions() {
     $users = get_users();
@@ -178,7 +172,7 @@ function addCustomFieldForSubscriptions() {
 }
 add_action('init', 'addCustomFieldForSubscriptions');
 
-function checkSubscriptionsPausedOrCancelled($subscription) {
+/*function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
     error_log('Verificando assinatura com status: ' . $status);
     $user_id = $subscription->get_user_id();
@@ -260,7 +254,7 @@ function updateSubscriptionOnReactivation($subscription, $new_status, $old_statu
             error_log('Assinatura reativada com preço personalizado: ' . $custom_price);
         }
     }
-}
+}*/
 
 
 /*function applyCustomPriceOnSubscriptionReactivation($subscription) {
