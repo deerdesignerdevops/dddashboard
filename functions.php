@@ -161,14 +161,19 @@ add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice')
     }
 }*/
 
-function checkSubscriptionsPausedOrCancelled($subscription) {
+/*function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
   
     error_log('Verificando assinatura com status: ' . $status);
 
 	$meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
 
-	
+	if($status === 'on-hold' || $status === 'cancelled' && $meta_value === 'active'){
+      update_user_meta($user_id, '_automatewoo_new_price', '');	
+	  error_log("Meta atualizada para vazio para o usuário ID: $user_id");
+	 
+	}
+
     if ($status === 'on-hold' || $status === 'cancelled') {
         $user_id = $subscription->get_user_id(); 
         $items = $subscription->get_items();
@@ -245,7 +250,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
 
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
-
+*/
 
 /*function reset_automatewoo_new_price_for_all_users() {
     $users = get_users();
@@ -260,6 +265,7 @@ add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedO
 }
 
 reset_automatewoo_new_price_for_all_users();*/
+
 
 
 function showCustomFieldProfileUser($user) {
