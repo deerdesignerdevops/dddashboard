@@ -106,7 +106,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
   
     error_log('Verificando assinatura com status: ' . $status);
 
-    if ($status === 'on-hold'  || $status === 'active' || $status === 'cancelled') {
+    if ($status === 'on-hold' || $status === 'active' || $status === 'cancelled') {
         $user_id = $subscription->get_user_id(); 
         $items = $subscription->get_items();
 
@@ -115,7 +115,6 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
         foreach ($items as $item) {
             $product_id = $item->get_product_id(); 
             $variation_id = $item->get_variation_id(); 
-
 
             if ($variation_id) {
                 $product_id = $variation_id; 
@@ -150,10 +149,18 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
             if ($new_value !== null) {
                 error_log('Novo valor para a assinatura: ' . $new_value);
 
-                update_user_meta($user_id, '_automatewoo_new_price', 'active');
-                $subscription->set_total($new_value);
+                // Atualizar o preço recorrente do item da assinatura
+                $item->set_subtotal($new_value);
+                $item->set_total($new_value);
+                $item->save();
+
+                // Atualizar o total da assinatura e salvar
+                $subscription->calculate_totals();
                 $subscription->save(); 
 
+                // Armazenar a atualização no meta do usuário para automações
+                update_user_meta($user_id, '_automatewoo_new_price', 'active');
+                
                 error_log('Assinatura atualizada com novo valor: ' . $new_value);
             }
         }
@@ -161,6 +168,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 }
 
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
+
 
 function addCustomFieldForSubscriptions() {
     $users = get_users();
