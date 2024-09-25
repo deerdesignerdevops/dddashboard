@@ -149,16 +149,13 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
             if ($new_value !== null) {
                 error_log('Novo valor para a assinatura: ' . $new_value);
 
-                // Atualizar o preço recorrente do item da assinatura
                 $item->set_subtotal($new_value);
                 $item->set_total($new_value);
                 $item->save();
 
-                // Atualizar o total da assinatura e salvar
                 $subscription->calculate_totals();
                 $subscription->save(); 
 
-                // Armazenar a atualização no meta do usuário para automações
                 update_user_meta($user_id, '_automatewoo_new_price', 'active');
                 
                 error_log('Assinatura atualizada com novo valor: ' . $new_value);
@@ -170,7 +167,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
 
-function addCustomFieldForSubscriptions() {
+/*function addCustomFieldForSubscriptions() {
     $users = get_users();
     foreach ($users as $user) {
         if (!get_user_meta($user->ID, '_automatewoo_new_price', true)) {
@@ -178,7 +175,7 @@ function addCustomFieldForSubscriptions() {
         }
     }
 }
-add_action('init', 'addCustomFieldForSubscriptions');
+add_action('init', 'addCustomFieldForSubscriptions');*/
 
 /*function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
@@ -284,14 +281,14 @@ function updateSubscriptionOnReactivation($subscription, $new_status, $old_statu
 //add_action('woocommerce_subscription_status_updated', 'applyCustomPriceOnSubscriptionReactivation', 10, 1);
 
 
-function resetCustomFieldForSubscriptions() {
+/*function resetCustomFieldForSubscriptions() {
     $users = get_users();
     foreach ($users as $user) {
         delete_user_meta($user->ID, '_automatewoo_new_price');
         update_user_meta($user->ID, '_automatewoo_new_price', '');
     }
 }
-add_action('init', 'resetCustomFieldForSubscriptions');
+add_action('init', 'resetCustomFieldForSubscriptions');*/
 
 
 function showCustomFieldProfileUser($user) {
