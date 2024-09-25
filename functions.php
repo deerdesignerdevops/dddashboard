@@ -109,6 +109,24 @@ function addCustomFieldForSubscriptions() {
 }
 add_action('init', 'addCustomFieldForSubscriptions');
 
+function showCustomFieldProfileUser($user) {
+    $custom_value = get_user_meta($user->ID, '_automatewoo_new_price', true);
+    ?>
+    <h3><?php _e('AutomateWoo Information', 'textdomain'); ?></h3>
+    <table class="form-table">
+        <tr>
+            <th><label for="_automatewoo_new_price"><?php _e('Novo Preço AutomateWoo', 'textdomain'); ?></label></th>
+            <td>
+                <input type="text" name="_automatewoo_new_price" id="_automatewoo_new_price" value="<?php echo esc_attr($custom_value); ?>" class="regular-text" disabled />
+
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+add_action('show_user_profile', 'showCustomFieldProfileUser');
+add_action('edit_user_profile', 'showCustomFieldProfileUser');
+
 
 
 function populateOnboardingFormHiddenFieldsWithUserMeta($form){
