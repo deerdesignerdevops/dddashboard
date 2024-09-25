@@ -103,7 +103,7 @@ function addCustomFieldForSubscriptions() {
     $users = get_users();
     foreach ($users as $user) {
         if (!get_user_meta($user->ID, '_automatewoo_new_price', true)) {
-            update_user_meta($user->ID, '_automatewoo_new_price', 'default_value');
+            update_user_meta($user->ID, '_automatewoo_new_price', '');
         }
     }
 }
@@ -115,7 +115,7 @@ function showCustomFieldProfileUser($user) {
     <h3><?php _e('AutomateWoo Information', 'textdomain'); ?></h3>
     <table class="form-table">
         <tr>
-            <th><label for="_automatewoo_new_price"><?php _e('Novo Preço AutomateWoo', 'textdomain'); ?></label></th>
+            <th><label for="_automatewoo_new_price"><?php _e('Status New Price', 'textdomain'); ?></label></th>
             <td>
                 <input type="text" name="_automatewoo_new_price" id="_automatewoo_new_price" value="<?php echo esc_attr($custom_value); ?>" class="regular-text" disabled />
 
