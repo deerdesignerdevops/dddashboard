@@ -19,6 +19,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
+
+ function custom_login_css() {
+    echo '<style type="text/css">
+        .wp-login-lost-password {
+            text-decoration: underline !important;
+        }
+    </style>';
+}
+add_action('login_head', 'custom_login_css');
+
+
+
 function hello_elementor_child_scripts_styles() {
 
 	// Dynamically get version number of the parent stylesheet (lets browsers re-cache your stylesheet when you update your theme)
@@ -61,6 +73,146 @@ function logoutWhitoutConfirm($action, $result)
     }
 }
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
+
+
+function showSubscriptionMessageIfUserIsNotNewPrice() {
+    if (is_user_logged_in()) {
+        $user_id = get_current_user_id();
+
+		$woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
+
+		$woo_new_price_block_message = get_user_meta($user_id, '_automatewoo_new_price_block_message', true);
+
+        $subscriptions = wcs_get_users_subscriptions($user_id);
+
+        foreach ($subscriptions as $subscription) {
+            $status = $subscription->get_status();
+            $valor_da_assinatura = $subscription->get_total(); 
+
+            if (($status == 'on-hold' || $status == 'cancelled') && $woo_new_price === 'active') {
+                return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $valor_da_assinatura . '</strong> to the card on your account.</p>';
+            }
+        }
+    }
+
+    return '';
+}
+
+add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
+
+function checkSubscriptionsPausedOrCancelled($subscription) {
+    $status = $subscription->get_status();
+	$user_id = $subscription->get_user_id(); 
+
+    error_log('Verificando assinatura com status: ' . $status);
+
+	 $woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
+
+	 $woo_new_price_block_message = get_user_meta($user_id, '_automatewoo_new_price_block_message', true);
+
+	if ($status === 'active' && $woo_new_price === 'active' ){
+   // update_user_meta($user_id, '_automatewoo_new_price', '');
+	//update_user_meta($user_id, '_automatewoo_new_price_block_message', 'active');
+	}
+
+	///if($woo_new_price_block_message === 'active') return 
+
+    if ($status === 'on-hold' || $status === 'cancelled') {
+       
+        $items = $subscription->get_items();
+
+        error_log('Usuário ID: ' . $user_id . ' - Quantidade de itens: ' . count($items));
+
+        foreach ($items as $item) {
+            $product_id = $item->get_product_id(); 
+            $variation_id = $item->get_variation_id(); 
+
+            if ($variation_id) {
+                $product_id = $variation_id; 
+            }
+
+            error_log('Produto ou Variação ID: ' . $product_id);
+
+            switch ($product_id) {
+                case 1594:
+                    $new_value = 11868;
+                    break;
+                case 1595:
+                    $new_value = 989;
+                    break;
+                case 1591:
+                    $new_value = 789;
+                    break;
+                case 1592:
+                    $new_value = 9468;
+                    break;
+                case 1589:
+                    $new_value = 459;
+                    break;
+                case 1596:
+                    $new_value = 5508;
+                    break;
+                default:
+                    $new_value = null; 
+                    error_log('Produto não corresponde a nenhum caso, produto ID: ' . $product_id);
+            }
+
+            if ($new_value !== null) {
+                error_log('Novo valor para a assinatura: ' . $new_value);
+
+                $item->set_subtotal($new_value);
+                $item->set_total($new_value);
+                $item->save();
+
+                $subscription->calculate_totals();
+                $subscription->save(); 
+
+                update_user_meta($user_id, '_automatewoo_new_price', 'active');
+                
+                error_log('Assinatura atualizada com novo valor: ' . $new_value);
+            }
+        }
+    }
+}
+
+
+
+add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
+
+
+/*function reset_automatewoo_new_price_for_all_users() {
+    $users = get_users();
+    foreach ($users as $user) {
+        $user_id = $user->ID;
+        
+        update_user_meta($user_id, '_automatewoo_new_price', '');
+        error_log("O campo personalizado '_automatewoo_new_price' do usuário ID {$user_id} foi redefinido para vazio.");
+    }
+
+    error_log("Todos os campos personalizados '_automatewoo_new_price' foram redefinidos para todos os usuários.");
+}
+
+reset_automatewoo_new_price_for_all_users();*/
+
+
+
+function showCustomFieldProfileUser($user) {
+    $custom_value = get_user_meta($user->ID, '_automatewoo_new_price', true);
+    ?>
+    <h3><?php _e('AutomateWoo Information', 'textdomain'); ?></h3>
+    <table class="form-table">
+        <tr>
+            <th><label for="_automatewoo_new_price"><?php _e('Status New Price', 'textdomain'); ?></label></th>
+            <td>
+                <input type="text" name="_automatewoo_new_price" id="_automatewoo_new_price" value="<?php echo esc_attr($custom_value); ?>" class="regular-text" disabled />
+
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+add_action('show_user_profile', 'showCustomFieldProfileUser');
+add_action('edit_user_profile', 'showCustomFieldProfileUser');
 
 
 
@@ -872,10 +1024,26 @@ function sendPaymentFailedNotificationToSlack($orderId) {
     $customerName = $orderData['billing']['first_name'] . ' ' . $orderData['billing']['last_name'];
     $customerEmail = $orderData['billing']['email'];
     $orderSubscriptions = wcs_get_subscriptions_for_order($orderId, array('order_type' => 'any'));
+    $currentOrderSubscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
+	$additionalDesignerCurrentIndex = getIndexOfAdditionalDesigners($orderData['customer_id'], $currentOrderSubscription->id) + 1;
+	
 
     if (!empty($orderSubscriptions)) {
         $currentOrderSubscription = reset($orderSubscriptions);
         $subscriptionStatus = $currentOrderSubscription->get_status();
+
+
+		foreach( $order->get_items() as $item_id => $item ){
+			$itemName = $item->get_name();
+			if(str_contains($itemName, 'Designer')){
+				$orderItems[] = $itemName . " ($additionalDesignerCurrentIndex)";
+			}else{
+				$orderItems[] = $itemName;
+			}
+		}
+
+
+		$productNames = implode(" | ", array_unique($orderItems));
 
 
         if ($subscriptionStatus === 'on-hold') {
@@ -2229,4 +2397,3 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 	}
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
-
