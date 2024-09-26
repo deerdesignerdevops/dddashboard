@@ -79,7 +79,9 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
     if (is_user_logged_in()) {
         $user_id = get_current_user_id();
 
-        $meta_value = get_user_meta($user_id, '_automatewoo_new_price', true);
+		$woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
+
+		$woo_new_price_block_message = get_user_meta($user_id, '_automatewoo_new_price_block_message', true);
 
         $subscriptions = wcs_get_users_subscriptions($user_id);
 
@@ -87,7 +89,7 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
             $status = $subscription->get_status();
             $valor_da_assinatura = $subscription->get_total(); 
 
-            if (($status == 'on-hold' || $status == 'cancelled') && $meta_value === 'active') {
+            if (($status == 'on-hold' || $status == 'cancelled') && $woo_new_price === 'active' && $woo_new_price_block_message !== 'active') {
                 return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $valor_da_assinatura . '</strong> to the card on your account.</p>';
             }
         }
@@ -98,13 +100,25 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
-/*function checkSubscriptionsPausedOrCancelled($subscription) {
+function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
-  
+	$user_id = $subscription->get_user_id(); 
+
     error_log('Verificando assinatura com status: ' . $status);
 
+	 $woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
+
+	 $woo_new_price_block_message = get_user_meta($user_id, '_automatewoo_new_price_block_message', true);
+
+	if ($status === 'active' && $woo_new_price === 'active' ){
+    update_user_meta($user_id, '_automatewoo_new_price', '');
+	update_user_meta($user_id, '_automatewoo_new_price_block_message', 'active');
+	}
+
+	if($woo_new_price_block_message === 'active') return 
+
     if ($status === 'on-hold' || $status === 'cancelled') {
-        $user_id = $subscription->get_user_id(); 
+       
         $items = $subscription->get_items();
 
         error_log('Usuário ID: ' . $user_id . ' - Quantidade de itens: ' . count($items));
@@ -159,14 +173,14 @@ add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice')
             }
         }
     }
-}*/
+}
 
 
 
 //add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
 
-function reset_automatewoo_new_price_for_all_users() {
+/*function reset_automatewoo_new_price_for_all_users() {
     $users = get_users();
     foreach ($users as $user) {
         $user_id = $user->ID;
@@ -178,7 +192,7 @@ function reset_automatewoo_new_price_for_all_users() {
     error_log("Todos os campos personalizados '_automatewoo_new_price' foram redefinidos para todos os usuários.");
 }
 
-reset_automatewoo_new_price_for_all_users();
+reset_automatewoo_new_price_for_all_users();*/
 
 
 
