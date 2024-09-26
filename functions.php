@@ -100,7 +100,7 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
-function checkSubscriptionsPausedOrCancelled($subscription) {
+/*function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
 
@@ -175,7 +175,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
     }
 }
 
-
+*/
 
 //add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
