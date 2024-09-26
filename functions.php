@@ -98,7 +98,7 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
-function checkSubscriptionsPausedOrCancelled($subscription) {
+/*function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
   
     error_log('Verificando assinatura com status: ' . $status);
@@ -159,11 +159,11 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
             }
         }
     }
-}
+}*/
 
 
 
-add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
+//add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
 
 
 function reset_automatewoo_new_price_for_all_users() {
