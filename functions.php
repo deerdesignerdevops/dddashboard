@@ -75,6 +75,31 @@ function logoutWhitoutConfirm($action, $result)
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
+function checkPausedSubscriptionsOnInit() {
+    $args = array(
+        'post_type'   => 'shop_subscription',
+        'post_status' => array('wc-on-hold', 'wc-cancelled'),
+        'numberposts' => -1,
+    );
+
+    $subscriptions = get_posts($args);
+
+    foreach ($subscriptions as $subscription_post) {
+        $subscription = wcs_get_subscription($subscription_post->ID);
+
+        checkSubscriptionsStatus($subscription);
+    }
+}
+
+function checkPausedSubscriptionsOnRequest() {
+    if (isset($_GET['run_check_paused_subscriptions'])) {
+        checkPausedSubscriptionsOnInit();
+    }
+}
+add_action('init', 'checkPausedSubscriptionsOnRequest');
+
+
+
 function showSubscriptionMessageIfUserIsNotNewPrice() {
     if (is_user_logged_in()) {
         $user_id = get_current_user_id();
@@ -120,7 +145,7 @@ function checkSubscriptionsStatus($subscription) {
 
     error_log('Verificando assinatura com status: ' . $status);
 
-    if ($status === 'active' || $status === 'on-hold' || $status === 'cancelled') {
+    if ($status === 'on-hold' || $status === 'cancelled') {
        
         $items = $subscription->get_items();
 
