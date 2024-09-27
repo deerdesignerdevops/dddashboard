@@ -98,6 +98,16 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
+function checkSubscriptionsActive($subscription){
+	$status = $subscription->get_status();
+	$user_id = $subscription->get_user_id(); 
+
+		error_log('PAssoou aqui ' . $status);
+		update_user_meta($user_id, '_automatewoo_new_price', 'inactive');
+}
+
+add_action('woocommerce_subscription_status_active', 'checkSubscriptionsActive', 10, 1);
+
 function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
@@ -105,13 +115,6 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
     error_log('Verificando assinatura com status: ' . $status);
 
 	// $woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
-
-
-	 if($status === 'active'){
-		error_log('PAssoou aqui ' . $status);
-		update_user_meta($user_id, '_automatewoo_new_price', 'inactive');
-	 }
-
 
     if ($status === 'on-hold' || $status === 'cancelled') {
        
