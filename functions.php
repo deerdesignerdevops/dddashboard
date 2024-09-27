@@ -2377,16 +2377,16 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
 
-/*function reset_automatewoo_new_price_for_all_users() {
+function resetAutomateWooFieldForAllUsers() {
     $users = get_users();
     foreach ($users as $user) {
         $user_id = $user->ID;
         
         update_user_meta($user_id, '_automatewoo_new_price', '');
-        error_log("O campo personalizado '_automatewoo_new_price' do usuário ID {$user_id} foi redefinido para vazio.");
+		update_user_meta($user_id, '_automatewoo_new_price_message', '');
     }
 
-    error_log("Todos os campos personalizados '_automatewoo_new_price' foram redefinidos para todos os usuários.");
+ 
 }
 
-reset_automatewoo_new_price_for_all_users();*/
+resetAutomateWooFieldForAllUsers();
