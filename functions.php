@@ -89,13 +89,15 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
             $value = $subscription->get_total(); 
 
             if (($status == 'on-hold' || $status == 'cancelled') && $woo_new_price === 'active' && $woo_new_price_message !== 'active') {
-                return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $value . '</strong> to the card on your account.</p>';
+                $currency_symbol = get_woocommerce_currency_symbol();
+                return '<p style="text-align:center; color: #000">We will charge <strong>' . $currency_symbol . ' ' . $value . '</strong> to the card on your account.</p>';
             }
         }
     }
 
     return '';
 }
+
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
