@@ -81,13 +81,15 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
 		$woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
 
+		$woo_new_price_block_message = get_user_meta($user_id, '_automatewoo_new_price_block_message', true);
+
         $subscriptions = wcs_get_users_subscriptions($user_id);
 
         foreach ($subscriptions as $subscription) {
             $status = $subscription->get_status();
             $valor_da_assinatura = $subscription->get_total(); 
 
-            if (($status == 'on-hold' || $status == 'cancelled') && $woo_new_price === 'active') {
+            if (($status == 'on-hold' || $status == 'cancelled') && $woo_new_price === 'active' && $woo_new_price_block_message !== 'active') {
                 return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $valor_da_assinatura . '</strong> to the card on your account.</p>';
             }
         }
@@ -98,7 +100,7 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
-function checkSubscriptionsPausedOrCancelled($subscription) {
+/*function checkSubscriptionsPausedOrCancelled($subscription) {
     $status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
 
@@ -106,6 +108,14 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
 	 $woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
 
+	 $woo_new_price_block_message = get_user_meta($user_id, '_automatewoo_new_price_block_message', true);
+
+	if ($status === 'active' && $woo_new_price === 'active' ){
+    update_user_meta($user_id, '_automatewoo_new_price', '');
+	update_user_meta($user_id, '_automatewoo_new_price_block_message', 'active');
+	}
+
+	if($woo_new_price_block_message === 'active') return 
 
     if ($status === 'on-hold' || $status === 'cancelled') {
        
@@ -165,8 +175,26 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
     }
 }
 
+*/
 
-add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
+//add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
+
+
+/*function reset_automatewoo_new_price_for_all_users() {
+    $users = get_users();
+    foreach ($users as $user) {
+        $user_id = $user->ID;
+        
+        update_user_meta($user_id, '_automatewoo_new_price', '');
+        error_log("O campo personalizado '_automatewoo_new_price' do usuário ID {$user_id} foi redefinido para vazio.");
+    }
+
+    error_log("Todos os campos personalizados '_automatewoo_new_price' foram redefinidos para todos os usuários.");
+}
+
+reset_automatewoo_new_price_for_all_users();*/
+
+
 
 function showCustomFieldProfileUser($user) {
     $custom_value = get_user_meta($user->ID, '_automatewoo_new_price', true);
@@ -2370,16 +2398,3 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
 
-/*function reset_automatewoo_new_price_for_all_users() {
-    $users = get_users();
-    foreach ($users as $user) {
-        $user_id = $user->ID;
-        
-        update_user_meta($user_id, '_automatewoo_new_price', '');
-        error_log("O campo personalizado '_automatewoo_new_price' do usuário ID {$user_id} foi redefinido para vazio.");
-    }
-
-    error_log("Todos os campos personalizados '_automatewoo_new_price' foram redefinidos para todos os usuários.");
-}
-
-reset_automatewoo_new_price_for_all_users();*/
