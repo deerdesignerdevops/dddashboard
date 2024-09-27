@@ -85,10 +85,10 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
         foreach ($subscriptions as $subscription) {
             $status = $subscription->get_status();
-            $valor_da_assinatura = $subscription->get_total(); 
+            $value = $subscription->get_total(); 
 
             if (($status == 'on-hold' || $status == 'cancelled') && $woo_new_price === 'active') {
-                return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $valor_da_assinatura . '</strong> to the card on your account.</p>';
+                return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $value . '</strong> to the card on your account.</p>';
             }
         }
     }
