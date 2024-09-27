@@ -2381,7 +2381,7 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
 
-function resetAutomateWooFieldForAllUsers() {
+/*function resetAutomateWooFieldForAllUsers() {
     $users = get_users();
     foreach ($users as $user) {
         $user_id = $user->ID;
@@ -2393,4 +2393,4 @@ function resetAutomateWooFieldForAllUsers() {
  
 }
 
-resetAutomateWooFieldForAllUsers();
+resetAutomateWooFieldForAllUsers();*/
