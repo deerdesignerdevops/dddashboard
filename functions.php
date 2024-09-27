@@ -108,6 +108,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
 
 	 if($status === 'active'){
+		error_log('PAssoou aqui ' . $status);
 		update_user_meta($user_id, '_automatewoo_new_price', 'inactive');
 	 }
 
