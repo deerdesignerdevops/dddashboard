@@ -114,13 +114,13 @@ function checkSubscriptionsActive($subscription){
 
 add_action('woocommerce_subscription_status_active', 'checkSubscriptionsActive', 10, 1);
 
-function checkSubscriptionsPausedOrCancelled($subscription) {
+function checkSubscriptionsStatus($subscription) {
     $status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
 
     error_log('Verificando assinatura com status: ' . $status);
 
-    if ($status === 'on-hold' || $status === 'cancelled') {
+    if ($status === 'active' || $status === 'on-hold' || $status === 'cancelled') {
        
         $items = $subscription->get_items();
 
@@ -179,7 +179,7 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 }
 
 
-add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsPausedOrCancelled', 10, 1);
+add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
 
 function showCustomFieldProfileUser($user) {
     $custom_value = get_user_meta($user->ID, '_automatewoo_new_price', true);
@@ -2383,7 +2383,7 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
 
-/*function resetAutomateWooFieldForAllUsers() {
+function resetAutomateWooFieldForAllUsers() {
     $users = get_users();
     foreach ($users as $user) {
         $user_id = $user->ID;
@@ -2395,4 +2395,4 @@ add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFai
  
 }
 
-resetAutomateWooFieldForAllUsers();*/
+resetAutomateWooFieldForAllUsers();

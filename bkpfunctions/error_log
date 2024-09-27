@@ -1,84 +1,108 @@
-[27-Sep-2024 13:55:18 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:55:20 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:55:27 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:55:27 UTC] -- $action = Array
+[27-Sep-2024 14:32:43 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:32:44 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=cancelled&amp;_wpnonce=aa9bc96ff7
     [name] => Cancel
     [block_ui] => 1
 )
 
-[27-Sep-2024 13:55:27 UTC] -- $action = Array
+[27-Sep-2024 14:32:44 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=on-hold&amp;_wpnonce=aa9bc96ff7
     [name] => Pause
 )
 
-[27-Sep-2024 13:55:27 UTC] -- $action = Array
+[27-Sep-2024 14:32:44 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=cancelled&amp;_wpnonce=aa9bc96ff7
     [name] => Cancel
     [block_ui] => 1
 )
 
-[27-Sep-2024 13:55:27 UTC] -- $action = Array
+[27-Sep-2024 14:32:44 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=on-hold&amp;_wpnonce=aa9bc96ff7
     [name] => Pause
 )
 
-[27-Sep-2024 13:55:31 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:55:44 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:55:45 UTC] Verificando assinatura com status: on-hold
-[27-Sep-2024 13:55:45 UTC] Usuário ID: 2027 - Quantidade de itens: 1
-[27-Sep-2024 13:55:45 UTC] Produto ou Variação ID: 1591
-[27-Sep-2024 13:55:45 UTC] Novo valor para a assinatura: 789
-[27-Sep-2024 13:55:45 UTC] Assinatura atualizada com novo valor: 789
-[27-Sep-2024 13:55:46 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:55:48 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:55:48 UTC] -- $action = Array
+[27-Sep-2024 14:32:47 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:32:48 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:32:48 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:06 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:07 UTC] Verificando assinatura com status: on-hold
+[27-Sep-2024 14:33:07 UTC] Usuário ID: 2027 - Quantidade de itens: 1
+[27-Sep-2024 14:33:07 UTC] Produto ou Variação ID: 1591
+[27-Sep-2024 14:33:07 UTC] Novo valor para a assinatura: 789
+[27-Sep-2024 14:33:07 UTC] Assinatura atualizada com novo valor: 789
+[27-Sep-2024 14:33:09 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:11 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:11 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=active&amp;_wpnonce=1516f6c2e0
     [name] => Reactivate
     [block_ui] => 1
 )
 
-[27-Sep-2024 13:55:48 UTC] -- $action = Array
+[27-Sep-2024 14:33:11 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=cancelled&amp;_wpnonce=1516f6c2e0
     [name] => Cancel
     [block_ui] => 1
 )
 
-[27-Sep-2024 13:55:52 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:55:56 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:55:57 UTC] Verificando assinatura com status: active
-[27-Sep-2024 13:56:00 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:56:02 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
-[27-Sep-2024 13:56:02 UTC] -- $action = Array
+[27-Sep-2024 14:33:15 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:19 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:20 UTC] PAssoou aqui active
+[27-Sep-2024 14:33:20 UTC] Verificando assinatura com status: active
+[27-Sep-2024 14:33:25 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:26 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:27 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=cancelled&amp;_wpnonce=aa9bc96ff7
     [name] => Cancel
     [block_ui] => 1
 )
 
-[27-Sep-2024 13:56:02 UTC] -- $action = Array
+[27-Sep-2024 14:33:27 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=on-hold&amp;_wpnonce=aa9bc96ff7
     [name] => Pause
 )
 
-[27-Sep-2024 13:56:02 UTC] -- $action = Array
+[27-Sep-2024 14:33:27 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=cancelled&amp;_wpnonce=aa9bc96ff7
     [name] => Cancel
     [block_ui] => 1
 )
 
-[27-Sep-2024 13:56:02 UTC] -- $action = Array
+[27-Sep-2024 14:33:27 UTC] -- $action = Array
 (
     [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=on-hold&amp;_wpnonce=aa9bc96ff7
     [name] => Pause
 )
 
-[27-Sep-2024 13:56:06 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:30 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:38 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:39 UTC] Verificando assinatura com status: on-hold
+[27-Sep-2024 14:33:39 UTC] Usuário ID: 2027 - Quantidade de itens: 1
+[27-Sep-2024 14:33:39 UTC] Produto ou Variação ID: 1591
+[27-Sep-2024 14:33:39 UTC] Novo valor para a assinatura: 789
+[27-Sep-2024 14:33:39 UTC] Assinatura atualizada com novo valor: 789
+[27-Sep-2024 14:33:42 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:44 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
+[27-Sep-2024 14:33:45 UTC] -- $action = Array
+(
+    [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=active&amp;_wpnonce=1516f6c2e0
+    [name] => Reactivate
+    [block_ui] => 1
+)
+
+[27-Sep-2024 14:33:45 UTC] -- $action = Array
+(
+    [url] => /subscriptions?subscription_id=4062&amp;change_subscription_to=cancelled&amp;_wpnonce=1516f6c2e0
+    [name] => Cancel
+    [block_ui] => 1
+)
+
+[27-Sep-2024 14:33:48 UTC] Automattic\WooCommerce\Admin\Features\Navigation\Screen::register_post_type is deprecated since 9.3 with no alternative. Navigation classes will be removed in WooCommerce 9.4
