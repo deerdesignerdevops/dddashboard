@@ -107,6 +107,11 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 	 $woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
 
 
+	 if($status === 'on-hold' || $status === 'cancelled' && $woo_new_price === 'active'){
+		update_user_meta($user_id, '_automatewoo_new_price', '');
+	 }
+
+
     if ($status === 'on-hold' || $status === 'cancelled') {
        
         $items = $subscription->get_items();
