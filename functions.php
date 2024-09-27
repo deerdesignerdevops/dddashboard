@@ -80,6 +80,7 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
         $user_id = get_current_user_id();
 
 		$woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
+		$woo_new_price_message = get_user_meta($user_id, '_automatewoo_new_price_message', true);
 
         $subscriptions = wcs_get_users_subscriptions($user_id);
 
@@ -87,7 +88,7 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
             $status = $subscription->get_status();
             $value = $subscription->get_total(); 
 
-            if (($status == 'on-hold' || $status == 'cancelled') && $woo_new_price === 'active') {
+            if (($status == 'on-hold' || $status == 'cancelled') && $woo_new_price === 'active' && $woo_new_price_message !== 'active') {
                 return '<p style="text-align:center; color: #000">We will charge <strong>R$ ' . $value . '</strong> to the card on your account.</p>';
             }
         }
@@ -102,8 +103,7 @@ function checkSubscriptionsActive($subscription){
 	$status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
 
-		add_user_meta( $user_id , '_automatewoo_new_price', 'inactive' );
-		//update_user_meta($user_id, '_automatewoo_new_price', 'inactive');
+	update_user_meta( $user_id , '_automatewoo_new_price_message', 'active' );
 }
 
 add_action('woocommerce_subscription_status_active', 'checkSubscriptionsActive', 10, 1);
@@ -113,8 +113,6 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 	$user_id = $subscription->get_user_id(); 
 
     error_log('Verificando assinatura com status: ' . $status);
-
-	// $woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
 
     if ($status === 'on-hold' || $status === 'cancelled') {
        
