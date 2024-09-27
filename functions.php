@@ -104,10 +104,10 @@ function checkSubscriptionsPausedOrCancelled($subscription) {
 
     error_log('Verificando assinatura com status: ' . $status);
 
-	 $woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
+	// $woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
 
 
-	 if($status === 'active' && $woo_new_price === 'active'){
+	 if($status === 'active'){
 		update_user_meta($user_id, '_automatewoo_new_price', '');
 	 }
 
