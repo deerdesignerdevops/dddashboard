@@ -102,8 +102,12 @@ add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice')
 function checkSubscriptionsActive($subscription){
 	$status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
+	$woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
 
-	update_user_meta( $user_id , '_automatewoo_new_price_message', 'active' );
+	if($woo_new_price === 'active'){
+		update_user_meta( $user_id , '_automatewoo_new_price_message', 'active' );
+	}
+	
 }
 
 add_action('woocommerce_subscription_status_active', 'checkSubscriptionsActive', 10, 1);
@@ -2377,7 +2381,7 @@ function deleteSubscriptionWhenPaymentFails($orderId){
 }
 add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFails');
 
-/*function resetAutomateWooFieldForAllUsers() {
+function resetAutomateWooFieldForAllUsers() {
     $users = get_users();
     foreach ($users as $user) {
         $user_id = $user->ID;
@@ -2389,4 +2393,4 @@ add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFai
  
 }
 
-resetAutomateWooFieldForAllUsers();*/
+resetAutomateWooFieldForAllUsers();
