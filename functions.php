@@ -102,8 +102,8 @@ function checkSubscriptionsActive($subscription){
 	$status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
 
-		error_log('PAssoou aqui ' . $status);
-		update_user_meta($user_id, '_automatewoo_new_price', 'inactive');
+		add_user_meta( $user_id , '_automatewoo_new_price', 'inactive' );
+		//update_user_meta($user_id, '_automatewoo_new_price', 'inactive');
 }
 
 add_action('woocommerce_subscription_status_active', 'checkSubscriptionsActive', 10, 1);
