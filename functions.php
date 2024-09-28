@@ -75,7 +75,7 @@ function logoutWhitoutConfirm($action, $result)
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
-function checkPausedSubscriptionsOnInit() {
+/*function checkPausedSubscriptionsOnInit() {
     $args = array(
         'post_type'   => 'shop_subscription',
         'post_status' => array('wc-on-hold', 'wc-cancelled'),
@@ -96,7 +96,7 @@ function checkPausedSubscriptionsOnRequest() {
         checkPausedSubscriptionsOnInit();
     }
 }
-add_action('init', 'checkPausedSubscriptionsOnRequest');
+add_action('init', 'checkPausedSubscriptionsOnRequest');*/
 
 
 
@@ -127,7 +127,7 @@ function showSubscriptionMessageIfUserIsNotNewPrice() {
 
 add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
 
-function checkSubscriptionsActive($subscription){
+/*function checkSubscriptionsActive($subscription){
 	$status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
 	$woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
@@ -136,11 +136,11 @@ function checkSubscriptionsActive($subscription){
 		update_user_meta( $user_id , '_automatewoo_new_price_message', 'active' );
 	}
 	
-}
+}*/
 
-add_action('woocommerce_subscription_status_active', 'checkSubscriptionsActive', 10, 1);
+//add_action('woocommerce_subscription_status_active', 'checkSubscriptionsActive', 10, 1);
 
-function checkSubscriptionsStatus($subscription) {
+/*function checkSubscriptionsStatus($subscription) {
     $status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
 
@@ -203,9 +203,9 @@ function checkSubscriptionsStatus($subscription) {
         }
     }
 }
+*/
 
-
-add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
+//add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
 
 function showCustomFieldProfileUser($user) {
     $custom_value = get_user_meta($user->ID, '_automatewoo_new_price', true);
