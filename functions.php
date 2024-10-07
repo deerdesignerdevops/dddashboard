@@ -96,51 +96,11 @@ function checkPausedSubscriptionsOnRequest() {
         checkPausedSubscriptionsOnInit();
     }
 }
-add_action('init', 'checkPausedSubscriptionsOnRequest');*/
+add_action('init', 'checkPausedSubscriptionsOnRequest');
 
 
 
-function showSubscriptionMessageIfUserIsNotNewPrice() {
-    if (is_user_logged_in()) {
-        $user_id = get_current_user_id();
-
-		$woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
-		$woo_new_price_message = get_user_meta($user_id, '_automatewoo_new_price_message', true);
-
-        $subscriptions = wcs_get_users_subscriptions($user_id);
-
-        foreach ($subscriptions as $subscription) {
-            $status = $subscription->get_status();
-            $value = $subscription->get_total(); 
-
-            if (($status == 'on-hold' || $status == 'cancelled') && $woo_new_price === 'active' && $woo_new_price_message !== 'active') {
-                $currency_symbol = get_woocommerce_currency_symbol();
-				//<p style="text-align:center; color: #000">We will charge <strong>' . $currency_symbol . ' ' . $value . '</strong> to the card on your account.</p>
-                return '';
-            }
-        }
-    }
-
-    return '';
-}
-
-
-add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice');
-
-/*function checkSubscriptionsActive($subscription){
-	$status = $subscription->get_status();
-	$user_id = $subscription->get_user_id(); 
-	$woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
-
-	if($woo_new_price === 'active'){
-		update_user_meta( $user_id , '_automatewoo_new_price_message', 'active' );
-	}
-	
-}*/
-
-//add_action('woocommerce_subscription_status_active', 'checkSubscriptionsActive', 10, 1);
-
-/*function checkSubscriptionsStatus($subscription) {
+function checkSubscriptionsStatus($subscription) {
     $status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
 
@@ -203,9 +163,97 @@ add_shortcode('message-new-price', 'showSubscriptionMessageIfUserIsNotNewPrice')
         }
     }
 }
+
+
+add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
 */
 
-//add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
+function checkPausedSubscriptionsOnInit() {
+    $args = array(
+        'post_type' => 'shop_subscription',
+        'post_status' => array('wc-on-hold', 'wc-cancelled'),
+        'numberposts' => -1,
+    );
+    $subscriptions = get_posts($args);
+    foreach ($subscriptions as $subscription_post) {
+        $subscription = wcs_get_subscription($subscription_post->ID);
+        checkSubscriptionsStatus($subscription);
+    }
+}
+
+function checkPausedSubscriptionsOnRequest() {
+    if (isset($_GET['run_check_paused_subscriptions'])) {
+        checkPausedSubscriptionsOnInit();
+    }
+}
+add_action('init', 'checkPausedSubscriptionsOnRequest');
+
+function checkSubscriptionsStatus($subscription) {
+    $status = $subscription->get_status();
+    $user_id = $subscription->get_user_id();
+    error_log('Verificando assinatura com status: ' . $status);
+
+    if ($status === 'on-hold' || $status === 'cancelled') {
+        $items = $subscription->get_items();
+        error_log('Usuário ID: ' . $user_id . ' - Quantidade de itens: ' . count($items));
+
+        foreach ($items as $item) {
+            $product_id = $item->get_product_id();
+            $variation_id = $item->get_variation_id();
+            if ($variation_id) {
+                $product_id = $variation_id;
+            }
+            error_log('Produto ou Variação ID: ' . $product_id);
+
+            // Obter moeda da assinatura
+            $currency = $subscription->get_currency(); // Obtém a moeda da assinatura
+            $new_value = null;
+
+            switch ($product_id) {
+                // Agency
+                case 1594: // Anual
+                    $new_value = ($currency === 'GBP') ? 9948 : 11868;
+                    break;
+                case 1595: // Mensal
+                    $new_value = ($currency === 'GBP') ? 829 : 989;
+                    break;
+
+                // Business
+                case 1591: // Mensal
+                    $new_value = ($currency === 'GBP') ? 679 : 789;
+                    break;
+                case 1592: // Anual
+                    $new_value = ($currency === 'GBP') ? 8148 : 9468;
+                    break;
+
+                // Standard
+                case 1589: // Mensal
+                    $new_value = ($currency === 'GBP') ? 399 : 459;
+                    break;
+                case 1596: // Anual
+                    $new_value = ($currency === 'GBP') ? 4788 : 5508;
+                    break;
+
+                default:
+                    error_log('Produto não corresponde a nenhum caso, produto ID: ' . $product_id);
+            }
+
+            if ($new_value !== null) {
+                error_log('Novo valor para a assinatura: ' . $new_value);
+                $item->set_subtotal($new_value);
+                $item->set_total($new_value);
+                $item->save();
+                $subscription->calculate_totals();
+                $subscription->save();
+                update_user_meta($user_id, '_automatewoo_new_price', 'active');
+                error_log('Assinatura atualizada com novo valor: ' . $new_value);
+            }
+        }
+    }
+}
+
+add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
+
 
 function showCustomFieldProfileUser($user) {
     $custom_value = get_user_meta($user->ID, '_automatewoo_new_price', true);
@@ -2422,3 +2470,16 @@ add_action( 'woocommerce_order_status_failed', 'deleteSubscriptionWhenPaymentFai
 }
 
 resetAutomateWooFieldForAllUsers();*/
+
+/*function checkSubscriptionsActive($subscription){
+	$status = $subscription->get_status();
+	$user_id = $subscription->get_user_id(); 
+	$woo_new_price = get_user_meta($user_id, '_automatewoo_new_price', true);
+
+	if($woo_new_price === 'active'){
+		update_user_meta( $user_id , '_automatewoo_new_price_message', 'active' );
+	}
+	
+}*/
+
+//add_action('woocommerce_subscription_status_active', 'checkSubscriptionsActive', 10, 1);
