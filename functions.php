@@ -75,7 +75,7 @@ function logoutWhitoutConfirm($action, $result)
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
 
-/*function checkPausedSubscriptionsOnInit() {
+/* function checkPausedSubscriptionsOnInit() {
     $args = array(
         'post_type'   => 'shop_subscription',
         'post_status' => array('wc-on-hold', 'wc-cancelled'),
@@ -166,7 +166,6 @@ function checkSubscriptionsStatus($subscription) {
 
 
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
-*/
 
 function checkPausedSubscriptionsOnInit() {
     $args = array(
@@ -253,6 +252,8 @@ function checkSubscriptionsStatus($subscription) {
 }
 
 add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
+
+*/
 
 
 function showCustomFieldProfileUser($user) {
