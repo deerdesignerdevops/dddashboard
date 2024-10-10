@@ -74,7 +74,7 @@ function logoutWhitoutConfirm($action, $result)
 }
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
-function checkSubscriptionsStatus($subscription) {
+/*function checkSubscriptionsStatus($subscription) {
     $status = $subscription->get_status();
 	$user_id = $subscription->get_user_id(); 
 
@@ -139,7 +139,7 @@ function checkSubscriptionsStatus($subscription) {
 }
 
 
-add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
+add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);*/
 
 
 /* function checkPausedSubscriptionsOnInit() {
