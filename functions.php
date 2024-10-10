@@ -74,6 +74,73 @@ function logoutWhitoutConfirm($action, $result)
 }
 add_action('check_admin_referer', 'logoutWhitoutConfirm', 10, 2);
 
+function checkSubscriptionsStatus($subscription) {
+    $status = $subscription->get_status();
+	$user_id = $subscription->get_user_id(); 
+
+    error_log('Verificando assinatura com status: ' . $status);
+
+    if ($status === 'on-hold' || $status === 'cancelled') {
+       
+        $items = $subscription->get_items();
+
+        error_log('Usuário ID: ' . $user_id . ' - Quantidade de itens: ' . count($items));
+
+        foreach ($items as $item) {
+            $product_id = $item->get_product_id(); 
+            $variation_id = $item->get_variation_id(); 
+
+            if ($variation_id) {
+                $product_id = $variation_id; 
+            }
+
+            error_log('Produto ou Variação ID: ' . $product_id);
+
+            switch ($product_id) {
+                case 1594:
+                    $new_value = 11868;
+                    break;
+                case 1595:
+                    $new_value = 989;
+                    break;
+                case 1591:
+                    $new_value = 789;
+                    break;
+                case 1592:
+                    $new_value = 9468;
+                    break;
+                case 1589:
+                    $new_value = 459;
+                    break;
+                case 1596:
+                    $new_value = 5508;
+                    break;
+                default:
+                    $new_value = null; 
+                    error_log('Produto não corresponde a nenhum caso, produto ID: ' . $product_id);
+            }
+
+            if ($new_value !== null) {
+                error_log('Novo valor para a assinatura: ' . $new_value);
+
+                $item->set_subtotal($new_value);
+                $item->set_total($new_value);
+                $item->save();
+
+                $subscription->calculate_totals();
+                $subscription->save(); 
+
+                update_user_meta($user_id, '_automatewoo_new_price', 'active');
+                
+                error_log('Assinatura atualizada com novo valor: ' . $new_value);
+            }
+        }
+    }
+}
+
+
+add_action('woocommerce_subscription_status_updated', 'checkSubscriptionsStatus', 10, 1);
+
 
 /* function checkPausedSubscriptionsOnInit() {
     $args = array(
