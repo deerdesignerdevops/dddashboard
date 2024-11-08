@@ -1343,11 +1343,10 @@ add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddT
 function updateCreativeCallsNumberBasedOnActiveSubscriptions($userId) {
     $creativeCalls = 0;
     $userSubscriptions = wcs_get_users_subscriptions($userId);
-    $currentMonth = date('Y-m'); // Get the current month (e.g., "2024-11")
 
-    // Initialize the saved call count and last updated month for "plus" plans
-    $savedCallCount = (int) get_user_meta($userId, 'plus_plan_call_count', true) ?: 0;
-    $lastUpdatedMonth = get_user_meta($userId, 'plus_plan_last_updated', true) ?: '';
+    // Determine the client's group and retrieve the current creative call count
+    $clientGroup = get_user_meta($userId, 'client_group', true);
+    $existingCreativeCalls = (int) get_user_meta($userId, 'creative_calls', true) ?: 0;
 
     $isAgencyPlan = false;
     $isPlusPlan = false;
@@ -1360,11 +1359,11 @@ function updateCreativeCallsNumberBasedOnActiveSubscriptions($userId) {
                 foreach ($subscriptionItems as $item_id => $item) {
                     $itemName = strtolower($item->get_name());
 
-                    // Check if the plan is "agency"
+                    // Check for "agency" plan
                     if (str_contains($itemName, 'agency')) {
                         $isAgencyPlan = true;
                     }
-                    // Check if the plan is "plus"
+                    // Check for "plus" plan
                     else if (str_contains($itemName, 'plus')) {
                         $isPlusPlan = true;
                     }
@@ -1373,23 +1372,31 @@ function updateCreativeCallsNumberBasedOnActiveSubscriptions($userId) {
         }
     }
 
-    // Determine the number of creative calls
+    // Get the current call count from the client's group (override if necessary)
+    if ($clientGroup) {
+        $groupCallCount = (int) get_user_meta($clientGroup, 'creative_calls', true) ?: 0;
+        $existingCreativeCalls = max($existingCreativeCalls, $groupCallCount);
+    }
+
+    // Determine the creative call count based on the plan
     if ($isAgencyPlan) {
         $creativeCalls = 4;
     } elseif ($isPlusPlan) {
-        // Reset the call count if it's a new month
-        if ($lastUpdatedMonth !== $currentMonth) {
-            $savedCallCount = min($savedCallCount + 1, 12); // Increment by 1, cap at 12
-            update_user_meta($userId, 'plus_plan_call_count', $savedCallCount);
-            update_user_meta($userId, 'plus_plan_last_updated', $currentMonth);
+        // Increment by 1, but cap at 12
+        $newCreativeCalls = min($existingCreativeCalls + 1, 12);
+
+        // Update the call count if it has changed
+        if ($newCreativeCalls !== $existingCreativeCalls) {
+            update_user_meta($userId, 'creative_calls', $newCreativeCalls);
         }
 
-        // Set creative calls to the saved count, or 0 if the cap is reached
-        $creativeCalls = ($savedCallCount >= 12) ? 0 : $savedCallCount;
+        // Set the return value
+        $creativeCalls = ($newCreativeCalls >= 12) ? 0 : $newCreativeCalls;
     }
 
     return $creativeCalls;
 }
+
 
 
 /* Creative calls for agency only
