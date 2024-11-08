@@ -1336,7 +1336,6 @@ function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
 }
 add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 );
 
-/* Creative calls for agency only
 
 function updateCreativeCallsNumberBasedOnActiveSubscriptions($userId){
 	$creativeCalls = 0;
