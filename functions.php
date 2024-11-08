@@ -1336,69 +1336,6 @@ function redirectUserToCheckoutAfterAddToCart( $url, $adding_to_cart ) {
 }
 add_filter ('woocommerce_add_to_cart_redirect', 'redirectUserToCheckoutAfterAddToCart', 10, 2 );
 
-
-
-/* Creative calls for agency and plus (1 call/month for 2025) */
-
-function updateCreativeCallsNumberBasedOnActiveSubscriptions($userId) {
-    $creativeCalls = 0;
-    $userSubscriptions = wcs_get_users_subscriptions($userId);
-
-    // Determine the client's group and retrieve the current creative call count
-    $clientGroup = get_user_meta($userId, 'client_group', true);
-    $existingCreativeCalls = (int) get_user_meta($userId, 'creative_calls', true) ?: 0;
-
-    $isAgencyPlan = false;
-    $isPlusPlan = false;
-
-    if ($userSubscriptions) {
-        foreach ($userSubscriptions as $subscription) {
-            if ($subscription->get_status() === "active") {
-                $subscriptionItems = $subscription->get_items();
-
-                foreach ($subscriptionItems as $item_id => $item) {
-                    $itemName = strtolower($item->get_name());
-
-                    // Check for "agency" plan
-                    if (str_contains($itemName, 'agency')) {
-                        $isAgencyPlan = true;
-                    }
-                    // Check for "plus" plan
-                    else if (str_contains($itemName, 'plus')) {
-                        $isPlusPlan = true;
-                    }
-                }
-            }
-        }
-    }
-
-    // Get the current call count from the client's group (override if necessary)
-    if ($clientGroup) {
-        $groupCallCount = (int) get_user_meta($clientGroup, 'creative_calls', true) ?: 0;
-        $existingCreativeCalls = max($existingCreativeCalls, $groupCallCount);
-    }
-
-    // Determine the creative call count based on the plan
-    if ($isAgencyPlan) {
-        $creativeCalls = 4;
-    } elseif ($isPlusPlan) {
-        // Increment by 1, but cap at 12
-        $newCreativeCalls = min($existingCreativeCalls + 1, 12);
-
-        // Update the call count if it has changed
-        if ($newCreativeCalls !== $existingCreativeCalls) {
-            update_user_meta($userId, 'creative_calls', $newCreativeCalls);
-        }
-
-        // Set the return value
-        $creativeCalls = ($newCreativeCalls >= 12) ? 0 : $newCreativeCalls;
-    }
-
-    return $creativeCalls;
-}
-
-
-
 /* Creative calls for agency only
 
 function updateCreativeCallsNumberBasedOnActiveSubscriptions($userId){
@@ -1426,7 +1363,6 @@ function updateCreativeCallsNumberBasedOnActiveSubscriptions($userId){
 	
 	return $creativeCalls;
 }
-*/
 
 
 
