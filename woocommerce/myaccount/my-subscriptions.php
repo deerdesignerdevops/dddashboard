@@ -43,13 +43,13 @@ foreach(array_reverse($subscriptions) as $sub){
 	$subItems = $sub->get_items();
 
 	foreach($subItems as $subItem){
-		if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
+		if(has_term('add-on', 'product_cat', $subItem['product_id'])){
 			$userCurrentAddons[] = $subItem['product_id'];
 		}
-		else if(has_term('active-task', 'product_cat', $subItem['product_id']) && ($status !== "cancelled" && $status !== "on-hold")){ 
+		else if(has_term('active-task', 'product_cat', $subItem['product_id']) && ($status !== "cancelled" && $status !== "on-hold")){
 			$userCurrentActiveTasks[] = $subItem['product_id'];
 		}
-		else if(has_term('plan', 'product_cat', $subItem['product_id'])){ 
+		else if(has_term('plan', 'product_cat', $subItem['product_id'])){
 			$userCurrentPlans[] = $subItem['product_id'];
 		}
 	}
@@ -61,7 +61,7 @@ foreach(array_reverse($subscriptions) as $sub){
 			$otherSubscriptions[] = $sub;
 		}
 	}
-	
+
 }
 
 
@@ -101,31 +101,31 @@ if(isset($_GET['change-plan'])){
 	<section class="dd__bililng_portal_section">
 		<div style="max-width: 1140px; margin: auto; display: flex; justify-content: space-between; gap: 24px">
 
-			<div style="flex: 1;">			
+			<div style="flex: 1;">
 				<h2 class="dd__billing_portal_section_title">Plans</h2>
-				
+
 				<?php if(!empty($userCurrentPlans)){ ?>
-					<div class="woocommerce_account_subscriptions">	
+					<div class="woocommerce_account_subscriptions">
 						<div class="dd__subscription_container">
-							<?php if($activePlanSubscriptions[0]->get_status() !== "cancelled"){ 
+							<?php if($activePlanSubscriptions[0]->get_status() !== "cancelled"){
 								foreach($activePlanSubscriptions[0]->get_items() as $subItem){
-									if(has_term('plan', 'product_cat', $subItem['product_id'])){ 
+									if(has_term('plan', 'product_cat', $subItem['product_id'])){
 										$currentProductId = $subItem['variation_id'] ? $subItem['variation_id'] : $subItem['product_id'];
 										do_action('subscriptionCardComponentHook', $activePlanSubscriptions[0], $currentProductId);
 									}
-								}								
+								}
 								} ?>
 						</div>
 				</div>
 				<?php }else{ ?>
-						<div class="dd__subscription_card"> 
+						<div class="dd__subscription_card">
 							<div class="dd__subscription_details">
 								<span class="dd__subscription_warning">You have no active subscriptions!</span>
 							</div>
-	
+
 							<a href="https://deerdesigner.com/pricing" class="dd__primary_button">See Pricing</a>
 						</div>
-	
+
 				<?php } ?>
 			</div>
 
@@ -135,27 +135,27 @@ if(isset($_GET['change-plan'])){
 		</div>
 	</section>
 
-	
+
 	<!--ADDITIONAL DESIGNERS-->
 	<?php if($activePlanSubscriptions[0]->get_status() === 'active'){ ?>
 		<section class="dd__bililng_portal_section">
 			<div style="max-width: 1140px; margin: auto">
-	
+
 				<h2 class="dd__billing_portal_section_title">Designers</h2>
-	
+
 					<div class="woocommerce_account_subscriptions">
 						<div class="dd__subscription_container">
 							<?php
 								do_action('tasksAddonsCardComponentHook', $activePlanSubscriptions[0], false, 'plan', $activePlanSubscriptions[0]->get_status(), 1);
 							?>
 							<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
-								<?php if($subscription->get_status() === "pending-cancel" || $subscription->get_status() === "active"){ 
+								<?php if($subscription->get_status() === "pending-cancel" || $subscription->get_status() === "active"){
 									foreach($subscription->get_items() as $subItem){
-										if(has_term('active-task', 'product_cat', $subItem['product_id'])){ 
+										if(has_term('active-task', 'product_cat', $subItem['product_id'])){
 											$additionalDesignerIndex++;
 											do_action('tasksAddonsCardComponentHook', $subscription, 'Downgrade', 'active-task', $activePlanSubscriptions[0]->get_status(), $additionalDesignerIndex);
 										}
-									}								
+									}
 								} ?>
 							<?php endforeach; ?>
 							<?php do_action('addNewDesignerCardHook', $activePlanSubscriptions[0]); ?>
@@ -175,16 +175,16 @@ if(isset($_GET['change-plan'])){
 
 				<div class="dd__subscription_container">
 					<?php foreach ( $sortedSubscriptions as $subscription_index => $subscription ) :?>
-						<?php if($subscription->get_status() !== "cancelled" && $subscription->get_status() !== "on-hold"){ 
-							foreach($subscription->get_items() as $subItem){					
-								if(has_term('add-on', 'product_cat', $subItem['product_id'])){ 
+						<?php if($subscription->get_status() !== "cancelled" && $subscription->get_status() !== "on-hold"){
+							foreach($subscription->get_items() as $subItem){
+								if(has_term('add-on', 'product_cat', $subItem['product_id'])){
 									$addonIndex++;
 									do_action('tasksAddonsCardComponentHook', $subscription, 'Cancel Add On', 'add-on', $activePlanSubscriptions[0]->get_status(), $addonIndex);
 								}
-							}								
+							}
 							} ?>
 					<?php endforeach; ?>
-				</div>	
+				</div>
 			</div>
 		</div>
 	</section>
@@ -197,7 +197,7 @@ if(isset($_GET['change-plan'])){
 				<div class="woocommerce_account_subscriptions">
 					<h2 class="dd__billing_portal_section_title">Available Add ons for you</h2>
 
-					<?php do_action('addonsCarouselHook', array($allProductAddons)); ?>	
+					<?php do_action('addonsCarouselHook', array($allProductAddons)); ?>
 				</div>
 			</div>
 		</section>
@@ -206,7 +206,7 @@ if(isset($_GET['change-plan'])){
 
 else{ ?>
 	<section>
-		<div class="dd__subscription_card"> 
+		<div class="dd__subscription_card">
 			<div class="dd__subscription_details">
 				<span class="dd__subscription_warning">You have no active subscriptions!</span>
 			</div>
@@ -219,7 +219,7 @@ else{ ?>
 	</section>
 <?php } ?>
 
-<?php 
+<?php
 	$stripeCustomerId = $activePlanSubscriptions[0] ? get_post_meta($activePlanSubscriptions[0]->id, '_stripe_customer_id', true) : 0;
 	do_action('currentUserInvoicesComponentHook', $stripeCustomerId);
 ?>
@@ -265,19 +265,19 @@ document.addEventListener("DOMContentLoaded", function(){
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = "ARE YOU SURE YOU WANT TO <br><span> ADD THIS ITEM TO YOUR ACCOUNT?</span>";
 			document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
 			document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
-			
+
 
 			document.querySelector(".confirm_btn a").addEventListener('click', function(){
 				location.href = addProductToCartLink
 				loadingSpinner.style.display = 'flex'
 				closePopup()
 			})
-			
+
 			document.querySelector(".cancel_btn a").addEventListener('click', function(){
 				closePopup()
 			})
 
-			
+
 
 			if(btn.classList.contains('active-tasks')){
 				document.querySelector(".form_subscription_update_disclaimer").innerHTML = activeTaskAlertMsg
@@ -337,7 +337,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			const currentUpdatePlanUrl = e.currentTarget.href
 			const currentCompanyName = "<?php echo $currentCompanyName; ?>";
 			const enablePauseFlow = <?php echo sizeof($subscriptions); ?>;
-			
+
 			let currentTypeOfRequest = ""
 
 			if(e.currentTarget.dataset.productCat === 'active-task'){
@@ -351,7 +351,7 @@ document.addEventListener("DOMContentLoaded", function(){
 					currentTypeOfRequest = 'Change Plan Request'
 				}
 			}
-			
+
 			const changePlanOptionsText = () => {
 				if(currentPlan.includes('Standard')){
 					return "Business Plan and Agency Plan"
@@ -359,9 +359,9 @@ document.addEventListener("DOMContentLoaded", function(){
 					return "Standard Plan and Agency Plan"
 				}else{
 					return "Standard Plan and Business Plan"
-				}				
+				}
 			}
-			
+
 			elementorProFrontend.modules.popup.showPopup( {id:<?php echo $elementorPopupID; ?>}, event);
 			let confirmBtn = document.querySelector(".confirm_btn a");
 			document.querySelector(".update_plan_form form").elements['form_subscription_request_type'].value = currentTypeOfRequest
@@ -391,7 +391,7 @@ document.addEventListener("DOMContentLoaded", function(){
 					e.preventDefault()
 					pauseFlow(currentPlan, currentSubscriptionId)
 				})
-				
+
 				document.querySelector(".cancel_btn").addEventListener("click", function(e){
 					e.preventDefault()
 					closePopup()
@@ -399,16 +399,37 @@ document.addEventListener("DOMContentLoaded", function(){
 			}
 			else if(e.currentTarget.classList.contains("rebill")){
 				confirmBtn.href = currentUpdatePlanUrl;
-				popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
-				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `We will charge <strong> ${productPrice} </strong> to the card on your account.`
-				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
-				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
+				let confirmBt2 = document.querySelector(".confirm_btn")
+				let cancelBtn2 = document.querySelector(".cancel_btn")
+				confirmBt2.querySelector('.elementor-button').id ="btn-orange"
+				cancelBtn2.querySelector('.elementor-button').id ="btn-lightgray"
+				let productPricePlan = '';
+				let productPricePlans = document.querySelectorAll('.dd__subscription_price')
+				if (productPricePlans.length > 0) {
+					let firstPlan = productPricePlans[0]
+
+					let planPrice = firstPlan.querySelector('.woocommerce-Price-amount')?.innerText.trim()
+					let planDuration = firstPlan.childNodes[firstPlan.childNodes.length - 1].textContent.trim()
+
+					productPricePlan = `${planPrice}${planDuration}`
+				}
+
+				if (confirmBt2 && cancelBtn2) {
+					const parent = confirmBt2.parentNode
+
+					parent.insertBefore(cancelBtn2, confirmBt2)
+				}
+				popupMsgNewText = "Account <span>Reactivation</span>";
+				document.querySelector(".form_subscription_update_disclaimer").classList.add("text-container")
+				document.querySelector(".form_subscription_update_disclaimer").innerHTML = `Your account will be reactivated, and <strong>${productPricePlan}</strong> will be charged to your card.<br><small class="small-sub">Your design team will be assigned to you within one business day. While you wait, feel free to send in a design request.</small>`
+				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Reactivate"
+				document.querySelector(".cancel_btn .elementor-button-text").innerText = "Close"
 
 				confirmBtn.addEventListener("click", function(e){
 					closePopup()
 					loadingSpinner.style.display = "flex"
 				})
-				
+
 				document.querySelector(".cancel_btn").addEventListener("click", function(e){
 					e.preventDefault()
 					closePopup()
@@ -416,16 +437,27 @@ document.addEventListener("DOMContentLoaded", function(){
 			}
 			else if(e.currentTarget.classList.contains("reactivate")){
 				confirmBtn.href = currentUpdatePlanUrl;
-				popupMsgNewText = "WOULD YOU LIKE TO REACTIVATE <br><span>YOUR SUBSCRIPTION?</span>";
+				let confirmBt2 = document.querySelector(".confirm_btn")
+				let cancelBtn2 = document.querySelector(".cancel_btn")
+				confirmBt2.querySelector('.elementor-button').id ="btn-orange"
+				cancelBtn2.querySelector('.elementor-button').id ="btn-lightgray"
+
+
+				if (confirmBt2 && cancelBtn2) {
+					const parent = confirmBt2.parentNode;
+
+					parent.insertBefore(cancelBtn2, confirmBt2);
+				}
+				popupMsgNewText = "Account <span>Reactivation</span>";
 				document.querySelector(".form_subscription_update_disclaimer").style.display = "none"
-				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes"
-				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No"
+				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Reactivate"
+				document.querySelector(".cancel_btn .elementor-button-text").innerText = "Close"
 
 				confirmBtn.addEventListener("click", function(e){
 					closePopup()
 					loadingSpinner.style.display = "flex"
 				})
-				
+
 				document.querySelector(".cancel_btn").addEventListener("click", function(e){
 					e.preventDefault()
 					closePopup()
@@ -435,9 +467,9 @@ document.addEventListener("DOMContentLoaded", function(){
 				popupMsgNewText = "ARE YOU SURE YOU WANT <br><span>TO REMOVE THIS DESIGNER?</span>";
 				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, remove it"
 				document.querySelector(".cancel_btn .elementor-button-text").innerText = "No, keep it"
-				document.querySelector(".form_subscription_update_message_field label").style.display = 'none'		
+				document.querySelector(".form_subscription_update_message_field label").style.display = 'none'
 				document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
-				
+
 				confirmBtn.addEventListener("click", function(e){
 					e.preventDefault()
 					cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
@@ -453,11 +485,11 @@ document.addEventListener("DOMContentLoaded", function(){
 				document.querySelector(".form_subscription_update_disclaimer").innerHTML = "<span>By cancelling your account you will lose access to all the data, design files, and ticket history. If you pause your account, we will store everything for you until you decide to reactivate it.</span>"
 				document.querySelector(".confirm_btn .elementor-button-text").innerText = "Yes, cancel it"
 				document.querySelector(".form_subscription_update_message_field label").style.display = 'none'
-				
+
 				if(currentPlan === 'add-on' || currentPlan === 'active-task'){
 					document.querySelector(".form_subscription_update_disclaimer").style.display = 'none'
 				}
-	
+
 				if(currentPlan === 'add-on'){
 					confirmBtn.addEventListener("click", function(e){
 						closePopup()
@@ -465,7 +497,7 @@ document.addEventListener("DOMContentLoaded", function(){
 						location.href = currentUpdatePlanUrl
 					})
 				}
-				
+
 				confirmBtn.addEventListener("click", function(e){
 					e.preventDefault()
 					cancelFlow(currentPlan, currentUpdatePlanUrl, currentSubscriptionId)
@@ -502,7 +534,7 @@ document.addEventListener("DOMContentLoaded", function(){
 			}
 
 			document.querySelector("#pause_popup .popup_msg h3").innerHTML = popupMsgNewText
-				
+
 		})
 	})
 })

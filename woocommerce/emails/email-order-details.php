@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 
 $text_align = is_rtl() ? 'right' : 'left';
 
-do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plain_text, $email ); 
+do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plain_text, $email );
 $orderData = $order->get_data();
 $orderItems = $order->get_items();
 $orderSubscriptions = wcs_get_subscriptions_for_order($order->get_id());
@@ -36,7 +36,7 @@ $userDetailsForAdmin = '';
 if($order instanceof WC_Subscription){
 	foreach($order->get_items() as $subItem){
 		$userPlanName = $subItem['name'];
-		$currentDate = new DateTime($order->get_date_to_display( 'start' )); 
+		$currentDate = new DateTime($order->get_date_to_display( 'start' ));
 		$currentDate->add(new DateInterval('P1' . strtoupper($order->billing_period[0])));
 		$billingCycle = $currentDate->format('F j, Y');
 		$billingPeriodEndingDate =  str_contains($order->get_date_to_display( 'end' ), 'Not') ? $currentDate->format('F j, Y') : $order->get_date_to_display( 'end' );
@@ -47,7 +47,7 @@ if($order instanceof WC_Subscription){
 		foreach($sub->get_items() as $subItem){
 			if(has_term('plan', 'product_cat', $subItem['product_id'])){
 				$userPlanName = $subItem['name'];
-				$currentDate = new DateTime($sub->get_date_to_display( 'start' )); 
+				$currentDate = new DateTime($sub->get_date_to_display( 'start' ));
 				$currentDate->add(new DateInterval('P1' . strtoupper($sub->billing_period[0])));
 				$billingCycle = $currentDate->format('F j, Y');
 				$currentSubscriptionStatus = $sub->get_status();
@@ -86,7 +86,7 @@ foreach( $orderItems as $item_id => $item ){
 	if ( $sent_to_admin ) {
 		$userDetailsForAdmin = '<h2 class="user__details"><strong>Receipt from:</strong></h2>' . "<p style='text-align:center; font-weight:bold;'>$userName | $userEmail | $companyName</p>";
 	}
-	
+
 	if($email->id === 'customer_completed_order'){
 		echo wp_kses_post( sprintf( __( 'Receipt #%s - Deer Designer Subscription', 'woocommerce' ). ' <br><span>Paid on: <time datetime="%s">%s</time></span>', $order->get_order_number(), $order->get_date_created()->format( 'c' ), wc_format_datetime( $order->get_date_created() ) ) );
 	} ?>
@@ -101,7 +101,7 @@ foreach( $orderItems as $item_id => $item ){
 	<?php } ?>
 
 	<p><?php echo $textBasedOnProduct; ?></p>
-<?php }else{ 
+<?php }else{
 	 ?>
 	 <?php if($productCategory !== 'add-on' && $sent_to_admin){?>
 		<p style="text-align: center;">Plan: <?php echo $userPlanName; ?></p>
@@ -109,64 +109,74 @@ foreach( $orderItems as $item_id => $item ){
 } ?>
 
 <div style="margin-bottom: 40px;">
-	<h3 class="order__email_sumary">Sumary</h3>
+	<h3 class="order__email_sumary">Summary</h3>
 	<table class="td" cellspacing="0" cellpadding="6" style="width: 100%; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;" border="1">
 		<thead>
 			<tr>
-				<th class="td" scope="col" colspan="5" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Plans & Add-ons', 'woocommerce' ); ?></th>
-				<th class="td" scope="col" colspan="5" style="text-align:right;"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
+				<th class="td" colspan="5" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Plans & Add-ons', 'woocommerce' ); ?></th>
+				<th class="td" colspan="5" style="text-align:right;"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
+			<?php foreach ( $order->get_items() as $item_id => $item ) :
+				$product = $item->get_product();
+				$product_name = $item->get_name();
+				$qty = $item->get_quantity();
+				$total = $order->get_formatted_line_subtotal( $item );
+			?>
+				<tr>
+					<td class="td" colspan="5" style="text-align:<?php echo esc_attr( $text_align ); ?>;">
+						<?php echo esc_html( $product_name ); ?>
+					</td>
+					<td class="td" colspan="5" style="text-align:right;">
+						<?php echo wp_kses_post( $total ); ?>
+					</td>
+				</tr>
+			<?php endforeach; ?>
+
 			<?php
-			echo wc_get_email_order_items(
-				$order,
-				array(
-					'show_sku'      => $sent_to_admin,
-					'show_image'    => false,
-					'image_size'    => array( 32, 32 ),
-					'plain_text'    => $plain_text,
-					'sent_to_admin' => $sent_to_admin,
-				)
-			);
-			?>
+			foreach ($order->get_items('coupon') as $couponItem) {
+				$coupon_code   = $couponItem->get_code();
+				$coupon = new WC_Coupon($coupon_code);
+				$couponDiscount = $couponItem->get_discount();
+				$couponMeta = $couponItem->get_meta('coupon_info', true);
+				$couponMetaArray = is_string($couponMeta) ? str_getcsv(trim($couponMeta, '[]')) : (array) $couponMeta;
+				$discountType = trim($couponMetaArray[2] ?? $coupon->get_discount_type(), '"');
+				$discountValue = intval($couponMetaArray[3] ?? 0);
+				$discountDisplay = ($discountType === 'percent' || $discountType === 'recurring_percent') ?
+					"-{$discountValue}%" : '-' . get_woocommerce_currency_symbol() . number_format($couponDiscount, 2);
 
-			<?php 
-				foreach($order->get_coupons() as $couponItem){
-						$coupon_code   = $couponItem->get_code();
-						$coupon = new WC_Coupon($coupon_code);
-						$couponDiscount = $coupon->amount;
+				echo "<tr>
+					<th class='td' colspan='5' style='text-align: left;'>Discount</th>
+					<td class='td' colspan='5' style='text-align: right;'>$discountDisplay</td>
+				</tr>";
+			}
+
+			$tax_totals  = $order->get_tax_totals();
+			if ( ! empty( $tax_totals ) ) {
+				foreach ( $tax_totals as $code => $tax ) {
+					echo "<tr>
+						<th class='td' colspan='5' style='text-align: left;'>VAT</th>
+						<td class='td' colspan='5' style='text-align:right;'>" . wc_price( $tax->amount, array( 'currency' => $order->get_currency() ) ) . "</td>
+					</tr>";
 				}
-
-				if($couponDiscount){ ?>
-					<tr>
-						<th class="td" colspan="5">Discount</th>
-						<td class="td" colspan="5" style="text-align: right;"><?php echo "-".get_woocommerce_currency_symbol()."$couponDiscount"?></td>
-					</tr>
-			<?php }
+			}
 			?>
-
-
 		</tbody>
 		<tfoot>
 			<?php
 			$item_totals = $order->get_order_item_totals();
-
 			if ( $item_totals ) {
 				$i = 0;
 				foreach ( $item_totals as $total ) {
 					$i++;
-					?>
-					<tr>
-						<th class="td" colspan="5" style="text-align:<?php echo esc_attr( $text_align ); ?>; <?php echo ( 1 === $i ) ? 'border-top-width: 4px;' : ''; ?>"><?php echo wp_kses_post( $total['label'] ); ?></th>
-						<td class="td" colspan="5" style="text-align:right; <?php echo ( 1 === $i ) ? 'border-top-width: 4px;' : ''; ?>"><?php echo wp_kses_post( $total['value'] ); ?></td>
-					</tr>
-					<?php
+					echo "<tr>
+						<th class='td' colspan='5' style='text-align:{$text_align}; " . ( $i === 1 ? 'border-top-width: 4px;' : '' ) . "'>" . wp_kses_post( $total['label'] ) . "</th>
+						<td class='td' colspan='5' style='text-align:right; " . ( $i === 1 ? 'border-top-width: 4px;' : '' ) . "'>" . wp_kses_post( $total['value'] ) . "</td>
+					</tr>";
 				}
 			}
 			?>
 		</tfoot>
 	</table>
 </div>
-
-

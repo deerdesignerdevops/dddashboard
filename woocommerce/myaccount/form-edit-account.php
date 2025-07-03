@@ -45,8 +45,8 @@ foreach($groupsUser->groups as $group){
 
 
 foreach ($userSubscriptions as $subscription){
-	foreach ($subscription->get_items() as $product) {	
-		$userCurrentPlan = $product['name'];	
+	foreach ($subscription->get_items() as $product) {
+		$userCurrentPlan = $product['name'];
 
 		if(has_term('plan', 'product_cat', $product->get_product_id())){
 
@@ -59,7 +59,7 @@ foreach ($userSubscriptions as $subscription){
 			}
 
 		}
-	}	
+	}
 }
 
 
@@ -82,13 +82,13 @@ fieldset {
   border-radius: 5px !important;
   margin: 20px 0;
 }
-	
+
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <section class="account_details__section">
-	
+
 	<a href="<?php echo get_permalink( wc_get_page_id( 'myaccount' )); ?>" class="dd__bililng_portal_back"><i class="fa-solid fa-chevron-left"></i> Back to Dashboard</a>
 	<div class="account__details_row">
 		<div class="account__details_col">
@@ -99,6 +99,7 @@ fieldset {
 				<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide" style="margin-bottom: 20px !important;">
 					<span>Email address:</span>
 					<strong><?php echo esc_attr( $user->user_email ); ?></strong>
+					<input type="hidden" name="account_email" value="<?php echo esc_attr( $user->user_email ); ?>" />
 				</p>
 
 				<p class="woocommerce-form-row woocommerce-form-row--first form-row form-row-first">
@@ -156,36 +157,36 @@ fieldset {
 
 					<div class="team__members">
 						<h2 class="myaccount__page_title">Additional Users</h2>
-	
+
 						<?php if(!empty($membersOfCurrentUserGroup)){ ?>
 							<div class="team__members_list">
-	
+
 								<?php foreach($membersOfCurrentUserGroup as $group){ ?>
 									<?php if($group->user->id !== get_current_user_id()){ ?>
-										
+
 										<?php
 										$removeAdditionalUserUrl = get_permalink( wc_get_page_id( 'myaccount' ) ) . "/edit-account/?remove_additional_user=" . $group->user->id;
 										$removeAdditionalUserUrlWithNonce = add_query_arg( '_wpnonce', wp_create_nonce( 'action' ), $removeAdditionalUserUrl );
 										?>
-	
+
 										<div class="team__members_row">
 											<span><strong><?php echo $group->user->first_name; ?></strong></span>
-											
+
 											<span><?php echo $group->user->user_email; ?>
 												<a href="<?php echo $removeAdditionalUserUrlWithNonce; ?>" onclick="return confirm('Are you sure?')"><i class="fa-solid fa-circle-minus"></i></a>
 											</span>
-											
+
 										</div>
 									<?php } ?>
 								<?php } ?>
-								
-							</div>	
+
+							</div>
 						<?php } ?>
-						
-						<?php 
-	
+
+						<?php
+
 						if($userCanAddTeamMembers){
-							echo do_shortcode('[fluentform id="7"]'); 
+							echo do_shortcode('[fluentform id="7"]');
 						}else{ ?>
 							<div class="dd__subscription_details">
 								<span class="dd__subscription_warning">You can't add new team members!</span>
