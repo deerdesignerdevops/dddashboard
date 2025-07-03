@@ -10,13 +10,15 @@
 	}
 ?>
 
-<?php 
+<?php
 	$currentOrder = $this->order->get_data();
+	$orderID = $currentOrder['id'];
 	$currentOrderUserId = $currentOrder['customer_id'];
-	$currentOrderPaidDate = $this->order->get_date_paid()->date('F d, Y');
+	$currentOrderPaidDate = $paid_date_obj ? $paid_date_obj->date('F d, Y') : '';
 	$orderSubscriptions = wcs_get_subscriptions_for_order($this->order->id, array('order_type' => 'any'));
+	$currentCustomerVAT =  get_field('customer_vat', 'user_' . $this->order->get_user_id());
 	$nextPayment = "";
-	
+
 	if($orderSubscriptions){
 		$subscription = $orderSubscriptions[array_key_first($orderSubscriptions)];
 
@@ -25,7 +27,7 @@
 			$nextPayment = strtotime($currentOrderPaidDate . "+1 $subscriptionPeriod");
 			$nextPayment = date('F d, Y', $nextPayment);
 		}
-	}	
+	}
 ?>
 
 <?php do_action( 'wpo_wcpdf_before_document', $this->get_type(), $this->order ); ?>
@@ -46,6 +48,7 @@
 		<td class="shop-info">
 			<?php do_action( 'wpo_wcpdf_before_shop_name', $this->get_type(), $this->order ); ?>
 			<div class="shop-name"><h3><?php $this->shop_name(); ?></h3></div>
+			<div class="shop-vat">VAT: 468586137</div>
 			<?php do_action( 'wpo_wcpdf_after_shop_name', $this->get_type(), $this->order ); ?>
 			<?php do_action( 'wpo_wcpdf_before_shop_address', $this->get_type(), $this->order ); ?>
 			<div class="shop-address"><?php $this->shop_address(); ?></div>
@@ -75,8 +78,11 @@
 			<?php if ( isset( $this->settings['display_phone'] ) ) : ?>
 				<div class="billing-phone"><?php $this->billing_phone(); ?></div>
 			<?php endif; ?>
+			<?php if ($currentCustomerVAT) : ?>
+				<div class="billing-vat">VAT Number: <?php echo $currentCustomerVAT; ?></div>
+			<?php endif; ?>
 		</td>
-		
+
 		<td class="order-data">
 			<table>
 				<?php do_action( 'wpo_wcpdf_before_order_data', $this->get_type(), $this->order ); ?>
@@ -108,7 +114,7 @@
 				<?php endif; ?>
 
 				<?php do_action( 'wpo_wcpdf_after_order_data', $this->get_type(), $this->order ); ?>
-			</table>			
+			</table>
 		</td>
 	</tr>
 </table>
@@ -142,12 +148,19 @@
 	<tfoot>
 		<tr class="no-borders">
 			<td class="no-borders">
-							
+
 			</td>
 			<td class="no-borders" colspan="2">
 				<table class="totals">
 					<tfoot>
 						<?php foreach ( $this->get_woocommerce_totals() as $key => $total ) : ?>
+							<?php if($total['type'] == 'fee'){
+									$newLabel = get_field('custom_fee_label', $orderID);
+									if ($newLabel) {
+										$total['label'] = $newLabel;
+									}
+								}
+							?>
 							<tr class="<?php echo esc_attr( $key ); ?>">
 								<th class="description"><?php echo $total['label']; ?></th>
 								<td class="price"><span class="totals-price"><?php echo $total['value']; ?></span></td>

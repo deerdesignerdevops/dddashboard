@@ -6,7 +6,7 @@ function getAccessTokenFromBox(){
 	global $currentTime;
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
     $apiUrl = 'https://api.box.com/oauth2/token';
-    
+
     $requestBody = [
         "client_id" => BOX_CLIENT_ID,
         "client_secret"=> BOX_CLIENT_SECRET,
@@ -54,7 +54,7 @@ function uploadFileToBoxFolder($accessToken, $filePath, $parentFolderId){
 	$fileName = basename($filePath);
 	$fileType = mime_content_type($uploadBaseDir['basedir'] . "/fluentform/$fileName");
 	$fileObject = new CURLFile($filePath, $fileType, $fileName);
-    
+
 	$requestBody = [
 		"attributes" => json_encode([
 			"name" => $fileName,
@@ -101,7 +101,7 @@ function postNewFolderInBox($accessToken, $folderName, $parentFolderId = BOX_CLI
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
     $apiUrl = 'https://api.box.com/2.0/folders';
     $boxUserId = BOX_USER_ID;
-    
+
     $requestBody = [
         "name" => $folderName,
         "parent" => [
@@ -145,25 +145,25 @@ function createCompanyFoldersInBox($entryId, $formData, $form){
     if($form->id === 3){
 		$currentUser = wp_get_current_user();
         $parentFolderName = $currentUser->billing_company;
-        
+
         $companySubFolder = [
             'Best of', 'Brand Assets', 'Design Proposals', 'Requests', 'Sub-brands'
         ];
-        
+
         $accessToken = getAccessTokenFromBox();
         $accessToken = $accessToken['access_token'];
 
         if($accessToken){
             $parentFolderId = postNewFolderInBox($accessToken, $parentFolderName);
             $parentFolderId = $parentFolderId['id'];
-    
+
             if($parentFolderId){
                 update_user_meta($currentUser->id, "company_folder_box_id", $parentFolderId);
-                
+
                 foreach($companySubFolder as $companySubFolder){
                     $newFolderResponse = postNewFolderInBox($accessToken, $companySubFolder, $parentFolderId);
 					if($companySubFolder === "Brand Assets" && $newFolderResponse['id']){
-						
+
 						if(!empty($formData['logo_upload_1'])){
 							foreach($formData['logo_upload_1'] as $logoUploadUrl){
 								uploadFileToBoxFolder($accessToken, $logoUploadUrl, $newFolderResponse['id']);
@@ -191,7 +191,7 @@ function updateFolderParentDirectory($folderName, $folderId, $newParentFolderId)
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
     $apiUrl = "https://api.box.com/2.0/folders/$folderId";
     $boxUserId = BOX_USER_ID;
-    
+
     $requestBody = [
         "name" => $folderName,
         "parent" => [
@@ -238,11 +238,11 @@ function scheduleUpdateFolderParentDirectory($subscriptionId, $newStatus, $curre
     $folderId = get_user_meta($currentUserId, "company_folder_box_id", true);
     $newParentFolderId = "";
 
-    switch($newStatus){        
+    switch($newStatus){
         case 'on-hold':
             $newParentFolderId = BOX_PAUSED_FOLDER_ID;
             break;
-        
+
         case 'pending-cancel':
             $newParentFolderId = BOX_CANCELLED_FOLDER_ID;
             break;
@@ -252,10 +252,10 @@ function scheduleUpdateFolderParentDirectory($subscriptionId, $newStatus, $curre
             break;
     }
 
-	if($subscription->get_status() === $newStatus){		
+	if($subscription->get_status() === $newStatus){
 		foreach($subscription->get_items() as $subscritpionItem){
 			if(has_term('plan', 'product_cat', $subscritpionItem['product_id'])){
-				updateFolderParentDirectory($folderName, $folderId, $newParentFolderId);		
+				updateFolderParentDirectory($folderName, $folderId, $newParentFolderId);
 			}
 		}
 
@@ -291,13 +291,13 @@ function updateFolderNameInBoxByWpProfileUpdate($userId){
 	global $currentTime;
 	$folderId = get_user_meta($userId, "company_folder_box_id", true);
 	$companyName = $_POST['billing_company'];
-    
+
 	$accessToken = getAccessTokenFromBox();
     $accessToken = $accessToken['access_token'];
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
     $apiUrl = "https://api.box.com/2.0/folders/$folderId";
     $boxUserId = BOX_USER_ID;
-    
+
     $requestBody = [
         "name" => $companyName,
     ];
@@ -349,7 +349,7 @@ function moveCompanyFolderInBoxAfterNewPurchase($orderId){
 
 					updateFolderParentDirectory($folderName, $folderId, $newParentFolderId);
 					return;
-				};	
+				};
 			}
 		}
 	}
@@ -359,7 +359,7 @@ add_action( 'woocommerce_payment_complete', 'moveCompanyFolderInBoxAfterNewPurch
 
 function getFolderItems($folderId){
 	global $currentTime;
-    
+
 	$accessToken = getAccessTokenFromBox();
     $accessToken = $accessToken['access_token'];
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
@@ -406,7 +406,7 @@ function createBoxFolderSharingLink($folderId, $accessToken){
 	$uploadsDir = wp_upload_dir()['basedir'] . '/integrations-api-logs/box';
     $apiUrl = "https://api.box.com/2.0/folders/$folderId";
     $boxUserId = BOX_USER_ID;
-    
+
     $requestBody = [
         "shared_link"=> [
 			"access" => "open",
@@ -446,7 +446,7 @@ function createBoxFolderSharingLink($folderId, $accessToken){
 	return $response['shared_link']['url'];
 }
 
-/*function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName){	
+/*function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName){
 	$requestsFolderId = "";
 	$folderItems = getFolderItems($folderId);
 	$accessToken = $folderItems['accessToken'];
@@ -460,13 +460,13 @@ function createBoxFolderSharingLink($folderId, $accessToken){
 					$requestsFolderId = $folderItem['id'];
 				}
 			}
-	
+
 			if($requestsFolderId){
 				$newTicketFolderCreated = postNewFolderInBox($accessToken, $newTicketFolderName, $requestsFolderId);
-				
+
 				if($newTicketFolderCreated['id']){
 					$folderSharingLink = createBoxFolderSharingLink($newTicketFolderCreated['id'], $accessToken);
-	
+
 					$apiResponse = [
 						"folder_url" => $folderSharingLink,
 					];
@@ -475,7 +475,7 @@ function createBoxFolderSharingLink($folderId, $accessToken){
 				}
 			}else{
 				$apiResponse = "[Error] Request(s) folder not found. Check api logs.";
-			}	
+			}
 		}
 	}else{
 		$apiResponse = "[Error] Credentials not valid. Check api logs.";
@@ -484,7 +484,7 @@ function createBoxFolderSharingLink($folderId, $accessToken){
 	return rest_ensure_response($apiResponse);
 }*/
 
-function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName){	
+function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName){
 	$requestsFolderId = "";
 	$folderItems = getFolderItems($folderId);
 	$accessToken = $folderItems['accessToken'];
@@ -494,20 +494,32 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 	if($accessToken){
 		if($folderItems){
 			foreach($folderItems['entries'] as $folderItem){
-				
+
 				error_log("Checking folder: " . $folderItem['name']);
-				
+
 				if($folderItem['name'] === "Requests" || $folderItem['name'] === "Request"){
 					$requestsFolderId = $folderItem['id'];
 				}
 			}
-	
+
 			if($requestsFolderId){
 				$newTicketFolderCreated = postNewFolderInBox($accessToken, $newTicketFolderName, $requestsFolderId);
-				
+
 				if($newTicketFolderCreated['id']){
 					$folderSharingLink = createBoxFolderSharingLink($newTicketFolderCreated['id'], $accessToken);
-	
+
+					// Define subfolders to create
+                    $subfolders = ["Source files", "Fonts", "Client uploads", "Designs"];
+                    $subfolderLinks = [];
+
+                    foreach ($subfolders as $subfolderName) {
+                        $newSubfolder = postNewFolderInBox($accessToken, $subfolderName, $newTicketFolderCreated['id']);
+
+                        if (!$newSubfolder && !isset($newSubfolder['id'])) {
+                            error_log("[Error] Subfolder '{$subfolderName}' creation failed. API Response: " . print_r($newSubfolder, true));
+                        }
+                    }
+
 					$apiResponse = [
 						"folder_url" => $folderSharingLink,
 					];
@@ -517,7 +529,7 @@ function createTicketFolderFromPabblyApiRequest($folderId, $newTicketFolderName)
 			}else{
 				error_log("Request(s) folder not found. Details: " . print_r($folderItems, true) . " | Folder ID: " . $folderId . " | New Ticket Folder Name: " . $newTicketFolderName);
 				$apiResponse = "[Error] Request(s) folder not found. Check api logs.";
-			}	
+			}
 		}
 	}else{
 		$apiResponse = "[Error] Credentials not valid. Check api logs.";

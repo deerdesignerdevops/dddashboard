@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 global $headers;
 $headers = array(
@@ -64,7 +64,7 @@ function emailTemplate($content){
 											<table border="0" cellpadding="10" cellspacing="0" width="100%">
 												<tr>
 													<td colspan="2" valign="middle" id="credit">
-														
+
 													</td>
 												</tr>
 											</table>
@@ -86,7 +86,7 @@ function sendEmailToAdminAfterUserProfileUpdated($userId, $user){
 	if(!is_admin()){
 		global $wp, $headers;
 		$editProfileUrl = site_url() . "/edit-account";
-		
+
 		if(home_url( $wp->request ) === $editProfileUrl){
 			$userFirstName = $user->first_name;
 			$userLastName = $user->last_name;
@@ -96,7 +96,7 @@ function sendEmailToAdminAfterUserProfileUpdated($userId, $user){
 			$subject = "User Profile Updated";
 			$toEmail = get_option( 'admin_email' );
 
-			$message =  "							
+			$message =  "
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>User info:</p>
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>First name: $userFirstName</p>
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Last name: $userLastName</p>
@@ -104,7 +104,7 @@ function sendEmailToAdminAfterUserProfileUpdated($userId, $user){
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Company: $companyName</p>
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'><strong>⚠️Make sure to update it on every platform</strong></p>
 				";
-		
+
 			$body = emailTemplate($message);
 
 			wp_mail($toEmail, $subject, $body, $headers);
@@ -153,9 +153,9 @@ function sendEmailToUserWhenPausedPlan($subscription){
 		$userEmail = $user->user_email;
 
 		$billingCycle = calculateBillingEndingDateWhenPausedOrCancelled($subscription);
-		$tomorrowDate = date('F j, Y', strtotime('+1 days'));	
+		$tomorrowDate = date('F j, Y', strtotime('+1 days'));
 		$oneDayBeforeBillingPeriodEnds = strtotime('-1 day', strtotime($billingCycle));
-		
+
 		$subject = "Your account has been paused";
 
 		$messageA = "
@@ -169,7 +169,7 @@ function sendEmailToUserWhenPausedPlan($subscription){
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 		The Deer Designer Team.</p>
-		";	
+		";
 
 		$messageB = "
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
@@ -201,17 +201,37 @@ function sendEmailToUserWhenPausedPlan($subscription){
 add_action('woocommerce_subscription_status_on-hold', 'sendEmailToUserWhenPausedPlan');
 
 
+// function scheduleCancellationWarningEmailToSixMonthsForward($subscription){
+// 	foreach($subscription->get_items() as $subItem){
+// 		if(has_term('plan', 'product_cat', $subItem['product_id'])){
+// 			$sixMonthsAhead = strtotime('+6 months');
+// 			$sixMonthsAheadFormatedDate = date("F d, Y", $sixMonthsAhead);
+// 			// $oneWeekBeforeCancel = strtotime('+6 months -7 days');
+// 			$oneMonthBeforeCancel = strtotime('+5 months'); // Changed to 1 month before
+// 			update_post_meta($subscription->id, 'six_months_after_last_pause', $sixMonthsAheadFormatedDate);
+
+// 			wp_schedule_single_event($oneMonthBeforeCancel, 'cancellationWarningAfterSixMonthsHook', array($subscription->id, $sixMonthsAheadFormatedDate));
+// 			wp_schedule_single_event($sixMonthsAhead, 'cancelSubscriptionAfterSixMonthsHook', array($subscription->id));
+// 		}
+// 	}
+// }
+// add_action('woocommerce_subscription_status_on-hold', 'scheduleCancellationWarningEmailToSixMonthsForward');
 
 function scheduleCancellationWarningEmailToSixMonthsForward($subscription){
 	foreach($subscription->get_items() as $subItem){
 		if(has_term('plan', 'product_cat', $subItem['product_id'])){
-			$sixMonthsAhead = strtotime('+6 months');
-			$sixMonthsAheadFormatedDate = date("F d, Y", $sixMonthsAhead);
-			$oneWeekBeforeCancel = strtotime('+6 months -7 days');
-			update_post_meta($subscription->id, 'six_months_after_last_pause', $sixMonthsAheadFormatedDate);
-			
-			wp_schedule_single_event($oneWeekBeforeCancel, 'cancellationWarningAfterSixMonthsHook', array($subscription->id, $sixMonthsAheadFormatedDate));
-			wp_schedule_single_event($sixMonthsAhead, 'cancelSubscriptionAfterSixMonthsHook', array($subscription->id));
+			// $sixMonthsAhead = strtotime('+6 months');
+			$threeMonthsAhead = strtotime('+3 months'); //Change to 3months
+			$threeMonthsAheadFormatedDate = date("F d, Y", $threeMonthsAhead);
+			// $oneWeekBeforeCancel = strtotime('+6 months -7 days');
+			$oneMonthBeforeCancel = strtotime('+2 months'); // Changed to 1 month before
+			$today = current_time('timestamp'); // Gets current WordPress time (respects timezone)
+			$todayFormatted = date("F d, Y", $today);
+			update_post_meta($subscription->id, 'six_months_after_last_pause', $threeMonthsAheadFormatedDate);
+			update_post_meta($subscription->id, 'paused_date', $todayFormatted);
+
+			wp_schedule_single_event($oneMonthBeforeCancel, 'cancellationWarningAfterSixMonthsHook', array($subscription->id, $threeMonthsAheadFormatedDate));
+			wp_schedule_single_event($threeMonthsAhead, 'cancelSubscriptionAfterSixMonthsHook', array($subscription->id));
 		}
 	}
 }
@@ -239,25 +259,25 @@ function cancellationWarningAfterSixMonths($subscriptionId, $pauseSubscriptionDa
 		$currentUser = get_user_by("id", $subscription->data['customer_id']);
 		$userName = $currentUser->first_name;
 		$userEmail = $currentUser->user_email;
-		
-	
+
+
 		$message = "
 			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
-	
+
 			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>We noticed that you haven't used your account in almost 6 months! Just like a hibernating bear, your account is getting a little sleepy.</p>
-	
+
 			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Due to inactivity, your account will automatically be cancelled on <strong>$pauseSubscriptionDate.</strong></p>
-	
+
 			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>When an account is cancelled, all associated data, design files, and ticket history are removed from our system. If you would like to avoid cancellation and keep your account open, please reply to this email by <strong>$pauseSubscriptionDate.</strong></p>
-	
+
 			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>We know things come up and your needs may have changed. If you no longer need an active account, you don't need to do anything. However, if you wish to keep using our service, please reply to this email within the next week, and we can explore reactivating your account.</p>
-	
+
 			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Please don't hesitate to reach out if you have any other questions.  We'd love to have you back!</p>
-	
+
 			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 			The Deer Designer Team.</p>
 		";
-	
+
 		wp_mail($userEmail, $subject, emailTemplate($message), $headers);
 	}
 }
@@ -282,7 +302,7 @@ function sendEmailToAdminWhenPausedPlan($subscription){
 		foreach($subscription->get_items() as $subItem){
 			$subscriptionItems = $subItem['name'];
 		}
-		
+
 		$subject = "Account Paused";
 
 		$message = "
@@ -294,7 +314,7 @@ function sendEmailToAdminWhenPausedPlan($subscription){
 		<strong>Period: </strong><span style='text-transform: cappitalize;'>$billintPeriod</span><br>
 		<strong>Billing date:</strong> $billingCycle
 		</p>
-		";	
+		";
 
 		if(strtotime($billingCycle) == time()){
 			scheduleEmailToAdminWhenPausedPlan($subscription->id, $adminEmail, $subject, emailTemplate($message), $headers);
@@ -302,7 +322,7 @@ function sendEmailToAdminWhenPausedPlan($subscription){
 			wp_schedule_single_event(strtotime($billingCycle), 'scheduleEmailToAdminWhenPausedPlanHook', array($subscription->id, $adminEmail, $subject, emailTemplate($message), $headers));
 		}
 	}
-	
+
 }
 add_action('woocommerce_subscription_status_on-hold', 'sendEmailToAdminWhenPausedPlan');
 
@@ -329,11 +349,11 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					$user = wp_get_current_user();
 					$userName = $user->first_name;
 					$userEmail = $user->user_email;
-					
+
 					$billingCycle = esc_html( $subscription->get_date_to_display( 'end' ) );
-					$tomorrowDate = date('F j, Y', strtotime('+1 days'));	
+					$tomorrowDate = date('F j, Y', strtotime('+1 days'));
 					$oneDayBeforeBillingPeriodEnds = strtotime('-1 day', strtotime($billingCycle));
-					
+
 					$subject = "Your account is set to Cancel";
 
 					$messageA = "
@@ -377,7 +397,7 @@ function sendEmailToUserWhenCancelledPlan($subscription, $newStatus, $oldStatus)
 					}
 				}
 			}
-			
+
 		}
 	}
 }
@@ -396,13 +416,13 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					$userEmail = $user->user_email;
 
 					$billingCycle = esc_html( $subscription->get_date_to_display( 'end' ) );
-					
+
 					$subject = "Your additional designer has been canceled";
 
 					$messageA = "
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional designer has been canceled and it'll still be available until it's billing period ends on $billingCycle.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional designer has been canceled and it'll still be available until its billing period ends on $billingCycle.</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you think this is a mistake, please email us at <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a> before this designer is cancelled.</p>
 
@@ -413,7 +433,7 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					$messageB = "
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
 
-					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional task has now been canceled.</p>
+					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your additional designer has now been cancelled.</p>
 
 					<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you believe this request was a mistake, please get in touch with <a href='mailto:billing@deerdesigner.com'>billing@deerdesigner.com</a>.</p>
 
@@ -428,7 +448,7 @@ function sendEmailToUserWhenCancelledActiveTask($subscription, $newStatus, $oldS
 					}
 				}
 			}
-			
+
 		}
 	}
 }
@@ -447,7 +467,7 @@ function sendEmailToUserWhenReactivateSubscription($subscription, $newStatus, $o
 					$userName = "$user->first_name $user->last_name";
 					$userEmail = $user->user_email;
 					$productName = $subItem['name'];
-					
+
 					$subject = "Your account has been reactivated";
 
 					$message = "
@@ -488,9 +508,9 @@ function sendEmailToAdminWhenReactivateSubscription($subscription, $newStatus, $
 					$productName = $subItem['name'];
 					$companyName = get_user_meta(get_current_user_id(), 'billing_company', true);
 
-					$currentDate = new DateTime($subscription->get_date_to_display( 'start' )); 
+					$currentDate = new DateTime($subscription->get_date_to_display( 'start' ));
 					$currentDate->add(new DateInterval('P1' . strtoupper($subscription->billing_period[0])));
-					
+
 					$subject = str_contains(strtolower($productName), 'designer') ? "Designer reactivated" : "Account reactivated";
 
 					$message = "
@@ -542,7 +562,7 @@ function scheduleEmailToBeSentOnDayBeforeBillingDateEnds($subscriptionId, $userE
 			$user = get_user_by( 'email', $userEmail );
 			$customerName = $user->first_name . " " . $user->last_name;
 			$customerCompany = get_user_meta($user->id, 'billing_company', true);
-			
+
 			$slackMessageBody = [
 					'text'  => '<!channel> Subscription Cancelled :alert:' . '
 			*Client:* ' . $customerName . " ($customerCompany)'s " . 'account cancels tomorrow.
@@ -579,7 +599,7 @@ function sendWelcomeEmailAfterOnboardingForm($userName, $userEmail){
 		Thank you for answering the onboarding questions. They help us understand your needs and create your client profile in our platform. This process will take around 1 business day and we'll email you as soon as we're ready for your first request.
 		<br><br>
 
-		In your first month with us, different members of our team will work with you and keep an eye on your requests. During this time, your feedback is more important than ever and will allow us to settle on the best account manager and designer to work with you in the long run. 
+		In your first month with us, different members of our team will work with you and keep an eye on your requests. During this time, your feedback is more important than ever and will allow us to settle on the best account manager and designer to work with you in the long run.
 		<br><br>
 
 		While you wait to send your first request, <a href='https://deerdesigner.com/our-processes' target='_blank' style='color: #54c1a2;'>here's what you should know about our processes</a>.
@@ -648,7 +668,7 @@ function sendWelcomeEmailToAdditionalTeamMembers($userName, $userEmail, $account
 		Login: $userEmail<br>
 		Password: $userPassword<br><br>
 
-		We advise you to change your password by going to Account Details in your Dashboard or clicking <a href='$accountDetailsUrl'>here</a>. 
+		We advise you to change your password by going to Account Details in your Dashboard or clicking <a href='$accountDetailsUrl'>here</a>.
 
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 		The Deer Designer Team.</p>
@@ -706,7 +726,7 @@ function sendEmailToUserWhenPaymentFails($userFirstName, $userEmail){
 		Your subscription payment didn't go through. <br><br>
 		Try to use another card or contact us for help: <a href='mailto:help@deerdesigner.com'>help@deerdesigner.com</a>
 		<br><br>
-		Please, visit our <a href='https://deerdesigner.com/pricing/'>pricing page</a> page and try. 
+		Please, visit our <a href='https://deerdesigner.com/pricing/'>pricing page</a> page and try.
 		<br><br>
 		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
 		The Deer Designer Team.</p>
@@ -714,4 +734,136 @@ function sendEmailToUserWhenPaymentFails($userFirstName, $userEmail){
 
 	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
 }
-?>
+
+/**
+ * DD DevOps -Errol, Adjustmnets Starts Here
+ *
+ */
+//New email templates
+function sendAccountOnHoldToClient($userFirstName, $userEmail){
+	global $headers;
+
+	$subject = "Your Payment Has Failed";
+
+	$message = "
+		Hi $userFirstName,
+		<br><br>
+		We noticed that your subscription payment didn’t go through. This can happen for a few reasons:
+		<ul>
+		<li>Not enough money in your account</li>
+		<li>Your card has expired</li>
+		<li>3DS2 issues</li>
+		<li>Other unknown issues</li>
+		</ul>
+		In any of these cases, it’s a good idea to contact your card provider
+		<br><br>
+		To help your design team keep working on your projects, please do one of the following
+		<ul>
+		<li>Try using a different card (Log in to your dashboard and go to Billing Portal > Add payment method)</li>
+		<li>Add money to your current card: If your card doesn’t have enough funds, please add the needed amount.</li>
+		</ul>
+		Our system will try and charge your card a couple of times again. Meanwhile, your design team will be on hold and will resume the work as soon as this is fixed.
+		<br><br>
+		If you have any questions or need help, please email our support team at <a href='mailto:help@deerdesigner.com'>help@deerdesigner.com</a>.
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+		The Deer Designer Team.</p>
+	";
+
+	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+}
+
+function sendPaymentIssueResolved($userFirstName, $userEmail){
+	global $headers;
+
+	$subject = "Payment Issue Resolved!";
+
+	$message = "
+		Hi $userFirstName,
+		<br><br>
+		Just to confirm that the payment issue with your subscription has been fixed!
+		<br><br>
+		Your design team has already been notified and if there's anything on your pipeline, they'll be back at it immediately.
+		<br><br>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+		The Deer Designer Team.</p>
+	";
+
+	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+}
+
+function sendAccountPausedToClient($userFirstName, $userEmail){
+	global $headers;
+
+	$subject = "Your account has been paused";
+
+	$message = "
+		Hi $userFirstName,
+		<br><br>
+		Your account has been paused due to multiple failed payment attempts. Your design team has stopped all ongoing work on your projects and are to be allocated to another client.
+		<br><br>
+		If this was a mistake and you'd like to resume your projects, please follow these steps:
+		<ol>
+		<li><strong>Log in to your Deer Designer dashboard</li>
+		<li><strong>Go to Billing Portal and click on \"Reactivate\"</li>
+		</ol>
+		<br><br>
+		Once your payment is processed, your account will be active again, and your team will start working. If they are not available, a new team will be assigned to you.
+		<br><br>
+		If you have any questions or need help, please email our support team at <a href='mailto:help@deerdesigner.com'>help@deerdesigner.com</a>.
+		<br><br>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+		The Deer Designer Team.</p>
+	";
+
+	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+}
+
+/*Cancellation Notice 1 month before*/
+function cancellationWarningOneMonthBefore($subscriptionId, $pauseSubscriptionDate, $cancelSubscriptionDate){
+	global $headers;
+	$subscription = wcs_get_subscription($subscriptionId);
+
+	if($subscription->get_status() === "on-hold"){
+		$subject = "[Deer Designer] Account Cancellation Notice";
+		$currentUser = get_user_by("id", $subscription->data['customer_id']);
+		$userName = $currentUser->first_name;
+		$userEmail = $currentUser->user_email;
+
+
+		$message = "
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Hi $userName,</p>
+
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Your account will be cancelled on <strong>$cancelSubscriptionDate</strong>, because you've been paused since <strong>$pauseSubscriptionDate</strong>. We know things come up, and it seems you don't need it anymore. All your data, design files, and ticket history will be removed from our system.</p>
+
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you change your mind and still like to keep your account active, just reply to this email by tomorrow, and we can help you out. We totally understand if your needs have changed, and if you don't need design help anymore, you don’t need to do anything.</p>
+
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>If you have any questions or want to chat about reactivating your account, feel free to reach out. We’d love to have you back!</p>
+
+			<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+			The Deer Designer Team.</p>
+		";
+
+		wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+	}
+}
+
+function sendOnboardingReminderEmail($userFirstName,$userEmail){
+	global $headers;
+
+	$subject = "Complete Your Onboarding";
+
+	$message = "
+		Hi $userFirstName,
+		<br><br>
+		Just a quick reminder to finish your onboarding form since it looks like it’s not complete. We need your information for us to get you set up smoothly.
+		<br><br>
+		Here's the link: <a href='".home_url()."/signup/onboarding/'>Onboarding</a>
+		<br><br>
+		If you have any questions or need help, feel free to reach out!
+		<br><br>
+		<p style='font-family: Helvetica, Arial, sans-serif; font-size: 13px;line-height: 1.5em;'>Thanks,<br>
+		The Deer Designer Team.</p>
+	";
+
+	wp_mail($userEmail, $subject, emailTemplate($message), $headers);
+}

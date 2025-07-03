@@ -1113,6 +1113,17 @@ input.ff-read-only {
   border: none;
 }
 
+.dd__subscription_card.business.on-hold,
+.dd__subscription_card.business.wc-on-hold {
+  background-color: #FFF6DD;
+}
+
+.dd__subscription_id.on-hold strong {
+  color: #917C43;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
 .dd__subscription_card.business .dd__subscription_title {
   color: var(--e-global-color-primary);
 }
@@ -1453,6 +1464,450 @@ label[for="wc-stripe-new-payment-method"] {
 
 label[for="wc-stripe-payment-token-new"],
 label[for^="wc-stripe-payment-token-"] {
+  /* position: relative;
+  top: -8px; */
+}
+
+/*Addional/Updated CSS */
+/*DD DevOps Errol */
+
+
+/*Reactivation Popup*/
+a#btn-lightgray {
+  background-color: #EEEEEE;
+  fill: var(--e-global-color-text);
+  color: var(--e-global-color-text);
+}
+
+a#btn-orange {
+  background-color: var(--e-global-color-secondary);
+  fill: #FFFFFF;
+  color: #FFFFFF;
+}
+
+.small-sub {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+#pause_popup .elementor-element.form_subscription_update_disclaimer.text-container {
+  max-width: 65% !important;
+  margin: 0 auto;
+  text-align: center;
+}
+
+
+/*Deer Slides*/
+.deer-tabs-wrapper {
+    width: 100%;
+}
+.deer-slider-container {
   position: relative;
-  top: -8px;
+  max-width: 100%;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.deer-slide {
+  display: none;
+  position: relative;
+  width: 100%;
+  transition: all 0.5s ease-in-out;
+  min-height: 550px;
+  border-radius: 10px;
+}
+
+.deer-slide.active {
+  display: block;
+}
+
+.deer-slide img {
+  width: auto;
+  height: auto;
+  display: block;
+}
+
+.deer-cta {
+  background-color: #E4572E;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 26px;
+  color: #FFFFFF;
+  border-radius: 50px 50px 50px 50px;
+  padding: 1.125em 1.875em 1.125em 1.875em;
+  border: 3px solid black !important;
+  box-shadow: inset 2px 2px 0 2px white !important;
+  cursor: pointer;
+}
+
+.deer-cta:hover {
+  background-color: #FDCB41;
+  color: var(--e-global-color-text);
+}
+
+.cta-left {
+  position: absolute;
+  bottom: 40px;
+  left: 55px;
+}
+
+.cta-right {
+  position: absolute;
+  bottom: 40px;
+  right: 55px;
+}
+.deer-next-btn,
+.deer-prev-btn {
+  display: inline-block;
+  color: #E4572E;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  position: absolute;
+  top: 40%;
+  font-size: 5rem;
+  font-weight: 900;
+  user-select: none;
+  z-index: 9999;
+  min-width: 124px;
+  min-height: 124px;
+  overflow: hidden; /* ensure image fits */
+}
+
+/* Shared pseudo-element base */
+.deer-next-btn::before,
+.deer-next-btn::after,
+.deer-prev-btn::before,
+.deer-prev-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: opacity 0.3s ease;
+}
+
+/* Normal image visible, hover hidden by default */
+.deer-next-btn::before {
+  background-image: url(/wp-content/themes/dddashboard/images/slide-bg/btn-nxt-normal.svg);
+  opacity: 1;
+}
+.deer-next-btn::after {
+  background-image: url(/wp-content/themes/dddashboard/images/slide-bg/btn-nxt-hover.svg);
+  opacity: 0;
+}
+.deer-prev-btn::before {
+  background-image: url(/wp-content/themes/dddashboard/images/slide-bg/btn-prv-normal.svg);
+  opacity: 1;
+}
+.deer-prev-btn::after {
+  background-image: url(/wp-content/themes/dddashboard/images/slide-bg/btn-prv-hover.svg);
+  opacity: 0;
+}
+
+/* On hover, fade to hover image */
+.deer-next-btn:hover::before,
+.deer-prev-btn:hover::before {
+  opacity: 0;
+}
+.deer-next-btn:hover::after,
+.deer-prev-btn:hover::after {
+  opacity: 1;
+}
+
+/* Position */
+.deer-next-btn {
+  right: -4rem;
+}
+.deer-prev-btn {
+  left: -4rem;
+}
+
+
+.deer-tabs-container {
+  display: flex;
+  z-index: 99999;
+  /* position: fixed; */
+  bottom: 2.5rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+/* .deer-tabs {
+    display: flex;
+    justify-content: center;
+    background: #fff;
+    border-radius: 2rem;
+    gap: 20px;
+    margin-bottom: 0;
+    position: relative;
+    padding: 0 20px;
+    padding-bottom: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    overflow: hidden;
+} */
+
+.deer-tabs {
+  display: grid;
+  justify-content: center;
+  background: #fff;
+  margin-bottom: 0;
+  position: relative;
+  /* padding: 0 20px; */
+  padding-bottom: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+}
+
+.deer-tabs::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: #FFF;
+    /* border-bottom-left-radius: 2rem;
+    border-bottom-right-radius: 2rem; */
+}
+
+/* Styling for individual tabs */
+.deer-tab {
+    cursor: pointer;
+    /* padding: 2.125rem 1.563rem; */
+    padding: 1.563rem;
+    font-weight: 600;
+    color: #666;
+    position: relative;
+    z-index: 2;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+    text-align: center;
+}
+.deer-tab:hover {
+    color: #40A88E;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+/* Styling for the active tab's text */
+.deer-tab.active {
+    color: #E4572E;
+    font-weight: 700;
+}
+
+/* Active tab indicator (the orange rounded bar) */
+.deer-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: #E4572E;
+    z-index: 1;
+    transition: width 0.4s cubic-bezier(.17,.89,.32,1.49),
+                left 0.4s cubic-bezier(.17,.89,.32,1.49),
+                transform 0.4s cubic-bezier(.17,.89,.32,1.49);
+}
+.deer-tab.active:first-child::after
+ {
+    left: -20px;
+    width: 110%;
+}
+
+.deer-tab.active:last-child::after
+ {
+    right: -20px;
+    width: 110%;
+}
+
+/* .deer-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 25%;
+  width: 50%;
+  height: 3px;
+  background: #E4572E;
+  border-radius: 2px;
+} */
+
+.d-none{
+  display: none !important;
+}
+
+.deer-slide-container {
+    padding: 3.125rem 6rem;
+    /* padding: 3.125rem 5.625rem; */
+    min-height: 550px;
+    max-height: 550px;
+}
+
+.d-flex {
+    display: flex !important;
+}
+.d-flex-row {
+    flex-direction: row !important;
+}
+.col-4 {
+    flex: 0 0 auto;
+    width: 33.33333333%;
+}
+.col-5 {
+    flex: 0 0 auto;
+    width: 41.66666667%;
+}
+.col-6 {
+    flex: 0 0 auto;
+    width: 50%;
+}
+.col-7 {
+    flex: 0 0 auto;
+    width: 58.33333333%;
+}
+.col-8 {
+    flex: 0 0 auto;
+    width: 66.66666667%;
+}
+.deer-text-purple {
+    color: #5B5F97;
+}
+.deer-slide {
+    background-size: cover !important;
+    background-repeat: no-repeat;
+}
+
+.deer-slide-main-header {
+    font-weight: 700;
+    font-size: 3rem;
+    line-height: 100%;
+    text-transform: uppercase;
+    display: block;
+}
+.deer-text-fill-orange {
+    background: #E3572C;
+    color: #fff;
+    font-family: Graphik;
+    font-weight: 700;
+    font-size: 3rem;
+    line-height: 100%;
+    text-transform: uppercase;
+    border-radius: 10px;
+    padding: 0.5rem 0.8rem;
+    margin: 0em 0;
+    display: inline-block;
+}
+.deer-slide-sub-header {
+    font-weight: 700;
+    font-size: 1.8rem;
+    line-height: 1em;
+    display: inline-block;
+    margin: 0.8em 0;
+}
+.deer-slide-content {
+    font-family: Graphik;
+    font-weight: 500;
+    font-size: 1.2em;
+    line-height: 28.8px;
+}
+
+.position-relative{
+  position: relative;
+}
+
+.deer-slide-image {
+  position: absolute;
+    max-height: 475px;
+    bottom: 0;
+    /* right: 0;*/
+}
+div#deer-slide-1-image img.deer-slide-image,
+div#deer-slide-5-image img.deer-slide-image {
+  bottom: -9rem !important;
+  max-height: 650px;
+  min-height: 615px;
+  right: 2rem;
+}
+#deer-slide-4-image img.deer-slide-image {
+    right: -1.5rem;
+}
+#deer-slide-3-image .deer-slide-image {
+    left: 0;
+}
+#deer-slide-2-image .deer-slide-image {
+    left: 0;
+    right: 0;
+}
+.deer-slide-content a{
+  /* font-weight: 600 */
+}s
+
+.deer-slide-image.dd-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+}
+
+#deer-drops-popup-modal .e-con-inner:first-child {
+  margin: 0;
+  width: 100%;
+  max-width: unset !important;
+}
+
+.deer-slide-image.dd-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+}
+
+.deer-ul {
+	list-style: none;
+	padding-left: 0;
+}
+
+.deer-li {
+	position: relative;
+	padding-left: 32px; /* Space for the bullet */
+	margin-bottom: 10px;
+}
+
+.deer-li::before {
+	content: '';
+	position: absolute;
+  left: 0;
+  top: 0;
+	width: 20px;
+	height: 20px;
+	background-image: url('/wp-content/themes/dddashboard/images/slide-bg/dd-bullet-list.svg');
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.dd-open-popup img {
+    max-width: 60px;
+}
+
+/*TC CSS*/
+aside.tc-aside {
+    padding: 1.5rem;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+hr.tc-line-separator {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
